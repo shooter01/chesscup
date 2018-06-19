@@ -1,0 +1,210 @@
+
+<% layout('boilerplate') -%>
+
+<div class="row mt-3">
+    <div class="col-lg-12 d-none d-lg-block">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/tournament">Турниры</a></li>
+                <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>"><%= tournament.title %></a></li>
+                <li class="breadcrumb-item" aria-current="page">Итоговые таблицы</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mt-3">
+
+    <style>
+        .green {
+            color: green;
+        }
+        .red {
+            color: red;
+        }
+    </style>
+    <div class="col-12 mt-2 ">
+
+        <div class="d-flex justify-content-between">
+            <h5>Итоговые результаты</h5>
+
+            <span class="noprint float-right mb-3">
+                            <input type="button" class="btn btn-light btn-lg noprint" value="Распечатать" onClick="window.print()" />
+                        </span>
+        </div>
+
+    <% if (teams != null) { %>
+        <div class="noprint">
+            <ul class="nav nav-tabs " id="myTab" role="tablist">
+
+                    <li class="nav-item">
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Команды</a>
+                    </li>
+                <% if (tournament.type > 10 && tournament.type < 20) { %>
+                    <li class="nav-item">
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">По доскам</a>
+                    </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Все участники</a>
+                </li>
+
+                <% } %>
+            </ul>
+        </div>
+    <% } %>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active mt-4" id="home" role="tabpanel" aria-labelledby="home-tab">
+            <% if (teams != null) { %>
+
+                <div id="participants">
+
+
+                    <table class="table table-bordered table-hover table-sm">
+                        <thead class="thead-light">
+                        <tr>
+                            <th style="width: 2%"></th>
+                            <th>Имя</th>
+                            <th>Очки</th>
+                            <th>Командные очки</th>
+                            <th>Бх</th>
+                            <th>SB</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% for (var i = 0; i < teams.length; i++) { %>
+                        <tr>
+                            <td><%= i + 1 %></td>
+                            <td><%= teams[i].team_name %> <%- (teams[i].is_active === 0) ? "<span class='badge badge-danger'>выбыл</span>" : "" %></td>
+                            <td><%= teams[i].scores %></td>
+                            <td><%= teams[i].team_scores %></td>
+                            <td><%= teams[i].bh %></td>
+                            <td><%= teams[i].berger %></td>
+
+
+
+                        </tr>
+                        <% } %>
+                        </tbody>
+                    </table>
+
+
+
+                </div>
+            </div>
+        <div class="tab-pane fade mt-4" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+            <% for (var obj in participants_boards)  { %>
+
+            <h5>Доска № <%= parseInt(obj) + 1 %></h5>
+
+            <table class="table table-bordered table-hover table-sm">
+                <thead class="thead-light">
+                <tr>
+                    <th style="width: 2%"></th>
+                    <th>Имя</th>
+                    <th>Очки</th>
+                    <th>Бх</th>
+                    <th>SB</th>
+                    <th>Rate</th>
+                    <th>+/-</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <% for (var i = 0; i < participants_boards[obj].length; i++) { %>
+                <tr>
+                    <td><%= i + 1 %></td>
+                    <td><a target="_blank" href="/users/stat/<%= participants_boards[obj][i].user_id %>"><%= participants_boards[obj][i].name %></a> <%- (participants_boards[obj][i].is_active === 0) ? "<span class='badge badge-danger'>выбыл</span>" : "" %></td>
+                    <td><%= participants_boards[obj][i].scores %></td>
+                    <td><%= participants_boards[obj][i].bh %></td>
+                    <td><%= participants_boards[obj][i].berger %></td>
+                    <td><%= (participants_boards[obj][i].rating != null) ? participants_boards[obj][i].rating : "" %></td>
+                    <td>
+                        <%-
+                            (participants_boards[obj][i].rating_change > 0) ? "<span class='green'>+" + participants_boards[obj][i].rating_change + "</span>" : "<span class='red'>" + ((participants_boards[obj][i].rating != null) ? participants_boards[obj][i].rating_change : "") + "</span>"
+                        %>
+                    </td>
+                    <td className="text-center">
+                        <a href=""  data-id="<%= participants_boards[obj][i].user_id %>"  class="participant fa fa-eye"></a>
+                        <a target="_blank" href="/users/stat/<%= participants_boards[obj][i].user_id %>" class="fa fa-chart-line" ></a>
+                    </td>
+
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+
+            <% } %>
+        </div>
+
+        <div class="tab-pane fade mt-4" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+    <% } %>
+            <table class="table table-bordered table-hover table-sm">
+                <thead class="thead-light">
+                <tr>
+                    <th style="width: 2%"></th>
+                    <th>Имя</th>
+                    <th>Очки</th>
+                    <th>Бх</th>
+                    <th>SB</th>
+                    <th>Rate</th>
+                    <th>+/-</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <% for (var i = 0; i < participants.length; i++) { %>
+                <tr>
+                    <td><%= i + 1 %></td>
+                    <td><a target="_blank" href="/users/stat/<%= participants[i].user_id %>"><%= participants[i].name %></a> <%- (participants[i].is_active === 0) ? "<span class='badge badge-danger'>выбыл</span>" : "" %></td>
+                    <td><%= participants[i].scores %></td>
+                    <td><%= participants[i].bh %></td>
+                    <td><%= participants[i].berger %></td>
+                    <td><%= (participants[i].rating != null) ? participants[i].rating : "" %></td>
+                    <td>
+                        <%-
+                            (participants[i].rating_change > 0) ? "<span class='green'>+" + participants[i].rating_change + "</span>" : "<span class='red'>" + ((participants[i].rating != null) ? participants[i].rating_change : "") + "</span>"
+                        %>
+                    </td>
+                    <td className="text-center">
+                        <a href="" class="fa fa-eye participant" data-id="<%= participants[i].user_id %>"></a>
+                        <a target="_blank" class="fa fa-chart-line" href="/users/stat/<%= participants[i].user_id %>" ></a>
+                    </td>
+
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+            <% if (teams != null) { %>
+        </div>
+        <% } %>
+
+        </div>
+
+    </div>
+
+
+
+
+    <div class="col-12 text-center noprint">
+        <span class="small">Туры</span>
+        <% for (var i = 1; i < tournament.tours_count + 1; i++) { %>
+
+            <a class="btn btn-primary" href="/tournament/<%= tournament.id %>/tour/<%= i %>"><%= i %></a>
+
+        <% } %>
+
+    </div>
+
+</div>
+
+<div id="final"></div>
+
+<script>
+    var tournament_id = '<%= tournament.id %>';
+</script>
+
+
+<script src="/js/final.min.js"></script>
+<link href="/css/fontawesome/web-fonts-with-css/css/fontawesome-all.min.css" rel="stylesheet">

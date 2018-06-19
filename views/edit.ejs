@@ -1,0 +1,115 @@
+
+<% layout('boilerplate') -%>
+
+<div class="row mt-3">
+    <div class="col-lg-12 d-none d-lg-block">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/tournament">Турниры</a></li>
+                <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>"><%= tournament.title %></a></li>
+                <li class="breadcrumb-item active" aria-current="page">Редактирование</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<h3>Редактирование турнира</h3>
+
+<div class="row">
+    <div class="col-lg-6">
+
+
+
+
+        <form action="/tournament/update" method="post" id="create_tournament">
+
+            <%- partial('form') %>
+
+        </form>
+    </div>
+</div>
+
+
+<script src="/js/ju/ju.min.js"></script>
+<link rel="stylesheet" href="/js/ju/ju.min.css">
+<link rel="stylesheet" href="/css/select2.css" />
+
+<link rel="stylesheet" href="/js/select2/dist/select2-bootstrap4.min.css">
+<link rel="stylesheet" href="/css/flags.css">
+<script src="/js/select2.js"></script>
+
+<script>
+    $( function() {
+        $( "#start_date" ).datepicker({
+           // "setDate": new Date(),
+            "autoclose": true,
+            "dateFormat" : "yy-mm-dd",
+        });
+
+
+        $( "#end_date" ).datepicker({
+          //  "setDate": new Date(),
+            "autoclose": true,
+            "dateFormat" : "yy-mm-dd",
+        });
+
+        $("#create_tournament").on("submit", function () {
+            $(".errors").addClass("hidden").empty();
+
+            $.post("/tournament/update"  , {
+                title : $("#title").val(),
+                tournament_id : $("#tournament_id").val(),
+                tours_count : $("#tours_count").val(),
+                city : $("#city").val(),
+                type : $("#type").val(),
+                team_boards : $("#team_boards").val(),
+                country : $("#country").val(),
+                start_date : $("#start_date").val(),
+                end_date : $("#end_date").val(),
+            }).done(function (data) {
+                if (data.status != "ok") {
+                    $(".errors").removeClass("hidden");
+                    for (var obj in data.errors) {
+                        $(".errors").append(data.errors[obj].msg);
+                    }
+                } else {
+                    if (data.insertId) {
+                        location.href = "/tournament/" + data.insertId;
+                    }
+                }
+            }).fail(function (data, jqXHR, textStatus) {
+                $(".errors").removeClass("hidden");
+                if (data) {
+                    for (var obj in data.responseJSON.errors) {
+                        $(".errors").append(data.responseJSON.errors[obj].msg + "<br/>");
+
+                    }
+                } else {
+                    alert("Ошибка сохранения");
+                }
+            });
+            return false;
+        });
+
+        $('.simple-select2').select2({
+            theme: 'bootstrap4',
+            placeholder: "Select an option",
+            allowClear: true,
+            templateResult: formatCountry,
+
+        });
+
+
+
+        function formatCountry (country) {
+            if (!country.id) { return country.text; }
+            return $country = $(
+                '<img src="/img/blank.png" class="flag flag-' + country.id.toLowerCase() + '" alt="" />' +
+                ' <span>' + country.text + '</span>'
+            );
+        };
+
+    } );
+</script>
+

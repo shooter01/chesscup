@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chesstask</title>
+    <meta name="keywords" content="Задачи" />
+    <meta name="description" content="Задачи" />
+    <meta name="author" content="chesstask" />
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="/stylesheets/bootstrap.css"  />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <script src="/js/j.js"></script>
+    <% if (user && user.user && user.user.is_sbornik == true) { %>
+    <style>
+
+        .bg-light {
+            background-color: #e95420!important;
+            color: #f7f7f7!important;
+            border-radius: 10px;
+        }
+        .bg-light a {
+            color: #f7f7f7!important;
+
+        }
+    </style>
+
+    <% } %>
+    </head>
+<body id="app">
+
+
+
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light" id="navbar">
+        <div class="container">
+
+        <a class="navbar-brand" href="/">Chessground <sup>beta</sup></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Главная <span class="sr-only">(current)</span></a>
+                </li>
+
+
+
+
+                </ul>
+
+            <ul class="navbar navbar-nav navbar-right">
+
+                <% if (user && user.user) { %>
+                    <li class="nav-item"><a class="nav-link" href="/logout">Выйти</a></li>
+                <% } else { %>
+                <!-- Authentication Links -->
+
+                <li class="nav-item"><a class="nav-link" href="/signup">Регистрация</a></li>
+                <li class="nav-item"><a class="nav-link" href="/login">Войти</a></li>
+                <% }  %>
+
+            </ul >
+
+        </div>
+        </div>
+
+
+    </nav>
+    <div class="container" id="wrp">
+
+    <%- body -%>
+
+</div>
+
+
+<footer class="my-5 pt-5 text-muted text-center text-small">
+    <!--<p class="mb-1"><a href="https://vk.com/chesstaskcom">Обратная связь</a></p>-->
+</footer>
+
+<script src="/js/b.js"></script>
+
+
+</body>
+</html>
