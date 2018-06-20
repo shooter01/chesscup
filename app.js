@@ -128,8 +128,11 @@ passport.use("local-login",new LocalStrategy({
 
 var routes = require('./routes/index')(app, passport, pool);
 var users = require('./routes/users');
+var tournament = require('./routes/tournament')(app, passport, pool);
+
 app.use('/', routes);
 app.use('/users', users);
+app.use('/tournament', tournament);
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {

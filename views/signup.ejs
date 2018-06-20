@@ -1,0 +1,95 @@
+
+<% layout('boilerplate') -%>
+
+<script src='https://www.google.com/recaptcha/api.js'></script>
+
+
+<style>
+    .form-signin {
+        max-width: 430px;
+        padding: 15px;
+        margin: 0 auto;
+    }
+    .form-signin .form-signin-heading,
+    .form-signin .checkbox {
+        margin-bottom: 10px;
+    }
+    .form-signin .checkbox {
+        font-weight: normal;
+    }
+    .form-signin .form-control {
+        position: relative;
+        height: auto;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        padding: 10px;
+        font-size: 16px;
+    }
+    .form-signin .form-control:focus {
+        z-index: 2;
+    }
+    .form-signin input[type="email"] {
+        margin-bottom: -1px;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .form-signin input[type="password"] {
+        margin-bottom: 10px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+</style>
+
+<form class="form-signin form-vertical" method="post" action="/signup">
+    <h2 class="form-signin-heading">Регистрация</h2>
+
+   <% if (typeof errors != "undefined") { %>
+    <div class="alert alert-danger m-1">
+        <% for (var i in errors) { %>
+        <div><%= errors[i].msg %></div>
+        <% } %>
+    </div>
+   <% } %>
+
+
+
+
+    <style>
+        .form-control{
+            -webkit-border-radius: 0;
+            -moz-border-radius: 0;
+            border-radius: 0;
+        }
+    </style>
+
+
+
+    <div class="form-group mt-2">
+
+        <label for="inputName" id="labelinputName">Имя</label>
+
+        <input type="text" id="inputName" class="form-control" placeholder="Фамилия и имя"
+               value="<% if (typeof name != "undefined") { %><%=name%><% } %>" required autofocus name="name">
+    </div>
+    <div class="form-group mt-2">
+        <label for="inputEmail">Email адрес</label>
+        <input type="email" id="inputEmail" class="form-control" placeholder="Email адрес"
+                value="<% if (typeof username != "undefined") { %><%=username%><% } %>" required autofocus name="username">
+    </div>
+
+    <div class="form-group mt-2">
+        <label for="inputPassword">Пароль</label>
+        <input type="password" id="inputPassword" class="form-control" placeholder="Пароль" required name="password">
+    </div>
+    <div class="form-group mt-2">
+
+    <label for="passwordConfirmation">Подтвердите пароль</label>
+    <input type="password" id="passwordConfirmation" class="form-control" required placeholder="Подтвердите пароль"  name="passwordConfirmation">
+    </div>
+
+    <div class="g-recaptcha" data-sitekey="6Lf3cEwUAAAAAPDng0DSd4etLpYQoQP4x72ApRoM"></div>
+
+    <button class="btn btn-lg btn-primary btn-block mt-3" type="submit">Регистрация</button>
+</form>
+
+

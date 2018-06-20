@@ -40,8 +40,176 @@ module.exports = function (app, passport, pool) {
         }).catch(function (err) {
             console.log(err);
         });
+    });
+
+
+    router.post('/signup', [
+
+
+        check('username')
+            .isEmail().withMessage('Вы не указали email')
+            .trim()
+            .normalizeEmail(),
+        check('name', 'Вы не указали имя').exists().isLength({ min: 1 }),
+        check('password', 'Вы не указали пароль').exists().isLength({ min: 1 }),
+        check('passwordConfirmation', 'Пароль и подтверждение не совпадают')
+            .exists()
+            .isLength({ min: 1 })
+            .custom((value, { req }) => value === req.body.password),
+        // check('g-recaptcha-response', 'Подтвердите, что вы не робот').exists().isLength({ min: 1 }),
+
+
+    ], function (req, res, next) {
+
+        var isAjaxRequest = req.xhr;
+
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            //return res.status(422).json({ errors: errors.mapped() });
+
+                    res.status(422).render('signup', {
+                        errors: errors.mapped(),
+                        username : req.body.username,
+                        name : req.body.name,
+                    });
+
+
+        } else {
+
+
+            pool
+                .query('SELECT * FROM users WHERE email = ? ', req.body.username)
+                .then(rows => {
+                    if (rows.length === 0) {
+                        let theme = {
+                            email: req.body.username.trim(),
+                            password: req.body.password.trim(),
+                            name: req.body.name.trim(),
+                            rating: 1200,
+                        };
+                        if (theme.school_id == 'null') {
+                            theme.school_id = null;
+                        }
+                        var insertId, user_id;
+                        pool.query('INSERT INTO users SET ?', theme).then(function (results) {
+                            if (results.insertId > 0) {
+                                console.log(theme.role == 100 && theme.school_id == "null");
+                                console.log(theme.school_id == "null");
+                                insertId = (theme.school_id == null) ? results.insertId : theme.school_id;
+                                user_id = results.insertId;
+                                return pool.query('UPDATE users SET school_id = ? WHERE id = ?', [insertId, insertId]);
+                            }
+
+                        }).then(function (results) {
+                            if (insertId && theme.role > 99) {
+                                return pool.query('INSERT INTO offices SET ?', {
+                                    text : "Мои ученики",
+                                    school_id : user_id,
+                                    is_office : 0,
+                                    is_common : true,
+                                    owner_id : user_id,
+                                });
+                            } else {
+                                return true;
+                            }
+
+                        }).then(function (result) {
+                            if (isAjaxRequest) {
+                                res.json({
+                                    status : "ok"
+                                });
+                            } else {
+                                res.render('login', {
+                                    showTest : null,
+                                    "signup": "Теперь вы можете войти с указанным email в свой аккаунт",
+                                });
+                            }
+                        }).catch(function (err) {
+                            console.log(err);
+                        });
+
+                    } else {
+                        if (isAjaxRequest) {
+                            res.json({
+                                status : "error",
+                                errors: {
+                                    "username" : {
+                                        "msg" : "Email уже есть в базе"
+                                    }
+                                },
+                            });
+                        } else {
+
+                            pool.query('SELECT * FROM users WHERE role = 1000')
+                                .then(rows => {
+                                    return res.status(422).render('signup', {
+                                        errors: {
+                                            "username" : {
+                                                "msg" : "Email уже есть в базе"
+                                            }
+                                        },
+                                        username : req.body.username,
+                                        name : req.body.name,
+                                        schools : rows,
+                                        school_id : req.body.school_id,
+                                        role : req.body.role,
+
+                                    });
+                                }).catch((err) => {
+                                console.log(err);
+                            });
+
+                        }
+
+                    }
+                }).then(function (rows) {
+                console.log(rows);
+            }).catch(function (err) {
+                console.log(err);
+            });
+        }
 
     });
+
+    router.get('/login', function (req, res) {
+        // render the page and pass in any flash data if it exists
+        var showTest = null;
+        if (process.env.PORT == 4747) {
+            showTest = true;
+        }
+
+        res.render('login', {message : req.flash("error")[0], showTest : showTest});
+    });
+
+    router.get('/signup', function (req, res) {
+        // render the page and pass in any flash data if it exists
+
+        pool.query('SELECT * FROM users WHERE role = 1000')
+            .then(rows => {
+                res.render('signup', {
+                    schools : rows,
+                    message : req.flash("error")[0]
+                });
+            }).catch((err) => {
+            console.log(err);
+        });
+    });
+
+
+    router.get('/logout', function (req, res) {
+        req.logout();
+        res.redirect('/login');
+    });
+
+    router.post('/login',
+        passport.authenticate('local-login', {
+            successRedirect: '/',
+            failureRedirect: '/login',
+            failureFlash: true,
+            session: true
+        })
+    );
 
     return router;
 };
