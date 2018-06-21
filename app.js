@@ -78,17 +78,13 @@ var getUser = function(email, password, cb) {
 
 passport.serializeUser(function(user, done) {
     let is_sbornik = false;
-    if (user.email === "nostsaber@yandex.ru") {
-        is_sbornik = true;
-    }
-    console.log(user);
+
     done(null, {
         id : user.id,
         name : user.name,
         role : user.role,
         rating : user.rating,
         is_paid : user.is_paid,
-        status : statuses[user.role].title,
         is_sbornik : is_sbornik,
         school_id : user.school_id
     });
@@ -127,7 +123,7 @@ passport.use("local-login",new LocalStrategy({
 
 
 var routes = require('./routes/index')(app, passport, pool);
-var users = require('./routes/users');
+var users = require('./routes/users')(app, passport, pool);
 var tournament = require('./routes/tournament')(app, passport, pool);
 
 app.use('/', routes);

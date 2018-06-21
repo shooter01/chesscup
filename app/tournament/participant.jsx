@@ -110,12 +110,14 @@ class Participants extends React.Component {
 
     setHeight(element){
         var coords = element.offset();
-        var screenHeight = document.documentElement.clientHeight;
-        var height = screenHeight - coords.top - 50;
-        if (!height || height < 200) {
-            height = 200;
+        if (coords) {
+            var screenHeight = document.documentElement.clientHeight;
+            var height = screenHeight - coords.top - 50;
+            if (!height || height < 200) {
+                height = 200;
+            }
+            element.css("max-height", height);
         }
-        element.css("max-height", height);
     }
     addTeamModal(){
         var that = this;
@@ -660,7 +662,7 @@ class Participants extends React.Component {
 
 
     render() {
-        if (!this.renderPos()) {return false;}
+       // if (!this.renderPos()) {return false;}
 
         let a = {
             className : "alert alert-" + this.state.alert_status
@@ -720,11 +722,11 @@ class Participants extends React.Component {
                     </div>
 
                 </div>
-
+                {/*в команднике без добавления участников убираем список*/}
                 <div className="col-sm-3">
                     <input type="text" className="form-control" placeholder="Поиск..."  onChange={this.search} />
                         <div className="list-group mt-2 school-participants">
-                            {this.state.filtered.map((item, index) => (
+                            {this.state.tournament.type != 20 && this.state.filtered.map((item, index) => (
                                 <a href="" className="list-group-item list-group-item-action" key={index} onClick={this.addParticipant} data-rating={item.tournaments_rating} data-id={item.id}>
                                     {item.name}
                                 </a>
@@ -753,9 +755,12 @@ class Participants extends React.Component {
                                 <span className="btn btn-success float-right" onClick={this.addTeamModal}>Добавить команду</span>
                             </li>
                             : null}
-                        <li className="nav-item">
-                            <span className="btn btn-success float-right" onClick={this.addModal}>Добавить участника</span>
-                        </li>
+
+                        {this.state.tournament.type != 20 ?
+                            <li className="nav-item">
+                                <span className="btn btn-success float-right" onClick={this.addModal}>Добавить участника</span>
+                            </li>
+                        : null}
                     </ul>
 
                     {(this.state.tournament.type > 10 && this.state.current_tab !== "admins") ?

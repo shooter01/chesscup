@@ -314,9 +314,17 @@ const DRAW = {
         return played_arrays;
 
     },
+    makeCrossatable : function (results, participants) {
+        var played_arrays = {};
+        console.log(results);
+
+
+        return played_arrays;
+
+    },
 
     defaultSwiss : function (req, res, next, pool, tournament, tournament_id, tour_id) {
-        let participants, pairing = [], arrr = [];
+        let participants, pairing = [], arrr = [], crosstable, scores_object = {};
 
 
                     pool
@@ -349,31 +357,37 @@ const DRAW = {
                 return pool
                     .query('SELECT tp.user_id,tp.is_active, ts.scores, u.name, u.tournaments_rating FROM tournaments_participants tp LEFT JOIN tournaments_scores ts ON ts.user_id = tp.user_id LEFT JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? AND ts.tournament_id = ?', [tournament_id, tournament_id])
             }).then(rows => {
-                console.log(tournament);
-                var a = [];
+                        var a = [];
 
-                var scores_object = {};
-                for (var i = 0; i < rows.length; i++) {
-                    var obj = rows[i];
+                        for (var i = 0; i < rows.length; i++) {
+                            var obj = rows[i];
 
-                    scores_object[obj.user_id] = obj.scores;
-                    a.push({
-                        user_id: obj.user_id,
-                        scores: obj.scores,
-                        name: obj.name,
-                        is_active: obj.is_active,
-                        tournaments_rating: obj.tournaments_rating,
-                    });
-                }
-                participants = DRAW.sortArr(a);
-                res.render('tournament/pairing', {
-                    tournament  : tournament,
-                    pairing  : JSON.stringify(pairing),
-                    participants : participants,
-                    tour_id : tour_id,
-                    scores_object :  JSON.stringify(scores_object),
-                    arrr : arrr,
-                });
+                            scores_object[obj.user_id] = obj.scores;
+                            a.push({
+                                user_id: obj.user_id,
+                                scores: obj.scores,
+                                name: obj.name,
+                                crosstable: crosstable,
+                                is_active: obj.is_active,
+                                tournaments_rating: obj.tournaments_rating,
+                            });
+                        }
+                        participants = DRAW.sortArr(a);
+
+                    }).then(rows => {
+                            return pool
+                                .query('SELECT * FROM tournaments_results tr WHERE tr.tournament_id = ?', tournament_id)
+                        }).then(rows => {
+                        crosstable = DRAW.makeCrossatable(rows, participants);
+
+                        res.render('tournament/pairing', {
+                            tournament  : tournament,
+                            pairing  : JSON.stringify(pairing),
+                            participants : participants,
+                            tour_id : tour_id,
+                            scores_object :  JSON.stringify(scores_object),
+                            arrr : arrr,
+                        });
             }).catch(function (err) {
                 console.log(err);
             });

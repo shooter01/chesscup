@@ -10,6 +10,7 @@
         <select name="type" class="form-control" id="type">
 
             <option value="1" <%= (typeof tournament !== "undefined" && tournament.type == "1") ? "selected" : "" %>>Индивидуальный (швейцарская система)</option>
+            <option value="2" <%= (typeof tournament !== "undefined" && tournament.type == "2") ? "selected" : "" %>>Индивидуальный (круговая система)</option>
             <option value="11" <%= (typeof tournament !== "undefined" && tournament.type == "11") ? "selected" : "" %>>Командный (швейцарская с добавлением игроков)</option>
             <option value="20" <%= (typeof tournament !== "undefined" && tournament.type == "20") ? "selected" : "" %>>Командный (швейцарская без добавления игроков)</option>
 
@@ -17,7 +18,7 @@
     </div>
 </div>
 
-<div class="row <%= (typeof tournament === "undefined" || tournament.type == "1") ? "hidden" : "" %>" id="team_boards-wrapper">
+<div class="row <%= (typeof tournament === "undefined" || tournament.type == "1" || tournament.type == "2") ? "hidden" : "" %>" id="team_boards-wrapper">
     <div class="col-sm-12">
         <label for="team_boards" class="mt-3">Количество досок в команде</label>
         <input type="text" id="team_boards" name="team_boards" class="form-control" value="<%= (typeof tournament !== "undefined" && tournament.team_boards != null) ? tournament.team_boards : "5" %>">
@@ -25,9 +26,10 @@
     </div>
 </div>
 
-<label for="tours_count" class="mt-3">Количество туров</label>
-<input type="text" id="tours_count" name="tours_count" class="form-control" value="<%= (typeof tournament !== "undefined") ? tournament.tours_count : "7" %>">
-
+<div id="tours_count_wrapper">
+    <label for="tours_count" class="mt-3">Количество туров</label>
+    <input type="text" id="tours_count" name="tours_count" class="form-control" value="<%= (typeof tournament !== "undefined") ? tournament.tours_count : "7" %>">
+</div>
 
 <label for="city" class="mt-3">Город проведения</label>
 <input type="text" id="city" name="city_id" class="form-control" value="<%= (typeof tournament !== "undefined") ? tournament.city : "Казань" %>">
@@ -74,5 +76,12 @@
         } else {
             $("#team_boards-wrapper").addClass("hidden");
         }
+
+        if($(this).val() == 2) {
+            $("#tours_count_wrapper").addClass("hidden");
+        } else {
+            $("#tours_count_wrapper").removeClass("hidden");
+        }
+
     });
 </script>

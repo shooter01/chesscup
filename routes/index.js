@@ -6,8 +6,6 @@ const { check, validationResult } = require('express-validator/check');
 const { matchedData, sanitize } = require('express-validator/filter');
 const countries = require('./countries');
 
-
-
 var Elo = require('arpad');
 
 var uscf = {

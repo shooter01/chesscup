@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const {isLoggedIn, isTeacher} = require('./middlewares');
+const {isLoggedIn} = require('./middlewares');
 const { check, validationResult } = require('express-validator/check');
 const moment = require('moment');
 const countries = require('./countries');
@@ -40,7 +40,6 @@ module.exports = function(app, passport, pool) {
 
     router.post('/create', [
         isLoggedIn,
-        isTeacher,
         check('title', 'Вы не указали title. Минимум 3 символа.').exists().isLength({ min: 1 }),
         check('city', 'Вы не указали город. ').exists().isLength({ min: 1 }),
         check('tours_count', 'Вы не указали количество туров.').exists().isLength({ min: 1 }),
@@ -69,7 +68,6 @@ module.exports = function(app, passport, pool) {
                 current_tour: 0,
                 created_at: new Date(),
                 creator_id: req.session.passport.user.id,
-                school_id: req.session.passport.user.school_id,
             };
 
             pool.query('INSERT INTO tournaments SET ?', office).then(function (results) {
@@ -87,7 +85,6 @@ module.exports = function(app, passport, pool) {
 
     router.post('/update', [
         isLoggedIn,
-        isTeacher,
         check('title', 'Вы не указали title. Минимум 3 символа.').exists().isLength({ min: 1 }),
         check('city', 'Вы не указали город. ').exists().isLength({ min: 1 }),
         check('tours_count', 'Вы не указали количество туров.').exists().isLength({ min: 1 }).custom((value, { req }) => {
@@ -153,10 +150,8 @@ module.exports = function(app, passport, pool) {
 
     router.post('/add_team', [
         isLoggedIn,
-        isTeacher,
         check('team_name', 'Вы не указали имя команды. ').exists().isLength({ min: 1 }),
-        check('teacher_id', 'Вы не указали тип тренера. ').exists().isLength({ min: 1 }),
-        check('tournament_id', 'Вы не указали участника.').exists().isLength({ min: 1 })
+        check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 })
     ],
         function (req, res, next) {
         const errors = validationResult(req);
@@ -189,7 +184,6 @@ module.exports = function(app, passport, pool) {
 
     router.post('/add_participant', [
         isLoggedIn,
-        isTeacher,
         check('tournament_id', 'Вы не указали участника.').exists().isLength({ min: 1 }).custom((value, { req }) => {
 
             return new Promise((resolve, reject) => {
@@ -311,7 +305,6 @@ module.exports = function(app, passport, pool) {
 
     router.post('/remove_participant', [
         isLoggedIn,
-        isTeacher,
         check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 }).custom((value, { req }) => {
 
             return new Promise((resolve, reject) => {
@@ -383,7 +376,6 @@ module.exports = function(app, passport, pool) {
 
     router.post('/remove_team', [
         isLoggedIn,
-        isTeacher,
         check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 }).custom((value, { req }) => {
 
             return new Promise((resolve, reject) => {
@@ -442,7 +434,6 @@ module.exports = function(app, passport, pool) {
 
     router.post('/delete', [
         isLoggedIn,
-        isTeacher,
         check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 }),
 
     ],
@@ -494,7 +485,6 @@ module.exports = function(app, passport, pool) {
 
     router.post('/make_draw', [
         isLoggedIn,
-        isTeacher,
         check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 })
     ],
         function (req, res, next) {
@@ -542,7 +532,8 @@ module.exports = function(app, passport, pool) {
                 .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
                 .then(rows => {
                     tourney = rows[0];
-
+                })
+                .then(res => {
                     if (tourney.is_closed === 1) {
                         throw new Error("Турнир уже закрыт. Изменения не внесены.");
                     }
@@ -566,8 +557,19 @@ module.exports = function(app, passport, pool) {
                 })
                .then(rows => {
                    participants = rows;
+               })
+               .then(rows => {
+                   //2 - круговой турнир, если первый тур, то выставляем количество туров по числу участников
+                   if (tourney.type === 2 && tourney.is_active === 0) {
+                       return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
+                           tours_count : participants.length - 1,
+                       },tourney.id]);
+                   } else {
+                       return rows;
+                   }
+               }).then(rows => {
 
-                   if (tourney.type < 10 && participants.length <= tourney.tours_count) {
+                   if (tourney.type === 1 && participants.length <= tourney.tours_count) {
                        throw new Error("Слишком мало участников. Поменяйте количество туров или количество участников.");
                    }
                    //сортировка участников по полю scores - кто сколько набрал
@@ -928,7 +930,7 @@ module.exports = function(app, passport, pool) {
     });
 
 
-    router.post('/save_result', [isLoggedIn, isTeacher],
+    router.post('/save_result', [isLoggedIn],
         function (req, res, next) {
         let tournament_id = req.body.tournament_id;
         let result = JSON.parse(req.body.result);
@@ -1093,7 +1095,7 @@ module.exports = function(app, passport, pool) {
     });
 
 
-    router.post('/save_teams_result', [isLoggedIn, isTeacher],
+    router.post('/save_teams_result', [isLoggedIn],
         function (req, res, next) {
         let tournament_id = req.body.tournament_id;
         let result = JSON.parse(req.body.result);
@@ -1161,7 +1163,7 @@ module.exports = function(app, passport, pool) {
         }
     });
 
-    router.post('/get_users', [isLoggedIn, isTeacher],
+    router.post('/get_users', [isLoggedIn],
         function (req, res, next) {
         let tournament_id = req.body.tournament_id;
         let user_type = req.body.user_type;
@@ -1191,7 +1193,7 @@ module.exports = function(app, passport, pool) {
         }
     });
 
-    router.post('/delete_participant', [isLoggedIn, isTeacher],
+    router.post('/delete_participant', [isLoggedIn],
         function (req, res, next) {
         let tournament_id = req.body.tournament_id;
         let user_id = req.body.user_id;
@@ -1395,7 +1397,7 @@ module.exports = function(app, passport, pool) {
     });
 
 
-    router.get('/:tournament_id/edit', [isLoggedIn, isTeacher],
+    router.get('/:tournament_id/edit', [isLoggedIn],
         function (req, res, next) {
         let tournament_id = req.params.tournament_id;
         tournament_id = parseInt(tournament_id);
@@ -1432,7 +1434,7 @@ module.exports = function(app, passport, pool) {
 
 
 
-    router.get('/:tournament_id/pairing', [isLoggedIn, isTeacher],
+    router.get('/:tournament_id/pairing', [isLoggedIn],
         function (req, res, next) {
         let tournament_id = req.params.tournament_id;
         tournament_id = parseInt(tournament_id);
@@ -1537,7 +1539,7 @@ module.exports = function(app, passport, pool) {
     }
 
 
-    router.get('/:tournament_id/participants',[isLoggedIn, isTeacher],
+    router.get('/:tournament_id/participants',[isLoggedIn],
         function (req, res, next) {
         let tournament_id = req.params.tournament_id;
         tournament_id = parseInt(tournament_id);

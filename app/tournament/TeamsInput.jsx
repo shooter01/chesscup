@@ -62,7 +62,6 @@ class TeamsInput extends React.Component {
                 },
                 data : {
                     team_name : $("[name=team_name]").val(),
-                    teacher_id : $("[name=teacher_id]").val(),
                     tournament_id : this.state.tournament_id,
                 },
                 statusCode: {
@@ -155,20 +154,6 @@ class TeamsInput extends React.Component {
 
                                                 <input type="text" id="name" className="form-control" placeholder="Название команды" name="team_name" required="required" aria-describedby="basic-addon2" />
                                             </div>
-
-                                            <div className="row">
-                                                <label htmlFor="teacher_id" className="col-form-label small">Тренер</label>
-                                                <select name="teacher_id" className="custom-select" id="teacher_id">
-                                                    {this.props.teachers.map((item, index) => (
-                                                        <option key={item.id} value={item.id}>{item.name}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-
-
-
-
-
                                     </div>
 
                                 </div>
