@@ -22,14 +22,22 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.engine('ejs', engine);
 
+let db_pass = "3345";
+let db_name = "chess";
+if (process.env.NODE_ENV === "dev-linux") {
+    db_pass = "ubuntu34";
+}
+
+
 var pool = new Database({
     host: 'localhost',
     user: 'root',
-    password: 'ubuntu34',
-    database: 'chess',
+    password: db_pass,
+    database: db_name,
     connectionLimit: 10,
     acquireTimeout: 1000
 });
+
 
 var sessionStore = new MySQLStore({}, pool.getConnection());
 
