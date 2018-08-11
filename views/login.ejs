@@ -38,30 +38,30 @@
 </style>
 
 <form class="form-signin" method="post" action="/login">
-    <h2 class="form-signin-heading">Вход в аккаунт</h2>
+    <h2 class="form-signin-heading"><%- __("LoginTitle") %></h2>
 
-   <% if (typeof message != "undefined") { %>
+    <% if (typeof message != "undefined") { %>
     <div class="alert alert-danger m-1">
         <%= message %>
     </div>
-   <% } %>
-   <% if (typeof signup != "undefined") { %>
+    <% } %>
+    <% if (typeof signup != "undefined") { %>
     <div class="alert alert-success m-1">
         <%= signup %>
     </div>
-   <% } %>
+    <% } %>
 
 
 
 
-    <label for="inputEmail" class="sr-only">Email адрес</label>
-    <input type="email" id="inputEmail" class="form-control" placeholder="Email адрес" required autofocus name="username">
-    <label for="inputPassword" class="sr-only">Пароль</label>
-    <input type="password" id="inputPassword" class="form-control" placeholder="Пароль" required name="password">
+    <label for="inputEmail" class="sr-only"><%- __("LoginEmail") %></label>
+    <input type="email" id="inputEmail" class="form-control" placeholder="<%- __("LoginEmail") %>" required autofocus name="username">
+    <label for="inputPassword" class="sr-only"><%- __("LoginPassword") %></label>
+    <input type="password" id="inputPassword" class="form-control" placeholder="<%- __("LoginPassword") %>" required name="password">
 
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Войти</button>
+    <button class="btn btn-lg btn-primary btn-block" type="submit"><%- __("LoginLogin") %></button>
 
-    <a href="/signup" class="btn btn-light btn-block mt-3">Регистрация</a>
+    <a href="/signup" class="btn btn-light btn-block mt-3"><%- __("LoginRegister") %></a>
 
 
     <% if (showTest != null) { %>

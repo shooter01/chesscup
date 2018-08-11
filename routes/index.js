@@ -45,12 +45,12 @@ module.exports = function (app, passport, pool) {
 
 
         check('username')
-            .isEmail().withMessage('Вы не указали email')
+            .isEmail().withMessage('The email field is required')
             .trim()
             .normalizeEmail(),
-        check('name', 'Вы не указали имя').exists().isLength({ min: 1 }),
-        check('password', 'Вы не указали пароль').exists().isLength({ min: 1 }),
-        check('passwordConfirmation', 'Пароль и подтверждение не совпадают')
+        check('name', 'The name field is required').exists().isLength({ min: 1 }),
+        check('password', 'The password field is required').exists().isLength({ min: 1 }),
+        check('passwordConfirmation', 'Check password confirmation')
             .exists()
             .isLength({ min: 1 })
             .custom((value, { req }) => value === req.body.password),
@@ -120,7 +120,7 @@ module.exports = function (app, passport, pool) {
                             } else {
                                 res.render('login', {
                                     showTest : null,
-                                    "signup": "Теперь вы можете войти с указанным email в свой аккаунт",
+                                    "signup": "Use your email and password to login",
                                 });
                             }
                         }).catch(function (err) {
@@ -133,7 +133,7 @@ module.exports = function (app, passport, pool) {
                                 status : "error",
                                 errors: {
                                     "username" : {
-                                        "msg" : "Email уже есть в базе"
+                                        "msg" : "Email already exists"
                                     }
                                 },
                             });
@@ -144,7 +144,7 @@ module.exports = function (app, passport, pool) {
                                     return res.status(422).render('signup', {
                                         errors: {
                                             "username" : {
-                                                "msg" : "Email уже есть в базе"
+                                                "msg" : "Email already exists"
                                             }
                                         },
                                         username : req.body.username,

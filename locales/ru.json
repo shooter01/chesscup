@@ -1,0 +1,22 @@
+{
+	"MenuHome": "Главная",
+	"LoginTitle": "Вход в аккаунт",
+	"LoginEmail": "Email адрес",
+  "MenuLogin": "Войти",
+
+  "LoginPassword": "Пароль",
+	"LoginLogin": "Войти",
+	"LoginRegister": "Регистрация",
+	"IncorrectLogin": "Incorrect Email or Password",
+	"RegTitle": "Регистрация",
+	"RegStatus": "Ваш статус:",
+	"RegStatusStudent": "Ученик",
+	"RegStatusTeacher": "Учитель",
+	"RegStatusSchool": "Шахматная школа",
+	"RegChooseSchool": "Выберите шахматную школу:",
+	"RegIndepTeacher": "Независимый учитель",
+	"RegSchoolName": "Название шахматной школы",
+	"RegFIO": "Фамилия и имя",
+	"RegPassConfirm": "Подтвердите пароль",
+    "MenuReg": "Регистрация"
+}

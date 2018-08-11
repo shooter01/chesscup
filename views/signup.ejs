@@ -41,16 +41,15 @@
 </style>
 
 <form class="form-signin form-vertical" method="post" action="/signup">
-    <h2 class="form-signin-heading">Регистрация</h2>
+    <h2 class="form-signin-heading"><%- __("RegTitle") %></h2>
 
-   <% if (typeof errors != "undefined") { %>
+    <% if (typeof errors != "undefined") { %>
     <div class="alert alert-danger m-1">
         <% for (var i in errors) { %>
         <div><%= errors[i].msg %></div>
         <% } %>
     </div>
-   <% } %>
-
+    <% } %>
 
 
 
@@ -66,30 +65,49 @@
 
     <div class="form-group mt-2">
 
-        <label for="inputName" id="labelinputName">Имя</label>
+        <label for="inputName" id="labelinputName"><%- __("RegFIO") %></label>
 
-        <input type="text" id="inputName" class="form-control" placeholder="Фамилия и имя"
+        <input type="text" id="inputName" class="form-control" placeholder="<%- __("RegFIO") %>"
                value="<% if (typeof name != "undefined") { %><%=name%><% } %>" required autofocus name="name">
     </div>
     <div class="form-group mt-2">
-        <label for="inputEmail">Email адрес</label>
-        <input type="email" id="inputEmail" class="form-control" placeholder="Email адрес"
-                value="<% if (typeof username != "undefined") { %><%=username%><% } %>" required autofocus name="username">
+        <label for="inputEmail"><%- __("LoginEmail") %></label>
+        <input type="email" id="inputEmail" class="form-control" placeholder="<%- __("LoginEmail") %>"
+               value="<% if (typeof username != "undefined") { %><%=username%><% } %>" required autofocus name="username">
     </div>
 
     <div class="form-group mt-2">
-        <label for="inputPassword">Пароль</label>
-        <input type="password" id="inputPassword" class="form-control" placeholder="Пароль" required name="password">
+        <label for="inputPassword"><%- __("LoginPassword") %></label>
+        <input type="password" id="inputPassword" class="form-control" placeholder="<%- __("LoginPassword") %>" required name="password">
     </div>
     <div class="form-group mt-2">
 
-    <label for="passwordConfirmation">Подтвердите пароль</label>
-    <input type="password" id="passwordConfirmation" class="form-control" required placeholder="Подтвердите пароль"  name="passwordConfirmation">
+        <label for="passwordConfirmation"><%- __("RegPassConfirm") %></label>
+        <input type="password" id="passwordConfirmation" class="form-control" required placeholder="<%- __("RegPassConfirm") %>"  name="passwordConfirmation">
     </div>
 
     <div class="g-recaptcha" data-sitekey="6Lf3cEwUAAAAAPDng0DSd4etLpYQoQP4x72ApRoM"></div>
 
-    <button class="btn btn-lg btn-primary btn-block mt-3" type="submit">Регистрация</button>
+    <button class="btn btn-lg btn-primary btn-block mt-3" type="submit"><%- __("MenuReg") %></button>
 </form>
 
+<style>
 
+</style>
+
+<!--<script>
+    function changed() {
+        if ($("#role").val() === "100") {
+            $("#school_id_wrapper").show();
+        } else {
+            $("#school_id_wrapper").hide();
+        }
+        if ($("#role").val() === "1000") {
+            $("#inputName").attr("placeholder", "Название шахматной школы");
+            $("#labelinputName").html("Название шахматной школы");
+        } else {
+            $("#inputName").attr("placeholder", "Фамилия и имя");
+            $("#labelinputName").html("Фамилия и имя");
+        }
+    }
+</script>-->

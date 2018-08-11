@@ -24,9 +24,9 @@ app.engine('ejs', engine);
 
 let db_pass = "3345";
 let db_name = "chess";
-/*if (process.env.NODE_ENV === "dev-linux") {
+if (process.env.NODE_ENV === "dev-linux") {
     db_pass = "ubuntu34";
-}*/
+}
 
 
 var pool = new Database({
@@ -107,6 +107,18 @@ passport.deserializeUser(function(user, done) {
     });
 });
 
+var i18n = require('i18n-2');
+
+// Attach the i18n property to the express request object
+// And attach helper methods for use in templates
+i18n.expressBind(app, {
+    // setup some locales - other locales default to en silently
+    locales: ['ru', 'en'],
+    extension: '.json',
+
+    // change the cookie name from 'lang' to 'locale'
+});
+
 passport.use("local-login",new LocalStrategy({
         usernameField: 'username',
         passwordField: 'password',
@@ -133,6 +145,14 @@ passport.use("local-login",new LocalStrategy({
 var routes = require('./routes/index')(app, passport, pool);
 var users = require('./routes/users')(app, passport, pool);
 var tournament = require('./routes/tournament')(app, passport, pool);
+
+
+// This is how you'd set a locale from req.cookies.
+// Don't forget to set the cookie either on the client or in your Express app.
+app.use(function(req, res, next) {
+    req.i18n.setLocaleFromCookie();
+    next();
+});
 
 app.use('/', routes);
 app.use('/users', users);

@@ -1,0 +1,22 @@
+{
+	"MenuHome": "Home",
+	"MenuReg": "Sign up",
+  "MenuLogin": "Login",
+
+  "LoginTitle": "Login",
+	"LoginEmail": "Email",
+	"LoginPassword": "Password",
+	"LoginLogin": "Login",
+	"LoginRegister": "Registration",
+	"IncorrectLogin": "Incorrect Email or Password",
+	"RegTitle": "Register",
+	"RegStatus": "Your status:",
+	"RegStatusStudent": "Chess student",
+	"RegStatusTeacher": "Coach",
+	"RegStatusSchool": "Chess school",
+	"RegChooseSchool": "Choose chess school:",
+	"RegIndepTeacher": "Independent teacher",
+	"RegSchoolName": "School name",
+	"RegFIO": "Your name",
+	"RegPassConfirm": "Password confirmation"
+}

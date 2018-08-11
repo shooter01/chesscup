@@ -30,7 +30,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/">Главная <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="/"><%- __("MenuHome") %> <span class="sr-only">(current)</span></a>
                 </li>
 
 
@@ -40,13 +40,25 @@
 
             <ul class="navbar navbar-nav navbar-right">
 
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="lang__title" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item lang-choose" href="/ru">Русский</a>
+                        <a class="dropdown-item lang-choose" href="/en">English</a>
+                    </div>
+                </li>
+
+
+
                 <% if (user && user.user) { %>
-                    <li class="nav-item"><a class="nav-link" href="/logout">Выйти</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout"><%- __("MenuLogout") %></a></li>
                 <% } else { %>
                 <!-- Authentication Links -->
 
-                <li class="nav-item"><a class="nav-link" href="/signup">Регистрация</a></li>
-                <li class="nav-item"><a class="nav-link" href="/login">Войти</a></li>
+
+
+                <li class="nav-item"><a class="nav-link" href="/signup"><%- __("MenuReg") %></a></li>
+                <li class="nav-item"><a class="nav-link" href="/login"><%- __("MenuLogin") %></a></li>
                 <% }  %>
 
             </ul >
@@ -69,6 +81,57 @@
 <script src="/js/bootstrap/js/bootstrap.min.js"></script>
 
     <link async href="/stylesheets/fontawesome/web-fonts-with-css/css/fontawesome-all.min.css" rel="stylesheet">
+
+
+    <script>
+        $(".lang-choose").on("click", function (event) {
+            event.preventDefault();
+            var lang = $(this).attr("href").replace("/", "");
+            setCookie("lang", lang, 9999);
+            location.reload();
+            return false;
+        });
+
+
+        $(function () {
+            var lang = getCookie("lang");
+            if (lang === "ru") {
+                $("#lang__title").html("Русский");
+            } else if (lang === "en") {
+                $("#lang__title").html("English");
+            } else {
+                $("#lang__title").html("Language");
+            }
+
+        })
+
+
+
+        function getCookie (name)
+        {
+            var prefix = name + '=';
+            var cookieStartIndex = document.cookie.indexOf(prefix);
+            if (cookieStartIndex == -1) {
+                return null;
+            }
+            var cookieEndIndex = document.cookie.indexOf(';', cookieStartIndex + prefix.length);
+            if (cookieEndIndex == -1) {
+                cookieEndIndex = document.cookie.length;
+            }
+            return unescape(document.cookie.substring(cookieStartIndex + prefix.length, cookieEndIndex));
+        }
+        function setCookie (name, value, time) {
+            valueEscaped = escape(value);
+            expiresDate = new Date();
+            expiresDate.setTime(expiresDate.getTime() + time * 24 * 3600 * 1000);
+            expires = expiresDate.toGMTString();
+            newCookie = name + '=' + valueEscaped + '; path=/; expires=' + expires + ';';
+            if (valueEscaped.length <= 4000) {
+                document.cookie = newCookie;
+            }
+        }
+
+    </script>
 
 </body>
 </html>
