@@ -40,13 +40,13 @@ module.exports = function(app, passport, pool) {
 
     router.post('/create', [
         isLoggedIn,
-        check('title', 'Вы не указали title. Минимум 3 символа.').exists().isLength({ min: 1 }),
-        check('city', 'Вы не указали город. ').exists().isLength({ min: 1 }),
-        check('tours_count', 'Вы не указали количество туров.').exists().isLength({ min: 1 }),
-        check('type', 'Вы не указали тип турнира.').exists().isLength({ min: 1 }),
-        check('country', 'Вы не указали страну.').exists().isLength({ min: 1 }),
-        check('start_date', 'Вы не указали дату начала.').exists().isLength({ min: 1 }),
-        check('end_date', 'Вы не указали дату завершения.').exists().isLength({ min: 1 }),
+        check('title', 'The title field is required').exists().isLength({ min: 1 }),
+        check('city', 'The city field is required').exists().isLength({ min: 1 }),
+        check('tours_count', 'The tours count field is required').exists().isLength({ min: 1 }),
+        check('type', 'The tournament field is required').exists().isLength({ min: 1 }),
+        check('country', 'The country field is required').exists().isLength({ min: 1 }),
+        check('start_date', 'The start date field is required').exists().isLength({ min: 1 }),
+        check('end_date', 'The end date field is required').exists().isLength({ min: 1 }),
     ],
         function (req, res, next) {
         const errors = validationResult(req);
@@ -85,9 +85,9 @@ module.exports = function(app, passport, pool) {
 
     router.post('/update', [
         isLoggedIn,
-        check('title', 'Вы не указали title. Минимум 3 символа.').exists().isLength({ min: 1 }),
-        check('city', 'Вы не указали город. ').exists().isLength({ min: 1 }),
-        check('tours_count', 'Вы не указали количество туров.').exists().isLength({ min: 1 }).custom((value, { req }) => {
+            check('title', 'The title field is required').exists().isLength({ min: 1 }),
+            check('city', 'The city field is required').exists().isLength({ min: 1 }),
+            check('tours_count', 'The tours count field is required').exists().isLength({ min: 1 }).custom((value, { req }) => {
 
             return new Promise((resolve, reject) => {
 
@@ -95,17 +95,17 @@ module.exports = function(app, passport, pool) {
                     req.body.tournament_id.trim()
                 ]).then(function (rows) {
                     if(rows.length > 0 && rows[0].current_tour > value) {
-                        return reject("Текущий тур больше указанного количества туров");
+                        return reject("The current tour is higher than you entered");
                     } else {
                         return resolve();
                     }
                 });
             });
         }),
-        check('country', 'Вы не указали страну.').exists().isLength({ min: 1 }),
-        check('start_date', 'Вы не указали дату начала.').exists().isLength({ min: 1 }),
-        check('end_date', 'Вы не указали дату завершения.').exists().isLength({ min: 1 }),
-        check('type', 'Вы не указали тип турнира.').exists().isLength({ min: 1 }),
+            check('type', 'The tournament field is required').exists().isLength({ min: 1 }),
+            check('country', 'The country field is required').exists().isLength({ min: 1 }),
+            check('start_date', 'The start date field is required').exists().isLength({ min: 1 }),
+            check('end_date', 'The end date field is required').exists().isLength({ min: 1 }),
 
         ],
         function (req, res, next) {
