@@ -1,9 +1,37 @@
 {
 	"MenuHome": "Home",
 	"MenuReg": "Sign up",
-  "MenuLogin": "Login",
+	"MenuLogin": "Login",
+	"CreateTournament": "Create a tournament",
+	"Tournaments": "Tournaments",
 
-  "LoginTitle": "Login",
+
+
+
+	"CreateCreate": "Create",
+	"CreateCreateTournament": "Create a tournament",
+	"CreateTitle": "Title",
+	"CreateType": "Type",
+	"CreateToursCount": "Tours count",
+	"CreateCity": "City",
+	"CreateCountry": "Country",
+	"CreateDateStart": "Start date",
+	"CreateDateEnd": "End date",
+	"CreateBoardsCount": "Boards count",
+	"CreateIndividSwiss": "Individual Swiss",
+	"CreateRoundRobin": "Individual Round Robin",
+	"CreateTeamSwissWithPlayers": "Team swiss (with adding players)",
+	"CreateTeamSwissWithoutPlayers": "Team swiss (without adding players)",
+
+
+	"Save": "Save",
+
+
+
+
+
+
+	"LoginTitle": "Login",
 	"LoginEmail": "Email",
 	"LoginPassword": "Password",
 	"LoginLogin": "Login",
@@ -18,5 +46,6 @@
 	"RegIndepTeacher": "Independent teacher",
 	"RegSchoolName": "School name",
 	"RegFIO": "Your name",
-	"RegPassConfirm": "Password confirmation"
+	"RegPassConfirm": "Password confirmation",
+	"MenuLogout": "Logout"
 }
