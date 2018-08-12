@@ -20,6 +20,7 @@
 	"CreateRoundRobin": "Индивидуальный (круговая система)",
 	"CreateTeamSwissWithPlayers": "Командный (швейцарская с добавлением игроков)",
 	"CreateTeamSwissWithoutPlayers": "Командный (швейцарская без добавления игроков)",
+
 	"LoginPassword": "Пароль",
 	"LoginLogin": "Войти",
 	"LoginRegister": "Регистрация",
@@ -35,5 +36,10 @@
 	"RegFIO": "Фамилия и имя",
 	"RegPassConfirm": "Подтвердите пароль",
 	"MenuReg": "Регистрация",
-	"Save": "Сохранить"
+	"Save": "Сохранить",
+	"Edit_tournament": "Редактирование турнира",
+	"Participants": "Участники",
+	"ShowGo": "Перейти к турниру",
+	"Created": "Создан",
+	"Creator": "Создатель"
 }

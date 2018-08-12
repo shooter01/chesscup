@@ -4,10 +4,6 @@
 	"MenuLogin": "Login",
 	"CreateTournament": "Create a tournament",
 	"Tournaments": "Tournaments",
-
-
-
-
 	"CreateCreate": "Create",
 	"CreateCreateTournament": "Create a tournament",
 	"CreateTitle": "Title",
@@ -17,20 +13,17 @@
 	"CreateCountry": "Country",
 	"CreateDateStart": "Start date",
 	"CreateDateEnd": "End date",
+	"Created": "Created",
 	"CreateBoardsCount": "Boards count",
 	"CreateIndividSwiss": "Individual Swiss",
 	"CreateRoundRobin": "Individual Round Robin",
 	"CreateTeamSwissWithPlayers": "Team swiss (with adding players)",
 	"CreateTeamSwissWithoutPlayers": "Team swiss (without adding players)",
-
-
 	"Save": "Save",
-
-
-
-
-
-
+	"Edit_tournament": "Edit tournament",
+	"ShowGo": "Go to tournament",
+	"FinalTable": "Итоговая таблица",
+	"ShowGoTour": "Перейти к турниру. Тур",
 	"LoginTitle": "Login",
 	"LoginEmail": "Email",
 	"LoginPassword": "Password",
@@ -47,5 +40,9 @@
 	"RegSchoolName": "School name",
 	"RegFIO": "Your name",
 	"RegPassConfirm": "Password confirmation",
-	"MenuLogout": "Logout"
+	"MenuLogout": "Logout",
+	"Edit": "Edit",
+	"Participants": "Participants",
+	"Place": "Place",
+	"Creator": "Creator"
 }

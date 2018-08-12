@@ -6,7 +6,7 @@
     <div class="col-lg-12 d-none d-lg-block">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Турниры</a></li>
+                <li class="breadcrumb-item"><a href="/"><%- __("Tournaments") %></a></li>
                 <li class="breadcrumb-item active" aria-current="page"><%= tournament.title %></li>
             </ol>
         </nav>
@@ -17,29 +17,29 @@
 <% if (user && user.user && user.user.id === tournament.creator_id) { %>
 
 
-<a href="/tournament/<%= tournament.id %>/edit" class="btn btn-success">Редактировать</a>
-<a href="/tournament/<%= tournament.id %>/participants" class="btn btn-warning">Участники</a>
+<a href="/tournament/<%= tournament.id %>/edit" class="btn btn-success"><%- __("Edit_tournament") %></a>
+<a href="/tournament/<%= tournament.id %>/participants" class="btn btn-warning"><%- __("Participants") %></a>
 
 
 <% } %>
 
 <% if (tournament.is_closed ===  1) { %>
-    <a href="/tournament/<%= tournament.id %>/final" class="btn btn-primary">Итоговая таблица</a>
+    <a href="/tournament/<%= tournament.id %>/final" class="btn btn-primary"><%- __("FinalTable") %></a>
 <% } else if (tournament.current_tour == 0) { %>
-    <a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>" class="btn btn-primary">Перейти к турниру</a>
+    <a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>" class="btn btn-primary"><%- __("ShowGo") %></a>
 <% } else if (tournament.current_tour <= tournament.tours_count) { %>
-    <a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>" class="btn btn-primary">Перейти к турниру. Тур <%= tournament.current_tour %></a>
+    <a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>" class="btn btn-primary"> <%- __("ShowGoTour") %> <%= tournament.current_tour %></a>
 <% } %>
 <h3 class="mt-4"><%= tournament.title %></h3>
 
 
 
-<h6>Количество туров : <%= tournament.tours_count %></h6>
-<h6>Место проведения : <%= tournament.city %> <img src="/images/blank.png" class="flag flag-<%= tournament.country.toLocaleLowerCase() %>" title="<%= countries[tournament.country] %>" alt="<%= countries[tournament.country] %>"></h6>
-<h6>Дата начала : <%= tournament.start_date %></h6>
-<h6>Дата окончания : <%= tournament.end_date %></h6>
-<h6>Создан : <%= tournament.created_at %></h6>
-<h6>Создатель : <%= tournament.name %></h6>
+<h6><%- __("CreateToursCount") %> : <%= tournament.tours_count %></h6>
+<h6><%- __("CreateCity") %> : <%= tournament.city %> <img src="/images/blank.png" class="flag flag-<%= tournament.country.toLocaleLowerCase() %>" title="<%= countries[tournament.country] %>" alt="<%= countries[tournament.country] %>"></h6>
+<h6><%- __("CreateDateStart") %> : <%= tournament.start_date %></h6>
+<h6><%- __("CreateDateEnd") %> : <%= tournament.end_date %></h6>
+<h6><%- __("Created") %> : <%= tournament.created_at %></h6>
+<h6><%- __("Creator") %> : <%= tournament.name %></h6>
 
 
 <link rel="stylesheet" href="/stylesheets/flags.css">
