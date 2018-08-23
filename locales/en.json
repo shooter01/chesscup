@@ -4,6 +4,22 @@
 	"TableBoard": "Board",
 	"TablePoints": "Points",
 	"TableProgress": "Progress",
+
+
+
+	"ParticipantsTeams": "Teams",
+	"ParticipantsToTournament": "To tournament",
+	"ParticipantsAddParticipant": "Add participant",
+	"ParticipantsAddTeam": "Add team",
+	"ParticipantsAdministrators": "Administrators",
+	"ParticipantsSearch": "Search...",
+	"ParticipantsSuccessUpdate": "Successfully updated",
+	"ParticipantsStatus": "Status",
+	"ParticipantsWaiting": "waiting",
+
+
+
+
 	"Loading": "Loading",
 	"MenuHome": "Home",
 	"MenuReg": "Sign up",
@@ -38,7 +54,9 @@
 	"TournamentClosed": "Tournament Closed",
 	"Tours": "Tours",
 	"Save": "Save",
+	"Close": "Close",
 	"Print": "Print",
+	"Saving": "Loading",
 	"Edit": "Edit",
 	"Participants": "Participants",
 	"ResetTournament": "Reset Tournament",

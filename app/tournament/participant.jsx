@@ -20,7 +20,7 @@ class Participants extends React.Component {
             admins: participants,
             request_sent : false,
             tournament_id: tournament_id,
-            status: "ожидание",
+            status: _Waiting,
             alert_status: "info",
             current_tab: "participants",
             teachers: teachers,
@@ -714,17 +714,17 @@ class Participants extends React.Component {
                 <div className="col-12">
                     <div className="row">
                         <div className="col-md-10">
-                            <div {...a}>Статус : {this.state.status}</div>
+                            <div {...a}>{_Status} : {this.state.status}</div>
                         </div>
                         <div className="col-md-2">
-                            <a {...linkTo} className="btn btn-primary btn-block btn-lg">К турниру</a>
+                            <a {...linkTo} className="btn btn-primary btn-block btn-lg">{_ToTournament}</a>
                         </div>
                     </div>
 
                 </div>
                 {/*в команднике без добавления участников убираем список*/}
                 <div className="col-sm-3">
-                    <input type="text" className="form-control" placeholder="Поиск..."  onChange={this.search} />
+                    <input type="text" className="form-control" placeholder={_Search}  onChange={this.search} />
                         <div className="list-group mt-2 school-participants">
                             {this.state.tournament.type != 20 && this.state.filtered.map((item, index) => (
                                 <a href="" className="list-group-item list-group-item-action" key={index} onClick={this.addParticipant} data-rating={item.tournaments_rating} data-id={item.id}>
@@ -738,27 +738,27 @@ class Participants extends React.Component {
                         <li className="nav-item">
                             <a className="nav-link active" data-id="participants" onClick={this.showTab} id="admin-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-expanded="true">
                                 {(this.state.tournament.type > 10) ?
-                                    "Команды"
+                                    <span>{_Teams}</span>
                                     :
-                                    "Участники"
+                                    <span>{_Participants}</span>
                                 }
                             </a>
                         </li>
 
                         <li className="nav-item">
-                            <a className="nav-link" id="students-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-expanded="true" data-id="admins"  onClick={this.showTab}>Администраторы</a>
+                            <a className="nav-link" id="students-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-expanded="true" data-id="admins"  onClick={this.showTab}>{_Administrators}</a>
                         </li>
 
 
                         {(this.state.tournament.type > 10) ?
                             <li className="nav-item">
-                                <span className="btn btn-success float-right" onClick={this.addTeamModal}>Добавить команду</span>
+                                <span className="btn btn-success float-right" onClick={this.addTeamModal}>{_AddParticipant}</span>
                             </li>
                             : null}
 
                         {this.state.tournament.type != 20 ?
                             <li className="nav-item">
-                                <span className="btn btn-success float-right" onClick={this.addModal}>Добавить участника</span>
+                                <span className="btn btn-success float-right" onClick={this.addModal}>{_AddParticipant}</span>
                             </li>
                         : null}
                     </ul>
@@ -788,7 +788,7 @@ class Participants extends React.Component {
                             <div className="modal-body">
 
                                 <div className="alert alert-danger hidden errors"></div>
-                                <div className="alert alert-success hidden success">Данные успешно обновлены</div>
+                                <div className="alert alert-success hidden success">{_SuccessUpdate}</div>
 
                                 <ModalInput setAddType={this.setAddType}
                                             current_tab="student"
@@ -800,8 +800,8 @@ class Participants extends React.Component {
                                             current_user={this.state.current_user}/>
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                                <button type="button" className="btn btn-primary" id="save_theme">Сохранить</button>
+                                <button type="button" className="btn btn-secondary" data-dismiss="modal">{_Close}</button>
+                                <button type="button" className="btn btn-primary" id="save_theme">{_Save}</button>
                             </div>
                         </div>
                     </div>
@@ -811,7 +811,7 @@ class Participants extends React.Component {
 
                 {(this.state.request_sent === true) ?
                     <div className="d-flex align-items-baseline justify-content-center " style={save}>
-                        <h1>Сохранение</h1>
+                        <h1>{_Saving}</h1>
                         <div className="" style={fixed}>
                         </div>
                     </div>

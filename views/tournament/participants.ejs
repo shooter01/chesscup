@@ -46,9 +46,9 @@
     <div class="col-lg-12 d-none d-lg-block">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Турниры</a></li>
+                <li class="breadcrumb-item"><a href="/"><%- __("Tournaments") %></a></li>
                 <li class="breadcrumb-item active" aria-current="page"><a href="/tournament/<%= tournament.id %>"><%= tournament.title %></a></li>
-                <li class="breadcrumb-item active" aria-current="page">Участники</li>
+                <li class="breadcrumb-item active" aria-current="page"><%- __("Participants") %></li>
             </ol>
         </nav>
     </div>
@@ -61,6 +61,23 @@
     var participants = JSON.parse('<%- participants %>');
     var teams = JSON.parse('<%- teams %>');
     var teachers = JSON.parse('<%- teachers %>');
+
+
+    var _Participants = '<%- __("Participants") %>';
+    var _Teams = '<%- __("ParticipantsTeams") %>';
+    var _ToTournament = '<%- __("ParticipantsToTournament") %>';
+    var _AddParticipant = '<%- __("ParticipantsAddParticipant") %>';
+    var _AddTeam = '<%- __("ParticipantsAddTeam") %>';
+    var _Administrators = '<%- __("ParticipantsAdministrators") %>';
+    var _Search = '<%- __("ParticipantsSearch") %>';
+    var _SuccessUpdate = '<%- __("ParticipantsSuccessUpdate") %>';
+    var _Close = '<%- __("Close") %>';
+    var _Save = '<%- __("Save") %>';
+    var _Saving = '<%- __("Saving") %>';
+    var _Status = '<%- __("ParticipantsStatus") %>';
+    var _Waiting = '<%- __("ParticipantsWaiting") %>';
+
+
 </script>
 
 <div id="participants"></div>
