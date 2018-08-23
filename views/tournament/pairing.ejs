@@ -5,9 +5,9 @@
     <div class="col-lg-12 d-none d-lg-block">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Турниры</a></li>
+                <li class="breadcrumb-item"><a href="/"><%- __("Tournaments") %></a></li>
                 <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>"><%= tournament.title %></a></li>
-                <li class="breadcrumb-item" aria-current="page">Жеребьевка</li>
+                <li class="breadcrumb-item" aria-current="page"><%- __("PairingTossUp") %></li>
             </ol>
         </nav>
     </div>
@@ -16,11 +16,11 @@
 
 <div class="d-flex justify-content-between ">
     <div>
-        Всего туров : <%= tournament.tours_count %> <br>
+        <%- __("ToursCount") %> : <%= tournament.tours_count %> <br>
         <%  if (tournament.current_tour <= tournament.tours_count) { %>
-            Текущий : <%= tournament.current_tour %>
+        <%- __("CurrentTour") %> : <%= tournament.current_tour %>
         <% } else if (tournament.current_tour > tournament.tours_count)  { %>
-            Турнир завершен
+        <%- __("TournamentClosed") %>
         <% } %>
     </div>
 
@@ -28,27 +28,27 @@
 
         <div class="d-flex justify-content-end noprint">
             <span class="noprint">
-                <input type="button" class="btn btn-light noprint mr-2" value="Распечатать" onClick="window.print()" />
+                <input type="button" class="btn btn-light noprint mr-2" value="<%- __("Print") %>" onClick="window.print()" />
             </span>
 
             <div class="dropdown mr-2 noprint">
                 <button class="btn btn-info dropdown-toggle noprint" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Действия
+                    <%- __("Actions") %>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a href="/tournament/<%= tournament.id %>/edit" class="dropdown-item">Редактировать</a>
-                    <a href="/tournament/<%= tournament.id %>/participants" class="dropdown-item">Участники</a>
-                    <a class="dropdown-item" href="#"  id="delete_all">Обнулить турнир</a>
+                    <a href="/tournament/<%= tournament.id %>/edit" class="dropdown-item"><%- __("Edit") %></a>
+                    <a href="/tournament/<%= tournament.id %>/participants" class="dropdown-item"><%- __("Participants") %></a>
+                    <a class="dropdown-item" href="#"  id="delete_all"><%- __("ResetTournament") %></a>
                 </div>
             </div>
 
             <span class="noprint">
             <%  if ((tournament.current_tour === null || tournament.current_tour >= 0) && (tournament.current_tour < tournament.tours_count)) { %>
-                <button class="btn btn-primary noprint btn-lg" id="next_tour">Сделать жеребьевку <%= tournament.current_tour+1 %> тура</button>
+                <button class="btn btn-primary noprint btn-lg" id="next_tour"><%- __("PairingCreatePairing") %> <%= tournament.current_tour+1 %> <%- __("PairingOfTour") %></button>
             <% } else if (tournament.current_tour == tournament.tours_count) { %>
-                    <button class="btn btn-primary btn-lg noprint" id="next_tour">Завершить турнир</button>
+                    <button class="btn btn-primary btn-lg noprint" id="next_tour"><%- __("PairingFinishTournament") %></button>
             <% } else if (tournament.current_tour >= tournament.tours_count) { %>
-                <a href="/tournament/<%= tournament.id %>/final" class="btn btn-primary noprint btn-lg">Итоговая таблица</a>
+                <a href="/tournament/<%= tournament.id %>/final" class="btn btn-primary noprint btn-lg"><%- __("FinalTable") %></a>
             <% } %>
             </span>
         </div>
@@ -79,7 +79,7 @@
         <div id="pairing"></div>
     </div>
     <div class="col-12 text-center noprint">
-        <span class="small">Туры</span>
+        <span class="small"><%- __("Tours") %></span>
         <% for (var i = 1; i < tournament.tours_count + 1; i++) { %>
          <% if (typeof tour_id != "undefined" && i == tour_id) { %>
             <a class="btn btn-danger" href="/tournament/<%= tournament.id %>/tour/<%= i %>"><%= i %></a>
@@ -93,19 +93,19 @@
 
     <% } %>
         <% if (tournament.is_closed === 1) { %>
-        <a class="btn btn-primary" href="/tournament/<%= tournament.id %>/final">Итоговая таблица</a>
+        <a class="btn btn-primary" href="/tournament/<%= tournament.id %>/final"><%- __("FinalTable") %></a>
         <% } %>
     </div>
     <div class="col-12 mt-5 noprint">
         <div id="participants">
 
-            <h5>Текущая таблица результатов</h5>
+            <h5><%- __("CurrentTable") %></h5>
             <table class="table table-bordered table-hover table-sm">
                 <thead class="thead-light">
                 <tr>
-                    <th style="width: 2%"><span class="d-none d-sm-block">Место</span></th>
-                    <th>Имя</th>
-                    <th><span class="d-none d-sm-block">Кол-во очков</span></th>
+                    <th style="width: 2%"><span class="d-none d-sm-block"><%- __("TablePlace") %></span></th>
+                    <th><%- __("TableName") %></th>
+                    <th><span class="d-none d-sm-block"><%- __("TablePoints") %></span></th>
                     <th style="width:2%"></th>
                     <th style="width:2%"></th>
                     <% if (user && user.user && user.user.id === tournament.creator_id) { %>
@@ -130,7 +130,7 @@
                     </td>
 
                     <td className="text-center">
-                        <a target="_blank" href="/users/stat/<%= participants[i].user_id %>" title="График ученика" class="fa far fa-chart-line ml-1" data-id="<%= participants[i].user_id %>"></a>
+                        <a target="_blank" href="/users/stat/<%= participants[i].user_id %>" title="<%- __("TableProgress") %>" class="fa far fa-chart-line ml-1" data-id="<%= participants[i].user_id %>"></a>
                     </td>
                     <% if (user && user.user && user.user.id === tournament.creator_id) { %>
 
@@ -154,7 +154,7 @@
 
             <div class="modal-body" id="user_results">
 
-                <h2>Загрузка</h2>
+                <h2><%- __("Loading") %></h2>
 
                 <div class="progress">
                     <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
@@ -173,6 +173,14 @@
     var tournament_id = '<%= tournament.id %>';
     var current_tour = '<%= tournament.current_tour %>';
     var tour_id = '<%= (typeof tour_id != "undefined") ? tour_id : null %>';
+
+
+
+
+    var _Board = '<%- __("Board") %>';
+    var _Name = '<%- __("Name") %>';
+    var _Points = '<%- __("Points") %>';
+    var _Result = '<%- __("Result") %>';
 
 </script>
 

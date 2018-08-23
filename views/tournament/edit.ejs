@@ -5,15 +5,15 @@
     <div class="col-lg-12 d-none d-lg-block">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Турниры</a></li>
+                <li class="breadcrumb-item"><a href="/"><%- __("Tournaments") %></a></li>
                 <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>"><%= tournament.title %></a></li>
-                <li class="breadcrumb-item active" aria-current="page">Редактирование</li>
+                <li class="breadcrumb-item active" aria-current="page"><%- __("EditTournament") %></li>
             </ol>
         </nav>
     </div>
 </div>
 
-<h3>Редактирование турнира</h3>
+<h3><%- __("EditTournament") %></h3>
 
 <div class="row">
     <div class="col-lg-6">
