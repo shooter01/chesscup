@@ -144,7 +144,7 @@ passport.use("local-login",new LocalStrategy({
 
 var routes = require('./routes/index')(app, passport, pool);
 var users = require('./routes/users')(app, passport, pool);
-var tournament = require('./routes/tournament')(app, passport, pool);
+var tournament = require('./routes/tournament')(app, passport, pool, i18n);
 
 
 // This is how you'd set a locale from req.cookies.

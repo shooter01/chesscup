@@ -24,7 +24,7 @@ const bluebird = require('bluebird');
 
 
 
-module.exports = function(app, passport, pool) {
+module.exports = function(app, passport, pool, i18n) {
 
 
 
@@ -184,7 +184,7 @@ module.exports = function(app, passport, pool) {
 
     router.post('/add_participant', [
         isLoggedIn,
-        check('tournament_id', 'Вы не указали участника.').exists().isLength({ min: 1 }).custom((value, { req }) => {
+        check('tournament_id', 'The participant field is required.').exists().isLength({ min: 1 }).custom((value, { req }) => {
 
             return new Promise((resolve, reject) => {
 
@@ -197,7 +197,7 @@ module.exports = function(app, passport, pool) {
                 ]).then(function (rows) {
 
                     if(rows.length !== 0) {
-                        return reject("Такой участник уже есть в турнире");
+                        return reject(req.i18n.__("ParticipantsAlreadyInTournament"));
                     } else {
                         return resolve();
                     }
@@ -219,12 +219,12 @@ module.exports = function(app, passport, pool) {
                         return pool.query("SELECT COUNT(*) as count FROM tournaments_participants WHERE team_id = ? AND tournament_id = ?", [req.body.team_id, value]);
                     }).then(function (rows) {
                         if(tournament.length > 0 && tournament[0].is_active) {
-                            return reject("Турнир уже запущен. Добавление участников невозможно");
+                            return reject(req.i18n.__("ParticipantsTournamentIsAlreadyOn"));
                         } else if (tournament[0].type > 10 && rows[0].count >= tournament[0].team_boards){
-                            return reject("Слишком много участников в команде. В турнире играют " + tournament[0].team_boards + " досок");
+                            return reject(req.i18n.__("ParticipantsTooManyPlayersInTeam") + tournament[0].team_boards + req.i18n.__("ParticipantsOfBoards"));
                         } else {
                             if(tournament.length > 0 && tournament[0].type > 10 && (req.body.team_id == null || req.body.team_id.trim() == "")) {
-                                return reject("Вы не выбрали команду для добавления");
+                                return reject(req.i18n.__("ParticipantsChooseTeam"));
                             } else {
                                 return resolve();
                             }
@@ -236,8 +236,8 @@ module.exports = function(app, passport, pool) {
             });
 
         }),
-        check('user_id', 'Вы не указали турнир. ').exists().isLength({ min: 1 }),
-        check('user_type', 'Вы не указали тип юзера. ').exists().isLength({ min: 1 }),
+        check('user_id', 'Choose the tournament. ').exists().isLength({ min: 1 }),
+        check('user_type', 'Choose the type of user. ').exists().isLength({ min: 1 }),
 
     ],
         function (req, res, next) {

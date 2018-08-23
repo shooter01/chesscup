@@ -152,40 +152,39 @@ class ModalInput extends React.Component {
                     <div className="container-fluid">
 
                             <div className="row">
-                                <label htmlFor="name" className="col-form-label small">Фамилия и Имя</label>
+                                <label htmlFor="name" className="col-form-label small">{_Name}</label>
 
-                                <input type="text" id="name" className="form-control" placeholder="Фамилия и Имя" name="name" required="required" aria-describedby="basic-addon2" />
+                                <input type="text" id="name" className="form-control" placeholder={_Name} name="name" required="required" aria-describedby="basic-addon2" />
                             </div>
 
                             <div className="row">
-                                <label htmlFor="email" className="col-form-label small">Email</label>
+                                <label htmlFor="rating" className="col-form-label small">{_Rating}</label>
 
-                                <input type="text" id="email" className="form-control " placeholder="Email" name="email" aria-describedby="basic-addon2" />
+                                <input type="text"  className="form-control" defaultValue="1200"  placeholder={_Rating}
+                                       name="tournaments_rating"  />
                             </div>
 
-                            <div className="row">
-                                <label htmlFor="parent_name" className="col-form-label small">Пароль</label>
 
-                                <input type="text" id=""  className="form-control " placeholder="Введите пароль" name="password" aria-describedby="basic-addon2" />
-                            </div>
 
 
                         <hr/>
                             {(this.state.current_tab == "student") ?
                             <div className="row">
-                                <div className="col-6">
+                              {/*  <div className="col-6">
 
                                     <div className="row">
-                                        <label htmlFor="parent_name" className="col-form-label small">ФИО родителей</label>
-                                        <input type="text"  id="parent_name" className="form-control" placeholder="ФИО родителей"
-                                               aria-label="Recipient's username" name="parent_name" aria-describedby="basic-addon2" />
+                                        <label htmlFor="email" className="col-form-label small">Email</label>
+
+                                        <input type="text" id="email" className="form-control " placeholder="Email" name="email" aria-describedby="basic-addon2" />
                                     </div>
 
-                                    <div className=" row">
-                                        <label htmlFor="phone" className="col-form-label small">Контакты родителей</label>
-                                        <input type="text" id="phone" className="form-control"  placeholder="Контакты родителей"
-                                               aria-label="Recipient's username" name="phone" aria-describedby="basic-addon2" />
+                                    <div className="row">
+                                        <label htmlFor="parent_name" className="col-form-label small">Пароль</label>
+
+                                        <input type="text" id=""  className="form-control " placeholder="Введите пароль" name="password" aria-describedby="basic-addon2" />
                                     </div>
+
+
 
 
                                     <div className=" row">
@@ -199,9 +198,9 @@ class ModalInput extends React.Component {
                                         <input type="text" id="district" className="form-control"  placeholder="Район проживания"
                                                aria-label="Recipient's username" name="district" aria-describedby="basic-addon2" />
                                     </div>
-                                </div>
+                                </div>*/}
                                 <div className="col-5 ml-1">
-                                    <div className="row">
+                                    {/*<div className="row">
                                         <label htmlFor="sex" className="col-form-label small">Пол</label>
                                         <select name="sex" className="custom-select" id="sex">
                                             <option value="1">Мужской</option>
@@ -218,6 +217,18 @@ class ModalInput extends React.Component {
                                         </select>
                                     </div>
 
+                                    <div className="row">
+                                        <label htmlFor="parent_name" className="col-form-label small">ФИО родителей</label>
+                                        <input type="text"  id="parent_name" className="form-control" placeholder="ФИО родителей"
+                                               aria-label="Recipient's username" name="parent_name" aria-describedby="basic-addon2" />
+                                    </div>
+
+                                    <div className=" row">
+                                        <label htmlFor="phone" className="col-form-label small">Контакты родителей</label>
+                                        <input type="text" id="phone" className="form-control"  placeholder="Контакты родителей"
+                                               aria-label="Recipient's username" name="phone" aria-describedby="basic-addon2" />
+                                    </div>
+*/}
                                     {/*<div className="row">
                                         <label htmlFor="office_id" className="col-form-label small">Учреждение</label>
                                         <select name="office_id" className="custom-select" id="office_id">
@@ -227,18 +238,13 @@ class ModalInput extends React.Component {
                                         </select>
                                     </div>*/}
 
-                                    <div className="row">
-                                        <label htmlFor="rating" className="col-form-label small">Рейтинг за доской</label>
 
-                                        <input type="text"  className="form-control" defaultValue="1200"  placeholder="Рейтинг"
-                                               name="tournaments_rating"  />
-                                    </div>
-                                    <div className="row">
+                                    {/*<div className="row">
                                         <label htmlFor="rating" className="col-form-label small">Рейтинг по задачам</label>
 
                                         <input type="text"  className="form-control" defaultValue="1200" placeholder="Рейтинг"
                                                name="rating"  />
-                                    </div>
+                                    </div>*/}
                                 </div>
                             </div>
                                 :

@@ -4,9 +4,6 @@
 	"TableBoard": "Board",
 	"TablePoints": "Points",
 	"TableProgress": "Progress",
-
-
-
 	"ParticipantsTeams": "Teams",
 	"ParticipantsToTournament": "To tournament",
 	"ParticipantsAddParticipant": "Add participant",
@@ -16,10 +13,14 @@
 	"ParticipantsSuccessUpdate": "Successfully updated",
 	"ParticipantsStatus": "Status",
 	"ParticipantsWaiting": "waiting",
-
-
-
-
+	"ParticipantsRating": "Rating",
+	"ParticipantAdded": "Participant added",
+	"ParticipantRequestSent": "Request has been submitted",
+	"ParticipantsAlreadyInTournament": "This participant already exists in the tournament.",
+	"ParticipantsTournamentIsAlreadyOn": "Турнир уже запущен. Добавление участников невозможно",
+	"ParticipantsTooManyPlayersInTeam": "Слишком много участников в команде. В турнире играют ",
+	"ParticipantsOfBoards": " досок",
+	"ParticipantsChooseTeam": "Вы не выбрали команду для добавления",
 	"Loading": "Loading",
 	"MenuHome": "Home",
 	"MenuReg": "Sign up",
@@ -87,5 +88,6 @@
 	"Board": "Board",
 	"Name": "Name",
 	"Points": "Points",
-	"Result": "Result"
+	"Result": "Result",
+	"ParticipantsName": "ParticipantsName"
 }

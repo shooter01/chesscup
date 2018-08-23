@@ -315,7 +315,7 @@ class Participants extends React.Component {
     }
     setDefaultState(){
         this.setState({
-            status : "Ожидание",
+            status : _Waiting,
             alert_status: "info"
         });
     }
@@ -347,7 +347,7 @@ class Participants extends React.Component {
 
         clearTimeout(that.state.timeout);
         that.setState({
-            status : "Отправлен запрос",
+            status : _RequestSent,
         });
 
         $.ajax({
@@ -378,7 +378,7 @@ class Participants extends React.Component {
                 that.setState({
                     participants : data.participants || that.state.participants,
                     teams : data.teams || that.state.teams,
-                    status : "Участник добавлен",
+                    status : _ParticipantAdded,
                     alert_status: "success"
                 });
                 that.state.timeout = setTimeout(function () {
