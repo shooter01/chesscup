@@ -130,7 +130,7 @@ class TeamsInput extends React.Component {
                 <div className="modal-dialog modal-lg" role="document">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="exampleModalLabel">Добавление команды</h5>
+                            <h5 className="modal-title" id="exampleModalLabel">{_AddingTeam}</h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -138,7 +138,7 @@ class TeamsInput extends React.Component {
                         <div className="modal-body">
 
                             <div className="alert alert-danger hidden errors"></div>
-                            <div className="alert alert-success hidden success">Данные успешно обновлены</div>
+                            <div className="alert alert-success hidden success">{_SuccessUpdate}</div>
 
                             <div className="input-group mb-3 ">
 
@@ -150,9 +150,9 @@ class TeamsInput extends React.Component {
                                     <div className="container-fluid">
 
                                             <div className="row">
-                                                <label htmlFor="name" className="col-form-label small">Название команды</label>
+                                                <label htmlFor="name" className="col-form-label small">{_TeamName}</label>
 
-                                                <input type="text" id="name" className="form-control" placeholder="Название команды" name="team_name" required="required" aria-describedby="basic-addon2" />
+                                                <input type="text" id="name" className="form-control" placeholder={_TeamName} name="team_name" required="required" aria-describedby="basic-addon2" />
                                             </div>
                                     </div>
 
@@ -164,8 +164,8 @@ class TeamsInput extends React.Component {
 
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                            <button type="button" className="btn btn-primary" id="save_team">Сохранить</button>
+                            <button type="button" className="btn btn-secondary" data-dismiss="modal">{_Close}</button>
+                            <button type="button" className="btn btn-primary" id="save_team">{_Save}</button>
                         </div>
                     </div>
                 </div>

@@ -752,7 +752,7 @@ class Participants extends React.Component {
 
                         {(this.state.tournament.type > 10) ?
                             <li className="nav-item">
-                                <span className="btn btn-success float-right" onClick={this.addTeamModal}>{_AddParticipant}</span>
+                                <span className="btn btn-success float-right" onClick={this.addTeamModal}>{_AddTeam}</span>
                             </li>
                             : null}
 

@@ -149,7 +149,7 @@ class Pairing extends React.Component {
 
         $(".removeParticipant").on("click",function (event) {
             var user_id = $(this).data("id");
-            if (user_id && confirm("Вы уверены? Участник не попадет в следующие жеребьевки.")) {
+            if (user_id && confirm(_AreYouSure)) {
                 $.ajax({
                     url: "/tournament/delete_participant",
                     method: "post",
@@ -218,9 +218,9 @@ class Pairing extends React.Component {
             var $badge = $target.closest("td").find(".badge");
 
             if (data.status === "ok") {
-                $badge.removeClass("hidden").addClass("badge-success").html("сохранено");
+                $badge.removeClass("hidden").addClass("badge-success").html(_Saved);
             } else {
-                $badge.removeClass("hidden").addClass("badge-danger").html("ошибка сохранения");
+                $badge.removeClass("hidden").addClass("badge-danger").html(_SaveError);
             }
 
             var state = that.state.pairs;

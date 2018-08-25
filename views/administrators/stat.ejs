@@ -1,0 +1,124 @@
+
+<% layout('boilerplate') -%>
+
+
+<h4 class="mt-5"><%= student[0].name %></h4>
+
+<div id="container"></div>
+
+
+<h5>Турнирный рейтинг : <div class="badge badge-success"><%= student[0].tournaments_rating %></div></h5>
+<h5>Рейтинг по задачам : <div class="badge badge-success"><%= student[0].rating %></div></h5>
+
+
+
+<h6 class="mt-3">Учитель : <%= teacher_info[0].name %></h6>
+
+
+<h6 class="mt-3">Последняя активность : <span id="latest_activity"></span></h6>
+
+
+
+<script src="https://code.highcharts.com/highcharts.src.js"></script>
+<script>
+    var data = JSON.parse('<%- ratings %>');
+    var tournament_ratings = JSON.parse('<%- tournament_ratings %>');
+    var values = [];
+    var latest = 0;
+    for (var i = 0; i < data.length; i++) {
+        var item = {};
+        item.y = data[i].changed_rating;
+        item.x = new Date(data[i]['date']).getTime();
+        if (item.x > latest) {
+            latest = item.x;
+        }
+        values.push(item);
+    }
+
+    var trs = [];
+    for (var i = 0; i < tournament_ratings.length; i++) {
+        var item = {};
+        item.y = tournament_ratings[i].rating;
+        item.x = new Date(tournament_ratings[i]['created_at']).getTime();
+        trs.push(item);
+    }
+
+    Highcharts.chart('container', {
+
+        title: {
+            text: 'Рейтинг за все время'
+        },
+
+        subtitle: {
+//            text: 'Source: thesolarfoundation.com'
+        },
+        xAxis: {
+            type: 'datetime',
+            labels: {
+                format: '{value:%Y-%b-%e}'
+            },
+        },
+        yAxis: {
+            title: {
+                text: 'Рейтинг',
+            },
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle'
+        },
+
+        plotOptions: {
+            series: {
+                label: {
+                    connectorAllowed: false
+                },
+
+            }
+        },
+
+        series: [{
+            name: 'Задачи',
+            data: values,
+
+        },
+            {
+                name: 'Турниры',
+                data: trs,
+
+            }
+        ],
+
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        }
+
+    });
+
+    // Create a new JavaScript Date object based on the timestamp
+    // multiplied by 1000 so that the argument is in milliseconds, not seconds.
+    var ft = new Date(latest);
+    // Hours part from the timestamp
+    var hours = ft.getDate();
+    // Minutes part from the timestamp
+    var minutes = "0" + ft.getMonth();
+    // Seconds part from the timestamp
+    var seconds = "0" + ft.getFullYear();
+
+    // Will display time in 10:30:23 format
+    var formattedTime = hours + '.' + minutes.substr(-2) + '.' + seconds.substr(-2);
+
+    $("#latest_activity").html(formattedTime);
+</script>

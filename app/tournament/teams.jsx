@@ -110,7 +110,7 @@ class TeamsList extends React.Component {
                                <b>{this.state.teams[item].name} </b>
                             </div>
                             <span>
-                                {(this.props.current_team == this.state.teams[item].team_id ? null : <span data-id={item} onClick={this.selectTeam} className="select-team-btn mr-3">Выбрать команду</span>)}
+                                {(this.props.current_team == this.state.teams[item].team_id ? null : <span data-id={item} onClick={this.selectTeam} className="select-team-btn mr-3">{_ChooseTeam}</span>)}
 
                                 <a href="" className="fa fa-trash trash-team text-dark mr-1 mt-1" data-id={item} title="Удаление команды" onClick={this.removeTeam} ></a>
                             </span>

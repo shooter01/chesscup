@@ -150,7 +150,23 @@ module.exports = function(app, passport, pool, i18n) {
 
     router.post('/add_team', [
         isLoggedIn,
-        check('team_name', 'Вы не указали имя команды. ').exists().isLength({ min: 1 }),
+        // check('team_name', req.i18n.__("TeamNameIsEmpty")).exists().isLength({ min: 1 }),
+        check('team_name').custom((value, { req }) => {
+
+            return new Promise((resolve, reject) => {
+
+                let user_type = req.body.team_name;
+
+                if(!user_type) {
+                    return reject(req.i18n.__("TeamNameIsEmpty"));
+                } else {
+                    return resolve();
+                }
+
+
+            });
+
+        }),
         check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 })
     ],
         function (req, res, next) {
@@ -316,7 +332,7 @@ module.exports = function(app, passport, pool, i18n) {
                         value
                     ]).then(function (rows) {
                         if(rows.length > 0 && rows[0].is_active) {
-                            return reject("Турнир уже запущен. Удаление участников невозможно");
+                            return reject(req.i18n.__("ParticipantsTournamentIsAlreadyOn"));
                         } else {
                             return resolve();
                         }
@@ -387,7 +403,7 @@ module.exports = function(app, passport, pool, i18n) {
                         value
                     ]).then(function (rows) {
                         if(rows.length > 0 && rows[0].is_active) {
-                            return reject("Турнир уже запущен. Удаление команд невозможно");
+                            return reject(req.i18n.__("ParticipantsTournamentIsAlreadyOn"));
                         } else {
                             return resolve();
                         }
@@ -535,7 +551,7 @@ module.exports = function(app, passport, pool, i18n) {
                 })
                 .then(res => {
                     if (tourney.is_closed === 1) {
-                        throw new Error("Турнир уже закрыт. Изменения не внесены.");
+                        throw new Error(req.i18n.__("TourneyClosed"));
                     }
 
                     if (tourney.type > 10) {
@@ -548,7 +564,7 @@ module.exports = function(app, passport, pool, i18n) {
                 }).then(rows => {
 
                     if (tourney.type > 10 && rows.length <= tourney.tours_count) {
-                        throw new Error("Слишком мало участников. Поменяйте количество туров или количество участников.");
+                        throw new Error(req.i18n.__("TooSmallQuantity"));
                     }
 
                     let sql = "SELECT tp.user_id, tp.start_rating, ts.scores, tp.is_active FROM tournaments_participants tp LEFT JOIN tournaments_scores ts ON ts.user_id = tp.user_id AND  tp.tournament_id = ts.tournament_id WHERE tp.tournament_id = ?";
@@ -570,7 +586,7 @@ module.exports = function(app, passport, pool, i18n) {
                }).then(rows => {
 
                    if (tourney.type === 1 && participants.length <= tourney.tours_count) {
-                       throw new Error("Слишком мало участников. Поменяйте количество туров или количество участников.");
+                       throw new Error(req.i18n.__("TooSmallQuantity"));
                    }
                    //сортировка участников по полю scores - кто сколько набрал
                    participants = DRAW.sortArr(participants);
@@ -599,7 +615,7 @@ module.exports = function(app, passport, pool, i18n) {
                     var isEmptyResults = DRAW.checkEmptyResults(current_tour_results, tourney);
 
                     if (tourney.current_tour !== 0) {
-                        if (isEmptyResults) throw new Error("Заполните все результаты");
+                        if (isEmptyResults) throw new Error(req.i18n.__("ParticipantsFillAllResults"));
                     }
 
                     //фильтруем результаты тура
@@ -923,7 +939,7 @@ module.exports = function(app, passport, pool, i18n) {
             } else {
                 res.json({
                     "status": "error",
-                    "msg": "tournament_id не определен",
+                    "msg": "tournament_id is null",
                 });
             }
         }
@@ -1248,7 +1264,7 @@ module.exports = function(app, passport, pool, i18n) {
                        });
                    } else {
                        res.render('error', {
-                           message  : "Турнир не найден",
+                           message  : req.i18n.__("TourneyNotFound"),
                        });
                    }
 
@@ -1284,7 +1300,7 @@ module.exports = function(app, passport, pool, i18n) {
 
         } else {
             res.render('error', {
-                message  : "Турнир не найден",
+                message  : req.i18n.__("TourneyNotFound"),
             });
         }
 
@@ -1391,7 +1407,7 @@ module.exports = function(app, passport, pool, i18n) {
             });
         } else {
             res.render('error', {
-                message  : "Турнир не найден",
+                message  : req.i18n.__("TourneyNotFound"),
             });
         }
     });
@@ -1416,8 +1432,8 @@ module.exports = function(app, passport, pool, i18n) {
                        });
                    } else {
                        res.render('error', {
-                           message  : "Турнир не найден",
-                           error  : "Турнир не найден",
+                           message  : req.i18n.__("TourneyNotFound"),
+                           error  : req.i18n.__("TourneyNotFound"),
                        });
                    }
 
@@ -1427,7 +1443,7 @@ module.exports = function(app, passport, pool, i18n) {
             });
         } else {
             res.render('error', {
-                message  : "Турнир не найден",
+                message  : req.i18n.__("TourneyNotFound"),
             });
         }
     });
@@ -1508,7 +1524,7 @@ module.exports = function(app, passport, pool, i18n) {
                 });
         } else {
             res.render('error', {
-                message  : "Турнир не найден",
+                message  : req.i18n.__("TourneyNotFound"),
             });
         }
     });
@@ -1585,8 +1601,8 @@ module.exports = function(app, passport, pool, i18n) {
                         });
                     } else {
                         res.render('error', {
-                            message  : "Турнир не найден",
-                            error  : "Турнир не найден",
+                            message  : req.i18n.__("TourneyNotFound"),
+                            error  : req.i18n.__("TourneyNotFound"),
                         });
                     }
 
@@ -1596,7 +1612,7 @@ module.exports = function(app, passport, pool, i18n) {
             });
         } else {
             res.render('error', {
-                message  : "Турнир не найден",
+                message  : req.i18n.__("TourneyNotFound"),
             });
         }
 
@@ -1649,7 +1665,7 @@ module.exports = function(app, passport, pool, i18n) {
         } else {
             res.json({
                 status : "error",
-                msg  : "Турнир не найден",
+                msg  : req.i18n.__("TourneyNotFound"),
             });
         }
 

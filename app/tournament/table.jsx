@@ -46,12 +46,12 @@ class UserResults extends React.Component {
                 <table className="table table-hover table-bordered table-sm">
                     <thead className="thead-dark">
                     <tr>
-                        <th  scope="col" className="text-center" style={w5}><span className="d-none d-sm-block">Тур</span></th>
-                        <th  scope="col" className="text-center"  style={w30}>Имя</th>
-                        <th  scope="col" className="text-center" style={w5}><span className="d-none d-sm-block">Очки</span></th>
-                        <th  scope="col" className="text-center" style={w12}><span className="d-none d-sm-block">Результат</span></th>
-                        <th  scope="col" className="text-center" style={w5}><span className="d-none d-sm-block">Очки</span></th>
-                        <th  scope="col" className="text-center" style={w30}>Имя</th>
+                        <th  scope="col" className="text-center" style={w5}><span className="d-none d-sm-block">{_Tour}</span></th>
+                        <th  scope="col" className="text-center"  style={w30}>{_Name}</th>
+                        <th  scope="col" className="text-center" style={w5}><span className="d-none d-sm-block">{_Points}</span></th>
+                        <th  scope="col" className="text-center" style={w12}><span className="d-none d-sm-block">{_Result}</span></th>
+                        <th  scope="col" className="text-center" style={w5}><span className="d-none d-sm-block">{_Points}</span></th>
+                        <th  scope="col" className="text-center" style={w30}>{_Name}</th>
                     </tr>
                     </thead>
 
