@@ -294,7 +294,7 @@ class Pairing extends React.Component {
                     {this.state.pairs.map((item, index) => (
                         <tr key={index}>
                             <td className="text-center">{index+1}</td>
-                            <td data-id={item.p1_id} className="participant">{item.p1_name} <span className="badge badge-dark">{item.p1_rating}</span> {(item.rating_change_p1 > 0) ? <span className="badge badge-success">+{item.rating_change_p1}</span> : <span className="badge badge-danger">{item.rating_change_p1}</span>}</td>
+                            <td data-id={item.p1_id} className="participant">{item.p1_name} <span className="badge badge-dark">{item.p1_rating}</span> {(item.rating_change_p1 > 0) ? <span className="badge badge-success">+{item.rating_change_p1}</span> : <span className="badge badge-danger">{item.rating_change_p1}</span>} {item.p1_id}</td>
                             <td className="text-center "><span className="d-none d-sm-block">{item.p1_scores}</span></td>
                             <td className="text-center">
                                 {(tour_id != "null" && tour_id == current_tour && typeof this.state.owner !== "undefined") ?
@@ -333,7 +333,7 @@ class Pairing extends React.Component {
 
                                 <span className="badge"></span></td>
                             <td className="text-center "><span className="d-none d-sm-block">{item.p2_scores}</span></td>
-                            <td data-id={item.p2_id} className="participant">{item.p2_name} <span className="badge badge-dark">{item.p2_rating}</span> {(item.rating_change_p2 > 0) ? <span className="badge badge-success">+{item.rating_change_p2}</span> : <span className="badge badge-danger">{item.rating_change_p2}</span>}</td>
+                            <td data-id={item.p2_id} className="participant">{item.p2_name} <span className="badge badge-dark">{item.p2_rating}</span> {(item.rating_change_p2 > 0) ? <span className="badge badge-success">+{item.rating_change_p2}</span> : <span className="badge badge-danger">{item.rating_change_p2}</span>} {item.p2_id}</td>
                         </tr>
                     ))}
                     </tbody>

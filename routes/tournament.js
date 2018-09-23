@@ -283,7 +283,6 @@ module.exports = function(app, passport, pool, i18n) {
 
             pool.query('SELECT MAX(team_board) AS max_board FROM tournaments_participants WHERE tournament_id = ? AND team_id = ?', [office.tournament_id, office.team_id]).then(function (results) {
                 var max_board = results[0].max_board;
-                console.log(results);
                 if (user_type !== "admins") {
                     office.team_board = (max_board == null) ? 0 : max_board + 1;
                 }
@@ -371,7 +370,6 @@ module.exports = function(app, passport, pool, i18n) {
 
                     return pool.query(sql, office.tournament_id);
                 }).then(function (results) {
-                console.log(results);
                 if (req.body.tournament_type > 10) {
                     var teams = makeTeams(results);
                     res.json({
@@ -436,7 +434,6 @@ module.exports = function(app, passport, pool, i18n) {
                 }).then(function (results) {
                     return pool.query("SELECT tt.id AS team_id,tt.team_name, tp.user_id, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC, tp.team_board ASC", office.tournament_id);
                 }).then(function (results) {
-                console.log(results);
                 var teams = makeTeams(results);
                 res.json({
                     status : "ok",
@@ -535,6 +532,7 @@ module.exports = function(app, passport, pool, i18n) {
                 team_swiss,
                 team_pairs,
                 team_berger_object,
+                colors, //цвета, которыми играли участники
                 team_berger,
                 after_tour_team_results_sum_buhgolz = {}
                 ;
@@ -639,13 +637,13 @@ module.exports = function(app, passport, pool, i18n) {
                         ])
                 })
                 .then(rows => {
-
                     //делаем пары и создаем бергер объект
                     //пары вида массив с { home: 178, away: 184 }
                     //бергер объект '178': { wins: [Object], draw: {} }
                     var g = DRAW.makeResultsForSwissSystem(rows, participants, tourney, bye_participants);
                     pairs = g.swiss;
                     berger_object = g.berger_object;
+                    colors = g.colors;
 
                     //считаем бергер объект
                     berger_object = DRAW.sumBergerObject(berger_object, after_tour_results_sum.overall);
@@ -663,7 +661,7 @@ module.exports = function(app, passport, pool, i18n) {
                     //создает массив для вставки в tournament_results
                     //если противника нет ставит 1 : 0
                     //сортирует по очкам
-                    var for_addition = DRAW.makeInsertObject(pairs, participants_object, tourney, req.session.passport.user.id, change_rating);
+                    var for_addition = DRAW.makeInsertObject(pairs, participants_object, tourney, req.session.passport.user.id, change_rating, colors);
 
                     if (let_insert && tourney.type < 10 && ((tourney.current_tour + 1) <= tourney.tours_count)) {
                         return pool.query('INSERT INTO tournaments_results (p1_id, p2_id, p1_won, p2_won,p1_scores,p2_scores, tournament_id,created_at,add_by,tour,board, rating_change_p1, rating_change_p2, p1_rating_for_history, p2_rating_for_history) VALUES ?', [for_addition]);
@@ -1327,7 +1325,6 @@ module.exports = function(app, passport, pool, i18n) {
                 }).then(rows => {
                 pairing = rows;
 
-                console.log(pairing);
 
                 res.json({
                     status : "ok",
@@ -1584,7 +1581,6 @@ module.exports = function(app, passport, pool, i18n) {
                              if (tourney.type > 10) {
                                  teams = makeTeams(participants);
                              }
-                             console.log(teams);
                                 return pool.query('SELECT * FROM users WHERE role > 99 AND school_id = ?', req.session.passport.user.school_id)
                             }).then(rows => {
                                 teachers = rows;
@@ -1629,7 +1625,6 @@ module.exports = function(app, passport, pool, i18n) {
         let tournament_id = req.body.tournament_id;
         let team_id = req.body.team_id;
         let order = JSON.parse(req.body.order);
-        console.log(order["190"]);
 
         tournament_id = parseInt(tournament_id);
 
@@ -1645,7 +1640,6 @@ module.exports = function(app, passport, pool, i18n) {
                 test+= " WHEN " + obj + " THEN " + order[obj];
             }
 
-            console.log(test);
             pool
                 .query('UPDATE tournaments_participants SET team_board = CASE user_id ' + test + '  END WHERE user_id IN ?', [[Object.keys(order)]])
                 .then(rows => {

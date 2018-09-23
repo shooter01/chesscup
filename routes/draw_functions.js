@@ -63,16 +63,20 @@ const DRAW = {
     },
 
     makeResultsForSwissSystem : function (results, participants, tourney, bye_participants) {
-        var res = [], berger_object = {};
+        var res = [], berger_object = {}, global, colors = {};
 
         var newParticipants = [];
         for (var i = 0; i < participants.length; i++) {
             var obj = participants[i];
 
-            var global = {
+            global = {
                 'id': obj.user_id,
                 'seed': i+1
             };
+
+            //объект, который будет хранить цвета
+            colors[obj.user_id] = [];
+
             if (!bye_participants[obj.user_id]) {
                 newParticipants.push(global);
             }
@@ -98,6 +102,9 @@ const DRAW = {
                 }
             };
 
+            if (obj['p1_id'] != null) colors[obj.p1_id].push("w");
+            if (obj['p2_id'] != null) colors[obj.p2_id].push("b");
+
             berger_object[obj["p1_id"]] = berger_object[obj["p1_id"]] || {wins : {}, draw : {}};
             berger_object[obj["p2_id"]] = berger_object[obj["p2_id"]] || {wins : {}, draw : {}};
 
@@ -122,8 +129,9 @@ const DRAW = {
 
         delete berger_object['null'];
 
+
         var d = swisspairing().getMatchups(tourney.current_tour + 1, newParticipants, newArr);
-        return {swiss : d, berger_object : berger_object};
+        return {swiss : d, berger_object : berger_object, colors : colors};
     },
 
 
@@ -157,7 +165,7 @@ const DRAW = {
     },
 
 
-    makeInsertObject : function (pairs, participants_object, tourney, session_id, end_ratings) {
+    makeInsertObject : function (pairs, participants_object, tourney, session_id, end_ratings, colors) {
         var for_addition = [], board = 0;
 
         for (var i = 0; i < pairs.length; i++) {
@@ -168,6 +176,9 @@ const DRAW = {
             var p1_rating_change = null;
             var p2_rating = null;
             var p2_rating_change = null;
+
+
+
             if (obj.home == null) {
                 p1_won = 0;
                 p2_won = 1;
@@ -181,6 +192,8 @@ const DRAW = {
                 p1_rating_change = 0;
             }
 
+
+            obj = DRAW.makePairByPrevColors(obj, colors);
 
             for_addition.push(
                 [
@@ -226,6 +239,70 @@ const DRAW = {
         }
 
         return additionObject;
+
+    },
+
+    makePairByPrevColors : function (obj, colors) {
+
+        console.log(colors);
+        console.log(obj);
+        var home_demand = 0, away_demand = 0;
+
+        if (obj.home != null && typeof colors[obj.home] != "undefined" && colors[obj.home].length > 0) {
+            for (var i = colors[obj.home].length - 1; i >= 0 ; i--) {
+                if (colors[obj.home][i] === colors[obj.home][i-1] && colors[obj.home][i] === "w" || colors[obj.home][i] === "w") {
+                    home_demand++;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        if (obj.away != null && typeof colors[obj.away] != "undefined" && colors[obj.away].length > 0) {
+
+            for (var i = colors[obj.away].length - 1; i >= 0 ; i--) {
+                if (colors[obj.away][i] === colors[obj.away][i-1] && colors[obj.away][i] === "b" || colors[obj.away][i] === "b") {
+                    away_demand++;
+                } else {
+                    break;
+                }
+            }
+        }
+        var change_flag = false;
+        console.log(obj.home != null && obj.away != null && Math.abs(home_demand - away_demand) > 1);
+        if (obj.home != null && obj.away != null && home_demand > 1) {
+            var t = obj.home;
+            obj.home = obj.away;
+            obj.away = t;
+            change_flag = true;
+        } else if (obj.home != null && obj.away != null && away_demand > 1){
+            var t = obj.home;
+            obj.home = obj.away;
+            obj.away = t;
+            change_flag = true;
+
+        } else if (obj.home != null && obj.away != null && home_demand > 0 &&  away_demand > 0){
+            var t = obj.home;
+            obj.home = obj.away;
+            obj.away = t;
+            change_flag = true;
+
+        }
+
+        if (obj.home != null && obj.away != null && Math.abs(home_demand - away_demand) > 1 && change_flag == false){
+            var t = obj.home;
+            obj.home = obj.away;
+            obj.away = t;
+            change_flag = true;
+        }
+
+
+        console.log(home_demand);
+        console.log(away_demand);
+        console.log(obj);
+        console.log("\n");
+        console.log("\n");
+        return obj;
 
     },
 
@@ -316,7 +393,6 @@ const DRAW = {
     },
     makeCrossatable : function (results, participants) {
         var played_arrays = {};
-        console.log(results);
 
 
         return played_arrays;
@@ -429,7 +505,6 @@ const DRAW = {
                 if (tournament.type == 20) {
                     team_tour_points = DRAW_TEAM.makeTourScores(teams_results);
                 }
-                console.log(team_tour_points);
                 return pool
                     .query('SELECT * FROM tournaments_teams_scores WHERE tournament_id = ?', tournament_id)
             }).then(function (rows) {
@@ -441,7 +516,6 @@ const DRAW = {
             }).then(function (rows) {
                 pairs = DRAW_TEAM.makePairs(rows, teams_results, tournaments_teams, participants);
             }).then(function (rows) {
-                console.log(team_tour_points);
 
                 res.render('tournament/teams/pairing', {
                     pairing: JSON.stringify(teams_results),
