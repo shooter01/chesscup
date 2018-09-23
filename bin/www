@@ -7,3 +7,6 @@ app.set('port', process.env.PORT || 7000);
 var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);
 });
+var socketApi = require('../socketApi')(app);
+var io = socketApi.io;
+io.attach(server);

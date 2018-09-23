@@ -14,6 +14,9 @@ var Database = require('./routes/sql');
 
 
 
+
+
+
 var app = express();
 var engine = require('ejs-mate');
 
@@ -37,6 +40,7 @@ var pool = new Database({
     connectionLimit: 10,
     acquireTimeout: 1000
 });
+app.pool = pool;
 
 
 var sessionStore = new MySQLStore({}, pool.getConnection());
@@ -68,6 +72,25 @@ app.use(function(req, res, next) {
     res.locals.user = req.session.passport;
     next();
 });
+
+
+const MongoClient = require('mongodb').MongoClient;
+const assert = require('assert');
+
+// Connection URL
+const url = 'mongodb://localhost:27017';
+
+// Database Name
+
+// Use connect method to connect to the server
+MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+    assert.equal(null, err);
+    console.log("Connected successfully to MONGODB server");
+    const dbName = 'myproject';
+    app.mongoDB = client.db(dbName);
+
+});
+
 
 
 var getUser = function(email, password, cb) {

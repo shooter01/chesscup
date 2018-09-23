@@ -38,6 +38,11 @@ module.exports = function(app, passport, pool, i18n) {
     });
 
 
+    router.get('/game', function (req, res, next) {
+        console.log(app.mongoDB);
+        res.render('game/game');
+    });
+
     router.post('/create', [
         isLoggedIn,
         check('title', 'The title field is required').exists().isLength({ min: 1 }),

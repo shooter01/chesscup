@@ -1,0 +1,54 @@
+
+<% layout('boilerplate') -%>
+<link rel="stylesheet" href="/js/cg/assets/s.min.css">
+
+
+<h3 class="d-flex justify-content-between mt-3 mb-3">Турниры  </h3>
+
+<div id="game">
+    <div class="col-12" id="task_header">
+        <div class="row">
+            <div class="col-lg-6 col-md-12" id="wrpr">
+
+            </div>
+            <div class="col-lg-6 d-none d-lg-block" >
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-lg-12">
+        <div id="tsk" class="row"></div>
+    </div>
+</div>
+
+
+<audio id="move_sound">
+    <source src="/sounds/move.ogg" type="audio/ogg"></source>
+</audio>
+<audio id="capture_sound">
+    <source src="/sounds/capture.ogg" type="audio/ogg"></source>
+</audio>
+
+<% if (user && user.user) { %>
+    <script>
+        var u = '<%= user.user.id %>';
+        var g = '4312';
+    </script>
+<% } %>
+
+
+
+<script src="/socket.io/socket.io.js"></script>
+
+
+<script src="/js/j.js"></script>
+<script src="/js/cg/dist/chessground.js"></script>
+
+<script src="/js/game.min.js"></script>
+
+
+
+
+

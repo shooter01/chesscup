@@ -14,6 +14,7 @@ var config = {
         participants : './app/tournament/participant.jsx',
         pairing : './app/tournament/pairing.jsx',
         final : './app/tournament/final.jsx',
+        game : './app/game/game.jsx',
         team_pairing : './app/tournament/team_pairing.jsx',
     },
     output: {

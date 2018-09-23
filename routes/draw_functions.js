@@ -177,8 +177,6 @@ const DRAW = {
             var p2_rating = null;
             var p2_rating_change = null;
 
-
-
             if (obj.home == null) {
                 p1_won = 0;
                 p2_won = 1;
@@ -194,6 +192,7 @@ const DRAW = {
 
 
             obj = DRAW.makePairByPrevColors(obj, colors);
+
 
             for_addition.push(
                 [
@@ -244,8 +243,8 @@ const DRAW = {
 
     makePairByPrevColors : function (obj, colors) {
 
-        console.log(colors);
-        console.log(obj);
+       // console.log(colors);
+       // console.log(obj);
         var home_demand = 0, away_demand = 0;
 
         if (obj.home != null && typeof colors[obj.home] != "undefined" && colors[obj.home].length > 0) {
@@ -269,7 +268,7 @@ const DRAW = {
             }
         }
         var change_flag = false;
-        console.log(obj.home != null && obj.away != null && Math.abs(home_demand - away_demand) > 1);
+      //  console.log(obj.home != null && obj.away != null && Math.abs(home_demand - away_demand) > 1);
         if (obj.home != null && obj.away != null && home_demand > 1) {
             var t = obj.home;
             obj.home = obj.away;
@@ -297,11 +296,11 @@ const DRAW = {
         }
 
 
-        console.log(home_demand);
-        console.log(away_demand);
-        console.log(obj);
-        console.log("\n");
-        console.log("\n");
+      //  console.log(home_demand);
+      //  console.log(away_demand);
+      //  console.log(obj);
+      //  console.log("\n");
+      //  console.log("\n");
         return obj;
 
     },
