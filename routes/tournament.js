@@ -39,8 +39,30 @@ module.exports = function(app, passport, pool, i18n) {
 
 
     router.get('/game', function (req, res, next) {
-        console.log(app.mongoDB);
-        res.render('game/game');
+
+        var mongoGame, game;
+        pool
+            .query('SELECT tr.*, ' +
+                'u2.name as p2_name, ' +
+                'u2.tournaments_rating as p2_tournaments_rating, ' +
+                'u1.tournaments_rating as p1_tournaments_rating, ' +
+                'u1.name AS p1_name ' +
+                'FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN users u2 ON tr.p2_id = u2.id  WHERE tr.id = ? LIMIT 1', 4312)
+            .then(rows => {
+                game = rows[0];
+                console.log(game);
+                return app.mongoDB.collection("users").findOne( { _id: 4312 } )
+            }).then(data => {
+                mongoGame = data;
+                res.render('game/game',
+                    {
+                        mongoGame : mongoGame,
+                        game : game,
+                    });
+            });
+
+
+
     });
 
     router.post('/create', [

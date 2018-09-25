@@ -37,6 +37,10 @@ module.exports = function(app) {
             .query('SELECT * FROM tournaments_results WHERE id = ?', handshakeData._query['g'])
             .then(rows => {
                 var game = rows[0];
+                var time = game.created_at;
+                var a = time.getTime() - new Date().getTime();
+                var diffDays = Math.ceil(a / (1000 * 3600 ));
+                console.log(diffDays);
                 var isPlayer = false;
                 var color = null;
                 if (game.p1_id == handshakeData._query['h']) {
@@ -85,33 +89,54 @@ module.exports = function(app) {
         socket.on('eventServer', function(msg){
             try {
                 msg = JSON.parse(msg);
-                console.log(msg);
-                io.sockets.emit('eventClient', msg.data);
-                console.log(msg.move);
+              //  console.log(msg);
 
-                app.mongoDB.collection("users").updateOne({
-                        _id: parseInt(msg.id)
-                    },
-                    { $set:
-                        {
-                            "fen" : msg.data,
+                console.log(msg);
+
+
+                app.mongoDB.collection("users").findOne( { _id: parseInt(msg.id) } , function (err, mongoGame) {
+                    console.log(mongoGame);
+
+                    app.mongoDB.collection("users").updateOne({
+                            _id: parseInt(msg.id)
                         },
-                        $addOnInsert : {"moves" : []}
-                    },
-                    { upsert: true },
-                    function () {
-                        app.mongoDB.collection("users").updateOne({
-                                _id: parseInt(msg.id)
+                        { $set:
+                            {
+                                "fen" : msg.data,
+                                // "p1_time_end" : data.p1_time_left.getTime() - new Date().getTime(),
+                                // "p2_time_end" : data.p2_time_left.getTime() - new Date().getTime(),
                             },
-                            { $addToSet : {"moves" : msg.move}}
-                        )
-                    }
-                );
+                            $setOnInsert : {
+                                "moves" : [],
+                                "is_over" : 0,
+                                "is_started" : 1,
+                            }
+                        },
+                        { upsert: true },
+                        function (err, data) {
+                               console.log(err);
+                            console.log(mongoGame.p1_time_end);
+                            console.log(new Date());
+                            io.sockets.emit('eventClient', JSON.stringify({
+                                fen : msg.data,
+                                p1_time_left : mongoGame.p1_time_end.getTime() - new Date().getTime(),
+                                p2_time_left : mongoGame.p2_time_end.getTime() - new Date().getTime(),
+                            }));
+
+                            app.mongoDB.collection("users").updateOne({
+                                    _id: parseInt(msg.id)
+                                },
+                                { $addToSet : {"moves" : msg.move}}
+                            )
+                        }
+                    );
+
+                })
+
+
             } catch(e){
                 console.log(e.message);
             }
-
-
         });
 
 
