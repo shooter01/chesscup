@@ -52,6 +52,7 @@
 
                 <% if (user && user.user) { %>
                 <li class="nav-item"><a class="nav-link" href="/logout"><%- __("MenuLogout") %></a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout"><%- user.user.id %></a></li>
                 <% } else { %>
                 <!-- Authentication Links -->
 

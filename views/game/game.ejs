@@ -8,6 +8,22 @@
 
 </style>
 
+
+<div class="row mt-3">
+    <div class="col-lg-12 d-none d-lg-block">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><%- __("Tournaments") %></a></li>
+                <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>"><%= tournament.title %></a></li>
+                <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>">Tour <%= tournament.current_tour %></a></li>
+                <li class="breadcrumb-item" aria-current="page">Game #<%= game.id %></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+
+
 <h3 class="d-flex justify-content-between mt-3 mb-3">Турниры  </h3>
 
 
@@ -40,23 +56,44 @@
     <source src="/sounds/capture.ogg" type="audio/ogg"></source>
 </audio>
 
+<script>
+    var u;
+    var g = '<%= game.id %>';
+    var fen = '<%= (mongoGame) ? mongoGame.fen : null %>';
+    var is_over = parseInt('<%= game.is_over %>');
+</script>
+
+
 <% if (user && user.user) { %>
     <script>
         var u = '<%= user.user.id %>';
-        var g = '4312';
-        var fen = '<%= mongoGame.fen %>';
+        var g = '<%= game.id %>';
+        var fen = '<%= (mongoGame) ? mongoGame.fen : null %>';
     </script>
-<% } %>
+<% }  %>
 
 <script>
+
     var p1 = '<%= game.p1_id %>';
     var p2 = '<%= game.p2_id %>';
+
+
+    var tourney_id = '<%= game.tournament_id %>';
 
     var p1_name = '<%= game.p1_name %>';
     var p2_name = '<%= game.p2_name %>';
 
-    var p1_tournaments_rating = '<%= game.p1_tournaments_rating %>';
-    var p2_tournaments_rating = '<%= game.p2_tournaments_rating %>';
+    var p1_time_left = '<%= p1_time_left %>';
+    var p2_time_left = '<%= p2_time_left %>';
+
+    var p1_tournaments_rating = (is_over) ? '<%= game.p1_rating_for_history %>' : '<%= game.p1_tournaments_rating %>';
+    var p2_tournaments_rating = (is_over) ? '<%= game.p2_rating_for_history %>' : '<%= game.p2_tournaments_rating %>';
+
+    var p1_rating_for_history = '<%= game.p1_rating_for_history %>';
+    var p2_rating_for_history = '<%= game.p2_rating_for_history %>';
+
+    var rating_change_p1 = '<%= game.rating_change_p1 %>' || null;
+    var rating_change_p2 = '<%= game.rating_change_p2 %>' || null;
 
 </script>
 

@@ -193,7 +193,6 @@ const DRAW = {
 
             obj = DRAW.makePairByPrevColors(obj, colors);
 
-
             for_addition.push(
                 [
                     obj.home,
@@ -210,12 +209,14 @@ const DRAW = {
                     p1_rating_change,
                     p2_rating_change,
                     p1_rating,
-                    p2_rating,
+                    p2_rating
                 ]);
-
-
-
         }
+
+        console.log(for_addition);
+
+
+
         for_addition = DRAW.sortAdditonObject(for_addition);
 
         return for_addition;

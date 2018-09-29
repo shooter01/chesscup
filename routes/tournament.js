@@ -5,6 +5,7 @@ const { check, validationResult } = require('express-validator/check');
 const moment = require('moment');
 const countries = require('./countries');
 const DRAW = require('./draw_functions');
+const save_result = require('./save_result');
 const DRAW_TEAM = require('./draw_team_functions');
 // const tournament_teams = require('./tournament_teams')(app, passport, pool);
 // console.log(tournament_teams);
@@ -38,28 +39,51 @@ module.exports = function(app, passport, pool, i18n) {
     });
 
 
-    router.get('/game', function (req, res, next) {
+    router.get('/:tournament_id/game/:gameId', function (req, res, next) {
 
         var mongoGame, game;
-        pool
-            .query('SELECT tr.*, ' +
-                'u2.name as p2_name, ' +
-                'u2.tournaments_rating as p2_tournaments_rating, ' +
-                'u1.tournaments_rating as p1_tournaments_rating, ' +
-                'u1.name AS p1_name ' +
-                'FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN users u2 ON tr.p2_id = u2.id  WHERE tr.id = ? LIMIT 1', 4312)
-            .then(rows => {
+        let tournament;
+        let tournament_id = req.params.tournament_id;
+        let gameId = req.params.gameId;
+        tournament_id = parseInt(tournament_id);
+        gameId = parseInt(gameId);
+        if (!isNaN(tournament_id) && !isNaN(gameId)) {
+
+            pool
+                .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
+                .then(rows => {
+                    tournament = rows[0];
+                    return pool
+                        .query('SELECT tr.*, ' +
+                            'u2.name as p2_name, ' +
+                            'u2.tournaments_rating as p2_tournaments_rating, ' +
+                            'tr.rating_change_p1 as rating_change_p1, ' +
+                            'tr.rating_change_p2 as rating_change_p2, ' +
+                            'tr.p1_rating_for_history as p1_rating_for_history, ' +
+                            'tr.p2_rating_for_history as p2_rating_for_history, ' +
+                            'u1.tournaments_rating as p1_tournaments_rating, ' +
+                            'u1.name AS p1_name ' +
+                            'FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN users u2 ON tr.p2_id = u2.id  WHERE tr.id = ? LIMIT 1', gameId);
+                }).then(rows => {
+                console.log(rows);
+
                 game = rows[0];
-                console.log(game);
-                return app.mongoDB.collection("users").findOne( { _id: 4312 } )
-            }).then(data => {
+                    return app.mongoDB.collection("users").findOne( { _id: gameId } )
+                }).then(data => {
                 mongoGame = data;
+
                 res.render('game/game',
                     {
                         mongoGame : mongoGame,
                         game : game,
+                        tournament : tournament,
+                        p1_time_left : (mongoGame) ? mongoGame.p1_time_end.getTime() - new Date().getTime() : null,
+                        p2_time_left : (mongoGame) ? mongoGame.p2_time_end.getTime() - new Date().getTime() : null
                     });
             });
+        } else {
+
+        }
 
 
 
@@ -521,6 +545,63 @@ module.exports = function(app, passport, pool, i18n) {
 
 
 
+    router.post('/undo_last_tour', [
+        isLoggedIn,
+        check('tournament_id', 'id is required').exists().isLength({ min: 1 }),
+
+    ],
+        function (req, res, next) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({
+                errors: errors.mapped()
+            });
+        } else {
+            let office = {
+                tournament_id: req.body.tournament_id,
+                user_id: req.body.user_id,
+            };
+
+            let user_type = req.body.user_type;
+            let current_tour = null;
+            pool.query('SELECT current_tour FROM tournaments WHERE id = ? LIMIT 1', office.tournament_id)
+                .then(function (results) {
+                    try {
+                        current_tour = results[0].current_tour;
+                    }catch(e){
+                        throw new Error("Can't find current tour");
+                    }
+
+                    return pool.query('DELETE FROM tournaments_results WHERE tournament_id = ? AND tour = ?', [office.tournament_id, current_tour]);
+                }).then(function (results) {
+                    return pool.query('DELETE FROM tournaments_results WHERE tournament_id = ? AND tour = ?', [office.tournament_id, current_tour]);
+                }).then(function (results) {
+                    return pool.query('DELETE FROM tournaments_teams_results WHERE tournament_id = ? AND tour = ?', [office.tournament_id, current_tour]);
+                }).then(function (results) {
+                    return pool.query('DELETE FROM tournaments_teams_scores WHERE tournament_id = ? AND tour = ?', [office.tournament_id, current_tour]);
+                }).then(function (results) {
+                return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[
+                    {
+                        current_tour : current_tour - 1,
+                        is_closed : 0,
+                        is_active : 0,
+                    }, office.tournament_id, current_tour]);
+
+
+            }).then(function (results) {
+               // console.log(results);
+                res.json({
+                    "status": "ok",
+                    "participants": results,
+                });
+            }).catch((err) => {
+                console.log(err);
+            });
+        }
+    });
+
+
+
 
 
     router.post('/make_draw', [
@@ -690,11 +771,53 @@ module.exports = function(app, passport, pool, i18n) {
                     //сортирует по очкам
                     var for_addition = DRAW.makeInsertObject(pairs, participants_object, tourney, req.session.passport.user.id, change_rating, colors);
 
+               // console.log(for_addition);
+
+
+
                     if (let_insert && tourney.type < 10 && ((tourney.current_tour + 1) <= tourney.tours_count)) {
                         return pool.query('INSERT INTO tournaments_results (p1_id, p2_id, p1_won, p2_won,p1_scores,p2_scores, tournament_id,created_at,add_by,tour,board, rating_change_p1, rating_change_p2, p1_rating_for_history, p2_rating_for_history) VALUES ?', [for_addition]);
                     }
                 })
-                .then(rows => {
+                .then(function(data){
+
+
+                    if (data.insertId){
+
+                        return  pool.query("SELECT * FROM tournaments_results WHERE tournament_id = ? AND tour = ?", [tourney.id, tourney.current_tour + 1]);
+                    }
+
+
+                })  .then(function(data){
+                        console.log(data);
+                var newDateObj = moment(new Date()).add(30, 'm').toDate();
+
+                for (var i = 0; i < data.length; i++) {
+                    var obj = data[i];
+                    var game = app.mongoDB.collection("users").insertOne( {
+                        "_id" : obj.id,
+                        "moves": [],
+                        "is_over": 0,
+                        "p1_time_end": newDateObj,
+                        "p2_time_end": newDateObj,
+                        "is_started": 0,
+                    } )
+                }
+
+                    /*if (data.insertId){
+
+                        var game = app.mongoDB.collection("users").insertOne( {
+                             "moves": [],
+                             "is_over": 0,
+                             "is_started": 1,
+                             } )
+                    }*/
+
+
+                })
+                .then(function(){
+
+                    console.log(arguments);
                     if (let_insert || let_tournament_insert) {
                         if (tourney.current_tour < tourney.tours_count) {
                             return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
@@ -975,164 +1098,27 @@ module.exports = function(app, passport, pool, i18n) {
         function (req, res, next) {
         let tournament_id = req.body.tournament_id;
         let result = JSON.parse(req.body.result);
-        tournament_id = parseInt(tournament_id);
+
+        pool = bluebird.promisifyAll(pool);
+
+        var respond = save_result({
+            tournament_id : parseInt(tournament_id),
+            result : result,
+            pool : pool,
+        });
 
         if (!isNaN(tournament_id)) {
-
-            let office = {
-                p1_won: result.p1_won,
-                p2_won: result.p2_won,
-            };
-
-            var tourney, participants, teams_points;
-
-            pool
-                .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
-                .then(rows => {
-                    tourney = rows[0];
-                    return pool.query('SELECT u1.tournaments_rating AS rating_p1, u2.tournaments_rating AS rating_p2 FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN users u2 ON tr.p2_id = u2.id WHERE tr.tournament_id = ? AND p1_id = ? AND p2_id = ?', [
-                tournament_id,
-                result.p1_id,
-                result.p2_id]);
-                })
-                .then(function (results) {
-
-                    if (results[0]) {
-                        var rating_p1 = results[0].rating_p1;
-                        var rating_p2 = results[0].rating_p2;
-                        if (result.p1_won == 0 && result.p2_won == 0) {
-                            office["p1_rating_for_history"] = office["p2_rating_for_history"] =  office["rating_change_p1"] = office["rating_change_p2"] = null;
-                        } else {
-                            var odds_p1_wins = elo.expectedScore(rating_p1, rating_p2);
-                            var odds_p2_wins = elo.expectedScore(rating_p2, rating_p1);
-                            office["p1_rating_for_history"] = elo.newRating(odds_p1_wins, result.p1_won, rating_p1);
-                            office["p2_rating_for_history"] = elo.newRating(odds_p2_wins, result.p2_won, rating_p2);
-                            office["rating_change_p1"] = office["p1_rating_for_history"] - rating_p1;
-                            office["rating_change_p2"] = office["p2_rating_for_history"] - rating_p2;
-                        }
-                    }
-
-
-                    var request_string1 = "= ?";
-                    var request_string2 = "= ?";
-
-                    if (result.p1_id == null) {
-                        request_string1 = "IS ?";
-                    }
-
-                    if (result.p2_id == null) {
-                        request_string2 = "IS ?";
-                    }
-
-                return pool.query('UPDATE tournaments_results SET ? ' +
-                    'WHERE ' +
-                    'tournaments_results.tournament_id = ? AND tour = ? AND p1_id ' + request_string1 + ' AND p2_id ' + request_string2,
-                    [
-                        office,
-                        tourney.id,
-                        tourney.current_tour,
-                        result.p1_id,
-                        result.p2_id,
-
-                    ]);
-
-
-            }).then(function (results) {
-
-                return pool.query('UPDATE users SET ? ' +
-                    'WHERE ' +
-                    'id  = ?',
-                    [
-                        {
-                            tournaments_rating : office["p1_rating_for_history"]
-                        },
-                        result.p1_id,
-                    ]);
-
-            }).then(function (results) {
-
-                return pool.query('UPDATE users SET ? ' +
-                    'WHERE ' +
-                    'id  = ?',
-                    [
-                        {
-                            tournaments_rating : office["p2_rating_for_history"]
-                        },
-                        result.p2_id,
-                    ]);
-
-            }).then(function (results) {
-
-                if (tourney.type > 10){
-                    return pool.query('SELECT tt.id AS team_id,tt.team_name, tp.user_id, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC', tourney.id);
-                } else {
-                    return true;
-                }
-
-            }).then(function (results) {
-
-                participants = results;
-
-
-
-                if (tourney.type > 10){
-                    return pool.query('SELECT tr.* FROM tournaments_results tr WHERE tr.tournament_id = ? AND tr.tour = ?', [tourney.id, tourney.current_tour]);
-                } else {
-                    return true;
-                }
-
-            }).then(function (results) {
-
-                if (tourney.type > 10){
-
-                    teams_points = DRAW_TEAM.makeTeamResults(results, participants);
-
-                var team_1, team_2, office = {};
-
-                        var team_2_id = teams_points.participants_obj[result.p2_id];
-                        var team_1_id = teams_points.participants_obj[result.p1_id];
-
-                        office["team_1_won"] = teams_points.teams[team_1_id];
-                        office["team_2_won"] = teams_points.teams[team_2_id];
-
-
-                var request_string1 = "= ?";
-                var request_string2 = "= ?";
-
-                return pool.query('UPDATE tournaments_teams_results SET ? ' +
-                    'WHERE ' +
-                    'tournaments_teams_results.tournament_id = ? AND tour = ? AND team_1_id ' + request_string1 + ' AND team_2_id ' + request_string2,
-                    [
-                        office,
-                        tourney.id,
-                        tourney.current_tour,
-                        team_1_id,
-                        team_2_id,
-
-                    ]);
-
-                } else {
-                    return true;
-                }
-            }).then(function (results) {
-
-                res.json({
-                    status : "ok",
-                    tourney_id : req.body.tournament_id,
-                    rating_change_p1 : office["rating_change_p1"],
-                    rating_change_p2 : office["rating_change_p2"],
-                    teams_points : (typeof teams_points != "undefined") ? teams_points.teams : null,
-                });
-
-            }).catch(function (err) {
-                console.log(err);
-            });
+            respond.then(function (data) {
+                return res.json(data);
+            })
         } else {
             res.json({
                 "status": "error",
                 "msg": "tournament_id не определен",
             });
         }
+
+
     });
 
 

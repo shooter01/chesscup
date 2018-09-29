@@ -667,7 +667,7 @@ div.side h2 {
 }
 .side_box {
     margin-top: 12px;
-    margin-left: -30px;
+    /*margin-left: -30px;*/
     width: 226px;
     box-sizing: border-box;
 }

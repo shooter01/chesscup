@@ -1,11 +1,16 @@
 import React from 'react';
 import {render} from 'react-dom';
 import UserResults from "./table.jsx";
+
+import Link from "./Link.jsx";
+
+
 /*import Loading from "./../tasks/Loading.jsx";
 import BreadCumbs from "./BreadCumbs.jsx";
 
 import UserTable from "./UserTable.jsx";
-import Tabs from "./Tabs.jsx";*/
+*/
+
 
 class Pairing extends React.Component {
     constructor(props) {
@@ -21,6 +26,7 @@ class Pairing extends React.Component {
             owner: window.owner,
         }
         this.saveResult = this.saveResult.bind(this);
+        this.renderLink = this.saveResult.bind(this);
     }
     componentDidMount(){
         var that = this;
@@ -132,6 +138,44 @@ class Pairing extends React.Component {
                 }).done(function (data) {
                     if (data.status === "ok") {
                         location.reload();
+                    } else {
+                        alert(data.msg);
+                    }
+                }).fail(function ( jqXHR, textStatus ) {
+                    alert( "Request failed: " + textStatus );
+                }).always(function () {
+                    that.setState({
+                        request_sent : false
+                    });
+                });
+            }
+        });
+
+        $("#delete_last").on("click", function (event) {
+            event.preventDefault();
+            if (confirm("Are you sure?")) {
+                $.ajax({
+                    url: "/tournament/undo_last_tour",
+                    method: "post",
+                    timeout : 3000,
+                    beforeSend : function () {
+                        that.setState({
+                            request_sent : true,
+                        });
+                    },
+                    data : {
+                        //result : value,
+                        tournament_id : that.state.tournament_id
+                    },
+                    statusCode: {
+                        404: function() {
+                            alert( "page not found" );
+                        }
+                    }
+                }).done(function (data) {
+                    if (data.status === "ok") {
+                        console.log(parseInt(that.state.current_tour));
+                        location.href = "/tournament/" + that.state.tournament_id + "/tour/" + (parseInt(that.state.current_tour) - 1);
                     } else {
                         alert(data.msg);
                     }
@@ -257,6 +301,10 @@ class Pairing extends React.Component {
         //console.log(event.target.value);
     }
 
+    renderLink(item) {
+        return "/" + this.tournament.id + "/game/" + item.id;
+    }
+
     render() {
 
         var w5 = {
@@ -294,9 +342,11 @@ class Pairing extends React.Component {
                     {this.state.pairs.map((item, index) => (
                         <tr key={index}>
                             <td className="text-center">{index+1}</td>
-                            <td data-id={item.p1_id} className="participant">{item.p1_name} <span className="badge badge-dark">{item.p1_rating}</span> {(item.rating_change_p1 > 0) ? <span className="badge badge-success">+{item.rating_change_p1}</span> : <span className="badge badge-danger">{item.rating_change_p1}</span>} {item.p1_id}</td>
+                            <td data-id={item.p1_id} className="participant">{item.p1_name} <span className="badge badge-dark">{}{item.is_over ? item.p1_rating_for_history : item.p1_rating}</span> {(item.rating_change_p1 > 0) ? <span className="badge badge-success">+{item.rating_change_p1}</span> : <span className="badge badge-danger">{item.rating_change_p1}</span>} {item.p1_id}</td>
                             <td className="text-center "><span className="d-none d-sm-block">{item.p1_scores}</span></td>
                             <td className="text-center">
+                                <Link tournament_id={this.state.tournament_id} id={item.id}/>
+
                                 {(tour_id != "null" && tour_id == current_tour && typeof this.state.owner !== "undefined") ?
                                 <select name="" className="custom-select form-control-sm" id="" defaultValue={JSON.stringify({
                                     p1_id:item.p1_id,
@@ -333,7 +383,7 @@ class Pairing extends React.Component {
 
                                 <span className="badge"></span></td>
                             <td className="text-center "><span className="d-none d-sm-block">{item.p2_scores}</span></td>
-                            <td data-id={item.p2_id} className="participant">{item.p2_name} <span className="badge badge-dark">{item.p2_rating}</span> {(item.rating_change_p2 > 0) ? <span className="badge badge-success">+{item.rating_change_p2}</span> : <span className="badge badge-danger">{item.rating_change_p2}</span>} {item.p2_id}</td>
+                            <td data-id={item.p2_id} className="participant">{item.p2_name} <span className="badge badge-dark">{(item.is_over) ? item.p2_rating_for_history : item.p2_rating}</span> {(item.rating_change_p2 > 0) ? <span className="badge badge-success">+{item.rating_change_p2}</span> : <span className="badge badge-danger">{item.rating_change_p2}</span>} {item.p2_id}</td>
                         </tr>
                     ))}
                     </tbody>

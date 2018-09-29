@@ -3,35 +3,27 @@ var io = socket_io();
 var socketApi = {};
 
 socketApi.io = io;
+var Elo = require('arpad');
+var uscf = {
+    default: 20,
+    2100: 15,
+    2400: 10
+};
 
+var min_score = 100;
+var max_score = 10000;
+const save_result = require('./routes/save_result');
+const bluebird = require('bluebird');
 
-module.exports = function(app) {
+var elo = new Elo(uscf, min_score, max_score);
 
-    const pool = app.pool;
+module.exports = function (app) {
 
-    function isValid() {
+    const pool = bluebird.promisifyAll(app.pool);
 
-
-
-    }
-
-// middleware
-    /*io.use((socket, next) => {
-     let token = socket.handshake.query.token;
-     if (isValid(token)) {
-     return next();
-     }
-     return next(new Error('authentication error'));
-     });*/
-
-    io.on('connection', function(socket){
-     //   var cursor = app.mongoDB.collection("users").find({});
-
+    io.on('connection', function (socket) {
 
         var handshakeData = socket.request;
-       // console.log("user:", handshakeData._query['h']);
-       // console.log("game:", handshakeData._query['g']);
-
 
         pool
             .query('SELECT * FROM tournaments_results WHERE id = ?', handshakeData._query['g'])
@@ -40,7 +32,6 @@ module.exports = function(app) {
                 var time = game.created_at;
                 var a = time.getTime() - new Date().getTime();
                 var diffDays = Math.ceil(a / (1000 * 3600 ));
-                console.log(diffDays);
                 var isPlayer = false;
                 var color = null;
                 if (game.p1_id == handshakeData._query['h']) {
@@ -50,104 +41,101 @@ module.exports = function(app) {
                     isPlayer = true;
                     color = "black";
                 }
-                if (isPlayer) {
-                    socket.emit('eventPlayer', JSON.stringify({isPlayer : isPlayer, color : color}));
-                }
-
-
-                //var mongoGame = app.mongoDB.collection("users").findOne( { _id: game.id } )
-
-
-                /*var document = {_id : parseInt(game.id), name:"new", title:"new user"};
-
-                if (!mongoGame._id) {
-                    app.mongoDB.collection("users").insertOne(document, function(err, records){
-                        console.log("Record added as "+records);
-                    });
-                }*/
 
             });
+                socket.on('eventServer', function (msg) {
+                    try {
+                        msg = JSON.parse(msg);
+                        console.log(msg);
 
-        //cursor.forEach(function (docs) {
-            //console.log(docs._id);
-        //});
-
-
-
-
-
-
-        /*app.mongoDB.collection("users").insertOne(document, {w: 1}, function(err, records){
-            console.log("Record added as "+records);
-        });*/
-
-
-
-      //  console.log('A user connected');
-
-
-        socket.on('eventServer', function(msg){
-            try {
-                msg = JSON.parse(msg);
-              //  console.log(msg);
-
-                console.log(msg);
-
-
-                app.mongoDB.collection("users").findOne( { _id: parseInt(msg.id) } , function (err, mongoGame) {
-                    console.log(mongoGame);
-
-                    app.mongoDB.collection("users").updateOne({
-                            _id: parseInt(msg.id)
-                        },
-                        { $set:
-                            {
-                                "fen" : msg.data,
-                                // "p1_time_end" : data.p1_time_left.getTime() - new Date().getTime(),
-                                // "p2_time_end" : data.p2_time_left.getTime() - new Date().getTime(),
-                            },
-                            $setOnInsert : {
-                                "moves" : [],
-                                "is_over" : 0,
-                                "is_started" : 1,
-                            }
-                        },
-                        { upsert: true },
-                        function (err, data) {
-                               console.log(err);
-                            console.log(mongoGame.p1_time_end);
-                            console.log(new Date());
-                            io.sockets.emit('eventClient', JSON.stringify({
-                                fen : msg.data,
-                                p1_time_left : mongoGame.p1_time_end.getTime() - new Date().getTime(),
-                                p2_time_left : mongoGame.p2_time_end.getTime() - new Date().getTime(),
-                            }));
+                        msg.id = parseInt(msg.id);
+                        app.mongoDB.collection("users").findOne({_id: msg.id}, function (err, mongoGame) {
 
                             app.mongoDB.collection("users").updateOne({
-                                    _id: parseInt(msg.id)
+                                    _id: msg.id
                                 },
-                                { $addToSet : {"moves" : msg.move}}
-                            )
-                        }
-                    );
+                                {
+                                    $set: {
+                                        "fen": msg.data,
+                                        "is_over": msg.is_over,
+                                    },
+                                    $setOnInsert: {
+                                        "moves": [],
+                                        "is_over": 0,
+                                        "is_started": 1,
+                                    }
+                                },
 
-                })
+                                {upsert: true},
+                                function (err, data) {
+
+                                    io.sockets.emit('eventClient', JSON.stringify({
+                                        event: "move",
+                                        fen: msg.data,
+                                        p1_time_left: mongoGame.p1_time_end.getTime() - new Date().getTime(),
+                                        p2_time_left: mongoGame.p2_time_end.getTime() - new Date().getTime(),
+                                        is_over: msg.is_over
+                                    }));
+
+                                    app.mongoDB.collection("users").updateOne({
+                                            _id: msg.id
+                                        },
+                                        {$addToSet: {"moves": msg.move}}
+                                    );
+
+                                    if (msg.is_over) {
+                                        let tournament_id = msg.tourney_id;
+                                        let result = {
+                                            p1_id: msg.p1_id,
+                                            p2_id: msg.p2_id,
+                                            p1_won: msg.p1_won,
+                                            p2_won: msg.p2_won
+                                        };
 
 
-            } catch(e){
-                console.log(e.message);
-            }
-        });
+                                        var respond = save_result({
+                                            tournament_id: parseInt(tournament_id),
+                                            result: result,
+                                            pool: pool,
+                                        });
+
+                                        if (!isNaN(tournament_id)) {
+                                            respond.then(function (data) {
+                                                console.log(data);
+                                                io.sockets.emit('eventClient', JSON.stringify({
+                                                    event: "rating_change",
+                                                    rating_change_p1: data.rating_change_p1,
+                                                    rating_change_p2: data.rating_change_p2
+                                                }));
+
+                                            })
+                                        } else {
+                                            /*res.json({
+                                             "status": "error",
+                                             "msg": "tournament_id не определен",
+                                             });*/
+                                        }
+                                    }
+                                }
+                            );
+
+                        })
 
 
-        socket.on('disconnect', function(){
-            console.log('user disconnected');
-        });
-    });
+                    } catch (e) {
+                        console.log(e.message);
+                    }
+                });
 
-    socketApi.sendNotification = function() {
-        io.sockets.emit('hello', {msg: 'Hello World!'});
-    }
 
-    return socketApi
-}
+                socket.on('disconnect', function () {
+                    console.log('user disconnected');
+                });
+            });
+
+        socketApi.sendNotification = function () {
+            io.sockets.emit('hello', {msg: 'Hello World!'});
+        };
+
+        return socketApi
+};

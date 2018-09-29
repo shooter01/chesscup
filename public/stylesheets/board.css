@@ -545,7 +545,7 @@ div.table .username a {
 div.table .username.long a {
     letter-spacing: -0.5px;
 }
-div.table .username rating {
+div.table .username .rating {
     flex: 0 0 auto;
     margin: 0 0.25em 0 0.3em;
     opacity: 0.6;
