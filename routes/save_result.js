@@ -29,7 +29,7 @@ const save_result = function (data) {
             p2_won: result.p2_won,
         };
         var tourney, participants, teams_points, p1_new_rating = 1200, p2_new_rating = 1200;
-        console.log(tournament_id);
+       // console.log(tournament_id);
         return pool
             .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
             .then(rows => {
@@ -56,12 +56,12 @@ const save_result = function (data) {
                         office["rating_change_p1"] = p1_new_rating - rating_p1;
                         office["rating_change_p2"] = p2_new_rating - rating_p2;
                         office["is_over"] = 1;
-                        console.log(office);
+                        /*console.log(office);
                         console.log(rating_p1);
                         console.log(rating_p2);
                         console.log(odds_p1_wins);
                         console.log(odds_p2_wins);
-                        console.log(result.p1_won);
+                        console.log(result.p1_won);*/
                     }
                 }
 

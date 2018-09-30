@@ -71,14 +71,14 @@ module.exports = function(app, passport, pool, i18n) {
                     return app.mongoDB.collection("users").findOne( { _id: gameId } )
                 }).then(data => {
                 mongoGame = data;
-
+                console.log(mongoGame);
                 res.render('game/game',
                     {
                         mongoGame : mongoGame,
                         game : game,
                         tournament : tournament,
-                        p1_time_left : (mongoGame) ? mongoGame.p1_time_end.getTime() - new Date().getTime() : null,
-                        p2_time_left : (mongoGame) ? mongoGame.p2_time_end.getTime() - new Date().getTime() : null
+                        p1_time_left : mongoGame.p1_time_left,
+                        p2_time_left : mongoGame.p2_time_left
                     });
             });
         } else {
@@ -800,7 +800,13 @@ module.exports = function(app, passport, pool, i18n) {
                         "is_over": 0,
                         "p1_time_end": newDateObj,
                         "p2_time_end": newDateObj,
+                        "p1_last_move": null,
+                        "p2_last_move": null,
+                        "p1_time_left": 2000,
+                        "p2_time_left": 2000,
                         "is_started": 0,
+                        "time_length": 300,
+                        "time_addition": 0,
                     } )
                 }
 

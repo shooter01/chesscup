@@ -16,6 +16,7 @@ class App extends React.Component {
             bottom_rating_change: null,
             playerColor: null,
             is_over: is_over,
+            is_started: is_started,
             orientation: "white",
 
         };
@@ -72,6 +73,7 @@ class App extends React.Component {
             data: that.game.fen(),
             id: g, move: move.san,
             is_over: 0,
+            player: (this.game.turn() === 'w') ? "p2" : "p1", //who made the last move
         };
 
         // checkmate?
@@ -82,14 +84,12 @@ class App extends React.Component {
             send_data.p1_id = p1;
             send_data.p2_id = p2;
             send_data.tourney_id = this.state.tourney_id;
-            send_data.tourney_id = this.state.tourney_id;
         } else if (that.game.in_draw() === true) {
             send_data.is_over = 1;
             send_data.p1_won = 0.5;
             send_data.p2_won = 0.5;
             send_data.p1_id = p1;
             send_data.p2_id = p2;
-            send_data.tourney_id = this.state.tourney_id;
             send_data.tourney_id = this.state.tourney_id;
         } else {
             // check?
@@ -199,12 +199,7 @@ class App extends React.Component {
                         bottom_rating_change : rating_change_p2,
                     });
                 }
-
             }
-
-
-
-
         });
 
 
@@ -219,6 +214,7 @@ class App extends React.Component {
         this.socket.on('eventClient', function (data) {
             data = JSON.parse(data);
             console.log(data);
+          //  debugger;
 
             if (data.event === "move") {
                 self.game.load(data.fen);
@@ -227,7 +223,8 @@ class App extends React.Component {
                     who_to_move: (self.game.turn() === 'w') ? "white" : "black",
                     white_time: data.p1_time_left / 1000,
                     black_time: data.p2_time_left / 1000,
-                    is_over: data.is_over
+                    is_over: data.is_over,
+                    is_started: 1,
                 }, function () {
                     self.setTime();
                     self.cg.set({
@@ -253,10 +250,12 @@ class App extends React.Component {
                         up_rating_change: data.rating_change_p1
                     });
                 }
-
-
-
-
+            } else if (data.event === "game_over") {
+// debugger;
+                clearInterval(self.timer);
+                self.setState({
+                    is_over: data.is_over
+                });
 
             }
         });
@@ -284,13 +283,49 @@ class App extends React.Component {
             this.setState({
                 white_time: --this.state.white_time
             }, function () {
-                this.setTime();
+                if (this.state.white_time < 0) {
+                    var send_data = {
+                        data: this.game.fen(),
+                        id: g,
+                        player : "p1"
+                    };
+
+                    send_data.p1_won = 0;
+                    send_data.p2_won = 1;
+                    send_data.p1_id = p1;
+                    send_data.p2_id = p2;
+                    send_data.tourney_id = this.state.tourney_id;
+                    //debugger;
+
+
+                    this.socket.emit('checkTime1', JSON.stringify(send_data));
+
+                } else {
+                    this.setTime();
+                }
             });
         } else if (this.state.who_to_move === "black") {
             this.setState({
                 black_time: --this.state.black_time
             }, function () {
-                this.setTime();
+                //debugger;
+                if (this.state.black_time < 0 && this.state.is_over != 1) {
+
+                    var send_data = {
+                        data: this.game.fen(),
+                        id: g,
+                        player : "p2"
+                    };
+                    send_data.p1_won = 1;
+                    send_data.p2_won = 0;
+                    send_data.p1_id = p1;
+                    send_data.p2_id = p2;
+                    send_data.tourney_id = this.state.tourney_id;
+console.log("test");
+                    this.socket.emit('checkTime1', JSON.stringify(send_data));
+                } else {
+                    this.setTime();
+                }
             });
         }
     }
@@ -300,18 +335,26 @@ class App extends React.Component {
         if (this.timer) clearInterval(this.timer);
 
         this.timer = setInterval(function () {
-            if (self.state.is_over == 0) {
+            if (self.state.is_over == 0 && self.state.is_started == 1) {
                 self.tick();
+            } else {
+                clearInterval(this.timer);
             }
         }, 1000);
 
     }
+
 
     setTime() {
         var p1_minutes = Math.floor((this.state.white_time) / 60);
         var p1_secs = Math.floor((this.state.white_time) % 60 % 60);
         var p2_minutes = Math.floor((this.state.black_time) / 60);
         var p2_secs = Math.floor((this.state.black_time) % 60 % 60);
+
+        p1_minutes = (p1_minutes < 0) ? 0 : p1_minutes;
+        p1_secs = (p1_secs < 0) ? 0 : p1_secs;
+        p2_minutes = (p2_minutes < 0) ? 0 : p2_minutes;
+        p2_secs = (p2_secs < 0) ? 0 : p2_secs;
 
         p1_minutes = (p1_minutes < 10) ? "0" + p1_minutes : p1_minutes;
         p1_secs = (p1_secs < 10) ? "0" + p1_secs : p1_secs;

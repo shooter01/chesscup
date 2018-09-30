@@ -60,6 +60,7 @@
     var u;
     var g = '<%= game.id %>';
     var fen = '<%= (mongoGame) ? mongoGame.fen : null %>';
+    var is_started = '<%= (mongoGame) ? mongoGame.is_started : 0 %>';
     var is_over = parseInt('<%= game.is_over %>');
 </script>
 
