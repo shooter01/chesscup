@@ -65,20 +65,41 @@ module.exports = function(app, passport, pool, i18n) {
                             'u1.name AS p1_name ' +
                             'FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN users u2 ON tr.p2_id = u2.id  WHERE tr.id = ? LIMIT 1', gameId);
                 }).then(rows => {
-                console.log(rows);
+                //console.log(rows);
 
                 game = rows[0];
                     return app.mongoDB.collection("users").findOne( { _id: gameId } )
                 }).then(data => {
                 mongoGame = data;
                 console.log(mongoGame);
+
+
+
+                var p1_time_left =  mongoGame.p1_time_left, p2_time_left = mongoGame.p2_time_left;
+                var actual_time = new Date().getTime();
+                var lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
+                var spent_time = actual_time - lm;
+                var lm2 = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
+                var spent_time2 = actual_time - lm2;
+                if (mongoGame.is_started && mongoGame.is_over == 0 && lm < lm2) {
+                   // p1_time_left = mongoGame.p1_time_left - spent_time;
+                    p2_time_left = mongoGame.p2_time_left - spent_time2;
+                } else if (mongoGame.is_started && mongoGame.is_over == 0 && lm > lm2) {
+                    p1_time_left = mongoGame.p1_time_left - spent_time;
+                }
+                console.log(p1_time_left);
+            //    var actual_time = new Date().getTime();
+             //   (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
+
+
+
                 res.render('game/game',
                     {
                         mongoGame : mongoGame,
                         game : game,
                         tournament : tournament,
-                        p1_time_left : mongoGame.p1_time_left,
-                        p2_time_left : mongoGame.p2_time_left
+                        p1_time_left : p1_time_left,
+                        p2_time_left : p2_time_left
                     });
             });
         } else {
@@ -802,8 +823,8 @@ module.exports = function(app, passport, pool, i18n) {
                         "p2_time_end": newDateObj,
                         "p1_last_move": null,
                         "p2_last_move": null,
-                        "p1_time_left": 2000,
-                        "p2_time_left": 2000,
+                        "p1_time_left": 20000,
+                        "p2_time_left": 20000,
                         "is_started": 0,
                         "time_length": 300,
                         "time_addition": 0,

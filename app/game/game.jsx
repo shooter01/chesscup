@@ -183,6 +183,13 @@ class App extends React.Component {
                         bottom_rating_change : rating_change_p1,
                         up_rating_change : rating_change_p2,
                     });
+
+                    self.cg.set({
+                        movable: {
+                            color: null
+                        },
+                        turnColor: null
+                    });
                 }
 
             } else if (this.state.orientation === "black") {
@@ -198,12 +205,20 @@ class App extends React.Component {
                         up_rating_change : rating_change_p1,
                         bottom_rating_change : rating_change_p2,
                     });
+
+                    self.cg.set({
+                        movable: {
+                            color: null
+                        },
+                        turnColor: null
+                    });
                 }
             }
+            self.setTime();
         });
 
 
-        self.setTime();
+
 
     }
 
@@ -255,6 +270,13 @@ class App extends React.Component {
                 clearInterval(self.timer);
                 self.setState({
                     is_over: data.is_over
+                });
+
+                self.cg.set({
+                    movable: {
+                        color: null
+                    },
+                    turnColor: null
                 });
 
             }
@@ -365,7 +387,7 @@ console.log("test");
         var up_clock_seconds;
         var bottom_clock_minutes;
         var bottom_clock_seconds;
-
+        console.log(this.state.orientation);
         if (this.state.orientation === "white") {
             bottom_clock_minutes = p1_minutes;
             bottom_clock_seconds = p1_secs;
