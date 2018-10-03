@@ -12,9 +12,11 @@ class App extends React.Component {
             white_time: p1_time_left / 1000,
             black_time: p2_time_left / 1000,
             tourney_id: tourney_id,
+            tour_id: tour_id,
             up_rating_change: null,
             bottom_rating_change: null,
             playerColor: null,
+            tourney_href : "/tournament/" + tourney_id + "/tour/" + tour_id,
             is_over: is_over,
             is_started: is_started,
             orientation: "white",
@@ -25,6 +27,8 @@ class App extends React.Component {
         this.socketIOConnect = this.socketIOConnect.bind(this);
         this.tick = this.tick.bind(this);
         this.setTimer = this.setTimer.bind(this);
+
+        this.resignCount = 0;
 
     }
 
@@ -50,6 +54,8 @@ class App extends React.Component {
             return false;
         }
 
+        console.log(move);
+
         if (move.captured) {
             this.capture_sound.play();
         } else {
@@ -71,7 +77,10 @@ class App extends React.Component {
 
         var send_data = {
             data: that.game.fen(),
-            id: g, move: move.san,
+            id: g,
+            move: move.san,
+            from: move.from,
+            to: move.to,
             is_over: 0,
             player: (this.game.turn() === 'w') ? "p2" : "p1", //who made the last move
         };
@@ -94,6 +103,12 @@ class App extends React.Component {
         } else {
             // check?
             if (that.game.in_check() === true) {
+                that.cg.set({
+                    check: true,
+                    state: {
+                        check: true,
+                    }
+                })
 
             }
         }
@@ -106,14 +121,14 @@ class App extends React.Component {
     componentDidMount() {
         var self = this;
 
-        console.log(fen);
+        // console.log(fen);
 
          if (typeof fen != "undefined" && fen != "undefined" && fen != "" && fen != null) {
-             this.game = new Chess(fen);
-        } else {
-            // this.game = new Chess("4k3/8/3K4/6Q1/8/8/8/8 w - - 34 74");
-            this.game = new Chess();
-         }
+          this.game = new Chess(fen);
+         } else {
+        // this.game = new Chess("8/5KP1/8/1k6/8/8/8/8 w - - 34 74");
+         this.game = new Chess();
+        }
 
         var isPlayer = false;
         var playerColor = null;
@@ -146,11 +161,19 @@ class App extends React.Component {
                 p.push(obj.slice(-2));
             }
 
-            // console.log(this.state.isPlayer);
+            console.log(this.game.fen());
             this.cg = Chessground(document.getElementById('dirty'), {
                 fen: this.game.fen(),
                 turnColor: (this.game.turn() === 'w') ? "white" : "black",
                 orientation: (isPlayer) ? playerColor : "white",
+                highlight: {
+                    lastMove: true,
+                    check: true
+                },
+                animation: {
+                    enabled: true,
+                    duration: 100,
+                },
                 movable: {
                     showDests: true,
                     free: false,
@@ -180,8 +203,8 @@ class App extends React.Component {
 
                 if (this.state.is_over == 1) {
                     this.setState({
-                        bottom_rating_change : rating_change_p1,
-                        up_rating_change : rating_change_p2,
+                        bottom_rating_change: rating_change_p1,
+                        up_rating_change: rating_change_p2,
                     });
 
                     self.cg.set({
@@ -202,8 +225,8 @@ class App extends React.Component {
 
                 if (this.state.is_over == 1) {
                     this.setState({
-                        up_rating_change : rating_change_p1,
-                        bottom_rating_change : rating_change_p2,
+                        up_rating_change: rating_change_p1,
+                        bottom_rating_change: rating_change_p2,
                     });
 
                     self.cg.set({
@@ -217,9 +240,53 @@ class App extends React.Component {
             self.setTime();
         });
 
+        $(".fbt").on("click", function () {
+
+            var element = this;
+
+         //   $(this).closest(".control").addClass("confirm");
+            $(this).addClass("yes active");
+
+         //   var wrapper = $("<div class='act_confirm resign'></div>");
+
+         //   $(this).wrap(wrapper);
 
 
+            self.resignCount++;
 
+            if (self.resignCount > 1) {
+                var send_data = {
+                    data: self.game.fen(),
+                    id: g,
+                    is_over: 1,
+                    player: (self.state.playerColor === 'white') ? "p1" : "p2", //who made the last move
+                };
+
+                send_data.is_over = 1;
+                send_data.p1_won = (self.state.playerColor === 'white') ? 0 : 1;
+                send_data.p2_won = (self.state.playerColor === 'black') ? 0 : 1;
+                send_data.p1_id = p1;
+                send_data.p2_id = p2;
+                send_data.tourney_id = self.state.tourney_id;
+                self.socket.emit('eventServer', JSON.stringify(send_data));
+
+            }
+
+
+            setTimeout(function () {
+               // if (self.state.is_over == 0) {
+                   // $(element).unwrap();
+                   /// $(element).closest(".control").removeClass("confirm");
+                    $(element).removeClass("yes active");
+                //}
+                self.resignCount = 0;
+            }, 3000);
+
+        })
+    }
+
+    getPromotionChoice() {
+        return $('<div id="promotion_choice" class="top"><square style="top: 0%;left: 75%"><piece class="queen white"></piece></square><square style="top: 12.5%;left: 75%"><piece class="knight white"></piece></square><square style="top: 25%;left: 75%"><piece class="rook white"></piece></square><square style="top: 37.5%;left: 75%"><piece class="bishop white"></piece></square></div>')
     }
 
 
@@ -229,7 +296,14 @@ class App extends React.Component {
         this.socket.on('eventClient', function (data) {
             data = JSON.parse(data);
             console.log(data);
-          //  debugger;
+            //  debugger;
+
+            self.cg.set({
+                check: false,
+                state: {
+                    check: false,
+                }
+            })
 
             if (data.event === "move") {
                 self.game.load(data.fen);
@@ -244,11 +318,25 @@ class App extends React.Component {
                     self.setTime();
                     self.cg.set({
                         fen: self.game.fen(),
+                        lastMove: [data.from, data.to],
                         movable: {
                             dests: getDests(self.game)
                         },
                         turnColor: (self.game.turn() === 'w') ? "white" : "black"
                     });
+
+                    self.cg.playPremove();
+
+
+                    if (self.game.in_check() === true) {
+                        self.cg.set({
+                            check: true,
+                            state: {
+                                check: true,
+                            }
+                        })
+
+                    }
 
 
                 });
@@ -256,12 +344,12 @@ class App extends React.Component {
 
                 if (self.state.orientation === "white" && self.state.is_over === 1) {
                     self.setState({
-                        bottom_rating_change : data.rating_change_p1,
+                        bottom_rating_change: data.rating_change_p1,
                         up_rating_change: data.rating_change_p2
                     });
                 } else if (self.state.orientation === "black" && self.state.is_over === 1) {
                     self.setState({
-                        bottom_rating_change : data.rating_change_p2,
+                        bottom_rating_change: data.rating_change_p2,
                         up_rating_change: data.rating_change_p1
                     });
                 }
@@ -281,7 +369,12 @@ class App extends React.Component {
 
             }
         });
+        this.socket.on('playerOnOff', function (data) {
 
+
+
+            //this.socket.emit('checkTime1', JSON.stringify(send_data))
+        });
         /*this.socket.on('eventPlayer', function (data) {
          data = JSON.parse(data);
          console.log(data);
@@ -309,7 +402,7 @@ class App extends React.Component {
                     var send_data = {
                         data: this.game.fen(),
                         id: g,
-                        player : "p1"
+                        player: "p1"
                     };
 
                     send_data.p1_won = 0;
@@ -336,14 +429,14 @@ class App extends React.Component {
                     var send_data = {
                         data: this.game.fen(),
                         id: g,
-                        player : "p2"
+                        player: "p2"
                     };
                     send_data.p1_won = 1;
                     send_data.p2_won = 0;
                     send_data.p1_id = p1;
                     send_data.p2_id = p2;
                     send_data.tourney_id = this.state.tourney_id;
-console.log("test");
+// console.log("test");
                     this.socket.emit('checkTime1', JSON.stringify(send_data));
                 } else {
                     this.setTime();
@@ -387,7 +480,7 @@ console.log("test");
         var up_clock_seconds;
         var bottom_clock_minutes;
         var bottom_clock_seconds;
-        console.log(this.state.orientation);
+        // console.log(this.state.orientation);
         if (this.state.orientation === "white") {
             bottom_clock_minutes = p1_minutes;
             bottom_clock_seconds = p1_secs;
@@ -425,17 +518,20 @@ console.log("test");
         });
 
 
-
     }
 
     render() {
+
+
         return (
-            <div className="row">
+            <div className="mt-3 row lichess_ground">
                 <div className="col-lg-8 col-md-12">
 
                     <div className="blue merida">
                         <div id="dirty" className="cg-board-wrap"></div>
                     </div>
+
+
                 </div>
                 <div className="col-lg-4 col-md-12">
                     <div className="table_wrap">
@@ -461,7 +557,36 @@ console.log("test");
                                                 className={(this.state.up_rating_change >= 0) ? "rp up" : "rp down"}>{(this.state.up_rating_change > 0) ? "+" : ""}{this.state.up_rating_change}</span> : null}
                                     </span>
                                 </div>
-                                <div className="username user_link white online"><i className="line"
+
+
+
+                                {(this.state.isPlayer) ?
+
+                                <div>
+                                    {(this.state.is_over == 1) ?
+                                        <div className="control buttons">
+                                            <div className="follow_up"><a className="text fbt strong glowed" data-icon="G"
+                                                                          href={this.state.tourney_href}>Вернуться к турниру</a></div>
+                                        </div> :
+
+                                    <div className="control icons ">
+                                        <button disabled className="fbt hint--bottom takeback-yes"
+                                         data-hint="Попросить соперника вернуть ход">
+                                            <span data-icon="i"></span>
+                                         </button>
+                                        <button className="fbt hint--bottom draw-yes" disabled
+                                                data-hint="Предложить ничью">
+                                            <span data-icon="2"></span>
+                                        </button>
+
+                                        <button className="fbt hint--bottom resign-confirm" data-hint="Сдаться"><span
+                                            data-icon="b"></span></button>
+                                    </div>
+                                    }
+                                </div>
+                                    : null}
+
+                                <div className="username user_link white offline"><i className="line"
                                                                                     title="Joined the game"></i><a
                                     className="text ulpt" data-pt-pos="s" href=""
                                     target="_self">{this.state.bottom_name}</a>
@@ -497,10 +622,7 @@ console.log("test");
                             </div>
 
                         </div>
-
-
                     </div>
-
                 </div>
             </div>
         );

@@ -75,6 +75,7 @@
 
 
 
+
 <div class="row mt-3">
     <div class="col-12">
         <div id="pairing"></div>
@@ -97,6 +98,14 @@
         <a class="btn btn-primary" href="/tournament/<%= tournament.id %>/final"><%- __("FinalTable") %></a>
         <% } %>
     </div>
+
+    <div class="col-lg-12">
+        <h5>Активные партии</h5>
+        <div id="current_games"></div>
+    </div>
+
+
+
     <div class="col-12 mt-5 noprint">
         <div id="participants">
 
@@ -117,6 +126,8 @@
                 </tr>
                 </thead>
                 <tbody>
+
+
             <% for (var i = 0; i < participants.length; i++) { %>
                 <tr>
                     <td><%= i + 1 %></td>
@@ -193,4 +204,5 @@
 
 
 <script src="/js/pairing.min.js"></script>
+<script src="/js/current_games.min.js"></script>
 

@@ -399,8 +399,8 @@ const DRAW = {
 
     },
 
-    defaultSwiss : function (req, res, next, pool, tournament, tournament_id, tour_id) {
-        let participants, pairing = [], arrr = [], crosstable, scores_object = {};
+    defaultSwiss : function (req, res, next, pool, tournament, tournament_id, tour_id, app) {
+        let participants, pairing = [], arrr = [], crosstable, scores_object = {}, current_games = {};
 
 
                     pool
@@ -455,7 +455,6 @@ const DRAW = {
                                 .query('SELECT * FROM tournaments_results tr WHERE tr.tournament_id = ?', tournament_id)
                         }).then(rows => {
                         crosstable = DRAW.makeCrossatable(rows, participants);
-
                         res.render('tournament/pairing', {
                             tournament  : tournament,
                             pairing  : JSON.stringify(pairing),

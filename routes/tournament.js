@@ -6,6 +6,8 @@ const moment = require('moment');
 const countries = require('./countries');
 const DRAW = require('./draw_functions');
 const save_result = require('./save_result');
+const save_result_mongo = require('./save_result_mongo');
+
 const DRAW_TEAM = require('./draw_team_functions');
 // const tournament_teams = require('./tournament_teams')(app, passport, pool);
 // console.log(tournament_teams);
@@ -81,13 +83,13 @@ module.exports = function(app, passport, pool, i18n) {
                 var spent_time = actual_time - lm;
                 var lm2 = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
                 var spent_time2 = actual_time - lm2;
-                if (mongoGame.is_started && mongoGame.is_over == 0 && lm < lm2) {
+                if (mongoGame.is_started && mongoGame.is_over == 0 && ((lm < lm2) || (mongoGame.p1_last_move == null && mongoGame.p2_last_move != null))) {
                    // p1_time_left = mongoGame.p1_time_left - spent_time;
                     p2_time_left = mongoGame.p2_time_left - spent_time2;
-                } else if (mongoGame.is_started && mongoGame.is_over == 0 && lm > lm2) {
+                } else if (mongoGame.is_started && mongoGame.is_over == 0 && ((lm > lm2) || (mongoGame.p2_last_move == null && mongoGame.p1_last_move != null))) {
                     p1_time_left = mongoGame.p1_time_left - spent_time;
                 }
-                console.log(p1_time_left);
+                console.log(mongoGame.p2_last_move);
             //    var actual_time = new Date().getTime();
              //   (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
 
@@ -102,13 +104,53 @@ module.exports = function(app, passport, pool, i18n) {
                         p2_time_left : p2_time_left
                     });
             });
-        } else {
-
         }
-
-
-
     });
+
+
+    router.get('/:tournament_id/get_active', [
+            check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 })
+        ],
+        function (req, res, next) {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+
+                let tournament_id = req.params.tournament_id;
+                tournament_id = parseInt(tournament_id);
+                if (!isNaN(tournament_id)) {
+
+                    app.mongoDB.collection("users").find({tournament_id: tournament_id, is_over: 0}, function(err, cursor) {
+                        let current_games = {};
+                        cursor.forEach(function (game) {
+                            console.log(game);
+                            current_games[game._id] = game;
+
+                        }, function () {
+                            res.json({
+                                status : "ok",
+                                current_games : JSON.stringify(current_games)
+                            });
+                        });
+
+
+
+
+
+                    });
+
+                }
+
+
+
+
+            }
+        });
+
+
 
     router.post('/create', [
         isLoggedIn,
@@ -814,21 +856,26 @@ module.exports = function(app, passport, pool, i18n) {
                 var newDateObj = moment(new Date()).add(30, 'm').toDate();
 
                 for (var i = 0; i < data.length; i++) {
+
                     var obj = data[i];
-                    var game = app.mongoDB.collection("users").insertOne( {
-                        "_id" : obj.id,
-                        "moves": [],
-                        "is_over": 0,
-                        "p1_time_end": newDateObj,
-                        "p2_time_end": newDateObj,
-                        "p1_last_move": null,
-                        "p2_last_move": null,
-                        "p1_time_left": 20000,
-                        "p2_time_left": 20000,
-                        "is_started": 0,
-                        "time_length": 300,
-                        "time_addition": 0,
-                    } )
+                    if (obj.p1_id != null && obj.p2_id != null) {
+                        var game = app.mongoDB.collection("users").insertOne( {
+                            "_id" : obj.id,
+                            "moves": [],
+                            "is_over": 0,
+                            "p1_time_end": newDateObj,
+                            "p2_time_end": newDateObj,
+                            "tournament_id": tournament_id,
+                            "p1_last_move": null,
+                            "p2_last_move": null,
+                            "p1_time_left": 10000,
+                            "p2_time_left": 10000,
+                            "is_started": 0,
+                            "time_length": 300,
+                            "time_addition": 0,
+                        })
+                    }
+
                 }
 
                     /*if (data.insertId){
@@ -1125,6 +1172,7 @@ module.exports = function(app, passport, pool, i18n) {
         function (req, res, next) {
         let tournament_id = req.body.tournament_id;
         let result = JSON.parse(req.body.result);
+            console.log(result);
 
         pool = bluebird.promisifyAll(pool);
 
@@ -1133,6 +1181,9 @@ module.exports = function(app, passport, pool, i18n) {
             result : result,
             pool : pool,
         });
+
+        save_result_mongo({id:result.game_id}, null, app);
+
 
         if (!isNaN(tournament_id)) {
             respond.then(function (data) {
@@ -1330,9 +1381,9 @@ module.exports = function(app, passport, pool, i18n) {
                 .then(rows => {
                     const tournament = rows[0];
                     if (tournament.type > 10) {
-                        DRAW.teamSwiss(req, res, next, pool, tournament, tournament_id, tour_id);
+                        DRAW.teamSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app);
                     } else {
-                        DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tour_id);
+                        DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app);
                     }
                 });
 

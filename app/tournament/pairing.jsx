@@ -26,7 +26,6 @@ class Pairing extends React.Component {
             owner: window.owner,
         }
         this.saveResult = this.saveResult.bind(this);
-        this.renderLink = this.saveResult.bind(this);
     }
     componentDidMount(){
         var that = this;
@@ -345,38 +344,43 @@ class Pairing extends React.Component {
                             <td data-id={item.p1_id} className="participant">{item.p1_name} <span className="badge badge-dark">{}{item.is_over ? item.p1_rating_for_history : item.p1_rating}</span> {(item.rating_change_p1 > 0) ? <span className="badge badge-success">+{item.rating_change_p1}</span> : <span className="badge badge-danger">{item.rating_change_p1}</span>} {item.p1_id}</td>
                             <td className="text-center "><span className="d-none d-sm-block">{item.p1_scores}</span></td>
                             <td className="text-center">
-                                <Link tournament_id={this.state.tournament_id} id={item.id}/>
+                                <Link tournament_id={this.state.tournament_id} p1_id={item.p1_id} p2_id={item.p2_id} id={item.id}/>
 
                                 {(tour_id != "null" && tour_id == current_tour && typeof this.state.owner !== "undefined") ?
                                 <select name="" className="custom-select form-control-sm" id="" defaultValue={JSON.stringify({
                                     p1_id:item.p1_id,
                                     p2_id:item.p2_id,
                                     p1_won:item.p1_won,
-                                    p2_won:item.p2_won
+                                    p2_won:item.p2_won,
+                                    game_id : item.id
                                 })} {...(!item.p2_id || !item.p1_id) ? disabled : ""} onChange={this.saveResult}>
                                     <option value={JSON.stringify({
                                         p1_id:item.p1_id,
                                         p2_id:item.p2_id,
                                         p1_won:0,
-                                        p2_won:0
+                                        p2_won:0,
+                                        game_id : item.id
                                     })}> </option>
                                     <option value={JSON.stringify({
                                         p1_id:item.p1_id,
                                         p2_id:item.p2_id,
                                         p1_won:1,
-                                        p2_won:0
+                                        p2_won:0,
+                                        game_id : item.id
                                     })}>1:0</option>
                                     <option value={JSON.stringify({
                                         p1_id:item.p1_id,
                                         p2_id:item.p2_id,
                                         p1_won:0,
-                                        p2_won:1
+                                        p2_won:1,
+                                        game_id : item.id
                                     })}>0:1</option>
                                     <option value={JSON.stringify({
                                         p1_id:item.p1_id,
                                         p2_id:item.p2_id,
                                         p1_won:0.5,
-                                        p2_won:0.5
+                                        p2_won:0.5,
+                                        game_id : item.id
                                     })}>½:½</option>
                                 </select>
                                 : <div>{item.p1_won} - {item.p2_won}</div>}

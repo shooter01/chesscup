@@ -13,6 +13,7 @@ var uscf = {
 var min_score = 100;
 var max_score = 10000;
 const save_result = require('./routes/save_result');
+const save_result_mongo = require('./routes/save_result_mongo');
 const bluebird = require('bluebird');
 
 var elo = new Elo(uscf, min_score, max_score);
@@ -108,6 +109,8 @@ module.exports = function (app) {
                         var a = {
                             event: "move",
                             fen: msg.data,
+                            from: msg.from,
+                            to: msg.to,
                             // p1_time_left: mongoGame.p1_time_end.getTime() - new Date().getTime(),
                             // p2_time_left: mongoGame.p2_time_end.getTime() - new Date().getTime(),
                             is_over: msg.is_over
@@ -115,7 +118,6 @@ module.exports = function (app) {
 
                         a[p_time_left] = obj[p_time_left];
                         a[p__another_time_left] = mongoGame[p__another_time_left];
-
 
                             io.sockets.emit('eventClient', JSON.stringify(a));
 
@@ -160,50 +162,20 @@ module.exports = function (app) {
                         return false;
                     }
 
-
-                        io.sockets.emit('eventClient', JSON.stringify({
-                            event: "game_over",
-                            bitch: msg,
-                            is_over: 1
-                        }));
-
-                        socketApi.game_over(msg);
+                    //сохраняем завершение партии в монго
+                    save_result_mongo(msg, mongoGame, app);
 
 
+                    io.sockets.emit('eventClient', JSON.stringify({
+                        event: "game_over",
+                        bitch: msg,
+                        is_over: 1
+                    }));
 
-                        var obj = {
-                            "fen": msg.data,
-                            "is_over": 1,
-                        }
+                    socketApi.game_over(msg);
 
-                        var p_time_left;
-                        var p__another_time_left;
-                        var actual_time = new Date().getTime();
-                        if (msg.player === "p1") {
-                            p_time_left = "p1_time_left";
-                            p__another_time_left = "p2_time_left";
-                            var lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
-                            var spent_time = actual_time - lm;
-                            obj[p_time_left] = mongoGame.p1_time_left - spent_time;
-                            obj.p2_last_move = new Date();
 
-                        } else if (msg.player === "p2") {
-                            p_time_left = "p2_time_left";
-                            p__another_time_left = "p1_time_left";
-                            var lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
-                            var spent_time = actual_time - lm;
-                            obj[p_time_left] = mongoGame.p2_time_left - spent_time;
-                            obj.p1_last_move = new Date();
-                        }
 
-                        console.log("=====================");
-                        console.log(obj);
-
-                        //  console.log(mongoGame);
-
-                        app.mongoDB.collection("users").updateOne({_id: parseInt(msg.id)},{$set: obj}, function () {
-                            console.log(arguments);
-                        });
 
 
 
