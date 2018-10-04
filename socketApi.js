@@ -16,6 +16,8 @@ const save_result = require('./routes/save_result');
 const save_result_mongo = require('./routes/save_result_mongo');
 const bluebird = require('bluebird');
 
+let online_players = {};
+
 var elo = new Elo(uscf, min_score, max_score);
 
 module.exports = function (app) {
@@ -25,6 +27,20 @@ module.exports = function (app) {
     io.on('connection', function (socket) {
 
         var handshakeData = socket.request;
+
+        if (handshakeData._query['h'] && handshakeData._query['h'] != "undefined") {
+            let data = handshakeData._query;
+            socket.p_id = data.h;
+            socket.game_id = data.g;
+            online_players[socket.game_id] = online_players[socket.game_id] || {};
+            online_players[socket.game_id][socket.p_id] = online_players[socket.game_id][socket.p_id] || 0;
+            online_players[socket.game_id][socket.p_id] = ++online_players[socket.game_id][socket.p_id];
+        }
+
+
+        console.log(online_players);
+
+
 
         pool
             .query('SELECT * FROM tournaments_results WHERE id = ?', handshakeData._query['g'])
@@ -151,7 +167,7 @@ module.exports = function (app) {
 
             if (msg.id) {
                 app.mongoDB.collection("users").findOne({_id: parseInt(msg.id)}, function (err, mongoGame) {
-                    console.log(mongoGame);
+                    //console.log(mongoGame);
 
 
                     if (mongoGame && mongoGame.p2_last_move && (mongoGame.p2_last_move.getTime() - new Date().getTime()) <= 0) {
@@ -174,14 +190,6 @@ module.exports = function (app) {
 
                     socketApi.game_over(msg);
 
-
-
-
-
-
-
-
-
                 });
             } else {
                 console.log("id not defined");
@@ -190,7 +198,30 @@ module.exports = function (app) {
 
         });
 
+        socket.on('playerOnOff', function (data) {
+            data = JSON.parse(data);
+
+
+            io.sockets.emit('playerOnline', JSON.stringify(online_players[data.game_id]));
+        });
+
         socket.on('disconnect', function () {
+            if (typeof online_players[socket.game_id] !== "undefined"
+                && typeof online_players[socket.game_id][this.p_id] !== "undefined") {
+                online_players[socket.game_id][socket.p_id] = --online_players[socket.game_id][socket.p_id];
+
+                if (online_players[socket.game_id][socket.p_id] <= 0) {
+                    delete online_players[socket.game_id][socket.p_id];
+                    io.sockets.emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
+                }
+                console.log(Object.keys(online_players[socket.game_id]));
+
+                if (Object.keys(online_players[socket.game_id]).length === 0) {
+                    delete online_players[socket.game_id];
+                }
+            }
+            console.log(online_players);
+
             console.log('user disconnected');
         });
     });

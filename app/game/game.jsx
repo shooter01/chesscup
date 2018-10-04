@@ -15,6 +15,8 @@ class App extends React.Component {
             tour_id: tour_id,
             up_rating_change: null,
             bottom_rating_change: null,
+            up_player_online: false,
+            bottom_player_online: false,
             playerColor: null,
             tourney_href : "/tournament/" + tourney_id + "/tour/" + tour_id,
             is_over: is_over,
@@ -291,8 +293,15 @@ class App extends React.Component {
 
 
     socketIOConnect() {
-        var self = this;
-        this.socket = io(window.location.origin, {query: 'h=' + u + '&g=' + g});
+        var self = this, url;
+        if (typeof u != "undefined") {
+            url = 'h=' + u;
+        } else {
+            url = '';
+        }
+
+        this.socket = io(window.location.origin, {query: url + '&g=' + g});
+
         this.socket.on('eventClient', function (data) {
             data = JSON.parse(data);
             console.log(data);
@@ -369,12 +378,98 @@ class App extends React.Component {
 
             }
         });
-        this.socket.on('playerOnOff', function (data) {
+
+        this.socket.on('playerOnline', function (data) {
+            data = JSON.parse(data);
+            console.log(data);
+
+            if (!data[p1]) {
+                if (self.state.orientation === "black") {
+                    self.setState({
+                        up_player_online : false
+                    });
+                } else {
+                    self.setState({
+                        bottom_player_online : false
+                    });
+                }
+            } else {
+                if (self.state.orientation === "black") {
+                    self.setState({
+                        up_player_online : true
+                    });
+                } else {
+                    self.setState({
+                        bottom_player_online : true
+                    });
+                }
+            }
+            if (!data[p2]) {
+                if (self.state.orientation === "black") {
+                    self.setState({
+                        bottom_player_online : false
+                    });
+                } else {
+                    self.setState({
+                        up_player_online : false
+                    });
+                }
+            } else {
+                if (self.state.orientation === "white") {
+                    self.setState({
+                        up_player_online : true
+                    });
+                } else {
+                    self.setState({
+                        bottom_player_online : true
+                    });
+                }
+            }
+
+
+
+            /*for (var obj in data) {
+                if (p1 == obj) {
+                    if (self.state.orientation === "black") {
+                        this.setState({
+                            bottom_player_online : true
+                        });
+                    } else {
+                        self.setState({
+                            up_player_online : true
+                        });
+                    }
+
+                } else if (p2 == obj){
+                    if (self.state.orientation === "black") {
+                        self.setState({
+                            bottom_player_online : true
+                        });
+                    } else {
+                        self.setState({
+                            up_player_online : true
+                        });
+                    }
+                }
+            }*/
+
+        });
+
+        if (this.state.isPlayer == true){
+            var who_online = "white";
+            if (this.state.orientation === "black") {
+                who_online = "black";
+            }
+
+            this.socket.emit('playerOnOff', JSON.stringify({"online":who_online, p_id : u, game_id : g}))
+        }
+
+      //  this.socket.on('playerOnOff', function (data) {
 
 
 
             //this.socket.emit('checkTime1', JSON.stringify(send_data))
-        });
+    //    });
         /*this.socket.on('eventPlayer', function (data) {
          data = JSON.parse(data);
          console.log(data);
@@ -548,7 +643,7 @@ class App extends React.Component {
 
                         <div className="table">
                             <div>
-                                <div className="username user_link black online"><i className="line"
+                                <div className={(this.state.up_player_online == true) ? "username user_link black online" : "username user_link black offline"}><i className="line"
                                                                                     title="Joined the game"></i><a
                                     className="text ulpt" data-pt-pos="s" href=""
                                     target="_self">{this.state.up_name}</a>
@@ -586,7 +681,7 @@ class App extends React.Component {
                                 </div>
                                     : null}
 
-                                <div className="username user_link white offline"><i className="line"
+                                <div className={(this.state.bottom_player_online == true) ? "username user_link black online" : "username user_link black offline"}><i className="line"
                                                                                     title="Joined the game"></i><a
                                     className="text ulpt" data-pt-pos="s" href=""
                                     target="_self">{this.state.bottom_name}</a>
