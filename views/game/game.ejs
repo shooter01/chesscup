@@ -48,13 +48,15 @@
     </div>
 
 
-<!--<%= JSON.stringify(mongoGame) %>-->
 
-<audio id="move_sound">
-    <source src="/sounds/move.ogg" type="audio/ogg"></source>
+<audio id="move_sound" preload="none">
+    <source src="/sounds/Move.mp3" type="audio/mpeg"></source>
+    <source src="/sounds/Move.ogg" type="audio/ogg"></source>
 </audio>
-<audio id="capture_sound">
-    <source src="/sounds/capture.ogg" type="audio/ogg"></source>
+
+<audio id="capture_sound" preload="none">
+    <source src="/sounds/Capture.mp3" type="audio/mpeg"></source>
+    <source src="/sounds/Capture.ogg" type="audio/ogg"></source>
 </audio>
 
 <script>

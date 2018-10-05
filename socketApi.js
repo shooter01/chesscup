@@ -16,6 +16,7 @@ const save_result = require('./routes/save_result');
 const save_result_mongo = require('./routes/save_result_mongo');
 const bluebird = require('bluebird');
 
+
 let online_players = {};
 
 var elo = new Elo(uscf, min_score, max_score);
@@ -28,202 +29,221 @@ module.exports = function (app) {
 
         var handshakeData = socket.request;
 
-        if (handshakeData._query['h'] && handshakeData._query['h'] != "undefined") {
-            let data = handshakeData._query;
-            socket.p_id = data.h;
-            socket.game_id = data.g;
-            online_players[socket.game_id] = online_players[socket.game_id] || {};
-            online_players[socket.game_id][socket.p_id] = online_players[socket.game_id][socket.p_id] || 0;
-            online_players[socket.game_id][socket.p_id] = ++online_players[socket.game_id][socket.p_id];
-        }
+
+        //события игры
+
+        if (handshakeData._query['g'] && handshakeData._query['g'] != "undefined") {
+            if (handshakeData._query['h'] && handshakeData._query['h'] != "undefined") {
+                let data = handshakeData._query;
+                socket.p_id = data.h;
+                socket.game_id = data.g;
+                online_players[socket.game_id] = online_players[socket.game_id] || {};
+                online_players[socket.game_id][socket.p_id] = online_players[socket.game_id][socket.p_id] || 0;
+                online_players[socket.game_id][socket.p_id] = ++online_players[socket.game_id][socket.p_id];
+                app.globalPlayers[socket.p_id] = socket;
+            }
+
+            io.sockets.emit('playerOnline', JSON.stringify(online_players[handshakeData._query['g']]));
+
+            console.log(Object.keys(app.globalPlayers).length);
 
 
-        console.log(online_players);
 
-
-
-        pool
-            .query('SELECT * FROM tournaments_results WHERE id = ?', handshakeData._query['g'])
-            .then(rows => {
-                var game = rows[0];
-                if (game) {
-                    var time = game.created_at;
-                    var a = time.getTime() - new Date().getTime();
-                    var diffDays = Math.ceil(a / (1000 * 3600 ));
-                    var isPlayer = false;
-                    var color = null;
-                    if (game.p1_id == handshakeData._query['h']) {
-                        isPlayer = true;
-                        color = "white";
-                    } else if (game.p2_id == handshakeData._query['h']) {
-                        isPlayer = true;
-                        color = "black";
+            pool
+                .query('SELECT * FROM tournaments_results WHERE id = ?', handshakeData._query['g'])
+                .then(rows => {
+                    var game = rows[0];
+                    if (game) {
+                        var time = game.created_at;
+                        var a = time.getTime() - new Date().getTime();
+                        var diffDays = Math.ceil(a / (1000 * 3600 ));
+                        var isPlayer = false;
+                        var color = null;
+                        if (game.p1_id == handshakeData._query['h']) {
+                            isPlayer = true;
+                            color = "white";
+                        } else if (game.p2_id == handshakeData._query['h']) {
+                            isPlayer = true;
+                            color = "black";
+                        }
+                    } else {
+                        console.log("GAME : " + handshakeData._query['g'] + " NOT FOUND");
                     }
+
+
+                });
+
+            socket.on('eventServer', function (msg) {
+                try {
+                    msg = JSON.parse(msg);
+                    //console.log(msg);
+                    msg.id = parseInt(msg.id);
+                    app.mongoDB.collection("users").findOne({_id: msg.id}, function (err, mongoGame) {
+
+
+                        var obj = {
+                            "fen": msg.data,
+                            "is_over": msg.is_over,
+                            "is_started" : 1
+                        }
+
+                        var p_time_left;
+                        var p__another_time_left;
+                        var actual_time = new Date().getTime();
+                        if (msg.player === "p1") {
+                            p_time_left = "p1_time_left";
+                            p__another_time_left = "p2_time_left";
+                            var lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time
+                            var spent_time = actual_time - lm;
+                            // console.log("spent_time : " + spent_time/1000  + " s");
+                            obj[p_time_left] = mongoGame.p1_time_left - spent_time;
+                            obj.p2_last_move = new Date();
+
+                        } else if (msg.player === "p2") {
+                            p_time_left = "p2_time_left";
+                            p__another_time_left = "p1_time_left";
+
+                            // var p2_time_left = mongoGame.p2_time_left.getTime() - new Date().getTime();
+                            var lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
+                            var spent_time = actual_time - lm;
+                            //   console.log("spent_time : " + spent_time/1000  + " s");
+                            obj[p_time_left] = mongoGame.p2_time_left - spent_time;
+                            obj.p1_last_move = new Date();
+                        }
+
+
+                        //  console.log(mongoGame);
+
+                        app.mongoDB.collection("users").updateOne({
+                                _id: msg.id
+                            },
+                            {
+                                $set: obj,
+                                $setOnInsert: {
+                                    "moves": [],
+                                    "is_over": 0,
+                                }
+                            },
+
+                            {upsert: true},
+                            function (err, data) {
+
+
+                                var a = {
+                                    event: "move",
+                                    fen: msg.data,
+                                    from: msg.from,
+                                    to: msg.to,
+                                    // p1_time_left: mongoGame.p1_time_end.getTime() - new Date().getTime(),
+                                    // p2_time_left: mongoGame.p2_time_end.getTime() - new Date().getTime(),
+                                    is_over: msg.is_over
+                                };
+
+                                a[p_time_left] = obj[p_time_left];
+                                a[p__another_time_left] = mongoGame[p__another_time_left];
+
+                                io.sockets.emit('eventClient', JSON.stringify(a));
+
+                                app.mongoDB.collection("users").updateOne({
+                                        _id: parseInt(msg.id)
+                                    },
+                                    {$addToSet: {"moves": msg.move}}
+                                );
+
+                                if (msg.is_over == 1) {
+                                    socketApi.game_over(msg);
+                                }
+                            }
+                        );
+
+                    })
+
+
+                } catch (e) {
+                    console.log(e.message);
+                }
+            });
+
+
+
+
+            socket.on('checkTime1', function (data) {
+                var msg = JSON.parse(data);
+
+                // console.log(msg);
+
+                if (msg.id) {
+                    app.mongoDB.collection("users").findOne({_id: parseInt(msg.id)}, function (err, mongoGame) {
+                        //console.log(mongoGame);
+
+
+                        if (mongoGame && mongoGame.p2_last_move && (mongoGame.p2_last_move.getTime() - new Date().getTime()) <= 0) {
+
+                        } else if (mongoGame && mongoGame.p2_last_move && (mongoGame.p2_last_move.getTime() - new Date().getTime()) <= 0){
+
+                        } else {
+                            return false;
+                        }
+
+                        //сохраняем завершение партии в монго
+                        save_result_mongo(msg, mongoGame, app);
+
+
+                        io.sockets.emit('eventClient', JSON.stringify({
+                            event: "game_over",
+                            bitch: msg,
+                            is_over: 1
+                        }));
+
+                        socketApi.game_over(msg);
+
+                    });
                 } else {
-                    console.log("GAME : " + handshakeData._query['g'] + " NOT FOUND");
+                    console.log("id not defined");
                 }
 
 
             });
 
-        socket.on('eventServer', function (msg) {
-            try {
-                msg = JSON.parse(msg);
-                //console.log(msg);
-                msg.id = parseInt(msg.id);
-                app.mongoDB.collection("users").findOne({_id: msg.id}, function (err, mongoGame) {
+            socket.on('playerOnOff', function (data) {
+                data = JSON.parse(data);
 
 
-                    var obj = {
-                        "fen": msg.data,
-                        "is_over": msg.is_over,
-                        "is_started" : 1
+                io.sockets.emit('playerOnline', JSON.stringify(online_players[data.game_id]));
+            });
+
+            socket.on('disconnect', function () {
+                if (typeof online_players[socket.game_id] !== "undefined"
+                    && typeof online_players[socket.game_id][this.p_id] !== "undefined") {
+                    online_players[socket.game_id][socket.p_id] = --online_players[socket.game_id][socket.p_id];
+
+                    if (online_players[socket.game_id][socket.p_id] <= 0) {
+                        delete online_players[socket.game_id][socket.p_id];
+                        io.sockets.emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
                     }
+                    console.log(Object.keys(online_players[socket.game_id]));
 
-                    var p_time_left;
-                    var p__another_time_left;
-                    var actual_time = new Date().getTime();
-                    if (msg.player === "p1") {
-                        p_time_left = "p1_time_left";
-                        p__another_time_left = "p2_time_left";
-                        var lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time
-                        var spent_time = actual_time - lm;
-                       // console.log("spent_time : " + spent_time/1000  + " s");
-                        obj[p_time_left] = mongoGame.p1_time_left - spent_time;
-                        obj.p2_last_move = new Date();
-
-                    } else if (msg.player === "p2") {
-                        p_time_left = "p2_time_left";
-                        p__another_time_left = "p1_time_left";
-
-                        // var p2_time_left = mongoGame.p2_time_left.getTime() - new Date().getTime();
-                        var lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
-                        var spent_time = actual_time - lm;
-                     //   console.log("spent_time : " + spent_time/1000  + " s");
-                        obj[p_time_left] = mongoGame.p2_time_left - spent_time;
-                        obj.p1_last_move = new Date();
+                    if (Object.keys(online_players[socket.game_id]).length === 0) {
+                        delete online_players[socket.game_id];
                     }
-
-
-                  //  console.log(mongoGame);
-
-                    app.mongoDB.collection("users").updateOne({
-                            _id: msg.id
-                        },
-                        {
-                            $set: obj,
-                            $setOnInsert: {
-                                "moves": [],
-                                "is_over": 0,
-                            }
-                        },
-
-                        {upsert: true},
-                        function (err, data) {
-
-
-                        var a = {
-                            event: "move",
-                            fen: msg.data,
-                            from: msg.from,
-                            to: msg.to,
-                            // p1_time_left: mongoGame.p1_time_end.getTime() - new Date().getTime(),
-                            // p2_time_left: mongoGame.p2_time_end.getTime() - new Date().getTime(),
-                            is_over: msg.is_over
-                        };
-
-                        a[p_time_left] = obj[p_time_left];
-                        a[p__another_time_left] = mongoGame[p__another_time_left];
-
-                            io.sockets.emit('eventClient', JSON.stringify(a));
-
-                            app.mongoDB.collection("users").updateOne({
-                                    _id: parseInt(msg.id)
-                                },
-                                {$addToSet: {"moves": msg.move}}
-                            );
-
-                            if (msg.is_over == 1) {
-                                socketApi.game_over(msg);
-                            }
-                        }
-                    );
-
-                })
-
-
-            } catch (e) {
-                console.log(e.message);
-            }
-        });
-
-
-
-
-        socket.on('checkTime1', function (data) {
-            var msg = JSON.parse(data);
-
-           // console.log(msg);
-
-            if (msg.id) {
-                app.mongoDB.collection("users").findOne({_id: parseInt(msg.id)}, function (err, mongoGame) {
-                    //console.log(mongoGame);
-
-
-                    if (mongoGame && mongoGame.p2_last_move && (mongoGame.p2_last_move.getTime() - new Date().getTime()) <= 0) {
-
-                    } else if (mongoGame && mongoGame.p2_last_move && (mongoGame.p2_last_move.getTime() - new Date().getTime()) <= 0){
-
-                    } else {
-                        return false;
-                    }
-
-                    //сохраняем завершение партии в монго
-                    save_result_mongo(msg, mongoGame, app);
-
-
-                    io.sockets.emit('eventClient', JSON.stringify({
-                        event: "game_over",
-                        bitch: msg,
-                        is_over: 1
-                    }));
-
-                    socketApi.game_over(msg);
-
-                });
-            } else {
-                console.log("id not defined");
-            }
-
-
-        });
-
-        socket.on('playerOnOff', function (data) {
-            data = JSON.parse(data);
-
-
-            io.sockets.emit('playerOnline', JSON.stringify(online_players[data.game_id]));
-        });
-
-        socket.on('disconnect', function () {
-            if (typeof online_players[socket.game_id] !== "undefined"
-                && typeof online_players[socket.game_id][this.p_id] !== "undefined") {
-                online_players[socket.game_id][socket.p_id] = --online_players[socket.game_id][socket.p_id];
-
-                if (online_players[socket.game_id][socket.p_id] <= 0) {
-                    delete online_players[socket.game_id][socket.p_id];
-                    io.sockets.emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
                 }
-                console.log(Object.keys(online_players[socket.game_id]));
 
-                if (Object.keys(online_players[socket.game_id]).length === 0) {
-                    delete online_players[socket.game_id];
+                if (typeof app.globalPlayers[socket.p_id] !== "undefined"){
+                    delete app.globalPlayers[socket.p_id];
                 }
-            }
-            console.log(online_players);
 
-            console.log('user disconnected');
-        });
+
+                console.log(online_players);
+
+                console.log('user disconnected');
+            });
+        } else if (handshakeData._query['t1'] && handshakeData._query['t1'] != "undefined") {
+            var t_id = handshakeData._query['t1'];
+            console.log(t_id);
+            //io.sockets.emit('tournament_start');
+        }
+
+
     });
 
         socketApi.game_over = function (msg) {

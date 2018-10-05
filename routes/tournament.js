@@ -73,7 +73,7 @@ module.exports = function(app, passport, pool, i18n) {
                     return app.mongoDB.collection("users").findOne( { _id: gameId } )
                 }).then(data => {
                 mongoGame = data;
-                console.log(mongoGame);
+             //   console.log(mongoGame);
 
 
 
@@ -89,7 +89,7 @@ module.exports = function(app, passport, pool, i18n) {
                 } else if (mongoGame.is_started && mongoGame.is_over == 0 && ((lm > lm2) || (mongoGame.p2_last_move == null && mongoGame.p1_last_move != null))) {
                     p1_time_left = mongoGame.p1_time_left - spent_time;
                 }
-                console.log(mongoGame.p2_last_move);
+               // console.log(mongoGame.p2_last_move);
             //    var actual_time = new Date().getTime();
              //   (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
 
@@ -126,7 +126,7 @@ module.exports = function(app, passport, pool, i18n) {
                     app.mongoDB.collection("users").find({tournament_id: tournament_id, is_over: 0}, function(err, cursor) {
                         let current_games = {};
                         cursor.forEach(function (game) {
-                            console.log(game);
+                            //console.log(game);
                             current_games[game._id] = game;
 
                         }, function () {
@@ -1145,11 +1145,12 @@ module.exports = function(app, passport, pool, i18n) {
             .then(rows => {
 
                 var tour = ((tourney.current_tour + 1) <= tourney.tours_count) ? tourney.current_tour + 1 : null;
+                app.io.sockets.emit('tournament_start', {updated_tour : tour});
+                res.json({
+                    "status": "ok",
+                    "updated_tour" : tour
+                });
 
-                    res.json({
-                        "status": "ok",
-                        "updated_tour" : tour
-                    });
                 }).catch(function (err) {
                     console.log(err);
                     res.json({
@@ -1400,8 +1401,8 @@ module.exports = function(app, passport, pool, i18n) {
         function (req, res, next) {
         let tournament_id = req.body.tournament_id;
         let user_id = req.body.user_id;
-        console.log(tournament_id);
-        console.log(user_id);
+      //  console.log(tournament_id);
+       // console.log(user_id);
         tournament_id = parseInt(tournament_id);
         user_id = parseInt(user_id);
         let tournament, participants, pairing = [], arrr = [];
