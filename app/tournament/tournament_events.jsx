@@ -17,8 +17,8 @@ class TournamentSockets {
 
 
         this.socket.on('tournament_start', function (data) {
-            data = JSON.parse(data);
             console.log(data);
+            data = JSON.parse(data);
 
             var a = 4;
 
@@ -29,9 +29,9 @@ class TournamentSockets {
                         playTournamentStart(--a);
                     } else {
                         if (data.updated_tour == null){
-                            location.href = "/tournament/" + that.state.tournament_id + "/final";
+                            location.href = "/tournament/" + tournament_id + "/final";
                         } else {
-                            location.href = "/tournament/" + that.state.tournament_id + "/tour/" + data.updated_tour;
+                            location.href = "/tournament/" + tournament_id + "/tour/" + data.updated_tour;
                         }
                     }
 

@@ -1145,7 +1145,7 @@ module.exports = function(app, passport, pool, i18n) {
             .then(rows => {
 
                 var tour = ((tourney.current_tour + 1) <= tourney.tours_count) ? tourney.current_tour + 1 : null;
-                app.io.sockets.emit('tournament_start', {updated_tour : tour});
+                app.io.sockets.emit('tournament_start', JSON.stringify({updated_tour : tour}));
                 res.json({
                     "status": "ok",
                     "updated_tour" : tour
