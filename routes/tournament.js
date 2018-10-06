@@ -682,8 +682,8 @@ module.exports = function(app, passport, pool, i18n) {
             let user_type = req.body.user_type;
             tournament_id = parseInt(tournament_id);
 
-            let let_insert = true;
-            let let_tournament_insert = true;
+            let let_insert = false;
+            let let_tournament_insert = false;
 
             let tourney,
                 arrr = [],
@@ -845,37 +845,46 @@ module.exports = function(app, passport, pool, i18n) {
                 .then(function(data){
 
 
-                    if (data.insertId){
+                    if (data && data.insertId){
 
                         return  pool.query("SELECT * FROM tournaments_results WHERE tournament_id = ? AND tour = ?", [tourney.id, tourney.current_tour + 1]);
                     }
 
 
                 })  .then(function(data){
-                        console.log(data);
+
                 var newDateObj = moment(new Date()).add(30, 'm').toDate();
+                if (data && data.length) {
+                    for (var i = 0; i < data.length; i++) {
 
-                for (var i = 0; i < data.length; i++) {
+                        var obj = data[i];
+                        if (obj.p1_id != null && obj.p2_id != null) {
+                            var game = app.mongoDB.collection("users").insertOne({
+                                "_id": obj.id,
+                                "moves": [],
+                                "is_over": 0,
+                                "p1_id": obj.p1_id,
+                                "p2_id": obj.p2_id,
+                                "p1_time_end": newDateObj,
+                                "p2_time_end": newDateObj,
+                                "tournament_id": tournament_id,
+                                "p1_last_move": null,
+                                "p2_last_move": null,
+                                "p1_time_left": 300000,
+                                "p2_time_left": 300000,
+                                "is_started": 0,
+                                "time_length": 300,
+                                "time_addition": 0,
+                            });
 
-                    var obj = data[i];
-                    if (obj.p1_id != null && obj.p2_id != null) {
-                        var game = app.mongoDB.collection("users").insertOne( {
-                            "_id" : obj.id,
-                            "moves": [],
-                            "is_over": 0,
-                            "p1_time_end": newDateObj,
-                            "p2_time_end": newDateObj,
-                            "tournament_id": tournament_id,
-                            "p1_last_move": null,
-                            "p2_last_move": null,
-                            "p1_time_left": 10000,
-                            "p2_time_left": 10000,
-                            "is_started": 0,
-                            "time_length": 300,
-                            "time_addition": 0,
-                        })
+
+                            /*if (typeof app.globalPlayers[obj.p1_id]) {
+                                app.globalPlayers[obj.p1_id].emit('tournament_start', JSON.stringify({updated_tour: tour}));
+                            } else if (typeof app.globalPlayers[obj.p2_id]) {
+                                app.globalPlayers[obj.p2_id].emit('tournament_start', JSON.stringify({updated_tour: tour}));
+                            }*/
+                        }
                     }
-
                 }
 
                     /*if (data.insertId){
@@ -891,7 +900,6 @@ module.exports = function(app, passport, pool, i18n) {
                 })
                 .then(function(){
 
-                    console.log(arguments);
                     if (let_insert || let_tournament_insert) {
                         if (tourney.current_tour < tourney.tours_count) {
                             return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
@@ -1136,6 +1144,8 @@ module.exports = function(app, passport, pool, i18n) {
                                 'p1_id, ' +
                                 'p2_id, p1_won, p2_won,p1_scores,p2_scores, tournament_id,created_at,add_by,tour,board, rating_change_p1, rating_change_p2, p1_rating_for_history, p2_rating_for_history) VALUES ?', [for_addition]);
                         }
+
+
                     }
                 } else {
                     return true;
@@ -1145,6 +1155,8 @@ module.exports = function(app, passport, pool, i18n) {
             .then(rows => {
 
                 var tour = ((tourney.current_tour + 1) <= tourney.tours_count) ? tourney.current_tour + 1 : null;
+
+
                 app.io.sockets.emit('tournament_start', JSON.stringify({updated_tour : tour}));
                 res.json({
                     "status": "ok",
