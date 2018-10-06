@@ -682,8 +682,8 @@ module.exports = function(app, passport, pool, i18n) {
             let user_type = req.body.user_type;
             tournament_id = parseInt(tournament_id);
 
-            let let_insert = false;
-            let let_tournament_insert = false;
+            let let_insert = true;
+            let let_tournament_insert = true;
 
             let tourney,
                 arrr = [],
