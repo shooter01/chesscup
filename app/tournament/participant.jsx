@@ -766,7 +766,7 @@ class Participants extends React.Component {
                     {(this.state.tournament.type > 10 && this.state.current_tab !== "admins") ?
                         <TeamsList setTeam={this.setTeam} tournament={this.state.tournament} removeParticipant={this.removeParticipant} removeTeam={this.removeTeam} teams={this.state.teams} current_team={this.state.current_team} changeOrder={this.changeOrder} />
                         :
-                        <ParticipantsListTable  removeParticipant={this.removeParticipant} participants={this.state.participants} />
+                        <ParticipantsListTable tournament={this.state.tournament}  removeParticipant={this.removeParticipant} participants={this.state.participants} />
                     }
 
 

@@ -66,6 +66,9 @@
                 country : $("#country").val(),
                 start_date : $("#start_date").val(),
                 end_date : $("#end_date").val(),
+                amount : $("#amount").val(),
+                waitMinutes : $("#waitMinutes").val(),
+                is_online : $("#is_online").val(),
             }).done(function (data) {
                 if (data.status != "ok") {
                     $(".errors").removeClass("hidden");

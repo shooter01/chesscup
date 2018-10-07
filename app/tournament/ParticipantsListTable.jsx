@@ -7,6 +7,7 @@ class ParticipantsListTable extends React.Component {
         super(props);
         this.state = {
             participants: this.props.participants,
+            tournament: this.props.tournament,
         }
         this.removeParticipant = this.removeParticipant.bind(this);
 
@@ -79,9 +80,12 @@ class ParticipantsListTable extends React.Component {
                             </td>
                             <td>{item.name} ({item.id})</td>
 
-                            <td className="text-center"><span className="btn btn-danger font-weight-bold"
-                                                              data-id={item.id} style={deleteBtn}
-                                                              onClick={this.removeParticipant}>x</span></td>
+                            <td className="text-center">
+                                {(!tournament.is_online) ? <span className="btn btn-danger font-weight-bold"
+                                                                 data-id={item.id} style={deleteBtn}
+                                                                 onClick={this.removeParticipant}>x</span> : null }
+
+                            </td>
                         </tr>
                     ))
 

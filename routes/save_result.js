@@ -11,12 +11,16 @@ var max_score = 10000;
 
 var elo = new Elo(uscf, min_score, max_score);
 const bluebird = require('bluebird');
+const make_draw = require('./make_draw');
 
 
 const save_result = function (data) {
     const tournament_id = data.tournament_id;
     let result = data.result;
     let pool = data.pool;
+    let app = data.app;
+    let req = data.req;
+    let res = data.res;
 
 
     if (!tournament_id) {
@@ -113,6 +117,8 @@ const save_result = function (data) {
                     result.p2_id,
                 ]);
 
+
+
         }).then(function (results) {
 
             if (tourney.type > 10){
@@ -168,6 +174,20 @@ const save_result = function (data) {
             }
         }).then(function (results) {
 
+                return pool.query('SELECT COUNT(*) FROM tournaments_results tr WHERE (tr.p1_won IS NULL OR tr.p2_won IS NULL) AND tr.tournament_id = ? AND tr.tour = ?', [tourney.id, tourney.current_tour]);
+
+            }).then(function (results) {
+                if (results.length && tourney.is_online == 1) {
+                    make_draw({
+                        tournament_id : tournament_id,
+                        pool : pool,
+                        app : app,
+                        req : req,
+                        res : res,
+                    })
+                    console.log("OVER");
+                }
+            }).then(function (results) {
             /*return res.json({
                 status : "ok",
                 tourney_id : req.body.tournament_id,

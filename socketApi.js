@@ -231,12 +231,23 @@ module.exports = function (app) {
             }
             console.log(Object.keys(app.globalPlayers));
             //io.sockets.emit('tournament_start');
-        } else if ((!handshakeData._query['h'] || handshakeData._query['h'] == "undefined" || handshakeData._query['h'] == "null")) {
+        } else if (
+            (!handshakeData._query['h'] ||
+            handshakeData._query['h'] == "undefined"
+            || handshakeData._query['h'] == "null")
+            && (handshakeData._query['t1']
+            &&  handshakeData._query['t1'] != "undefined")
+        ) {
 
             var random = getRandomId(app.viewers);
             socket.viewer_id = random;
-            app.viewers[random] = socket;
+            socket.t1 = handshakeData._query['t1'];
+            app.viewers[handshakeData._query['t1']] =  app.viewers[handshakeData._query['t1']] || {};
+            app.viewers[handshakeData._query['t1']][random] = socket;
             console.log(Object.keys(app.viewers));
+            console.log(Object.keys(app.viewers[handshakeData._query['t1']]));
+            // console.log(Object.keys(app.globalPlayers));
+            // console.log(handshakeData._query['h']);
         }
 
         socket.on('disconnect', function () {
@@ -248,7 +259,6 @@ module.exports = function (app) {
                     delete online_players[socket.game_id][socket.p_id];
                     io.sockets.emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
                 }
-                console.log(Object.keys(online_players[socket.game_id]));
 
                 if (Object.keys(online_players[socket.game_id]).length === 0) {
                     delete online_players[socket.game_id];
@@ -259,13 +269,18 @@ module.exports = function (app) {
                 delete app.globalPlayers[socket.p_id];
             }
 
-            if (typeof socket.viewer_id !== "undefined"){
-                delete app.viewers[socket.viewer_id];
+            if (typeof socket.viewer_id !== "undefined" && typeof socket.t1 !== "undefined"){
+                delete app.viewers[socket.t1][socket.viewer_id];
+
+                if (Object.keys(app.viewers[socket.t1]).length === 0) {
+                    delete app.viewers[socket.t1];
+                }
+
             }
 
 
-            console.log(online_players);
-            console.log(Object.keys(app.viewers));
+            console.log(Object.keys(app.globalPlayers));
+            console.log(Object.keys(app.viewers).length);
 
             console.log('user disconnected');
         });
@@ -286,6 +301,9 @@ module.exports = function (app) {
                 tournament_id: parseInt(tournament_id),
                 result: result,
                 pool: pool,
+                app : app,
+                // req : req,
+                // res : res,
             });
 
             if (!isNaN(tournament_id)) {
@@ -309,6 +327,8 @@ module.exports = function (app) {
             io.sockets.emit('hello', {msg: 'Hello World!'});
         };
 
+
+
         return socketApi
 };
 
@@ -320,3 +340,5 @@ module.exports = function (app) {
         return random;
     }
 }
+
+

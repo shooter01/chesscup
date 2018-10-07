@@ -165,7 +165,7 @@ const DRAW = {
     },
 
 
-    makeInsertObject : function (pairs, participants_object, tourney, session_id, end_ratings, colors) {
+    makeInsertObject : function (pairs, participants_object, tourney, end_ratings, colors) {
         var for_addition = [], board = 0;
 
         for (var i = 0; i < pairs.length; i++) {
@@ -203,7 +203,6 @@ const DRAW = {
                     participants_object[obj.away],
                     tourney.id,
                     new Date(),
-                    session_id,
                     tourney.current_tour + 1,
                     ++board,
                     p1_rating_change,
