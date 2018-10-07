@@ -77,8 +77,8 @@ class ParticipantsListTable extends React.Component {
                             <td>
                                 <small>{index + 1}</small>
                             </td>
-                            <td>{item.name}</td>
-                            <td>{item.email}</td>
+                            <td>{item.name} ({item.id})</td>
+
                             <td className="text-center"><span className="btn btn-danger font-weight-bold"
                                                               data-id={item.id} style={deleteBtn}
                                                               onClick={this.removeParticipant}>x</span></td>

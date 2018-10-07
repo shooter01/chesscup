@@ -876,13 +876,20 @@ module.exports = function(app, passport, pool, i18n) {
                                 "time_length": 300,
                                 "time_addition": 0,
                             });
+                            console.log("========");
 
-
-                            /*if (typeof app.globalPlayers[obj.p1_id]) {
-                                app.globalPlayers[obj.p1_id].emit('tournament_start', JSON.stringify({updated_tour: tour}));
-                            } else if (typeof app.globalPlayers[obj.p2_id]) {
-                                app.globalPlayers[obj.p2_id].emit('tournament_start', JSON.stringify({updated_tour: tour}));
-                            }*/
+                            console.log(Object.keys(app.globalPlayers));
+                            console.log(obj.p1_id);
+                            console.log(obj.p2_id);
+                            console.log("========");
+                            if (typeof app.globalPlayers[obj.p1_id] != "undefined") {
+                                console.log(obj.p1_id);
+                                app.globalPlayers[obj.p1_id].emit('tournament_start', JSON.stringify({updated_tour: tourney.current_tour + 1, game_id : obj.id}));
+                            }
+                            if (typeof app.globalPlayers[obj.p2_id] != "undefined") {
+                                console.log(obj.p1_id);
+                                app.globalPlayers[obj.p2_id].emit('tournament_start', JSON.stringify({updated_tour: tourney.current_tour + 1, game_id : obj.id}));
+                            }
                         }
                     }
                 }
@@ -1157,7 +1164,20 @@ module.exports = function(app, passport, pool, i18n) {
                 var tour = ((tourney.current_tour + 1) <= tourney.tours_count) ? tourney.current_tour + 1 : null;
 
 
-                app.io.sockets.emit('tournament_start', JSON.stringify({updated_tour : tour}));
+                console.log(Object.keys(app.globalPlayers))
+                for (var obj in app.globalPlayers) {
+
+                    if (typeof participants_object[obj] === 'undefined' || tour == null){
+                        app.globalPlayers[obj].emit('tournament_start', JSON.stringify({updated_tour : tour}));
+                    }
+                }
+
+                for (var obj in app.viewers) {
+                    app.viewers[obj].emit('tournament_start', JSON.stringify({updated_tour : tour}));
+                }
+
+
+                //app.io.sockets.emit('tournament_start', JSON.stringify({updated_tour : tour}));
                 res.json({
                     "status": "ok",
                     "updated_tour" : tour
@@ -1350,25 +1370,50 @@ module.exports = function(app, passport, pool, i18n) {
         function (req, res, next) {
         let tournament_id = req.params.tournament_id;
         tournament_id = parseInt(tournament_id);
+        var tourney, participants, is_in = false;
         if (!isNaN(tournament_id)) {
             pool
                 .query('SELECT tournaments.*, users.name FROM tournaments LEFT JOIN users ON users.id = tournaments.creator_id WHERE tournaments.id = ?', tournament_id)
+
                .then(rows => {
-                   if (rows.length > 0) {
-                       rows[0].start_date = moment(rows[0].start_date).format("DD-MM-YYYY");
-                       rows[0].end_date = moment(rows[0].end_date).format("DD-MM-YYYY");
-                       rows[0].created_at = moment(rows[0].created_at).format("DD-MM-YYYY");
-
-                       res.render('tournament/show', {
-                           tournament  : rows[0],
-                           countries : countries
-
-                       });
-                   } else {
-                       res.render('error', {
-                           message  : req.i18n.__("TourneyNotFound"),
-                       });
+                   tourney = rows;
+                   var sql = 'SELECT users.* FROM tournaments_participants LEFT JOIN users ON users.id = tournaments_participants.user_id WHERE tournaments_participants.tournament_id = ?  ORDER BY id DESC';
+                   return pool.query(sql, tournament_id);
+               })
+               .then(rows => {
+                   participants = rows;
+                   if (req.isAuthenticated()) {
+                       for (var i = 0; i < participants.length; i++) {
+                           var obj = participants[i];
+                           if (req.session.passport.user.id == obj.id){
+                               is_in = true;
+                               break;
+                           }
+                       }
                    }
+                    console.log(is_in);
+
+            //}).then(rows => {
+
+                if (tourney.length > 0) {
+                    tourney[0].start_date = moment(tourney[0].start_date).format("DD-MM-YYYY");
+                    tourney[0].end_date = moment(tourney[0].end_date).format("DD-MM-YYYY");
+                    tourney[0].created_at = moment(tourney[0].created_at).format("DD-MM-YYYY");
+                    console.log(participants);
+                    res.render('tournament/show', {
+                        tournament  : tourney[0],
+                        tournamentJSON  : JSON.stringify(tourney[0]),
+                        countries : countries,
+                        is_in : is_in,
+                        participants : JSON.stringify(participants)
+
+                    });
+                } else {
+                    res.render('error', {
+                        message  : req.i18n.__("TourneyNotFound"),
+                    });
+                }
+
 
 
             }).catch(function (err) {

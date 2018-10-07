@@ -52,9 +52,9 @@ class Pairing extends React.Component {
             }).done(function (data) {
                 if (data.status === "ok") {
                     if (data.updated_tour == null){
-                        location.href = "/tournament/" + that.state.tournament_id + "/final";
+                        //location.href = "/tournament/" + that.state.tournament_id + "/final";
                     } else {
-                        location.href = "/tournament/" + that.state.tournament_id + "/tour/" + data.updated_tour;
+                       // location.href = "/tournament/" + that.state.tournament_id + "/tour/" + data.updated_tour;
                     }
                 } else {
                     alert(data.msg);

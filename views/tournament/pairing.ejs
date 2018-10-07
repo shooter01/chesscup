@@ -202,6 +202,12 @@
 
 </script>
 
+<% if (user && user.user) { %>
+<script>
+    var u = '<%= user.user.id %>';
+</script>
+<% }  %>
+
 <audio id="tournament0" preload="none">
     <source src="/sounds/CountDown0.mp3" type="audio/mpeg"></source>
     <source src="/sounds/CountDown0.ogg" type="audio/ogg"></source>

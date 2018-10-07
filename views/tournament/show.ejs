@@ -13,33 +13,115 @@
     </div>
 </div>
 
-
+<div class="row">
+    <div class="col-sm-9">
 <% if (user && user.user && user.user.id === tournament.creator_id) { %>
 
 
 <a href="/tournament/<%= tournament.id %>/edit" class="btn btn-success"><%- __("Edit_tournament") %></a>
-<a href="/tournament/<%= tournament.id %>/participants" class="btn btn-warning"><%- __("Participants") %></a>
 
+
+<% if (tournament.is_online !==  1) { %>
+<a href="/tournament/<%= tournament.id %>/participants" class="btn btn-warning"><%- __("Participants") %></a>
+<% } %>
 
 <% } %>
 
 <% if (tournament.is_closed ===  1) { %>
     <a href="/tournament/<%= tournament.id %>/final" class="btn btn-primary"><%- __("FinalTable") %></a>
 <% } else if (tournament.current_tour == 0) { %>
-    <a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>" class="btn btn-primary"><%- __("ShowGo") %></a>
+    <!--<a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>" class="btn btn-primary"><%- __("ShowGo") %></a>-->
 <% } else if (tournament.current_tour <= tournament.tours_count) { %>
     <a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>" class="btn btn-primary"> <%- __("ShowGoTour") %> <%= tournament.current_tour %></a>
 <% } %>
-<h3 class="mt-4"><%= tournament.title %></h3>
 
 
 
-<h6><%- __("CreateToursCount") %> : <%= tournament.tours_count %></h6>
-<h6><%- __("CreateCity") %> : <%= tournament.city %> <img src="/images/blank.png" class="flag flag-<%= tournament.country.toLocaleLowerCase() %>" title="<%= countries[tournament.country] %>" alt="<%= countries[tournament.country] %>"></h6>
-<h6><%- __("CreateDateStart") %> : <%= tournament.start_date %></h6>
-<h6><%- __("CreateDateEnd") %> : <%= tournament.end_date %></h6>
-<h6><%- __("Created") %> : <%= tournament.created_at %></h6>
-<h6><%- __("Creator") %> : <%= tournament.name %></h6>
+        <span id="get_in"></span>
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-sm-9">
+        <h3 class="mt-4"><%= tournament.title %></h3>
+
+
+        <ul class="nav nav-pills mb-3 mt-3  nav-fill" id="pills-tab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Участники</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">О турнире</a>
+            </li>
+
+        </ul>
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+
+
+                <div id="participants"></div>
+
+            </div>
+            <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                <h6><%- __("CreateToursCount") %> : <%= tournament.tours_count %></h6>
+                <h6><%- __("CreateCity") %> : <%= tournament.city %> <img src="/images/blank.png" class="flag flag-<%= tournament.country.toLocaleLowerCase() %>" title="<%= countries[tournament.country] %>" alt="<%= countries[tournament.country] %>"></h6>
+                <h6><%- __("CreateDateStart") %> : <%= tournament.start_date %></h6>
+                <h6><%- __("CreateDateEnd") %> : <%= tournament.end_date %></h6>
+                <h6><%- __("Created") %> : <%= tournament.created_at %></h6>
+                <h6><%- __("Creator") %> : <%= tournament.name %></h6>
+            </div>
+            <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
+        </div>
+    </div>
+
+    <div class="col-sm-3">
+    <!--<h4>Chat</h4>-->
+    </div>
+</div>
+<script>
+    var participants = JSON.parse('<%- participants %>');
+    var tournament = JSON.parse('<%- tournamentJSON %>');
+    var is_in = <%- is_in %>;
+</script>
+
+
+<script>
+    var u = null;
+
+    var _Participants = '<%- __("Participants") %>';
+    var _Teams = '<%- __("ParticipantsTeams") %>';
+    var _ToTournament = '<%- __("ParticipantsToTournament") %>';
+    var _AddParticipant = '<%- __("ParticipantsAddParticipant") %>';
+    var _AddTeam = '<%- __("ParticipantsAddTeam") %>';
+    var _AddingTeam = '<%- __("ParticipantsAddingTeam") %>';
+    var _Administrators = '<%- __("ParticipantsAdministrators") %>';
+    var _Search = '<%- __("ParticipantsSearch") %>';
+    var _SuccessUpdate = '<%- __("ParticipantsSuccessUpdate") %>';
+    var _TeamName = '<%- __("ParticipantsTeamName") %>';
+    var _Close = '<%- __("Close") %>';
+    var _Save = '<%- __("Save") %>';
+    var _Saving = '<%- __("Saving") %>';
+    var _Status = '<%- __("ParticipantsStatus") %>';
+    var _Waiting = '<%- __("ParticipantsWaiting") %>';
+    var _Rating = '<%- __("ParticipantsRating") %>';
+    var _Name = '<%- __("Name") %>';
+    var _ParticipantAdded = '<%- __("ParticipantAdded") %>';
+    var _RequestSent = '<%- __("ParticipantRequestSent") %>';
+    var _ChooseTeam = '<%- __("ParticipantsChooseTeamTitle") %>';
+</script>
+
+<% if (user && user.user) { %>
+<script>
+    var u = '<%= user.user.id %>';
+</script>
+<% }  %>
+
+
+<script src="/js/online_participants.min.js"></script>
+<script src="/js/chat.min.js"></script>
+<script src="/js/get_in.min.js"></script>
 
 
 <link rel="stylesheet" href="/stylesheets/flags.css">

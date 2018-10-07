@@ -30,6 +30,8 @@ class TournamentSockets {
                     } else {
                         if (data.updated_tour == null){
                             location.href = "/tournament/" + tournament_id + "/final";
+                        } else if (data.game_id) {
+                            location.href = "/tournament/" + tournament_id + "/game/" + data.game_id;
                         } else {
                             location.href = "/tournament/" + tournament_id + "/tour/" + data.updated_tour;
                         }

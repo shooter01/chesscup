@@ -212,38 +212,63 @@ module.exports = function (app) {
                 io.sockets.emit('playerOnline', JSON.stringify(online_players[data.game_id]));
             });
 
-            socket.on('disconnect', function () {
-                if (typeof online_players[socket.game_id] !== "undefined"
-                    && typeof online_players[socket.game_id][this.p_id] !== "undefined") {
-                    online_players[socket.game_id][socket.p_id] = --online_players[socket.game_id][socket.p_id];
 
-                    if (online_players[socket.game_id][socket.p_id] <= 0) {
-                        delete online_players[socket.game_id][socket.p_id];
-                        io.sockets.emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
-                    }
-                    console.log(Object.keys(online_players[socket.game_id]));
-
-                    if (Object.keys(online_players[socket.game_id]).length === 0) {
-                        delete online_players[socket.game_id];
-                    }
-                }
-
-                if (typeof app.globalPlayers[socket.p_id] !== "undefined"){
-                    delete app.globalPlayers[socket.p_id];
-                }
-
-
-                console.log(online_players);
-
-                console.log('user disconnected');
-            });
-        } else if (handshakeData._query['t1'] && handshakeData._query['t1'] != "undefined") {
+        } else if (
+            (handshakeData._query['t1'] && handshakeData._query['t1'] != "undefined") && handshakeData._query['h'] != "undefined"
+            && handshakeData._query['h'] != "null") {
             var t_id = handshakeData._query['t1'];
             console.log(t_id);
+
+
+            if (handshakeData._query['h'] && handshakeData._query['h'] != "undefined" && handshakeData._query['h'] != "null") {
+                let data = handshakeData._query;
+                socket.p_id = data.h;
+                //socket.game_id = data.g;
+               // online_players[socket.t1] = online_players[t1] || {};
+               // online_players[socket.t1][socket.p_id] = online_players[socket.t1][socket.p_id] || 0;
+               // online_players[socket.t1][socket.p_id] = ++online_players[socket.t1][socket.p_id];
+                app.globalPlayers[socket.p_id] = socket;
+            }
+            console.log(Object.keys(app.globalPlayers));
             //io.sockets.emit('tournament_start');
+        } else if ((!handshakeData._query['h'] || handshakeData._query['h'] == "undefined" || handshakeData._query['h'] == "null")) {
+
+            var random = getRandomId(app.viewers);
+            socket.viewer_id = random;
+            app.viewers[random] = socket;
+            console.log(Object.keys(app.viewers));
         }
 
+        socket.on('disconnect', function () {
+            if (typeof online_players[socket.game_id] !== "undefined"
+                && typeof online_players[socket.game_id][this.p_id] !== "undefined") {
+                online_players[socket.game_id][socket.p_id] = --online_players[socket.game_id][socket.p_id];
 
+                if (online_players[socket.game_id][socket.p_id] <= 0) {
+                    delete online_players[socket.game_id][socket.p_id];
+                    io.sockets.emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
+                }
+                console.log(Object.keys(online_players[socket.game_id]));
+
+                if (Object.keys(online_players[socket.game_id]).length === 0) {
+                    delete online_players[socket.game_id];
+                }
+            }
+
+            if (typeof app.globalPlayers[socket.p_id] !== "undefined"){
+                delete app.globalPlayers[socket.p_id];
+            }
+
+            if (typeof socket.viewer_id !== "undefined"){
+                delete app.viewers[socket.viewer_id];
+            }
+
+
+            console.log(online_players);
+            console.log(Object.keys(app.viewers));
+
+            console.log('user disconnected');
+        });
     });
 
         socketApi.game_over = function (msg) {
@@ -286,3 +311,12 @@ module.exports = function (app) {
 
         return socketApi
 };
+
+ function getRandomId(viewers) {
+    let random = Math.random()*100000000000000000;
+    if (viewers[random]) {
+        getRandomId(viewers);
+    } else {
+        return random;
+    }
+}
