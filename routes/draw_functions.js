@@ -454,7 +454,7 @@ const DRAW = {
                                 .query('SELECT * FROM tournaments_results tr WHERE tr.tournament_id = ?', tournament_id)
                         }).then(rows => {
                         crosstable = DRAW.makeCrossatable(rows, participants);
-                        console.log(tournament);
+                       // console.log(tournament);
                         res.render('tournament/pairing', {
                             tournament  : tournament,
                             pairing  : JSON.stringify(pairing),

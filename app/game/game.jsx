@@ -271,7 +271,7 @@ class App extends React.Component {
                 send_data.p1_id = p1;
                 send_data.p2_id = p2;
                 send_data.tourney_id = self.state.tourney_id;
-                self.socket.emit('eventServer', JSON.stringify(send_data));
+                //self.socket.emit('eventServer', JSON.stringify(send_data));
 
             }
 
@@ -300,7 +300,7 @@ class App extends React.Component {
         } else {
             url = '';
         }
-
+        console.log("AAA");
         this.socket = io(window.location.origin, {query: url + '&g=' + g});
 
         this.socket.on('eventClient', function (data) {

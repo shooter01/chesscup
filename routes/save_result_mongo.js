@@ -25,7 +25,7 @@ const save_result_mongo = function (msg, mongoGame, app) {
             obj.p1_last_move = new Date();
         }
     }
-    console.log(msg);
+   // console.log(msg);
 
     app.mongoDB.collection("users").updateOne({_id: parseInt(msg.id)},{$set: obj}, function (err, res) {
        // console.log(res);

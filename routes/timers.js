@@ -1,16 +1,16 @@
 
 const make_draw = require('./make_draw');
 const save_result_mongo = require('./save_result_mongo');
+const game_over = require('./game_over');
 
 
 module.exports = function (app) {
     const pool = app.pool;
-    const socketApi = require('../socketApi')(app);
 
     setInterval(function () {
       //  console.log("aaa");
 
-        pool
+        /*pool
             .query('SELECT * FROM tournaments WHERE is_active = 0 AND start_time < ?', new Date())
             .then(games => {
                // console.log(games);
@@ -24,44 +24,52 @@ module.exports = function (app) {
                             });
                         })
                 }
-        });
+        });*/
 
 
-        app.mongoDB.collection("users").find({ startTime: { $lte: new Date() }, is_started : 0, is_over : 0 }, function(err, cursor) {
+        /*app.mongoDB.collection("users").find({ startTime: { $lte: new Date() }, is_started : 0, is_over : 0 }, function(err, cursor) {
             cursor.forEach(function (game) {
-                console.log(game);
+                console.log("game mongo : " + new Date());
+             //   console.log(new Date());
                 //current_games[game._id] = game;
 
 
 
-                var send_data = {
-                    id: game._id,
-                };
 
-                send_data.p1_won = 0;
-                send_data.p2_won = 1;
-                send_data.p1_id = game.p1_id;
-                send_data.p2_id = game.p2_id;
-                send_data.tourney_id = game.tournament_id;
 
                 //сохраняем завершение партии в монго
-                save_result_mongo(send_data, game, app);
+                app.mongoDB.collection("users").updateOne({_id: parseInt(game._id)},{$set: {is_over : 1}}, function (err, res) {
+
+                    var send_data = {
+                        id: game._id,
+                    };
+
+                    send_data.p1_won = 0;
+                    send_data.p2_won = 1;
+                    send_data.p1_id = game.p1_id;
+                    send_data.p2_id = game.p2_id;
+                    send_data.tourney_id = game.tournament_id;
 
 
-                app.io.sockets.emit('eventClient', JSON.stringify({
-                    event: "game_over",
-                    bitch: send_data,
-                    is_over: 1
-                }));
+                    app.io.sockets.emit('eventClient', JSON.stringify({
+                        event: "game_over",
+                        bitch: send_data,
+                        is_over: 1
+                    }));
 
-                socketApi.game_over(send_data);
+                    game_over(send_data);
+
+                });
+
+
+
 
             }, function () {
 
 
 
             });
-        });
+        });*/
 
 
     }, 5000);

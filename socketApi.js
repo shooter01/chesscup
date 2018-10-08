@@ -13,6 +13,7 @@ var uscf = {
 var min_score = 100;
 var max_score = 10000;
 const save_result = require('./routes/save_result');
+const game_over = require('./routes/game_over');
 const save_result_mongo = require('./routes/save_result_mongo');
 const bluebird = require('bluebird');
 
@@ -33,19 +34,28 @@ module.exports = function (app) {
         //события игры
 
         if (handshakeData._query['g'] && handshakeData._query['g'] != "undefined") {
+            let data = handshakeData._query;
+
+            socket.game_id = data.g;
+
+
             if (handshakeData._query['h'] && handshakeData._query['h'] != "undefined") {
-                let data = handshakeData._query;
                 socket.p_id = data.h;
-                socket.game_id = data.g;
                 online_players[socket.game_id] = online_players[socket.game_id] || {};
                 online_players[socket.game_id][socket.p_id] = online_players[socket.game_id][socket.p_id] || 0;
                 online_players[socket.game_id][socket.p_id] = ++online_players[socket.game_id][socket.p_id];
                 app.globalPlayers[socket.p_id] = socket;
             }
 
-            io.sockets.emit('playerOnline', JSON.stringify(online_players[handshakeData._query['g']]));
+            socket.join(socket.game_id);
 
-            console.log(Object.keys(app.globalPlayers).length);
+            io.to(socket.game_id).emit('playerOnline',
+                JSON.stringify(online_players[handshakeData._query['g']]));
+
+
+           // io.sockets.emit('playerOnline', JSON.stringify(online_players[handshakeData._query['g']]));
+
+           // console.log(Object.keys(app.globalPlayers).length);
 
 
 
@@ -76,7 +86,8 @@ module.exports = function (app) {
             socket.on('eventServer', function (msg) {
                 try {
                     msg = JSON.parse(msg);
-                    //console.log(msg);
+                    console.log(msg);
+                    console.log(socket.p_id);
                     msg.id = parseInt(msg.id);
                     app.mongoDB.collection("users").findOne({_id: msg.id}, function (err, mongoGame) {
 
@@ -93,7 +104,7 @@ module.exports = function (app) {
                         if (msg.player === "p1") {
                             p_time_left = "p1_time_left";
                             p__another_time_left = "p2_time_left";
-                            var lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time
+                            var lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
                             var spent_time = actual_time - lm;
                             // console.log("spent_time : " + spent_time/1000  + " s");
                             obj[p_time_left] = mongoGame.p1_time_left - spent_time;
@@ -142,7 +153,10 @@ module.exports = function (app) {
                                 a[p_time_left] = obj[p_time_left];
                                 a[p__another_time_left] = mongoGame[p__another_time_left];
 
-                                io.sockets.emit('eventClient', JSON.stringify(a));
+
+                                io.to(msg.id).emit('eventClient', JSON.stringify(a));
+
+                                //io.sockets.emit('eventClient', JSON.stringify(a));
 
                                 app.mongoDB.collection("users").updateOne({
                                         _id: parseInt(msg.id)
@@ -151,7 +165,7 @@ module.exports = function (app) {
                                 );
 
                                 if (msg.is_over == 1) {
-                                    socketApi.game_over(msg);
+                                    game_over(msg, app);
                                 }
                             }
                         );
@@ -188,14 +202,19 @@ module.exports = function (app) {
                         //сохраняем завершение партии в монго
                         save_result_mongo(msg, mongoGame, app);
 
-
-                        io.sockets.emit('eventClient', JSON.stringify({
+                        io.to(msg.id).emit('eventClient', JSON.stringify({
                             event: "game_over",
                             bitch: msg,
                             is_over: 1
                         }));
 
-                        socketApi.game_over(msg);
+                        /*io.sockets.emit('eventClient', JSON.stringify({
+                            event: "game_over",
+                            bitch: msg,
+                            is_over: 1
+                        }));*/
+
+                        game_over(msg, app);
 
                     });
                 } else {
@@ -207,9 +226,9 @@ module.exports = function (app) {
 
             socket.on('playerOnOff', function (data) {
                 data = JSON.parse(data);
+                io.to(data.game_id).emit('playerOnline', JSON.stringify(online_players[data.game_id]));
 
-
-                io.sockets.emit('playerOnline', JSON.stringify(online_players[data.game_id]));
+               // io.sockets.emit('playerOnline', JSON.stringify(online_players[data.game_id]));
             });
 
 
@@ -217,7 +236,7 @@ module.exports = function (app) {
             (handshakeData._query['t1'] && handshakeData._query['t1'] != "undefined") && handshakeData._query['h'] != "undefined"
             && handshakeData._query['h'] != "null") {
             var t_id = handshakeData._query['t1'];
-            console.log(t_id);
+           // console.log(t_id);
 
 
             if (handshakeData._query['h'] && handshakeData._query['h'] != "undefined" && handshakeData._query['h'] != "null") {
@@ -229,7 +248,7 @@ module.exports = function (app) {
                // online_players[socket.t1][socket.p_id] = ++online_players[socket.t1][socket.p_id];
                 app.globalPlayers[socket.p_id] = socket;
             }
-            console.log(Object.keys(app.globalPlayers));
+          //  console.log(Object.keys(app.globalPlayers));
             //io.sockets.emit('tournament_start');
         } else if (
             (!handshakeData._query['h'] ||
@@ -244,20 +263,23 @@ module.exports = function (app) {
             socket.t1 = handshakeData._query['t1'];
             app.viewers[handshakeData._query['t1']] =  app.viewers[handshakeData._query['t1']] || {};
             app.viewers[handshakeData._query['t1']][random] = socket;
-            console.log(Object.keys(app.viewers));
-            console.log(Object.keys(app.viewers[handshakeData._query['t1']]));
+          //  console.log(Object.keys(app.viewers));
+          //  console.log(Object.keys(app.viewers[handshakeData._query['t1']]));
             // console.log(Object.keys(app.globalPlayers));
             // console.log(handshakeData._query['h']);
         }
 
         socket.on('disconnect', function () {
+            console.log(online_players);
+
             if (typeof online_players[socket.game_id] !== "undefined"
                 && typeof online_players[socket.game_id][this.p_id] !== "undefined") {
                 online_players[socket.game_id][socket.p_id] = --online_players[socket.game_id][socket.p_id];
 
                 if (online_players[socket.game_id][socket.p_id] <= 0) {
                     delete online_players[socket.game_id][socket.p_id];
-                    io.sockets.emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
+                    io.to(socket.game_id).emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
+                    //io.sockets.emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
                 }
 
                 if (Object.keys(online_players[socket.game_id]).length === 0) {
@@ -279,49 +301,15 @@ module.exports = function (app) {
             }
 
 
-            console.log(Object.keys(app.globalPlayers));
-            console.log(Object.keys(app.viewers).length);
+          //  console.log(Object.keys(app.globalPlayers));
+          //  console.log(Object.keys(app.viewers).length);
 
-            console.log('user disconnected');
+           // console.log('user disconnected');
         });
     });
 
         socketApi.game_over = function (msg) {
-            //console.log(msg);
-            let tournament_id = msg.tourney_id;
-            let result = {
-                p1_id: msg.p1_id,
-                p2_id: msg.p2_id,
-                p1_won: msg.p1_won,
-                p2_won: msg.p2_won
-            };
 
-
-            var respond = save_result({
-                tournament_id: parseInt(tournament_id),
-                result: result,
-                pool: pool,
-                app : app,
-                // req : req,
-                // res : res,
-            });
-
-            if (!isNaN(tournament_id)) {
-                respond.then(function (data) {
-                    //console.log(data);
-                    io.sockets.emit('eventClient', JSON.stringify({
-                        event: "rating_change",
-                        rating_change_p1: data.rating_change_p1,
-                        rating_change_p2: data.rating_change_p2
-                    }));
-
-                })
-            } else {
-                /*res.json({
-                 "status": "error",
-                 "msg": "tournament_id не определен",
-                 });*/
-            }
         };
         socketApi.sendNotification = function () {
             io.sockets.emit('hello', {msg: 'Hello World!'});

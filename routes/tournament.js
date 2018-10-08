@@ -719,7 +719,7 @@ module.exports = function(app, passport, pool, i18n) {
         function (req, res, next) {
         let tournament_id = req.body.tournament_id;
         let result = JSON.parse(req.body.result);
-            console.log(result);
+           // console.log(result);
 
         pool = bluebird.promisifyAll(pool);
 
@@ -776,7 +776,7 @@ module.exports = function(app, passport, pool, i18n) {
                     var request_string1 = "= ?";
                     var request_string2 = "= ?";
 
-                    console.log([
+                   /* console.log([
                         office,
                         tourney.id,
                         tourney.current_tour,
@@ -784,7 +784,7 @@ module.exports = function(app, passport, pool, i18n) {
                         result.p2_id,
 
                     ]);
-
+*/
                     return pool.query('UPDATE tournaments_teams_results SET ? ' +
                         'WHERE ' +
                         'tournaments_teams_results.tournament_id = ? AND tour = ? AND team_1_id ' + request_string1 + ' AND team_2_id ' + request_string2,
@@ -916,8 +916,8 @@ module.exports = function(app, passport, pool, i18n) {
                     tourney[0].start_date = moment(tourney[0].start_date).format("DD-MM-YYYY");
                     tourney[0].end_date = moment(tourney[0].end_date).format("DD-MM-YYYY");
                     tourney[0].created_at = moment(tourney[0].created_at).format("DD-MM-YYYY");
-                    console.log(tourney[0].start_time);
-                    console.log(new Date());
+                   // console.log(tourney[0].start_time);
+                  //  console.log(new Date());
                     let timeleft = (tourney[0].start_time) ? tourney[0].start_time.getTime() - new Date().getTime() : 0;
                     res.render('tournament/show', {
                         tournament  : tourney[0],

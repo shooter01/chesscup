@@ -13,7 +13,7 @@ var elo = new Elo(uscf, min_score, max_score);
 const bluebird = require('bluebird');
 const make_draw = require('./make_draw');
 
-
+let throttle = {};
 const save_result = function (data) {
     const tournament_id = data.tournament_id;
     let result = data.result;
@@ -174,19 +174,25 @@ const save_result = function (data) {
             }
         }).then(function (results) {
 
-                return pool.query('SELECT COUNT(*) FROM tournaments_results tr WHERE (tr.p1_won IS NULL OR tr.p2_won IS NULL) AND tr.tournament_id = ? AND tr.tour = ?', [tourney.id, tourney.current_tour]);
+                return pool.query('SELECT COUNT(*) as count FROM tournaments_results tr WHERE (tr.p1_won IS NULL AND tr.p2_won IS NULL) AND tr.tournament_id = ? AND tr.tour = ?', [tourney.id, tourney.current_tour]);
 
             }).then(function (results) {
-                if (results.length && tourney.is_online == 1) {
+                console.log(">>>");
+                //console.log(tourney.is_online);
+                /*if (results[0].count == 0 && tourney.is_online == 1 && !throttle[tourney.id + "" + tourney.current_tour]) {
+                    throttle[tourney.id + "" + tourney.current_tour] = true;
                     make_draw({
                         tournament_id : tournament_id,
                         pool : pool,
                         app : app,
                         req : req,
                         res : res,
-                    })
+                    });
+                    console.log(throttle);
                     console.log("OVER");
-                }
+                } else {
+                    console.log(throttle);
+                }*/
             }).then(function (results) {
             /*return res.json({
                 status : "ok",
