@@ -22,6 +22,7 @@ class Link extends React.Component {
 
         return (
             (this.state.p1_id != null && this.state.p2_id != null) ? <a href={href}>Партия</a> : null
+
         );
 
     }

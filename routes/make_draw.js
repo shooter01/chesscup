@@ -184,6 +184,7 @@ const make_draw = function (data) {
             })  .then(function(data){
 
             var newDateObj = moment(new Date()).add(30, 'm').toDate();
+            var startTime = moment(new Date()).add(1, 'm').toDate();
             if (data && data.length) {
                 for (var i = 0; i < data.length; i++) {
 
@@ -203,6 +204,7 @@ const make_draw = function (data) {
                             "p1_time_left": 300000,
                             "p2_time_left": 300000,
                             "is_started": 0,
+                            "startTime": startTime,
                             "time_length": 300,
                             "time_addition": 0,
                         });
@@ -212,14 +214,14 @@ const make_draw = function (data) {
                         console.log(obj.p1_id);
                         console.log(obj.p2_id);
                         console.log("========");
-                        if (typeof app.globalPlayers[obj.p1_id] != "undefined") {
+                        /*if (typeof app.globalPlayers[obj.p1_id] != "undefined") {
                             console.log(obj.p1_id);
                             app.globalPlayers[obj.p1_id].emit('tournament_start', JSON.stringify({updated_tour: tourney.current_tour + 1, game_id : obj.id}));
                         }
                         if (typeof app.globalPlayers[obj.p2_id] != "undefined") {
                             console.log(obj.p1_id);
                             app.globalPlayers[obj.p2_id].emit('tournament_start', JSON.stringify({updated_tour: tourney.current_tour + 1, game_id : obj.id}));
-                        }
+                        }*/
                     }
                 }
             }
@@ -493,7 +495,7 @@ const make_draw = function (data) {
 
 
                 console.log(Object.keys(app.globalPlayers))
-                for (var obj in app.globalPlayers) {
+                /*for (var obj in app.globalPlayers) {
 
                     if (typeof participants_object[obj] === 'undefined' || tour == null){
                         app.globalPlayers[obj].emit('tournament_start', JSON.stringify({updated_tour : tour}));
@@ -502,7 +504,7 @@ const make_draw = function (data) {
 
                 for (var obj in app.viewers) {
                     app.viewers[obj].emit('tournament_start', JSON.stringify({updated_tour : tour}));
-                }
+                }*/
 
 
                 //app.io.sockets.emit('tournament_start', JSON.stringify({updated_tour : tour}));

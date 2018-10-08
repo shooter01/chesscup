@@ -1,5 +1,6 @@
 import React from 'react';
 import {render} from 'react-dom';
+import Timer from "../tournament/Timer.jsx";
 
 
 class App extends React.Component {
@@ -723,9 +724,7 @@ class App extends React.Component {
         );
     }
 }
-render(
-    <App/>
-    , document.getElementById('game'));
+
 
 function getDests(game) {
     var dests = {};
@@ -740,4 +739,10 @@ function getDests(game) {
 }
 
 
+render(
+    <App/>
+    , document.getElementById('game'));
 
+render(
+    <Timer/>
+    , document.getElementById('timer'));

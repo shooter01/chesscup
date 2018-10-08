@@ -94,12 +94,14 @@ module.exports = function(app, passport, pool, i18n) {
             //    var actual_time = new Date().getTime();
              //   (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
 
+                let timeleft = (mongoGame.startTime) ? mongoGame.startTime.getTime() - new Date().getTime() : 0;
 
 
                 res.render('game/game',
                     {
                         mongoGame : mongoGame,
                         game : game,
+                        timeleft : timeleft,
                         tournament : tournament,
                         p1_time_left : p1_time_left,
                         p2_time_left : p2_time_left

@@ -332,6 +332,7 @@ module.exports = function (app) {
         return socketApi
 };
 
+
  function getRandomId(viewers) {
     let random = Math.random()*100000000000000000;
     if (viewers[random]) {
