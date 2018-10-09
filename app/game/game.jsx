@@ -651,7 +651,6 @@ class App extends React.Component {
                                 <span className="low">:</span>
                                 {this.state.up_clock_seconds}
                             </span>
-
                         </div>
                     </div>
 
@@ -692,7 +691,6 @@ class App extends React.Component {
                                 {this.state.up_clock_seconds}
                             </div>
                             <div className="bar"></div>
-
                         </div>
 
 
@@ -729,17 +727,16 @@ class App extends React.Component {
                                             <span data-icon="2"></span>
                                         </button>
 
-                                        <button className="fbt hint--bottom resign-confirm" onClick={this.resign} data-hint="Сдаться"><span
-                                            data-icon="b" ></span></button>
+                                        <button className="fbt hint--bottom resign-confirm" onClick={this.resign} data-hint="Сдаться"><span data-icon="b"></span></button>
                                     </div>
                                     }
                                 </div>
                                     : null}
 
-                                <div className={(this.state.bottom_player_online == true) ? "username user_link black online" : "username user_link black offline"}><i className="line"
-                                                                                    title="Joined the game"></i><a
-                                    className="text ulpt" data-pt-pos="s" href=""
-                                    target="_self">{this.state.bottom_name}</a>
+                                <div className={(this.state.bottom_player_online == true) ? "username user_link black online" : "username user_link black offline"}><i className="line" title="Joined the game"></i>
+                                    <a className="text ulpt" data-pt-pos="s" href="" target="_self">
+                                        {this.state.bottom_name}
+                                    </a>
                                     <span className="rating">{this.state.bottom_tournaments_rating}</span>
                                     <span
                                         className={(this.state.bottom_rating_change >= 0) ? "rp up" : "rp down"}>
@@ -759,6 +756,10 @@ class App extends React.Component {
                     </div>
 
                         : null}
+
+                    <div className="alert alert-danger mt-1 mb-1 " id="timeleft_white">Время на ход белых: <span id="timer"></span></div>
+
+
                     <div className="side_box padded">
                         <div className="players">
 
@@ -797,6 +798,8 @@ render(
     <App/>
     , document.getElementById('game'));
 
+/*
 render(
     <Timer/>
     , document.getElementById('timer'));
+*/
