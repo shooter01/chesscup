@@ -203,6 +203,8 @@ const make_draw = function (data) {
                             "p2_last_move": null,
                             "p1_time_left": 3000000,
                             "p2_time_left": 3000000,
+                            "p1_visited": false,
+                            "p2_visited": false,
                             "is_started": 0,
                             "startTime": startTime,
                             "time_length": 300,

@@ -68,9 +68,21 @@ module.exports = function(app, passport, pool, i18n) {
                             'u1.name AS p1_name ' +
                             'FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN users u2 ON tr.p2_id = u2.id  WHERE tr.id = ? LIMIT 1', gameId);
                 }).then(rows => {
+                    game = rows[0];
+                    if (req.isAuthenticated()){
+                        if (req.session.passport.user.id == game.p1_id) {
+                            app.mongoDB.collection("users").updateOne({_id: parseInt(game.id)},{$set: {p1_visited : true}});
+                        }
+                        if (req.session.passport.user.id == game.p2_id) {
+                            app.mongoDB.collection("users").updateOne({_id: parseInt(game.id)},{$set: {p2_visited : true}});
+                        }
+                    }
+            }).then(rows => {
                 //console.log(rows);
 
-                game = rows[0];
+
+                }).then(rows => {
+
                     return app.mongoDB.collection("users").findOne( { _id: gameId } )
                 }).then(data => {
                 mongoGame = data;
@@ -106,7 +118,7 @@ module.exports = function(app, passport, pool, i18n) {
                         p1_time_left : p1_time_left,
                         p2_time_left : p2_time_left
                     });
-            });
+            })
         }
     });
 
