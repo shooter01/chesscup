@@ -10,7 +10,7 @@ module.exports = function (app) {
     setInterval(function () {
       //  console.log("aaa");
 
-        /*pool
+        pool
             .query('SELECT * FROM tournaments WHERE is_active = 0 AND start_time < ?', new Date())
             .then(games => {
                // console.log(games);
@@ -24,12 +24,12 @@ module.exports = function (app) {
                             });
                         })
                 }
-        });*/
+        });
 
 
-        /*app.mongoDB.collection("users").find({ startTime: { $lte: new Date() }, is_started : 0, is_over : 0 }, function(err, cursor) {
+        app.mongoDB.collection("users").find({ startTime: { $lte: new Date() }, is_started : 0, is_over : 0 }, function(err, cursor) {
             cursor.forEach(function (game) {
-                console.log("game mongo : " + new Date());
+                console.log("game mongo : " + game._id);
              //   console.log(new Date());
                 //current_games[game._id] = game;
 
@@ -51,13 +51,13 @@ module.exports = function (app) {
                     send_data.tourney_id = game.tournament_id;
 
 
-                    app.io.sockets.emit('eventClient', JSON.stringify({
+                    app.io.to(game._id).emit('eventClient', JSON.stringify({
                         event: "game_over",
                         bitch: send_data,
                         is_over: 1
                     }));
 
-                    game_over(send_data);
+                    game_over(send_data, app);
 
                 });
 
@@ -69,7 +69,7 @@ module.exports = function (app) {
 
 
             });
-        });*/
+        });
 
 
     }, 5000);

@@ -179,7 +179,7 @@ const save_result = function (data) {
             }).then(function (results) {
                 console.log(">>>");
                 //console.log(tourney.is_online);
-                /*if (results[0].count == 0 && tourney.is_online == 1 && !throttle[tourney.id + "" + tourney.current_tour]) {
+                if (results[0].count == 0 && tourney.is_online == 1 && !throttle[tourney.id + "" + tourney.current_tour]) {
                     throttle[tourney.id + "" + tourney.current_tour] = true;
                     make_draw({
                         tournament_id : tournament_id,
@@ -192,7 +192,7 @@ const save_result = function (data) {
                     console.log("OVER");
                 } else {
                     console.log(throttle);
-                }*/
+                }
             }).then(function (results) {
             /*return res.json({
                 status : "ok",

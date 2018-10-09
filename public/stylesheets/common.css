@@ -366,6 +366,7 @@ html {
 #game button,
 #game input {
     color: #747474;
+    overflow: hidden;
 }
 #game a,
 #game a:visited,

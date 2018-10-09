@@ -4,6 +4,8 @@
 <link rel="stylesheet" href="/stylesheets/board.css">
 <link rel="stylesheet" href="/stylesheets/common.css">
 <link rel="stylesheet" href="/stylesheets/piece/cburnett.css">
+<link rel="stylesheet" href="/stylesheets/study.css">
+<link rel="stylesheet" href="/stylesheets/board.coords.inner.css">
 <link href="https://fonts.googleapis.com/css?family=Roboto:700" rel="stylesheet">
 
 
@@ -13,18 +15,18 @@
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/"><%- __("Tournaments") %></a></li>
                 <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>"><%= tournament.title %></a></li>
-                <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>">Tour <%= tournament.current_tour %></a></li>
+                <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>/tour/<%= game.tour %>">Tour <%= game.tour %></a></li>
                 <li class="breadcrumb-item" aria-current="page">Game № <%= game.id %></li>
             </ol>
         </nav>
     </div>
 </div>
 
-<a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>" class="btn btn-primary "><%- __("ParticipantsToTournament") %></a>
+<a href="/tournament/<%= tournament.id %>/tour/<%= game.tour %>" class="btn btn-primary "><%- __("ParticipantsToTournament") %></a>
 
 <!--<h3 class="d-flex justify-content-between mt-3 mb-3 d-none d-lg-block">Game № <%= game.id %></h3>-->
 
-<div class="bg-warning text-white">Время на ход белых: <span id="timer"></span></div>
+<div class="alert alert-danger mt-1 mb-1 hidden" id="timeleft_white">Время на ход белых: <span id="timer"></span></div>
 
 
 
@@ -62,6 +64,8 @@
 
 
 <script>
+
+    var clientWidth = document.documentElement.clientWidth;
     var u;
     var g = '<%= game.id %>';
     var fen = '<%= (mongoGame) ? mongoGame.fen : null %>';
@@ -87,7 +91,7 @@
 
 
     var tourney_id = '<%= game.tournament_id %>';
-    var tour_id = '<%= tournament.current_tour %>';
+    var tour_id = '<%= game.tour %>';
 
     var p1_name = '<%= game.p1_name %>';
     var p2_name = '<%= game.p2_name %>';

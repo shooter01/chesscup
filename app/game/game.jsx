@@ -30,6 +30,7 @@ class App extends React.Component {
         this.socketIOConnect = this.socketIOConnect.bind(this);
         this.tick = this.tick.bind(this);
         this.setTimer = this.setTimer.bind(this);
+        this.resign = this.resign.bind(this);
 
         this.resignCount = 0;
 
@@ -39,6 +40,7 @@ class App extends React.Component {
         var that = this;
         var prom = this.state.promotion;
         var piece = that.game.get(source).type;
+
 
 
         // see if the move is legal
@@ -65,6 +67,11 @@ class App extends React.Component {
             this.move_sound.play();
         }
         //  console.log(that.game.history());
+
+
+        if (this.state.is_started != 0) {
+            $("#timeleft_white").addClass("hidden");
+        }
 
 
         this.cg.set({
@@ -135,9 +142,6 @@ class App extends React.Component {
 
         var isPlayer = false;
         var playerColor = null;
-        // console.log(p1);
-        // console.log(u);
-        console.log(this.game.fen());
 
         if (typeof u != "undefined" && p1 == u) {
             isPlayer = true;
@@ -148,8 +152,10 @@ class App extends React.Component {
         }
 
 
-        var width = $("#wrpr").width();
+        var width = $("#wrpr").outerWidth();
+        console.log(width);
         $("#dirty").width(width).height(width);
+        $(".player_bar").width(width);
 
         this.setState({
             who_to_move: (this.game.turn() === 'w') ? "white" : "black",
@@ -164,7 +170,6 @@ class App extends React.Component {
                 p.push(obj.slice(-2));
             }
 
-            console.log(this.game.fen());
             this.cg = Chessground(document.getElementById('dirty'), {
                 fen: this.game.fen(),
                 turnColor: (this.game.turn() === 'w') ? "white" : "black",
@@ -241,51 +246,60 @@ class App extends React.Component {
                 }
             }
             self.setTime();
+
+            if (this.state.is_started == 0 && this.state.is_over == 0) {
+                $("#timeleft_white").removeClass("hidden");
+            }
         });
 
-        $(".fbt").on("click", function () {
 
-            var element = this;
+    }
 
-         //   $(this).closest(".control").addClass("confirm");
-            $(this).addClass("yes active");
+    resign(event) {
+        console.log(this);
+       // var element = this;
 
-         //   var wrapper = $("<div class='act_confirm resign'></div>");
+        var self = this;
+        var element = $(event.target);
+        //var value = event.target.value;
 
-         //   $(this).wrap(wrapper);
+        //   $(this).closest(".control").addClass("confirm");
+        element.addClass("yes active");
 
+        //   var wrapper = $("<div class='act_confirm resign'></div>");
 
-            self.resignCount++;
-
-            if (self.resignCount > 1) {
-                var send_data = {
-                    data: self.game.fen(),
-                    id: g,
-                    is_over: 1,
-                    player: (self.state.playerColor === 'white') ? "p1" : "p2", //who made the last move
-                };
-
-                send_data.is_over = 1;
-                send_data.p1_won = (self.state.playerColor === 'white') ? 0 : 1;
-                send_data.p2_won = (self.state.playerColor === 'black') ? 0 : 1;
-                send_data.p1_id = p1;
-                send_data.p2_id = p2;
-                send_data.tourney_id = self.state.tourney_id;
-                //self.socket.emit('eventServer', JSON.stringify(send_data));
-
-            }
+        //   $(this).wrap(wrapper);
 
 
-            setTimeout(function () {
-               // if (self.state.is_over == 0) {
-                   // $(element).unwrap();
-                   /// $(element).closest(".control").removeClass("confirm");
-                    $(element).removeClass("yes active");
-                //}
-                self.resignCount = 0;
-            }, 3000);
+        self.resignCount++;
 
-        })
+        if (self.resignCount > 1) {
+            var send_data = {
+                data: self.game.fen(),
+                id: g,
+                is_over: 1,
+                player: (self.state.playerColor === 'white') ? "p1" : "p2", //who made the last move
+            };
+
+            send_data.is_over = 1;
+            send_data.p1_won = (self.state.playerColor === 'white') ? 0 : 1;
+            send_data.p2_won = (self.state.playerColor === 'black') ? 0 : 1;
+            send_data.p1_id = p1;
+            send_data.p2_id = p2;
+            send_data.tourney_id = self.state.tourney_id;
+            self.socket.emit('eventServer', JSON.stringify(send_data));
+
+        }
+
+
+        setTimeout(function () {
+            // if (self.state.is_over == 0) {
+            // $(element).unwrap();
+            /// $(element).closest(".control").removeClass("confirm");
+            $(element).removeClass("yes active");
+            //}
+            self.resignCount = 0;
+        }, 3000);
     }
 
     getPromotionChoice() {
@@ -300,7 +314,6 @@ class App extends React.Component {
         } else {
             url = '';
         }
-        console.log("AAA");
         this.socket = io(window.location.origin, {query: url + '&g=' + g});
 
         this.socket.on('eventClient', function (data) {
@@ -620,16 +633,57 @@ class App extends React.Component {
 
 
         return (
-            <div className="mt-3 row lichess_ground">
+            <div className="mt-1 row lichess_ground lichess_board_wrap">
+
                 <div className="col-lg-8 col-md-12">
 
+                    <div className="clock_top">
+                        <div className={(this.state.up_player_online == true) ? "username user_link black online pt-2 pb-2 player_bar" : "username user_link black offline pt-2 pb-2 player_bar "}><i className="line"
+                                                                                                                                                           title="Joined the game"></i>
+                            <a className="text ulpt name" data-pt-pos="s" href="" target="_self">{this.state.up_name}
+                                <span className="rating"> ({this.state.up_tournaments_rating})
+                                    {(this.state.up_rating_change) ? <span
+                                            className={(this.state.up_rating_change >= 0) ? "rp up" : "rp down"}>{(this.state.up_rating_change > 0) ? "+" : ""}{this.state.up_rating_change}</span> : null}
+                                </span>
+                            </a>
+
+                            <span className="time aclock">{this.state.up_clock_minutes}
+                                <span className="low">:</span>
+                                {this.state.up_clock_seconds}
+                            </span>
+
+                        </div>
+                    </div>
+
+
                     <div className="blue merida">
+
                         <div id="dirty" className="cg-board-wrap"></div>
+                    </div>
+
+                    <div className="clock_bottom">
+                        <div className={(this.state.bottom_player_online == true) ? "username user_link black online pt-2 pb-2 player_bar" : "username user_link black offline pt-2 pb-2 player_bar "}><i className="line"
+                                                                                                                                                                                                      title="Joined the game"></i>
+                            <a className="text ulpt name" data-pt-pos="s" href="" target="_self">{this.state.bottom_name}
+                                <span className="rating"> ({this.state.bottom_tournaments_rating})
+                                    {(this.state.bottom_rating_change) ? <span
+                                            className={(this.state.bottom_rating_change >= 0) ? "rp up" : "rp down"}>{(this.state.bottom_rating_change > 0) ? "+" : ""}{this.state.bottom_rating_change}</span> : null}
+                                </span>
+                            </a>
+
+                            <span className="time aclock">{this.state.bottom_clock_minutes}
+                                <span className="low">:</span>
+                                {this.state.bottom_clock_seconds}
+                            </span>
+
+                        </div>
                     </div>
 
 
                 </div>
                 <div className="col-lg-4 col-md-12">
+
+                    {(clientWidth > 1000) ?
                     <div className="table_wrap">
 
                         <div className="clock clock_top">
@@ -675,8 +729,8 @@ class App extends React.Component {
                                             <span data-icon="2"></span>
                                         </button>
 
-                                        <button className="fbt hint--bottom resign-confirm" data-hint="Сдаться"><span
-                                            data-icon="b"></span></button>
+                                        <button className="fbt hint--bottom resign-confirm" onClick={this.resign} data-hint="Сдаться"><span
+                                            data-icon="b" ></span></button>
                                     </div>
                                     }
                                 </div>
@@ -704,7 +758,7 @@ class App extends React.Component {
                         </div>
                     </div>
 
-
+                        : null}
                     <div className="side_box padded">
                         <div className="players">
 
