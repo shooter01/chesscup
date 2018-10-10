@@ -8,8 +8,6 @@ module.exports = function (app) {
     const pool = app.pool;
 
     setInterval(function () {
-      //  console.log("aaa");
-
         pool
             .query('SELECT * FROM tournaments WHERE is_active = 0 AND start_time < ?', new Date())
             .then(games => {
@@ -30,13 +28,6 @@ module.exports = function (app) {
         app.mongoDB.collection("users").find({ startTime: { $lte: new Date() }, is_started : 0, is_over : 0 }, function(err, cursor) {
             cursor.forEach(function (game) {
                 console.log("game mongo : " + game._id);
-             //   console.log(new Date());
-                //current_games[game._id] = game;
-
-
-
-
-
                 //сохраняем завершение партии в монго
                 app.mongoDB.collection("users").updateOne({_id: parseInt(game._id)},{$set: {is_over : 1}}, function (err, res) {
 
@@ -61,16 +52,19 @@ module.exports = function (app) {
 
                 });
 
-
-
-
-            }, function () {
-
-
-
-            });
+            }, function () {});
         });
 
+
+        app.mongoDB.collection("users").find({ $or: [ { quantity: { $lt: 20 } }, { is_over: 0 } ] }, function(err, cursor) {
+            cursor.forEach(function (game) {
+
+                if (typeof app.globalPlayers[game.p1_id] !== "undefined" || typeof app.globalPlayers[game] !== "undefined") {
+
+                }
+
+            }, function () {});
+        });
 
     }, 5000);
 

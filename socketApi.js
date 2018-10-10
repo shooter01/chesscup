@@ -29,22 +29,24 @@ module.exports = function (app) {
     io.on('connection', function (socket) {
 
         var handshakeData = socket.request;
-
+        let data = handshakeData._query;
+        console.log("");
+        if (handshakeData._query['h'] && handshakeData._query['h'] != "undefined") {
+            socket.p_id = data.h;
+            app.globalPlayers[socket.p_id] = socket;
+        }
+        console.log(Object.keys(app.globalPlayers));
 
         //события игры
 
         if (handshakeData._query['g'] && handshakeData._query['g'] != "undefined") {
-            let data = handshakeData._query;
 
             socket.game_id = data.g;
 
-
             if (handshakeData._query['h'] && handshakeData._query['h'] != "undefined") {
-                socket.p_id = data.h;
                 online_players[socket.game_id] = online_players[socket.game_id] || {};
                 online_players[socket.game_id][socket.p_id] = online_players[socket.game_id][socket.p_id] || 0;
                 online_players[socket.game_id][socket.p_id] = ++online_players[socket.game_id][socket.p_id];
-                app.globalPlayers[socket.p_id] = socket;
             }
 
             socket.join(socket.game_id);
@@ -270,7 +272,8 @@ module.exports = function (app) {
         }
 
         socket.on('disconnect', function () {
-            console.log(online_players);
+            console.log("disconnect");
+            console.log(Object.keys(app.globalPlayers));
 
             if (typeof online_players[socket.game_id] !== "undefined"
                 && typeof online_players[socket.game_id][this.p_id] !== "undefined") {

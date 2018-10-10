@@ -184,7 +184,7 @@ const make_draw = function (data) {
             })  .then(function(data){
 
             var newDateObj = moment(new Date()).add(30, 'm').toDate();
-            var startTime = moment(new Date()).add(1, 'm').toDate();
+            var startTime = moment(new Date()).add(60, 'm').toDate();
             if (data && data.length) {
                 for (var i = 0; i < data.length; i++) {
 
@@ -218,11 +218,11 @@ const make_draw = function (data) {
                         console.log("========");*/
                         if (typeof app.globalPlayers[obj.p1_id] != "undefined") {
                             console.log(obj.p1_id);
-                            app.globalPlayers[obj.p1_id].emit('tournament_start', JSON.stringify({updated_tour: tourney.current_tour + 1, game_id : obj.id}));
+                            app.globalPlayers[obj.p1_id].emit('game_start', JSON.stringify({tournament_id: tournament_id, game_id : obj.id}));
                         }
                         if (typeof app.globalPlayers[obj.p2_id] != "undefined") {
                             console.log(obj.p1_id);
-                            app.globalPlayers[obj.p2_id].emit('tournament_start', JSON.stringify({updated_tour: tourney.current_tour + 1, game_id : obj.id}));
+                            app.globalPlayers[obj.p2_id].emit('game_start', JSON.stringify({tournament_id: tournament_id, game_id : obj.id}));
                         }
                     }
                 }

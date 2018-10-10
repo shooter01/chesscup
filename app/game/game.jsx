@@ -21,7 +21,7 @@ class App extends React.Component {
             playerColor: null,
             tourney_href : "/tournament/" + tourney_id + "/tour/" + tour_id,
             is_over: is_over,
-            is_started: is_started,
+            is_started: parseInt(is_started),
             orientation: "white",
 
         };
@@ -757,7 +757,8 @@ class App extends React.Component {
 
                         : null}
 
-                    <div className="alert alert-danger mt-1 mb-1 " id="timeleft_white">Время на ход белых: <span id="timer"></span></div>
+                    {this.state.is_started ? null : <div className="alert alert-danger mt-1 mb-1 " id="timeleft_white">Время на ход белых: <Timer/></div>}
+
 
 
                     <div className="side_box padded">

@@ -1,14 +1,53 @@
 {
-  "name": "jquery",
-  "main": "dist/jquery.js",
-  "license": "MIT",
-  "ignore": [
-    "package.json"
-  ],
-  "keywords": [
-    "jquery",
-    "javascript",
-    "browser",
-    "library"
-  ]
+  "result": {
+    "short": {
+      "title": "МЕЛАДЗЕ Валерий - Текила-Любовь",
+      "titleTrack": "Текила-Любовь",
+      "titleExecutor": "МЕЛАДЗЕ Валерий",
+      "titleExecutorFull": "МЕЛАДЗЕ Валерий",
+      "uidTrack": 694,
+      "mdbUidTrack": 694,
+      "mdbUidExecutor": 46,
+      "mdbExecutorModer": "1",
+      "mdbTrackModer": 1,
+      "containExecutors": false,
+      "cover": {
+        "coverHTTP": "http://avtoradio.ru/vardata/modules/musicdb/files/201210/61e11be75e393e5ab75f9bfb0949bdf9.jpg",
+        "coverOriginal": "/vardata/modules/musicdb/files/201210/61e11be75e393e5ab75f9bfb0949bdf9.jpg",
+        "cover50": "http://avtoradio.ru/proxy/vardata/modules/musicdb/files/201210/61e11be75e393e5ab75f9bfb0949bdf9.jpg?w=50&h=50&pos=center&t=1351339784",
+        "cover100": "http://avtoradio.ru/proxy/vardata/modules/musicdb/files/201210/61e11be75e393e5ab75f9bfb0949bdf9.jpg?w=100&h=100&pos=center&t=1351339784",
+        "cover150": "http://avtoradio.ru/proxy/vardata/modules/musicdb/files/201210/61e11be75e393e5ab75f9bfb0949bdf9.jpg?w=150&h=150&pos=center&t=1351339784",
+        "cover200": "http://avtoradio.ru/proxy/vardata/modules/musicdb/files/201210/61e11be75e393e5ab75f9bfb0949bdf9.jpg?w=200&h=200&pos=center&t=1351339784",
+        "cover250": "http://avtoradio.ru/proxy/vardata/modules/musicdb/files/201210/61e11be75e393e5ab75f9bfb0949bdf9.jpg?w=250&h=250&pos=center&t=1351339784",
+        "cover300": "http://avtoradio.ru/proxy/vardata/modules/musicdb/files/201210/61e11be75e393e5ab75f9bfb0949bdf9.jpg?w=300&h=300&pos=center&t=1351339784",
+        "cover350": "http://avtoradio.ru/proxy/vardata/modules/musicdb/files/201210/61e11be75e393e5ab75f9bfb0949bdf9.jpg?w=350&h=350&pos=center&t=1351339784",
+        "cover400": "http://avtoradio.ru/proxy/vardata/modules/musicdb/files/201210/61e11be75e393e5ab75f9bfb0949bdf9.jpg?w=400&h=400&pos=center&t=1351339784",
+        "uid": 1397
+      },
+      "album": false,
+      "iTunes": false,
+      "sample": "http://avtoradio.ru/vardata/modules/musicdb/samples/201210/f6ef3e97e6a1dd9722717df904856a57.mp3",
+      "duration": 214,
+      "statusReady": 0,
+      "module": "mdb",
+      "executorsWorked": [],
+      "moderTrack": 1,
+      "moderExecutor": "1",
+      "duration_time": "00:03:34"
+    },
+    "stat": {
+      "startSong": 1539170678,
+      "finishSong": 1539170892,
+      "lastTime": 214,
+      "serverTime": 1539170678,
+      "finishSongString": "14:28:12",
+      "startSongString": "14:24:38",
+      "listenAuthUsers": 0,
+      "listenNoAuthUsers": 0,
+      "listenAllUsers": 8029
+    }
+  },
+  "status": 1,
+  "errorCode": 0,
+  "callback": null
 }

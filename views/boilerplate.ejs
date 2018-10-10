@@ -13,7 +13,9 @@
     <script src="/js/jquery/dist/jquery.min.js"></script>
 
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    </head>
+    <script src="/socket.io/socket.io.js"></script>
+
+</head>
 <body id="app" class="base preload base  Rosewood Staunton online light">
 
 
@@ -133,6 +135,16 @@
         }
 
     </script>
+
+
+    <% if (user && user.user) { %>
+        <script>
+            var u = '<%= user.user.id %>';
+        </script>
+
+    <script src="/js/player.min.js"></script>
+
+    <% }  %>
 
 
     <!-- Yandex.Metrika counter -->
