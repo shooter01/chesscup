@@ -56,11 +56,19 @@ module.exports = function (app) {
         });
 
 
-        app.mongoDB.collection("users").find({ $or: [ { quantity: { $lt: 20 } }, { is_over: 0 } ] }, function(err, cursor) {
+        app.mongoDB.collection("users").find({ is_over: 0 }, function(err, cursor) {
             cursor.forEach(function (game) {
 
-                if (typeof app.globalPlayers[game.p1_id] !== "undefined" || typeof app.globalPlayers[game] !== "undefined") {
+                if (typeof app.globalPlayers[game.p1_id] !== "undefined"){
+                    app.globalPlayers[game.p1_id].emit('game_start', JSON.stringify({
+                        tournament_id: game.tournament_id, game_id : game._id
+                    }));
+                }
 
+                if (typeof app.globalPlayers[game.p2_id] !== "undefined") {
+                    app.globalPlayers[game.p2_id].emit('game_start', JSON.stringify({
+                        tournament_id: game.tournament_id, game_id : game._id
+                    }));
                 }
 
             }, function () {});
