@@ -759,6 +759,35 @@ class App extends React.Component {
 
                     {this.state.is_started ? null : <div className="alert alert-danger mt-1 mb-1 " id="timeleft_white">Время на ход белых: <Timer/></div>}
 
+                    {(clientWidth < 1000) ?
+
+                        <div>{(this.state.isPlayer) ?
+
+                            <div>
+                                {(this.state.is_over == 1) ?
+                                    <div className="control buttons">
+                                        <div className="follow_up"><a className="text fbt strong glowed" data-icon="G"
+                                                                      href={this.state.tourney_href}>Вернуться к турниру</a></div>
+                                    </div> :
+
+                                    <div className="control icons ">
+                                        <button disabled className="fbt hint--bottom takeback-yes"
+                                                data-hint="Попросить соперника вернуть ход">
+                                            <span data-icon="i"></span>
+                                        </button>
+                                        <button className="fbt hint--bottom draw-yes" disabled
+                                                data-hint="Предложить ничью">
+                                            <span data-icon="2"></span>
+                                        </button>
+
+                                        <button className="fbt hint--bottom resign-confirm" onClick={this.resign} data-hint="Сдаться"><span data-icon="b"></span></button>
+                                    </div>
+                                }
+                            </div>
+                            : null}</div>
+                        : null
+                    }
+
 
 
                     <div className="side_box padded">
