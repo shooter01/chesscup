@@ -13,14 +13,27 @@ module.exports = function (app) {
             .then(games => {
                // console.log(games);
                 if (games.length > 0) {
-                    return pool
+
+                    for (var i = 0; i < games.length; i++) {
+                        var obj = games[i];
+                        pool
+                            .query('UPDATE tournaments SET is_active = 1  WHERE is_active = 0 AND start_time < ?', new Date()).then(rows => {
+                                make_draw({
+                                    tournament_id : obj.id,
+                                    pool : app.pool,
+                                    app : app,
+                                });
+                            })
+                    }
+
+                    /*return pool
                         .query('UPDATE tournaments SET is_active = 1  WHERE is_active = 0 AND start_time < ?', new Date()).then(rows => {
                             make_draw({
                                 tournament_id : 43,
                                 pool : app.pool,
                                 app : app,
                             });
-                        })
+                        })*/
                 }
         });
 
