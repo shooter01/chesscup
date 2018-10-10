@@ -40,7 +40,7 @@ const make_draw = function (data) {
 
 
     var team_temp;
-
+    console.log(tournament_id);
     if (!isNaN(tournament_id)) {
 
         pool
@@ -521,10 +521,12 @@ const make_draw = function (data) {
 
             }).catch(function (err) {
             console.log(err);
-            res.json({
-                "status": "error",
-                "msg" : err.message
-            });
+            if (typeof res != "undefined") {
+                res.json({
+                    "status": "error",
+                    "msg": err.message
+                });
+            }
         });
 
     } else {
