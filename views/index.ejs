@@ -22,17 +22,7 @@
                     <span class="badge badge-light">Online</span>
                 <% } %>
 
-                <%  if (tournaments[i].is_active == 0) { %>
-                    <span class="badge badge-info">Ожидается</span>
-                <% } %>
 
-                <%  if (tournaments[i].is_active == 1 && tournaments[i].is_closed == 0) { %>
-                    <span class="badge badge-success">Активен</span>
-                <% } %>
-
-                <%  if (tournaments[i].is_active == 1 && tournaments[i].is_closed == 1) { %>
-                    <span class="badge badge-secondary">Закончен</span>
-                <% } %>
             </div>
         </div>
 
