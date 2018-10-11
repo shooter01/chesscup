@@ -36,6 +36,13 @@
     var _ParticipantAdded = '<%- __("ParticipantAdded") %>';
     var _RequestSent = '<%- __("ParticipantRequestSent") %>';
     var _ChooseTeam = '<%- __("ParticipantsChooseTeamTitle") %>';
+    var _Board = '<%- __("Board") %>';
+    var _Points = '<%- __("Points") %>';
+    var _Result = '<%- __("Result") %>';
+    var _Saved = '<%- __("Saved") %>';
+    var _SaveError = '<%- __("SaveError") %>';
+    var _Tour = '<%- __("ParticipantTour") %>';
+    var _AreYouSure = '<%- __("ParticipantAreYouSure") %>';
 </script>
 
 <script>
@@ -105,9 +112,9 @@
 <div class="row">
     <div class="col-sm-9">
         <h3 class="mt-4"><%= tournament.title %> </h3>
-        <div>До начала : <span id="timer"></span></div>
 
-        <ul class="nav nav-pills mb-3 mt-3  nav-fill" id="pills-tab" role="tablist">
+
+        <!--<ul class="nav nav-pills mb-3 mt-3  nav-fill" id="pills-tab" role="tablist">
             <li class="nav-item">
                 <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Участники</a>
             </li>
@@ -117,12 +124,13 @@
 
         </ul>
         <div class="tab-content" id="pills-tabContent">
-            <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+            <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">-->
 
+                <div id="pairing"></div>
 
-                <div id="participants"></div>
+                <!--<div id="participants"></div>-->
 
-            </div>
+            <!--</div>
             <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
                 <h6><%- __("CreateToursCount") %> : <%= tournament.tours_count %></h6>
                 <h6><%- __("CreateCity") %> : <%= tournament.city %> <img src="/images/blank.png" class="flag flag-<%= tournament.country.toLocaleLowerCase() %>" title="<%= countries[tournament.country] %>" alt="<%= countries[tournament.country] %>"></h6>
@@ -132,7 +140,7 @@
                 <h6><%- __("Creator") %> : <%= tournament.name %></h6>
             </div>
             <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
-        </div>
+        </div>-->
     </div>
 
     <div class="col-sm-3">
@@ -142,9 +150,11 @@
 
 
 
+<script src="/js/pairing.min.js"></script>
+<script src="/js/timer.min.js"></script>
 
 
-<script src="/js/online_participants.min.js"></script>
+<!--<script src="/js/online_participants.min.js"></script>-->
 <!--<script src="/js/chat.min.js"></script>-->
 
 

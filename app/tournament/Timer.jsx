@@ -81,4 +81,13 @@ class Timer extends React.Component {
     }
 }
 
+
+
+if (document.getElementById("timer") != null) {0
+    render(
+        <Timer/>
+        , document.getElementById('timer'));
+}
+
+
 export default Timer;

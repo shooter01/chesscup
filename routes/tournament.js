@@ -956,6 +956,99 @@ module.exports = function(app, passport, pool, i18n) {
         }
     });
 
+
+
+    router.get('/:tournament_id/get_info',
+        function (req, res, next) {
+
+
+            let tournament_id = req.params.tournament_id;
+            tournament_id = parseInt(tournament_id);
+            if (!isNaN(tournament_id)) {
+
+                pool
+                    .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
+                    .then(rows => {
+                        const tournament = rows[0];
+                        let participants, pairing = [], arrr = [], crosstable, scores_object = {}, current_games = {};
+                        let tour_id = tournament.current_tour;
+
+
+                        pool
+                            .query('SELECT tr.*, u1.name AS p1_name,u1.tournaments_rating AS p1_rating, u2.name AS p2_name, u2.tournaments_rating AS p2_rating FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN  users u2 ON tr.p2_id = u2.id WHERE tr.tournament_id = ? AND tr.tour = ?', [tournament_id, tour_id])
+                            .then(rows => {
+                                pairing = rows;
+
+                                for (var i = 0; i < rows.length; i++) {
+                                    var obj = rows[i];
+                                    var p1_name = obj["p1_name"];
+                                    var p2_name = obj["p2_name"];
+                                    arrr.push(
+                                        {
+                                            scores: obj["p1_scores"],
+                                            name: obj["p1_name"],
+                                        },
+                                        {
+                                            scores: obj["p2_scores"],
+                                            name: obj["p2_name"],
+                                        },
+                                    );
+                                }
+                                arrr.sort(sortByScores);
+
+                                function sortByScores(a,b) {
+                                    return a.scores < b.scores;
+                                }
+
+                            }).then(rows => {
+                            return pool
+                                .query('SELECT tp.user_id,tp.is_active, ts.scores, u.name, u.tournaments_rating FROM tournaments_participants tp LEFT JOIN tournaments_scores ts ON ts.user_id = tp.user_id LEFT JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? AND ts.tournament_id = ?', [tournament_id, tournament_id])
+                        }).then(rows => {
+                            var a = [];
+
+                            for (var i = 0; i < rows.length; i++) {
+                                var obj = rows[i];
+
+                                scores_object[obj.user_id] = obj.scores;
+                                a.push({
+                                    user_id: obj.user_id,
+                                    scores: obj.scores,
+                                    name: obj.name,
+                                    crosstable: crosstable,
+                                    is_active: obj.is_active,
+                                    tournaments_rating: obj.tournaments_rating,
+                                });
+                            }
+                            participants = DRAW.sortArr(a);
+
+                        }).then(rows => {
+                            return pool
+                                .query('SELECT * FROM tournaments_results tr WHERE tr.tournament_id = ?', tournament_id)
+                        }).then(rows => {
+                            crosstable = DRAW.makeCrossatable(rows, participants);
+                            // console.log(tournament);
+                            res.json({
+                                tournament  : tournament,
+                                pairing  : JSON.stringify(pairing),
+                                participants : participants,
+                                tour_id : tour_id,
+                                scores_object :  JSON.stringify(scores_object),
+                                arrr : arrr,
+                            });
+                        }).catch(function (err) {
+                            console.log(err);
+                        });
+
+                    });
+
+            } else {
+                res.render('error', {
+                    message  : req.i18n.__("TourneyNotFound"),
+                });
+            }
+        });
+
+
     router.get('/:tournament_id/tour/:tour_id',
         function (req, res, next) {
 
@@ -982,8 +1075,6 @@ module.exports = function(app, passport, pool, i18n) {
                 message  : req.i18n.__("TourneyNotFound"),
             });
         }
-
-
     });
 
     router.post('/get_pairs',
@@ -1188,11 +1279,12 @@ module.exports = function(app, passport, pool, i18n) {
                    // participants = rows;
                     participants = DRAW.sortArr(a);
 
-
+                    console.log(tournament);
 
                     res.render('tournament/pairing', {
                         tournament  : tournament,
                         pairing  : JSON.stringify(pairing),
+                        tournamentJSON  : JSON.stringify(tournament),
                         participants : participants,
                         scores_object :  JSON.stringify(scores_object),
                         arrr : arrr,

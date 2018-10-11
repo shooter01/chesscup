@@ -7,7 +7,7 @@ class CurrentGames extends React.Component {
         super(props);
         this.state = {
             current_games: [],
-            pairing: pairing,
+            pairing: pairs,
             request_sent: false,
             participants: participants,
             tournament_id: tournament_id,

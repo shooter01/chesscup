@@ -3,6 +3,8 @@ import {render} from 'react-dom';
 import UserResults from "./table.jsx";
 
 import Link from "./Link.jsx";
+import ResultsTable from "./ResultsTable.jsx";
+import Timer from "./Timer.jsx";
 
 
 /*import Loading from "./../tasks/Loading.jsx";
@@ -16,12 +18,15 @@ class Pairing extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            pairs: pairing,
+            pairs: (typeof pairs != "undefined") ? pairs : null,
             participants: participants,
-            scores_object: scores_object,
-            tournament_id: tournament_id,
-            current_tour: current_tour,
+            tournament: tournament,
+            participants_scores: [],
+            scores_object: (typeof scores_object != "undefined") ? scores_object : null,
+            tournament_id: tournament.id,
+            current_tour: tournament.current_tour,
             user_pairs: [],
+            tour_id : (typeof tour_id != "undefined") ? tour_id : tournament.current_tour,
             user_id: [],
             owner: window.owner,
         }
@@ -230,6 +235,17 @@ class Pairing extends React.Component {
         });
 
 
+        if (this.state.pairs == null || this.state.pairs.length === 0) {
+            $.getJSON('/tournament/' + this.state.tournament_id + '/get_info').done(function (data) {
+                console.log(data.participants);
+                that.setState({
+                    pairs : JSON.parse(data.pairing) || [],
+                    participants : data.participants || [],
+                });
+            })
+        }
+
+
        // this.getUsers(200);
     }
     saveResult(event){
@@ -321,7 +337,13 @@ class Pairing extends React.Component {
         return (
             <div className="position-relative">
 
+                <div>
+                    {(this.state.tournament.is_closed == 1) ? <div>Турнир закончен</div> : null}
+                    {(this.state.tournament.is_closed == 0 && this.state.tournament.is_active == 1) ? <div>Турнир активен</div> : null}
+                    {(this.state.tournament.is_closed == 0 && this.state.tournament.is_active == 0) ? <div>Турнир стартует через : <Timer timeleft={timeleft} /></div> : null}
+                </div>
 
+                { (this.state.pairs != null && this.state.pairs.length) ?
                 <table className="table table-hover table-bordered table-sm">
                     <thead className="thead-dark">
                     <tr>
@@ -346,7 +368,7 @@ class Pairing extends React.Component {
                             <td className="text-center">
                                 <Link tournament_id={this.state.tournament_id} p1_id={item.p1_id} p2_id={item.p2_id} id={item.id}/>
 
-                                {(tour_id != "null" && tour_id == current_tour && typeof this.state.owner !== "undefined") ?
+                                {(typeof tour_id != "undefined" && tour_id != "null" && tour_id == current_tour && typeof this.state.owner !== "undefined") ?
                                 <select name="" className="custom-select form-control-sm" id="" defaultValue={JSON.stringify({
                                     p1_id:item.p1_id,
                                     p2_id:item.p2_id,
@@ -392,6 +414,9 @@ class Pairing extends React.Component {
                     ))}
                     </tbody>
                 </table>
+                    : null}
+
+                    <ResultsTable participants={this.state.participants} scores={this.state.scores_object}/>
 
 
                 <div className="modal" id="user_results_modal" tabIndex="-1" role="dialog"  aria-labelledby="exampleModalLabel" aria-hidden="true">

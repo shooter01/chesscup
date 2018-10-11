@@ -458,7 +458,10 @@ const DRAW = {
                         res.render('tournament/pairing', {
                             tournament  : tournament,
                             pairing  : JSON.stringify(pairing),
+                            tournamentJSON  : JSON.stringify(tournament),
+
                             participants : participants,
+                            participantsJSON : JSON.stringify(participants),
                             tour_id : tour_id,
                             scores_object :  JSON.stringify(scores_object),
                             arrr : arrr,

@@ -19,6 +19,7 @@ var config = {
         player : './app/tournament/player.jsx',
         online_participants : './app/tournament/online_participants.jsx',
         final : './app/tournament/final.jsx',
+        timer : './app/tournament/Timer.jsx',
         game : './app/game/game.jsx',
         team_pairing : './app/tournament/team_pairing.jsx',
     },
@@ -36,7 +37,7 @@ var config = {
         ]
     },
     plugins: [
-       new webpack.DefinePlugin({
+       /*new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('production')
         }),
         new webpack.optimize.UglifyJsPlugin({
