@@ -184,7 +184,7 @@ const make_draw = function (data) {
             })  .then(function(data){
 
             var newDateObj = moment(new Date()).add(30, 'm').toDate();
-            var startTime = moment(new Date()).add(30, 'm').toDate();
+            var startTime = moment(new Date()).add(1, 'm').toDate();
             if (data && data.length) {
                 for (var i = 0; i < data.length; i++) {
 
@@ -201,8 +201,8 @@ const make_draw = function (data) {
                             "tournament_id": tournament_id,
                             "p1_last_move": null,
                             "p2_last_move": null,
-                            "p1_time_left": 3000000,
-                            "p2_time_left": 3000000,
+                            "p1_time_left": 60000,
+                            "p2_time_left": 60000,
                             "p1_visited": false,
                             "p2_visited": false,
                             "is_started": 0,
@@ -210,22 +210,29 @@ const make_draw = function (data) {
                             "time_length": 300,
                             "time_addition": 0,
                         });
+
+
+
+
                        /* console.log("========");
 
                         console.log(Object.keys(app.globalPlayers));
                         console.log(obj.p1_id);
                         console.log(obj.p2_id);
                         console.log("========");*/
-                        if (typeof app.globalPlayers[obj.p1_id] != "undefined") {
+                        /*if (typeof app.globalPlayers[obj.p1_id] != "undefined") {
                             console.log(obj.p1_id);
                             app.globalPlayers[obj.p1_id].emit('game_start', JSON.stringify({tournament_id: tournament_id, game_id : obj.id}));
                         }
                         if (typeof app.globalPlayers[obj.p2_id] != "undefined") {
                             console.log(obj.p1_id);
                             app.globalPlayers[obj.p2_id].emit('game_start', JSON.stringify({tournament_id: tournament_id, game_id : obj.id}));
-                        }
+                        }*/
                     }
                 }
+
+
+
             }
 
             /*if (data.insertId){
@@ -496,8 +503,17 @@ const make_draw = function (data) {
                 var tour = ((tourney.current_tour + 1) <= tourney.tours_count) ? tourney.current_tour + 1 : null;
 
 
+                app.io.to('t' + tournament_id).emit('tournament_event',
+                    JSON.stringify({}));
+
+                /*app.io.to(game._id).emit('eventClient', JSON.stringify({
+                    event: "game_over",
+                    bitch: send_data,
+                    is_over: 1
+                }));*/
+
                 //console.log(Object.keys(app.globalPlayers))
-                for (var obj in app.globalPlayers) {
+                /*for (var obj in app.globalPlayers) {
 
                     if (typeof participants_object[obj] === 'undefined' || tour == null){
                         app.globalPlayers[obj].emit('tournament_start', JSON.stringify({updated_tour : tour}));
@@ -507,7 +523,7 @@ const make_draw = function (data) {
                 for (var obj in app.viewers) {
                     app.viewers[obj].emit('tournament_start', JSON.stringify({updated_tour : tour}));
                 }
-
+*/
 
                 //app.io.sockets.emit('tournament_start', JSON.stringify({updated_tour : tour}));
 

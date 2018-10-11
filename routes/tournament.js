@@ -86,7 +86,7 @@ module.exports = function(app, passport, pool, i18n) {
                     return app.mongoDB.collection("users").findOne( { _id: gameId } )
                 }).then(data => {
                 mongoGame = data;
-             //   console.log(mongoGame);
+                console.log(mongoGame);
 
 
 

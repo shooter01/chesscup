@@ -30,10 +30,16 @@ module.exports = function (app) {
 
         var handshakeData = socket.request;
         let data = handshakeData._query;
-        console.log("");
+
         if (handshakeData._query['h'] && handshakeData._query['h'] != "undefined") {
             socket.p_id = data.h;
             app.globalPlayers[socket.p_id] = socket;
+        }
+
+        if ((handshakeData._query['t1'] && handshakeData._query['t1'] != "undefined")) {
+            socket.join('t' + handshakeData._query['t1']);
+
+
         }
         console.log(Object.keys(app.globalPlayers));
 
@@ -234,24 +240,8 @@ module.exports = function (app) {
             });
 
 
-        } else if (
-            (handshakeData._query['t1'] && handshakeData._query['t1'] != "undefined") && handshakeData._query['h'] != "undefined"
-            && handshakeData._query['h'] != "null") {
-            var t_id = handshakeData._query['t1'];
-           // console.log(t_id);
 
 
-            if (handshakeData._query['h'] && handshakeData._query['h'] != "undefined" && handshakeData._query['h'] != "null") {
-                let data = handshakeData._query;
-                socket.p_id = data.h;
-                //socket.game_id = data.g;
-               // online_players[socket.t1] = online_players[t1] || {};
-               // online_players[socket.t1][socket.p_id] = online_players[socket.t1][socket.p_id] || 0;
-               // online_players[socket.t1][socket.p_id] = ++online_players[socket.t1][socket.p_id];
-                app.globalPlayers[socket.p_id] = socket;
-            }
-          //  console.log(Object.keys(app.globalPlayers));
-            //io.sockets.emit('tournament_start');
         } else if (
             (!handshakeData._query['h'] ||
             handshakeData._query['h'] == "undefined"

@@ -31,9 +31,10 @@ class Pairing extends React.Component {
             owner: window.owner,
         }
         this.saveResult = this.saveResult.bind(this);
+        this.getActualData = this.getActualData.bind(this);
     }
     componentDidMount(){
-        var that = this;
+        var self = this;
 
         $("#next_tour").on("click", function () {
             $.ajax({
@@ -41,13 +42,13 @@ class Pairing extends React.Component {
                 method: "post",
                 timeout : 3000,
                 beforeSend : function () {
-                    that.setState({
+                    self.setState({
                         request_sent : true,
                     });
                 },
                 data : {
                     //result : value,
-                    tournament_id : that.state.tournament_id
+                    tournament_id : self.state.tournament_id
                 },
                 statusCode: {
                     404: function() {
@@ -57,9 +58,9 @@ class Pairing extends React.Component {
             }).done(function (data) {
                 if (data.status === "ok") {
                     if (data.updated_tour == null){
-                        //location.href = "/tournament/" + that.state.tournament_id + "/final";
+                        //location.href = "/tournament/" + self.state.tournament_id + "/final";
                     } else {
-                       // location.href = "/tournament/" + that.state.tournament_id + "/tour/" + data.updated_tour;
+                       // location.href = "/tournament/" + self.state.tournament_id + "/tour/" + data.updated_tour;
                     }
                 } else {
                     alert(data.msg);
@@ -67,7 +68,7 @@ class Pairing extends React.Component {
             }).fail(function ( jqXHR, textStatus ) {
                 alert( "Request failed: " + textStatus );
             }).always(function () {
-                that.setState({
+                self.setState({
                     request_sent : false
                 });
             });
@@ -76,7 +77,7 @@ class Pairing extends React.Component {
         $(".participant").on("click", function (event) {
             event.preventDefault();
             var user_id = $(this).attr("data-id");
-            that.setState({
+            self.setState({
                 user_id : user_id
             });
             $.ajax({
@@ -84,13 +85,13 @@ class Pairing extends React.Component {
                 method: "post",
                 timeout : 3000,
                 beforeSend : function () {
-                    that.setState({
+                    self.setState({
                         request_sent : true,
                     });
                 },
                 data : {
                     //result : value,
-                    tournament_id : that.state.tournament_id,
+                    tournament_id : self.state.tournament_id,
                     user_id : user_id
                 },
                 statusCode: {
@@ -101,7 +102,7 @@ class Pairing extends React.Component {
             }).done(function (data) {
                 if (data.status === "ok") {
                      $("#user_results_modal").modal("show");
-                    that.setState({
+                    self.setState({
                         user_pairs : data.pairing
                     });
                 } else {
@@ -110,7 +111,7 @@ class Pairing extends React.Component {
             }).fail(function ( jqXHR, textStatus ) {
                 alert( "Request failed: " + textStatus );
             }).always(function () {
-                that.setState({
+                self.setState({
                     request_sent : false
                 });
             });
@@ -126,13 +127,13 @@ class Pairing extends React.Component {
                     method: "post",
                     timeout : 3000,
                     beforeSend : function () {
-                        that.setState({
+                        self.setState({
                             request_sent : true,
                         });
                     },
                     data : {
                         //result : value,
-                        tournament_id : that.state.tournament_id
+                        tournament_id : self.state.tournament_id
                     },
                     statusCode: {
                         404: function() {
@@ -148,7 +149,7 @@ class Pairing extends React.Component {
                 }).fail(function ( jqXHR, textStatus ) {
                     alert( "Request failed: " + textStatus );
                 }).always(function () {
-                    that.setState({
+                    self.setState({
                         request_sent : false
                     });
                 });
@@ -163,13 +164,13 @@ class Pairing extends React.Component {
                     method: "post",
                     timeout : 3000,
                     beforeSend : function () {
-                        that.setState({
+                        self.setState({
                             request_sent : true,
                         });
                     },
                     data : {
                         //result : value,
-                        tournament_id : that.state.tournament_id
+                        tournament_id : self.state.tournament_id
                     },
                     statusCode: {
                         404: function() {
@@ -178,15 +179,15 @@ class Pairing extends React.Component {
                     }
                 }).done(function (data) {
                     if (data.status === "ok") {
-                        console.log(parseInt(that.state.current_tour));
-                        location.href = "/tournament/" + that.state.tournament_id + "/tour/" + (parseInt(that.state.current_tour) - 1);
+                        console.log(parseInt(self.state.current_tour));
+                        location.href = "/tournament/" + self.state.tournament_id + "/tour/" + (parseInt(self.state.current_tour) - 1);
                     } else {
                         alert(data.msg);
                     }
                 }).fail(function ( jqXHR, textStatus ) {
                     alert( "Request failed: " + textStatus );
                 }).always(function () {
-                    that.setState({
+                    self.setState({
                         request_sent : false
                     });
                 });
@@ -203,13 +204,13 @@ class Pairing extends React.Component {
                     method: "post",
                     timeout : 3000,
                     beforeSend : function () {
-                        that.setState({
+                        self.setState({
                             request_sent : true,
                         });
                     },
                     data : {
                         //result : value,
-                        tournament_id : that.state.tournament_id,
+                        tournament_id : self.state.tournament_id,
                         user_id : user_id,
                     },
                     statusCode: {
@@ -226,7 +227,7 @@ class Pairing extends React.Component {
                 }).fail(function ( jqXHR, textStatus ) {
                     alert( "Request failed: " + textStatus );
                 }).always(function () {
-                    that.setState({
+                    self.setState({
                         request_sent : false
                     });
                 });
@@ -236,17 +237,30 @@ class Pairing extends React.Component {
 
 
         if (this.state.pairs == null || this.state.pairs.length === 0) {
-            $.getJSON('/tournament/' + this.state.tournament_id + '/get_info').done(function (data) {
-                console.log(data.participants);
-                that.setState({
-                    pairs : JSON.parse(data.pairing) || [],
-                    participants : data.participants || [],
-                });
-            })
+            this.getActualData();
         }
 
+        console.log(this.state.tournament_id);
+        this.socket = io(window.location.origin, {query: 't1=' + this.state.tournament_id});
 
-       // this.getUsers(200);
+
+        this.socket.on('tournament_event', function (data) {
+            data = JSON.parse(data);
+            console.log(data);
+            self.getActualData();
+        });
+
+    }
+
+    getActualData(){
+        var self = this;
+        $.getJSON('/tournament/' + this.state.tournament_id + '/get_info').done(function (data) {
+            console.log(data.participants);
+            self.setState({
+                pairs : JSON.parse(data.pairing) || [],
+                participants : data.participants || [],
+            });
+        });
     }
     saveResult(event){
 
