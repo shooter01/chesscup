@@ -182,7 +182,7 @@ module.exports = function(app, passport, pool, i18n) {
     ],
         function (req, res, next) {
         const errors = validationResult(req);
-            console.log(req.body.waitMinutes);
+            console.log(req.body.amount);
         if (!errors.isEmpty()) {
             return res.status(422).json({
                 errors: errors.mapped()
@@ -1002,7 +1002,7 @@ module.exports = function(app, passport, pool, i18n) {
 
                             }).then(rows => {
                             return pool
-                                .query('SELECT tp.user_id,tp.is_active, ts.scores, u.name, u.tournaments_rating FROM tournaments_participants tp LEFT JOIN tournaments_scores ts ON ts.user_id = tp.user_id LEFT JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? AND ts.tournament_id = ?', [tournament_id, tournament_id])
+                                .query('SELECT tp.user_id,tp.is_active, ts.scores, u.name, u.tournaments_rating, ts.rating,ts.rating_change,ts.bh,ts.berger FROM tournaments_participants tp LEFT JOIN tournaments_scores ts ON ts.user_id = tp.user_id LEFT JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? AND ts.tournament_id = ?', [tournament_id, tournament_id])
                         }).then(rows => {
                             var a = [];
 
@@ -1013,6 +1013,8 @@ module.exports = function(app, passport, pool, i18n) {
                                 a.push({
                                     user_id: obj.user_id,
                                     scores: obj.scores,
+                                    bh: obj.bh,
+                                    berger: obj.berger,
                                     name: obj.name,
                                     crosstable: crosstable,
                                     is_active: obj.is_active,

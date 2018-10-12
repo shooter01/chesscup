@@ -6,7 +6,6 @@ class PlayerSockets {
         } else {
             url = 'h=null';
         }
-        console.log(u);
         this.socket = io(window.location.origin, {query: url});
 
         this.socket.on('game_start', function (data) {

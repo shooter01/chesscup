@@ -13,6 +13,8 @@ var elo = new Elo(uscf, min_score, max_score);
 const bluebird = require('bluebird');
 const make_draw = require('./make_draw');
 
+
+
 let throttle = {};
 const save_result = function (data) {
     const tournament_id = data.tournament_id;
@@ -192,6 +194,15 @@ const save_result = function (data) {
                     console.log("OVER");
                 } else {
                     console.log(throttle);
+                    //запускаем всем свежую информацию
+                    app.io.to('t' + tournament_id).emit('tournament_event',
+                        JSON.stringify({}));
+
+
+                    setTimeout(function () {
+                        delete throttle[tourney.id + "" + tourney.current_tour];
+                    }, 10000)
+
                 }
             }).then(function (results) {
             /*return res.json({

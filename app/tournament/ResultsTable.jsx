@@ -11,7 +11,6 @@ class ResultsTable extends React.Component {
     }
 
     componentWillReceiveProps(nextProps){
-        console.log(nextProps);
 
         if(nextProps.value !== this.state.participants){
             this.setState({participants:nextProps.participants});
@@ -22,27 +21,51 @@ class ResultsTable extends React.Component {
 
     render() {
 
-        console.log(this.state.participants);
+
+        var width = {
+            width : 7 + "%"
+        }
 
         return (
             <div className="table-responsive">
-                <h5 className="mt-5 ">Текущее положение</h5>
+
             <table className="table table-hover table-bordered table-sm">
                 <thead className="thead-light">
                     <tr>
+                        <th>
+
+                        </th>
                         <th>
                             Имя
                         </th>
                         <th>
                             Points
                         </th>
+                        <th>
+                            Buhgolz
+                        </th>
+                        <th>
+                            Berger
+                        </th>
+                        <th>
+
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                 {this.state.participants.map((item, index) => (
                     <tr key={index}>
+                        <td>{index + 1}</td>
                         <td>{item.name}</td>
                         <td>{item.scores}</td>
+                        <td>{item.bh}</td>
+                        <td>{item.berger}</td>
+                        <td style={width}>
+                            <a href=""  data-id={item.user_id}  className="participant fa fa-eye"></a>
+                            &nbsp;
+                            {item.user_id ? <Link id={item.user_id}/> : null}
+                        </td>
+
                     </tr>
                 ))}
                 </tbody>
@@ -51,6 +74,12 @@ class ResultsTable extends React.Component {
             </div>
         );
     }
+}
+
+
+function Link(props) {
+    var link = "/users/stat/" + props.id;
+    return  <a target="_blank" href={link} className="fa fa-chart-line" ></a>;
 }
 
 

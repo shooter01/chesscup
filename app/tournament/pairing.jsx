@@ -5,6 +5,11 @@ import UserResults from "./table.jsx";
 import Link from "./Link.jsx";
 import ResultsTable from "./ResultsTable.jsx";
 import Timer from "./Timer.jsx";
+import Tours from "./Tours.jsx";
+
+
+
+
 
 
 /*import Loading from "./../tasks/Loading.jsx";
@@ -240,24 +245,27 @@ class Pairing extends React.Component {
             this.getActualData();
         }
 
-        console.log(this.state.tournament_id);
-        this.socket = io(window.location.origin, {query: 't1=' + this.state.tournament_id});
+        if (this.state.tournament.is_online != 1){
+            this.socket = io(window.location.origin, {query: 't1=' + this.state.tournament_id});
 
 
-        this.socket.on('tournament_event', function (data) {
-            data = JSON.parse(data);
-            console.log(data);
-            self.getActualData();
-        });
+            this.socket.on('tournament_event', function (data) {
+                data = JSON.parse(data);
+                console.log(data);
+                self.getActualData();
+            });
+        }
+
+
 
     }
 
     getActualData(){
         var self = this;
         $.getJSON('/tournament/' + this.state.tournament_id + '/get_info').done(function (data) {
-            console.log(data.participants);
             self.setState({
                 pairs : JSON.parse(data.pairing) || [],
+                tournament : data.tournament || {},
                 participants : data.participants || [],
             });
         });
@@ -352,13 +360,16 @@ class Pairing extends React.Component {
             <div className="position-relative">
 
                 <div>
-                    {(this.state.tournament.is_closed == 1) ? <div>Турнир закончен</div> : null}
-                    {(this.state.tournament.is_closed == 0 && this.state.tournament.is_active == 1) ? <div>Турнир активен</div> : null}
-                    {(this.state.tournament.is_closed == 0 && this.state.tournament.is_active == 0) ? <div>Турнир стартует через : <Timer timeleft={timeleft} /></div> : null}
+                    {(this.state.tournament.is_closed == 1) ? <div className="badge badge-danger">Турнир завершен</div> : null}
+                    {(this.state.tournament.is_closed == 0 && this.state.tournament.is_active == 1) ? <div>
+                            <div className="badge badge-success">Турнир активен</div>
+                            <div><div className="badge badge-info">Текущий тур: {this.state.tournament.current_tour}</div></div>
+                        </div> : null}
+                    {(this.state.tournament.is_closed == 0 && this.state.tournament.is_active == 0) ? <div className="badge badge-secondary">Турнир стартует через : <Timer timeleft={timeleft} /></div> : null}
                 </div>
 
                 { (this.state.pairs != null && this.state.pairs.length) ?
-                <table className="table table-hover table-bordered table-sm">
+                <table className="table table-hover table-bordered table-sm mt-2">
                     <thead className="thead-dark">
                     <tr>
                         <th  scope="col" className="text-center" style={w5}><span className="d-none d-sm-block">{_Board}</span></th>
@@ -430,7 +441,17 @@ class Pairing extends React.Component {
                 </table>
                     : null}
 
-                    <ResultsTable participants={this.state.participants} scores={this.state.scores_object}/>
+
+                {(this.state.tournament.is_online == 1 && typeof (tour_choosed) === "undefined") ? <div>
+
+                        <Tours tournament={this.state.tournament} />
+                        {this.state.tournament.is_closed ? <h5 className="mt-2 ">Итоговое положение</h5> : <h5 className="mt-2 ">Текущее положение</h5>}
+                        <ResultsTable participants={this.state.participants} tournament={this.state.tournament}/>
+
+                    </div> : null}
+
+
+
 
 
                 <div className="modal" id="user_results_modal" tabIndex="-1" role="dialog"  aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -465,3 +486,6 @@ class Pairing extends React.Component {
 render(
     <Pairing/>
     , document.getElementById('pairing'));
+
+
+

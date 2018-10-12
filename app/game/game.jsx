@@ -19,7 +19,7 @@ class App extends React.Component {
             up_player_online: false,
             bottom_player_online: false,
             playerColor: null,
-            tourney_href : "/tournament/" + tourney_id + "/tour/" + tour_id,
+            tourney_href : "/tournament/" + tourney_id,
             is_over: is_over,
             is_started: parseInt(is_started),
             orientation: "white",
