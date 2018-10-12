@@ -79,31 +79,57 @@
 <a href="/tournament/<%= tournament.id %>/edit" class="btn btn-success"><%- __("Edit_tournament") %></a>
 
 
+<span class="dropdown mr-2 noprint">
+    <button class="btn btn-info dropdown-toggle noprint" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <%- __("Actions") %>
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a href="/tournament/<%= tournament.id %>/edit" class="dropdown-item"><%- __("Edit") %></a>
+        <a href="/tournament/<%= tournament.id %>/participants" class="dropdown-item"><%- __("Participants") %></a>
+        <a class="dropdown-item" href="#"  id="delete_all"><%- __("ResetTournament") %></a>
+        <a class="dropdown-item" href="#"  id="delete_last">Undo last tour</a>
+    </div>
+</span>
+
+
 <% if (tournament.is_online !==  1) { %>
 <a href="/tournament/<%= tournament.id %>/participants" class="btn btn-warning"><%- __("Participants") %></a>
 <% } %>
 
 <% } %>
 
-<% if (tournament.is_closed ===  1) { %>
 
-    <a href="/tournament/<%= tournament.id %>/final" class="btn btn-primary"><%- __("FinalTable") %></a>
+<% if (tournament.is_online !==  1) { %>
 
-<% } else if (tournament.current_tour == 0 && tournament.is_active ===  1) { %>
+        <% if (tournament.is_closed ===  1) { %>
 
-    <a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>" class="btn btn-primary float-right"><%- __("ShowGo") %></a>
+            <a href="/tournament/<%= tournament.id %>/final" class="btn btn-primary"><%- __("FinalTable") %></a>
+
+        <% } else if (tournament.current_tour == 0 && tournament.is_active ===  1) { %>
+
+            <a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>" class="btn btn-primary float-right"><%- __("ShowGo") %></a>
 
 
-<% } else if (tournament.current_tour <= tournament.tours_count) { %>
+        <% } else if (tournament.current_tour <= tournament.tours_count) { %>
 
-    <a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>" class="btn btn-primary"> <%- __("ShowGoTour") %> <%= tournament.current_tour %></a>
+            <a href="/tournament/<%= tournament.id %>/tour/<%= tournament.current_tour %>" class="btn btn-primary"> <%- __("ShowGoTour") %> <%= tournament.current_tour %></a>
+
+        <% } %>
 
 <% } %>
 
-        <% if (tournament.is_active !==  1 && tournament.is_online ==  1) { %>
-        <span id="get_in"></span>
-        <script src="/js/get_in.min.js"></script>
-        <% } %>
+
+
+            <% if (tournament.is_active !==  1 && tournament.is_online ==  1) { %>
+                    <% if (user && user.user) { %>
+                        <span id="get_in"></span>
+                        <script src="/js/get_in.min.js"></script>
+                    <% } else { %>
+
+                    <a class="btn btn-primary float-right" href="/login">Войдите для участия</a>
+                    <% } %>
+            <% } %>
+
     </div>
 </div>
 
@@ -111,7 +137,8 @@
 
 <div class="row">
     <div class="col-sm-9">
-        <h3 class="mt-4"><%= tournament.title %> </h3>
+        <h3 class="" style="margin-bottom: 0"><%= tournament.title %> </h3>
+        <div class="badge badge-warning">Количество туров : <%= tournament.tours_count %></div>
 
 
         <!--<ul class="nav nav-pills mb-3 mt-3  nav-fill" id="pills-tab" role="tablist">

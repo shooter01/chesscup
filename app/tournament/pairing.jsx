@@ -245,7 +245,7 @@ class Pairing extends React.Component {
             this.getActualData();
         }
 
-        if (this.state.tournament.is_online != 1){
+        if (this.state.tournament.is_online == 1 && typeof tour_choosed === "undefined"){
             this.socket = io(window.location.origin, {query: 't1=' + this.state.tournament_id});
 
 
@@ -357,7 +357,7 @@ class Pairing extends React.Component {
             disabled : "disabled"
         };
         return (
-            <div className="position-relative">
+            <div className="position-relative mt-2">
 
                 <div>
                     {(this.state.tournament.is_closed == 1) ? <div className="badge badge-danger">Турнир завершен</div> : null}
@@ -365,7 +365,7 @@ class Pairing extends React.Component {
                             <div className="badge badge-success">Турнир активен</div>
                             <div><div className="badge badge-info">Текущий тур: {this.state.tournament.current_tour}</div></div>
                         </div> : null}
-                    {(this.state.tournament.is_closed == 0 && this.state.tournament.is_active == 0) ? <div className="badge badge-secondary">Турнир стартует через : <Timer timeleft={timeleft} /></div> : null}
+                    {(!this.state.tournament.is_closed && !this.state.tournament.is_active) ? <div className="badge badge-secondary">Турнир стартует через : <Timer timeleft={timeleft} /></div> : null}
                 </div>
 
                 { (this.state.pairs != null && this.state.pairs.length) ?

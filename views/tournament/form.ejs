@@ -131,9 +131,36 @@
 <input type="submit" class="btn btn-primary mt-3" value="<%- __("Save") %>">
 
 
+<!--<script src="/js/datepair/dist/jquery.datepair.min.js"></script>
+<script src="/js/jquery-timepicker-master/jquery.timepicker.min.js"></script>
+<script src="/js/jquery-timepicker-master/lib/bootstrap-datepicker.js"></script>
+<link rel="stylesheet" href="/js/jquery-timepicker-master/jquery.timepicker.min.css">
+<link rel="stylesheet" href="/js/jquery-timepicker-master/lib/bootstrap-datepicker.css">
+<p id="basicExample">
+    <input type="text" class="date start form-control" />
+    <input type="text" class="time start form-control" />
+
+</p>-->
 <script>
 
     $( function() {
+
+        /*$('#basicExample .time').timepicker({
+            'showDuration': true,
+            'timeFormat': 'H:i'
+        });
+
+        $('#basicExample .time').timepicker('setTime', new Date());
+
+
+        $('#basicExample .date').datepicker({
+            'format': 'yyyy-m-d',
+            'autoclose': true
+        });
+
+
+        $('#basicExample').datepair();*/
+
 
 
         var defValue = '<%=  (typeof tournament !== "undefined") ? tournament.amount : "3" %>';

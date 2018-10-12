@@ -50,7 +50,7 @@ const make_draw = function (data) {
             })
             .then(res => {
                 if (tourney.is_closed === 1) {
-                    throw new Error(req.i18n.__("TourneyClosed"));
+                    throw new Error(__("TourneyClosed"));
                 }
 
                 if (tourney.type > 10) {
@@ -63,7 +63,8 @@ const make_draw = function (data) {
             }).then(rows => {
 
             if (tourney.type > 10 && rows.length <= tourney.tours_count) {
-                throw new Error(req.i18n.__("TooSmallQuantity"));
+                //throw new Error(__("TooSmallQuantity"));
+                throw new Error("Too few participants. Change the number of tours or the number of participants.");
             }
 
             let sql = "SELECT tp.user_id, tp.start_rating, ts.scores, tp.is_active FROM tournaments_participants tp LEFT JOIN tournaments_scores ts ON ts.user_id = tp.user_id AND  tp.tournament_id = ts.tournament_id WHERE tp.tournament_id = ?";
@@ -85,7 +86,7 @@ const make_draw = function (data) {
             }).then(rows => {
 
             if (tourney.type === 1 && participants.length <= tourney.tours_count) {
-                throw new Error(req.i18n.__("TooSmallQuantity"));
+                throw new Error("Too few participants. Change the number of tours or the number of participants.");
             }
             //сортировка участников по полю scores - кто сколько набрал
             participants = DRAW.sortArr(participants);
@@ -114,7 +115,10 @@ const make_draw = function (data) {
                 var isEmptyResults = DRAW.checkEmptyResults(current_tour_results, tourney);
 
                 if (tourney.current_tour !== 0) {
-                    if (isEmptyResults) throw new Error(req.i18n.__("ParticipantsFillAllResults"));
+                    if (isEmptyResults) {
+                        //throw new Error(__("ParticipantsFillAllResults"));
+                        throw new Error("Fill all results");
+                    }
                 }
 
                 //фильтруем результаты тура

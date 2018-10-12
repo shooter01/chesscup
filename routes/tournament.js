@@ -1001,11 +1001,17 @@ module.exports = function(app, passport, pool, i18n) {
                                 }
 
                             }).then(rows => {
+
+                                let sql = 'SELECT tp.user_id,tp.is_active, ts.scores, u.name, u.tournaments_rating, ts.rating,ts.rating_change,ts.bh,ts.berger FROM tournaments_participants tp LEFT JOIN tournaments_scores ts ON ts.user_id = tp.user_id LEFT JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? AND ts.tournament_id = ?';
+                                if (tournament.is_active == 0) {
+                                    sql = 'SELECT tp.user_id,tp.is_active, u.name FROM tournaments_participants tp LEFT JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ?';
+                                }
+
                             return pool
-                                .query('SELECT tp.user_id,tp.is_active, ts.scores, u.name, u.tournaments_rating, ts.rating,ts.rating_change,ts.bh,ts.berger FROM tournaments_participants tp LEFT JOIN tournaments_scores ts ON ts.user_id = tp.user_id LEFT JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? AND ts.tournament_id = ?', [tournament_id, tournament_id])
+                                .query(sql, [tournament_id, tournament_id])
                         }).then(rows => {
                             var a = [];
-
+                            console.log(rows);
                             for (var i = 0; i < rows.length; i++) {
                                 var obj = rows[i];
 

@@ -29,7 +29,7 @@ class ResultsTable extends React.Component {
         return (
             <div className="table-responsive">
 
-            <table className="table table-hover table-bordered table-sm">
+            <table className="table  table-hover table-bordered table-sm">
                 <thead className="thead-light">
                     <tr>
                         <th>

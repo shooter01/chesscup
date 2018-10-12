@@ -132,6 +132,8 @@ passport.deserializeUser(function(user, done) {
 
 var i18n = require('i18n-2');
 
+
+
 // Attach the i18n property to the express request object
 // And attach helper methods for use in templates
 i18n.expressBind(app, {
