@@ -673,6 +673,8 @@ module.exports = function(app, passport, pool, i18n) {
                 }).then(function (results) {
                     return pool.query('DELETE FROM tournaments_teams_scores WHERE tournament_id = ?', office.tournament_id);
                 }).then(function (results) {
+                    return app.mongoDB.collection("users").deleteMany({tournament_id: parseInt(office.tournament_id)});
+                }).then(function (results) {
                 return pool.query('DELETE FROM tournaments WHERE id = ?', office.tournament_id);
 
 
