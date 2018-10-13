@@ -388,7 +388,7 @@ class Pairing extends React.Component {
                     {this.state.pairs.map((item, index) => (
                         <tr key={index}>
                             <td className="text-center">{index+1}</td>
-                            <td data-id={item.p1_id} className="participant">{item.p1_name} <span className="badge badge-dark">{}{item.is_over ? item.p1_rating_for_history : item.p1_rating}</span> {(item.rating_change_p1 > 0) ? <span className="badge badge-success">+{item.rating_change_p1}</span> : <span className="badge badge-danger">{item.rating_change_p1}</span>} {item.p1_id}</td>
+                            <td data-id={item.p1_id} className="participant">{item.p1_name} <span className="badge badge-dark">{}{item.is_over ? item.p1_rating_for_history : item.p1_rating}</span> {(item.rating_change_p1 > 0) ? <span className="badge badge-success">+{item.rating_change_p1}</span> : <span className="badge badge-danger">{item.rating_change_p1}</span>} </td>
                             <td className="text-center "><span className="d-none d-sm-block">{item.p1_scores}</span></td>
                             <td className="text-center">
                                 <Link tournament_id={this.state.tournament_id} p1_id={item.p1_id} p2_id={item.p2_id} id={item.id}/>
@@ -434,7 +434,7 @@ class Pairing extends React.Component {
 
                                 <span className="badge"></span></td>
                             <td className="text-center "><span className="d-none d-sm-block">{item.p2_scores}</span></td>
-                            <td data-id={item.p2_id} className="participant">{item.p2_name} <span className="badge badge-dark">{(item.is_over) ? item.p2_rating_for_history : item.p2_rating}</span> {(item.rating_change_p2 > 0) ? <span className="badge badge-success">+{item.rating_change_p2}</span> : <span className="badge badge-danger">{item.rating_change_p2}</span>} {item.p2_id}</td>
+                            <td data-id={item.p2_id} className="participant">{item.p2_name} <span className="badge badge-dark">{(item.is_over) ? item.p2_rating_for_history : item.p2_rating}</span> {(item.rating_change_p2 > 0) ? <span className="badge badge-success">+{item.rating_change_p2}</span> : <span className="badge badge-danger">{item.rating_change_p2}</span>} </td>
                         </tr>
                     ))}
                     </tbody>

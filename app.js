@@ -138,7 +138,7 @@ var i18n = require('i18n-2');
 // And attach helper methods for use in templates
 i18n.expressBind(app, {
     // setup some locales - other locales default to en silently
-    locales: ['ru', 'en'],
+    locales: ['ru'],
     extension: '.json',
 
     // change the cookie name from 'lang' to 'locale'
