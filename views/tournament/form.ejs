@@ -11,9 +11,9 @@
         <select name="type" class="form-control" id="type">
 
             <option value="1" <%= (typeof tournament !== "undefined" && tournament.type == "1") ? "selected" : "" %>><%- __("CreateIndividSwiss") %></option>
-            <option value="2" <%= (typeof tournament !== "undefined" && tournament.type == "2") ? "selected" : "" %>><%- __("CreateRoundRobin") %></option>
+            <!--<option value="2" <%= (typeof tournament !== "undefined" && tournament.type == "2") ? "selected" : "" %>><%- __("CreateRoundRobin") %></option>
             <option value="11" <%= (typeof tournament !== "undefined" && tournament.type == "11") ? "selected" : "" %>><%- __("CreateTeamSwissWithPlayers") %></option>
-            <option value="20" <%= (typeof tournament !== "undefined" && tournament.type == "20") ? "selected" : "" %>><%- __("CreateTeamSwissWithoutPlayers") %></option>
+            <option value="20" <%= (typeof tournament !== "undefined" && tournament.type == "20") ? "selected" : "" %>><%- __("CreateTeamSwissWithoutPlayers") %></option>-->
 
         </select>
     </div>
@@ -32,7 +32,7 @@
 
 <div class="row">
     <div class="col-sm-12 mt-3">
-        <label for="amount">Minutes per side: </label>
+        <label for="amount">Контроль времени : </label>
         <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
 
         <div id="slider-range-max"></div>
@@ -45,7 +45,7 @@
         <select name="is_online" id="is_online" class="form-control">
 
 
-            <option value="0" <%= (typeof tournament !== "undefined" && tournament.is_online == 0) ? "selected"  : null %>>offline</option>
+         <!--   <option value="0" <%= (typeof tournament !== "undefined" && tournament.is_online == 0) ? "selected"  : null %>>offline</option>-->
 
             <option value="1" <%= (typeof tournament !== "undefined" && tournament.is_online == 1) ? "selected"  : null %>>online</option>
 
@@ -58,7 +58,7 @@
 
 <div class="row">
     <div class="col-sm-12 mt-3">
-        <label for="amount">Time before tournament starts: </label>
+        <label for="amount">Время до начала турнира: </label>
         <select name="waitMinutes" id="waitMinutes" class="form-control">
 
 
