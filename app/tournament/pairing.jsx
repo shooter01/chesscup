@@ -161,6 +161,44 @@ class Pairing extends React.Component {
             }
         });
 
+
+        $("#delete_tournament").on("click", function (event) {
+            event.preventDefault();
+            if (confirm("Вы уверены? Все данные будут удалены.")) {
+                $.ajax({
+                    url: "/tournament/delete_tournament",
+                    method: "post",
+                    timeout : 3000,
+                    beforeSend : function () {
+                        self.setState({
+                            request_sent : true,
+                        });
+                    },
+                    data : {
+                        //result : value,
+                        tournament_id : self.state.tournament_id
+                    },
+                    statusCode: {
+                        404: function() {
+                            alert( "page not found" );
+                        }
+                    }
+                }).done(function (data) {
+                    if (data.status === "ok") {
+                        location.href = "/";
+                    } else {
+                        alert(data.msg);
+                    }
+                }).fail(function ( jqXHR, textStatus ) {
+                    alert( "Request failed: " + textStatus );
+                }).always(function () {
+                    self.setState({
+                        request_sent : false
+                    });
+                });
+            }
+        });
+
         $("#delete_last").on("click", function (event) {
             event.preventDefault();
             if (confirm("Are you sure?")) {

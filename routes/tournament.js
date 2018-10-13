@@ -647,6 +647,47 @@ module.exports = function(app, passport, pool, i18n) {
     });
 
 
+    router.post('/delete_tournament', [
+        isLoggedIn,
+        check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 }),
+    ],
+        function (req, res, next) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({
+                errors: errors.mapped()
+            });
+        } else {
+            let office = {
+                tournament_id: req.body.tournament_id,
+                user_id: req.body.user_id,
+            };
+
+            let user_type = req.body.user_type;
+
+            pool.query('DELETE FROM tournaments_scores WHERE tournament_id = ?', office.tournament_id)
+                .then(function (results) {
+                    return pool.query('DELETE FROM tournaments_results WHERE tournament_id = ?', office.tournament_id);
+                }).then(function (results) {
+                    return pool.query('DELETE FROM tournaments_teams_results WHERE tournament_id = ?', office.tournament_id);
+                }).then(function (results) {
+                    return pool.query('DELETE FROM tournaments_teams_scores WHERE tournament_id = ?', office.tournament_id);
+                }).then(function (results) {
+                return pool.query('DELETE FROM tournaments WHERE id = ?', office.tournament_id);
+
+
+            }).then(function (results) {
+               // console.log(results);
+                res.json({
+                    "status": "ok",
+                });
+            }).catch((err) => {
+                console.log(err);
+            });
+        }
+    });
+
+
 
     router.post('/undo_last_tour', [
         isLoggedIn,
