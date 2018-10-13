@@ -130,15 +130,10 @@
                     <% } %>
             <% } %>
 
-    </div>
-</div>
 
-
-
-<div class="row">
-    <div class="col-sm-9">
         <h3 class="" style="margin-bottom: 0"><%= tournament.title %> </h3>
-        <div class="badge badge-warning">Количество туров : <%= tournament.tours_count %></div>
+        <!--<div class="badge badge-warning">Количество туров : <%= tournament.tours_count %></div>
+        <div class="badge badge-light"><%= (tournament.is_online) ? "online" : "offline" %></div>-->
 
 
         <!--<ul class="nav nav-pills mb-3 mt-3  nav-fill" id="pills-tab" role="tablist">
@@ -159,20 +154,26 @@
 
             <!--</div>
             <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-                <h6><%- __("CreateToursCount") %> : <%= tournament.tours_count %></h6>
-                <h6><%- __("CreateCity") %> : <%= tournament.city %> <img src="/images/blank.png" class="flag flag-<%= tournament.country.toLocaleLowerCase() %>" title="<%= countries[tournament.country] %>" alt="<%= countries[tournament.country] %>"></h6>
-                <h6><%- __("CreateDateStart") %> : <%= tournament.start_date %></h6>
-                <h6><%- __("CreateDateEnd") %> : <%= tournament.end_date %></h6>
-                <h6><%- __("Created") %> : <%= tournament.created_at %></h6>
-                <h6><%- __("Creator") %> : <%= tournament.name %></h6>
+
             </div>
             <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
         </div>-->
     </div>
 
     <div class="col-sm-3">
-    <!--<h4>Chat</h4>-->
+
+        <div class="alert alert-light" role="alert" style="padding-top: 0">
+            <div><%- __("CreateToursCount") %> : <%= tournament.tours_count %></div>
+            <div><%- __("CreateCity") %> : <%= tournament.city %> </div>
+            <div><%- __("CreateDateStart") %> : <%= tournament.start_date %></div>
+            <div><%- __("CreateDateEnd") %> : <%= tournament.end_date %></div>
+            <div><%- __("Created") %> : <%= tournament.created_at %></div>
+            <div><%- __("Creator") %> : <%= tournament.name %></div>
+        </div>
+
     </div>
+
+
 </div>
 
 

@@ -445,7 +445,8 @@ module.exports = function(app, passport, pool, i18n) {
 
                 return pool.query(sql, office.tournament_id)
             }).then(function (results) {
-
+                app.io.to('t' + office.tournament_id).emit('tournament_event',
+                    JSON.stringify({}));
                 if (req.body.tournament_type > 10 && user_type != "admins") {
                     var teams = makeTeams(results);
                     res.json({
@@ -518,6 +519,11 @@ module.exports = function(app, passport, pool, i18n) {
 
                     return pool.query(sql, office.tournament_id);
                 }).then(function (results) {
+
+                app.io.to('t' + office.tournament_id).emit('tournament_event',
+                    JSON.stringify({}));
+
+
                 if (req.body.tournament_type > 10) {
                     var teams = makeTeams(results);
                     res.json({

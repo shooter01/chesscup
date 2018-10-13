@@ -23,14 +23,21 @@ class Tours extends React.Component {
     }
 
     render() {
-        console.log(this.state.tours);
 
         var tours = (this.props.tournament.current_tour > 0) ? Array.from(Array(parseInt(this.props.tournament.current_tour) - 1).keys()) : [];
-        return (<div className="mt-2"> Туры :
-            {tours.map((item, index) => (
-                <TourLink key={index} tournament_id={this.state.tournament.id} tour_id={index} />
-            ))}
-        </div>);
+        return (
+
+            <div>
+                {tours.length > 0 ?
+                    <div className="mt-2"> Туры :
+                    {tours.map((item, index) => (
+                        <TourLink key={index} tournament_id={this.state.tournament.id} tour_id={index} />
+                    ))}
+                    </div>
+                    : null}
+            </div>
+
+                );
     }
 }
 
