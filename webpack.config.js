@@ -20,6 +20,7 @@ var config = {
         online_participants : './app/tournament/online_participants.jsx',
         final : './app/tournament/final.jsx',
         timer : './app/tournament/Timer.jsx',
+        start_date : './app/tournament/StartDate.jsx',
         game : './app/game/game.jsx',
         team_pairing : './app/tournament/team_pairing.jsx',
     },

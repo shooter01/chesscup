@@ -24,6 +24,7 @@
 
 
 <script src="/js/ju/ju.min.js"></script>
+<script src="/js/ju/datepicker-ru.js"></script>
 <link rel="stylesheet" href="/js/ju/ju.min.css">
 <link rel="stylesheet" href="/stylesheets/select2.css" />
 
@@ -57,11 +58,13 @@
                 country : $("#country").val(),
                 type : $("#type").val(),
                 amount : $("#amount").val(),
-                waitMinutes : $("#waitMinutes").val(),
+                wait_minutes : $("#wait_minutes").val() || 30,
                 is_online : $("#is_online").val(),
                 team_boards : $("#team_boards").val(),
                 start_date : $("#start_date").val(),
                 end_date : $("#end_date").val(),
+                accurate_date_start : $("#accurate_date_start").val(),
+                accurate_time_start : $("#accurate_time_start").val(),
             }).done(function (data) {
                 if (data.status != "ok") {
                     $(".errors").removeClass("hidden");

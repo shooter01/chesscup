@@ -151,6 +151,8 @@ module.exports = function (app) {
                                 var a = {
                                     event: "move",
                                     fen: msg.data,
+                                    san: msg.move,
+                                    captured: msg.captured,
                                     from: msg.from,
                                     to: msg.to,
                                     // p1_time_left: mongoGame.p1_time_end.getTime() - new Date().getTime(),
@@ -169,7 +171,7 @@ module.exports = function (app) {
                                 app.mongoDB.collection("users").updateOne({
                                         _id: parseInt(msg.id)
                                     },
-                                    {$addToSet: {"moves": msg.move}}
+                                    {$push: {"moves": msg.move}}
                                 );
 
                                 if (msg.is_over == 1) {

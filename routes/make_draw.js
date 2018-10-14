@@ -189,7 +189,7 @@ const make_draw = function (data) {
 
             var newDateObj = moment(new Date()).add(30, 'm').toDate();
             var startTime = moment(new Date()).add(1, 'm').toDate();
-            if (data && data.length) {
+            if (data && data.length && tourney.is_online == 1) {
                 for (var i = 0; i < data.length; i++) {
 
                     var obj = data[i];
@@ -205,8 +205,8 @@ const make_draw = function (data) {
                             "tournament_id": tournament_id,
                             "p1_last_move": null,
                             "p2_last_move": null,
-                            "p1_time_left": tourney.amount * 60000,
-                            "p2_time_left": tourney.amount * 60000,
+                            "p1_time_left": tourney.amount * 60000 * 10,
+                            "p2_time_left": tourney.amount * 60000 * 10,
                             "p1_visited": false,
                             "p2_visited": false,
                             "is_started": 0,

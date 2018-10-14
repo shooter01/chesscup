@@ -102,7 +102,7 @@ module.exports = function(app, passport, pool, i18n) {
                 } else if (mongoGame.is_started && mongoGame.is_over == 0 && ((lm > lm2) || (mongoGame.p2_last_move == null && mongoGame.p1_last_move != null))) {
                     p1_time_left = mongoGame.p1_time_left - spent_time;
                 }
-               // console.log(mongoGame.p2_last_move);
+                console.log(mongoGame);
             //    var actual_time = new Date().getTime();
              //   (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
 
@@ -177,9 +177,12 @@ module.exports = function(app, passport, pool, i18n) {
         check('start_date', 'The start date field is required').exists().isLength({ min: 1 }),
         check('end_date', 'The end date field is required').exists().isLength({ min: 1 }),
         check('amount', 'The amount field is required').exists().isLength({ min: 1 }),
-        check('waitMinutes', 'The waitMinutes field is required').exists().isLength({ min: 1 }),
+        check('wait_minutes', 'The wait_minutes field is required').exists().isLength({ min: 1 }),
         check('is_online', 'The is_online field is required').exists().isLength({ min: 1 }),
-    ],
+        check('accurate_date_start', 'The accurate_date_start field is required').exists().isLength({ min: 1 }),
+        check('accurate_time_start', 'The accurate_time_start field is required').exists().isLength({ min: 1 }),
+
+        ],
         function (req, res, next) {
         const errors = validationResult(req);
             console.log(req.body.amount);
@@ -189,7 +192,7 @@ module.exports = function(app, passport, pool, i18n) {
             });
         } else {
 
-            var newDateObj = moment(new Date()).add(req.body.waitMinutes, 'm').toDate();
+            var newDateObj = moment(new Date()).add(req.body.wait_minutes, 'm').toDate();
 
             let office = {
                 title: req.body.title.trim(),
@@ -202,6 +205,9 @@ module.exports = function(app, passport, pool, i18n) {
                 amount: parseInt(req.body.amount),
                 start_time: newDateObj,
                 is_online: req.body.is_online,
+                wait_minutes: parseInt(req.body.wait_minutes),
+                accurate_date_start: req.body.accurate_date_start,
+                accurate_time_start: req.body.accurate_time_start,
                 end_date: req.body.end_date,
                 team_boards: req.body.team_boards,
                 current_tour: 0,
@@ -247,8 +253,10 @@ module.exports = function(app, passport, pool, i18n) {
             check('start_date', 'The start date field is required').exists().isLength({ min: 1 }),
             check('end_date', 'The end date field is required').exists().isLength({ min: 1 }),
             check('amount', 'The amount field is required').exists().isLength({ min: 1 }),
-            check('waitMinutes', 'The waitMinutes field is required').exists().isLength({ min: 1 }),
+            // check('wait_minutes', 'The wait_minutes field is required').exists().isLength({ min: 1 }),
             check('is_online', 'The is_online field is required').exists().isLength({ min: 1 }),
+            check('accurate_date_start', 'The accurate_date_start field is required').exists().isLength({ min: 1 }),
+            check('accurate_time_start', 'The accurate_time_start field is required').exists().isLength({ min: 1 }),
 
         ],
         function (req, res, next) {
@@ -259,8 +267,10 @@ module.exports = function(app, passport, pool, i18n) {
                 errors: errors.mapped()
             });
         } else {
-            var newDateObj = moment(new Date()).add(req.body.waitMinutes, 'm').toDate();
-
+             //var newDateObj = moment(new Date()).add(req.body.wait_minutes, 'm').toDate();
+             var newDateObj = moment(req.body.accurate_date_start + " " + req.body.accurate_time_start + ":00", 'DD-MM-YYYYTHH:mm').toDate()
+            console.log("============")
+            console.log(req.body.wait_minutes)
             let office = {
                 title: req.body.title.trim(),
                 city: req.body.city.trim(),
@@ -271,11 +281,22 @@ module.exports = function(app, passport, pool, i18n) {
                 amount: req.body.amount,
                 start_time: newDateObj,
                 is_online: req.body.is_online,
+                accurate_date_start: req.body.accurate_date_start,
+                accurate_time_start: req.body.accurate_time_start,
+                wait_minutes: req.body.wait_minutes,
                 start_date: req.body.start_date,
                 end_date: req.body.end_date,
                 creator_id: req.session.passport.user.id,
                 school_id: req.session.passport.user.school_id,
             };
+           // moment(req.body.accurate_date_start)
+            console.log( moment(req.body.accurate_date_start + " " + req.body.accurate_time_start + ":00", 'DD-MM-YYYYTHH:mm').toDate());
+            console.log(req.body.accurate_time_start);
+
+            //res.json({
+             //   status : "ok",
+               // insertId : req.body.tournament_id
+            //});
 
             pool.query('UPDATE tournaments SET ? ' +
                 'WHERE ' +
@@ -1252,8 +1273,11 @@ module.exports = function(app, passport, pool, i18n) {
                        rows[0].start_date = moment(rows[0].start_date).format("YYYY-MM-DD");
                        rows[0].end_date = moment(rows[0].end_date).format("YYYY-MM-DD");
                        // 2018-05-31
+                       console.log(rows[0]);
                        res.render('tournament/edit', {
                            tournament  : rows[0],
+                           tournamentJSON  : JSON.stringify(rows[0]),
+
                            countries : countries
                        });
                    } else {

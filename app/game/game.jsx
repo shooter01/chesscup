@@ -14,12 +14,14 @@ class App extends React.Component {
             black_time: p2_time_left / 1000,
             tourney_id: tourney_id,
             tour_id: tour_id,
+            moves: moves.split(","),
             up_rating_change: null,
+            row: 0,
             bottom_rating_change: null,
             up_player_online: false,
             bottom_player_online: false,
             playerColor: null,
-            tourney_href : "/tournament/" + tourney_id,
+            tourney_href: "/tournament/" + tourney_id,
             is_over: is_over,
             is_started: parseInt(is_started),
             orientation: "white",
@@ -31,6 +33,8 @@ class App extends React.Component {
         this.tick = this.tick.bind(this);
         this.setTimer = this.setTimer.bind(this);
         this.resign = this.resign.bind(this);
+        this.fillMoves = this.fillMoves.bind(this);
+        this.addMove = this.addMove.bind(this);
 
         this.resignCount = 0;
 
@@ -40,7 +44,6 @@ class App extends React.Component {
         var that = this;
         var prom = this.state.promotion;
         var piece = that.game.get(source).type;
-
 
 
         // see if the move is legal
@@ -81,20 +84,26 @@ class App extends React.Component {
                 // color : (this.game.turn() === 'w') ? "white" : "black",
             }
         });
+
+        //var a = this.state.moves;
+        //a.push(move.san);
+
         that.setState({
-            who_to_move: (this.game.turn() === 'w') ? "white" : "black"
+            who_to_move: (this.game.turn() === 'w') ? "white" : "black",
+            //moves: a,
         });
 
         var send_data = {
             data: that.game.fen(),
             id: g,
             move: move.san,
+            captured: move.captured,
             from: move.from,
             to: move.to,
             is_over: 0,
             player: (this.game.turn() === 'w') ? "p2" : "p1", //who made the last move
         };
-
+        console.log(send_data);
         // checkmate?
         if (that.game.in_checkmate() === true) {
             send_data.is_over = 1;
@@ -133,11 +142,11 @@ class App extends React.Component {
 
         // console.log(fen);
 
-         if (typeof fen != "undefined" && fen != "undefined" && fen != "" && fen != null) {
-          this.game = new Chess(fen);
-         } else {
-        // this.game = new Chess("8/5KP1/8/1k6/8/8/8/8 w - - 34 74");
-         this.game = new Chess();
+        if (typeof fen != "undefined" && fen != "undefined" && fen != "" && fen != null) {
+            this.game = new Chess(fen);
+        } else {
+            // this.game = new Chess("8/5KP1/8/1k6/8/8/8/8 w - - 34 74");
+            this.game = new Chess();
         }
 
         var isPlayer = false;
@@ -253,11 +262,49 @@ class App extends React.Component {
         });
 
 
+        this.row = 0;
+
+        if (this.state.moves && this.state.moves.length) {
+
+            if (this.state.moves[0] === "") {
+                this.setState({
+                    moves : []
+                });
+            } else {
+                this.fillMoves();
+            }
+
+        }
+
+    }
+
+    fillMoves(){
+        console.log(this.state.moves);
+
+
+        for (var i = 0; i < this.state.moves.length; i++) {
+            var obj = this.state.moves[i];
+            if ($.trim(obj) != "") {
+                this.addMove(obj, i);
+            }
+        }
+    }
+
+    addMove(san, i){
+        var m = i;
+        if (typeof m == "undefined"){
+            m = this.state.moves.length - 1;
+        }
+        console.log(m);
+        if (m % 2 == 0) {
+            $(".moves").append($("<index>" + ++this.row + "</index>"));
+        }
+        $(".moves").append($("<move>" + san + "</move>"))
     }
 
     resign(event) {
         console.log(this);
-       // var element = this;
+        // var element = this;
 
         var self = this;
         var element = $(event.target);
@@ -361,6 +408,24 @@ class App extends React.Component {
 
                     }
 
+                    if (typeof data.san != "undefined" && data.san != "undefined") {
+                        var a = this.state.moves;
+                        a.push(data.san);
+                        self.setState({
+                            moves: a,
+                        }, function () {
+                            this.addMove(data.san);
+
+                        });
+
+                        if (data.captured) {
+                            self.capture_sound.play();
+                        } else {
+                            self.move_sound.play();
+                        }
+                    }
+
+
 
                 });
             } else if (data.event === "rating_change") {
@@ -400,90 +465,88 @@ class App extends React.Component {
             if (!data[p1]) {
                 if (self.state.orientation === "black") {
                     self.setState({
-                        up_player_online : false
+                        up_player_online: false
                     });
                 } else {
                     self.setState({
-                        bottom_player_online : false
+                        bottom_player_online: false
                     });
                 }
             } else {
                 if (self.state.orientation === "black") {
                     self.setState({
-                        up_player_online : true
+                        up_player_online: true
                     });
                 } else {
                     self.setState({
-                        bottom_player_online : true
+                        bottom_player_online: true
                     });
                 }
             }
             if (!data[p2]) {
                 if (self.state.orientation === "black") {
                     self.setState({
-                        bottom_player_online : false
+                        bottom_player_online: false
                     });
                 } else {
                     self.setState({
-                        up_player_online : false
+                        up_player_online: false
                     });
                 }
             } else {
                 if (self.state.orientation === "white") {
                     self.setState({
-                        up_player_online : true
+                        up_player_online: true
                     });
                 } else {
                     self.setState({
-                        bottom_player_online : true
+                        bottom_player_online: true
                     });
                 }
             }
 
 
-
             /*for (var obj in data) {
-                if (p1 == obj) {
-                    if (self.state.orientation === "black") {
-                        this.setState({
-                            bottom_player_online : true
-                        });
-                    } else {
-                        self.setState({
-                            up_player_online : true
-                        });
-                    }
+             if (p1 == obj) {
+             if (self.state.orientation === "black") {
+             this.setState({
+             bottom_player_online : true
+             });
+             } else {
+             self.setState({
+             up_player_online : true
+             });
+             }
 
-                } else if (p2 == obj){
-                    if (self.state.orientation === "black") {
-                        self.setState({
-                            bottom_player_online : true
-                        });
-                    } else {
-                        self.setState({
-                            up_player_online : true
-                        });
-                    }
-                }
-            }*/
+             } else if (p2 == obj){
+             if (self.state.orientation === "black") {
+             self.setState({
+             bottom_player_online : true
+             });
+             } else {
+             self.setState({
+             up_player_online : true
+             });
+             }
+             }
+             }*/
 
         });
 
-        if (this.state.isPlayer == true){
+        if (this.state.isPlayer == true) {
             var who_online = "white";
             if (this.state.orientation === "black") {
                 who_online = "black";
             }
 
-            this.socket.emit('playerOnOff', JSON.stringify({"online":who_online, p_id : u, game_id : g}))
+            this.socket.emit('playerOnOff', JSON.stringify({"online": who_online, p_id: u, game_id: g}))
         }
 
-      //  this.socket.on('playerOnOff', function (data) {
+        //  this.socket.on('playerOnOff', function (data) {
 
 
-
-            //this.socket.emit('checkTime1', JSON.stringify(send_data))
-    //    });
+        //this.socket.emit('checkTime1', JSON.stringify(send_data))
+        //    });
         /*this.socket.on('eventPlayer', function (data) {
          data = JSON.parse(data);
          console.log(data);
@@ -638,8 +701,10 @@ class App extends React.Component {
                 <div className="col-lg-8 col-md-12">
 
                     <div className="clock_top">
-                        <div className={(this.state.up_player_online == true) ? "username user_link black online pt-2 pb-2 player_bar" : "username user_link black offline pt-2 pb-2 player_bar "}><i className="line"
-                                                                                                                                                           title="Joined the game"></i>
+                        <div
+                            className={(this.state.up_player_online == true) ? "username user_link black online pt-2 pb-2 player_bar" : "username user_link black offline pt-2 pb-2 player_bar "}>
+                            <i className="line"
+                               title="Joined the game"></i>
                             <a className="text ulpt name" data-pt-pos="s" href="" target="_self">{this.state.up_name}
                                 <span className="rating"> ({this.state.up_tournaments_rating})
                                     {(this.state.up_rating_change) ? <span
@@ -661,9 +726,12 @@ class App extends React.Component {
                     </div>
 
                     <div className="clock_bottom">
-                        <div className={(this.state.bottom_player_online == true) ? "username user_link black online pt-2 pb-2 player_bar" : "username user_link black offline pt-2 pb-2 player_bar "}><i className="line"
-                                                                                                                                                                                                      title="Joined the game"></i>
-                            <a className="text ulpt name" data-pt-pos="s" href="" target="_self">{this.state.bottom_name}
+                        <div
+                            className={(this.state.bottom_player_online == true) ? "username user_link black online pt-2 pb-2 player_bar" : "username user_link black offline pt-2 pb-2 player_bar "}>
+                            <i className="line"
+                               title="Joined the game"></i>
+                            <a className="text ulpt name" data-pt-pos="s" href=""
+                               target="_self">{this.state.bottom_name}
                                 <span className="rating"> ({this.state.bottom_tournaments_rating})
                                     {(this.state.bottom_rating_change) ? <span
                                             className={(this.state.bottom_rating_change >= 0) ? "rp up" : "rp down"}>{(this.state.bottom_rating_change > 0) ? "+" : ""}{this.state.bottom_rating_change}</span> : null}
@@ -683,81 +751,109 @@ class App extends React.Component {
                 <div className="col-lg-4 col-md-12">
 
                     {(clientWidth > 1000) ?
-                    <div className="table_wrap">
+                        <div className="table_wrap">
 
-                        <div className="clock clock_top">
-                            <div className="time">{this.state.up_clock_minutes}
-                                <span className="low">:</span>
-                                {this.state.up_clock_seconds}
-                            </div>
-                            <div className="bar"></div>
-                        </div>
-
-
-                        <div className="table">
-                            <div>
-                                <div className={(this.state.up_player_online == true) ? "username user_link black online" : "username user_link black offline"}><i className="line"
-                                                                                    title="Joined the game"></i><a
-                                    className="text ulpt" data-pt-pos="s" href=""
-                                    target="_self">{this.state.up_name}</a>
-                                    <span className="rating">{this.state.up_tournaments_rating}
-                                        {(this.state.up_rating_change) ? <span
-                                                className={(this.state.up_rating_change >= 0) ? "rp up" : "rp down"}>{(this.state.up_rating_change > 0) ? "+" : ""}{this.state.up_rating_change}</span> : null}
-                                    </span>
+                            <div className="clock clock_top">
+                                <div className="time">{this.state.up_clock_minutes}
+                                    <span className="low">:</span>
+                                    {this.state.up_clock_seconds}
                                 </div>
+                                <div className="bar"></div>
+                            </div>
 
 
-
-                                {(this.state.isPlayer) ?
-
+                            <div className="table">
                                 <div>
-                                    {(this.state.is_over == 1) ?
-                                        <div className="control buttons">
-                                            <div className="follow_up"><a className="text fbt strong glowed" data-icon="G"
-                                                                          href={this.state.tourney_href}>Вернуться к турниру</a></div>
-                                        </div> :
-
-                                    <div className="control icons ">
-                                        <button disabled className="fbt hint--bottom takeback-yes"
-                                         data-hint="Попросить соперника вернуть ход">
-                                            <span data-icon="i"></span>
-                                         </button>
-                                        <button className="fbt hint--bottom draw-yes" disabled
-                                                data-hint="Предложить ничью">
-                                            <span data-icon="2"></span>
-                                        </button>
-
-                                        <button className="fbt hint--bottom resign-confirm" onClick={this.resign} data-hint="Сдаться"><span data-icon="b"></span></button>
+                                    <div
+                                        className={(this.state.up_player_online == true) ? "username user_link black online" : "username user_link black offline"}>
+                                        <i className="line"
+                                           title="Joined the game"></i><a
+                                        className="text ulpt" data-pt-pos="s" href=""
+                                        target="_self">{this.state.up_name}</a>
+                                        <span className="rating">{this.state.up_tournaments_rating}
+                                            {(this.state.up_rating_change) ? <span
+                                                    className={(this.state.up_rating_change >= 0) ? "rp up" : "rp down"}>{(this.state.up_rating_change > 0) ? "+" : ""}{this.state.up_rating_change}</span> : null}
+                                    </span>
                                     </div>
-                                    }
-                                </div>
-                                    : null}
 
-                                <div className={(this.state.bottom_player_online == true) ? "username user_link black online" : "username user_link black offline"}><i className="line" title="Joined the game"></i>
-                                    <a className="text ulpt" data-pt-pos="s" href="" target="_self">
-                                        {this.state.bottom_name}
-                                    </a>
-                                    <span className="rating">{this.state.bottom_tournaments_rating}</span>
-                                    <span
-                                        className={(this.state.bottom_rating_change >= 0) ? "rp up" : "rp down"}>
+
+                                    <div className="replay">
+                                        <div className="buttons">
+                                            <button className="fbt flip hint--top" data-hint="Перевернуть доску"
+                                                    data-act="flip" disabled><span data-icon="B"></span></button>
+                                            <nav>
+                                                <button className="fbt" data-icon="W" data-ply="0" disabled></button>
+                                                <button className="fbt" data-icon="Y" data-ply="28" disabled></button>
+                                                <button className="fbt" data-icon="X" data-ply="30" disabled></button>
+                                                <button className="fbt" data-icon="V" data-ply="39" disabled></button>
+                                            </nav>
+                                            <button className="fbt  hint--top" data-hint="Перевернуть доску"
+                                                    data-act="" disabled><span data-icon=""></span></button></div>
+                                        <div className="moves">
+
+
+                                        </div>
+                                    </div>
+
+
+                                    {(this.state.isPlayer) ?
+
+                                        <div>
+                                            {(this.state.is_over == 1) ?
+                                                <div className="control buttons">
+                                                    <div className="follow_up"><a className="text fbt strong glowed"
+                                                                                  data-icon="G"
+                                                                                  href={this.state.tourney_href}>Вернуться
+                                                        к турниру</a></div>
+                                                </div> :
+
+                                                <div className="control icons ">
+                                                    <button disabled className="fbt hint--bottom takeback-yes"
+                                                            data-hint="Попросить соперника вернуть ход">
+                                                        <span data-icon="i"></span>
+                                                    </button>
+                                                    <button className="fbt hint--bottom draw-yes" disabled
+                                                            data-hint="Предложить ничью">
+                                                        <span data-icon="2"></span>
+                                                    </button>
+
+                                                    <button className="fbt hint--bottom resign-confirm"
+                                                            onClick={this.resign} data-hint="Сдаться"><span
+                                                        data-icon="b"></span></button>
+                                                </div>
+                                            }
+                                        </div>
+                                        : null}
+
+                                    <div
+                                        className={(this.state.bottom_player_online == true) ? "username user_link black online" : "username user_link black offline"}>
+                                        <i className="line" title="Joined the game"></i>
+                                        <a className="text ulpt" data-pt-pos="s" href="" target="_self">
+                                            {this.state.bottom_name}
+                                        </a>
+                                        <span className="rating">{this.state.bottom_tournaments_rating}</span>
+                                        <span
+                                            className={(this.state.bottom_rating_change >= 0) ? "rp up" : "rp down"}>
                                         {(this.state.bottom_rating_change > 0) ? "+" : ""}{this.state.bottom_rating_change}</span>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div className="clock clock_bottom">
+                                <div className="bar"></div>
+                                <div className="time">{this.state.bottom_clock_minutes}
+                                    <span className="low">:</span>
+                                    {this.state.bottom_clock_seconds}
                                 </div>
                             </div>
-
                         </div>
-
-                        <div className="clock clock_bottom">
-                            <div className="bar"></div>
-                            <div className="time">{this.state.bottom_clock_minutes}
-                                <span className="low">:</span>
-                                {this.state.bottom_clock_seconds}
-                            </div>
-                        </div>
-                    </div>
 
                         : null}
 
-                    {this.state.is_started ? null : <div className="alert alert-danger mt-1 mb-1 " id="timeleft_white">Время на ход белых: <Timer/></div>}
+                    {this.state.is_started ? null :
+                        <div className="alert alert-danger mt-1 mb-1 " id="timeleft_white">Время на ход белых: <Timer/>
+                        </div>}
 
                     {(clientWidth < 1000) ?
 
@@ -767,7 +863,8 @@ class App extends React.Component {
                                 {(this.state.is_over == 1) ?
                                     <div className="control buttons">
                                         <div className="follow_up"><a className="text fbt strong glowed" data-icon="G"
-                                                                      href={this.state.tourney_href}>Вернуться к турниру</a></div>
+                                                                      href={this.state.tourney_href}>Вернуться к
+                                            турниру</a></div>
                                     </div> :
 
                                     <div className="control icons ">
@@ -780,14 +877,14 @@ class App extends React.Component {
                                             <span data-icon="2"></span>
                                         </button>
 
-                                        <button className="fbt hint--bottom resign-confirm" onClick={this.resign} data-hint="Сдаться"><span data-icon="b"></span></button>
+                                        <button className="fbt hint--bottom resign-confirm" onClick={this.resign}
+                                                data-hint="Сдаться"><span data-icon="b"></span></button>
                                     </div>
                                 }
                             </div>
                             : null}</div>
                         : null
                     }
-
 
 
                     <div className="side_box padded">
@@ -824,12 +921,15 @@ function getDests(game) {
 }
 
 
+
+
+
 render(
     <App/>
     , document.getElementById('game'));
 
 /*
-render(
-    <Timer/>
-    , document.getElementById('timer'));
-*/
+ render(
+ <Timer/>
+ , document.getElementById('timer'));
+ */
