@@ -901,6 +901,8 @@ class App extends React.Component {
 
                         </div>
                     </div>
+
+                    {/*<a href="" className="btn btn-light mt-2">Скачать pgn</a>*/}
                 </div>
             </div>
         );

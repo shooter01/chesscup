@@ -647,11 +647,14 @@ module.exports = function(app, passport, pool, i18n) {
                 }).then(function (results) {
                     return pool.query('DELETE FROM tournaments_teams_scores WHERE tournament_id = ?', office.tournament_id);
                 }).then(function (results) {
+                var newDateObj = moment(new Date()).add(1, 'm').toDate();
+
                 return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[
                     {
                         current_tour : 0,
                         is_closed : 0,
                         is_active : 0,
+                        start_time : newDateObj
                     }, office.tournament_id]);
 
 

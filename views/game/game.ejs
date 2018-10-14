@@ -15,14 +15,13 @@
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/"><%- __("Tournaments") %></a></li>
                 <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>"><%= tournament.title %></a></li>
-                <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>/tour/<%= game.tour %>">Tour <%= game.tour %></a></li>
                 <li class="breadcrumb-item" aria-current="page">Game № <%= game.id %></li>
             </ol>
         </nav>
     </div>
 </div>
 
-<a href="/tournament/<%= tournament.id %>/tour/<%= game.tour %>" class="btn btn-primary "><%- __("ParticipantsToTournament") %></a>
+<a href="/tournament/<%= tournament.id %>" class="btn btn-primary "><%- __("ParticipantsToTournament") %></a>
 
 <!--<h3 class="d-flex justify-content-between mt-3 mb-3 d-none d-lg-block">Game № <%= game.id %></h3>-->
 
