@@ -179,6 +179,7 @@ module.exports = function(app, passport, pool, i18n) {
         check('amount', 'The amount field is required').exists().isLength({ min: 1 }),
         // check('wait_minutes', 'The wait_minutes field is required').exists().isLength({ min: 1 }),
         check('is_online', 'The is_online field is required').exists().isLength({ min: 1 }),
+        check('start_type', 'The start_type field is required').exists().isLength({ min: 1 }),
         check('accurate_date_start', 'The accurate_date_start field is required').exists().isLength({ min: 1 }),
         check('accurate_time_start', 'The accurate_time_start field is required').exists().isLength({ min: 1 }),
 
@@ -191,8 +192,19 @@ module.exports = function(app, passport, pool, i18n) {
                 errors: errors.mapped()
             });
         } else {
+            var newDateObj;
+            if (req.body.start_type === "interval") {
+                newDateObj = moment(new Date()).add(req.body.wait_minutes, 'm').toDate();
+            } else {
+                newDateObj = moment(req.body.accurate_date_start + " " + req.body.accurate_time_start + ":00", 'DD-MM-YYYYTHH:mm').toDate();
+            }
 
-            var newDateObj = moment(new Date()).add(req.body.wait_minutes, 'm').toDate();
+            //var newDateObj = moment(new Date()).add(req.body.wait_minutes, 'm').toDate();
+
+            //var newDateObj = moment(req.body.accurate_date_start + " " + req.body.accurate_time_start + ":00", 'DD-MM-YYYYTHH:mm').toDate();
+
+
+
 
             let office = {
                 title: req.body.title.trim(),
@@ -210,12 +222,16 @@ module.exports = function(app, passport, pool, i18n) {
                 accurate_time_start: req.body.accurate_time_start,
                 end_date: req.body.end_date,
                 team_boards: req.body.team_boards,
+                start_type: req.body.start_type,
                 current_tour: 0,
                 created_at: new Date(),
                 creator_id: req.session.passport.user.id,
             };
 
-
+          //  res.json({
+           //     status : "error",
+          //      insertId : 1
+          //  });
             pool.query('INSERT INTO tournaments SET ?', office).then(function (results) {
                 if (results.insertId > 0) {
                     res.json({
@@ -257,6 +273,7 @@ module.exports = function(app, passport, pool, i18n) {
             check('is_online', 'The is_online field is required').exists().isLength({ min: 1 }),
             check('accurate_date_start', 'The accurate_date_start field is required').exists().isLength({ min: 1 }),
             check('accurate_time_start', 'The accurate_time_start field is required').exists().isLength({ min: 1 }),
+            check('start_type', 'The start_type field is required').exists().isLength({ min: 1 }),
 
         ],
         function (req, res, next) {
@@ -268,7 +285,16 @@ module.exports = function(app, passport, pool, i18n) {
             });
         } else {
              //var newDateObj = moment(new Date()).add(req.body.wait_minutes, 'm').toDate();
-             var newDateObj = moment(req.body.accurate_date_start + " " + req.body.accurate_time_start + ":00", 'DD-MM-YYYYTHH:mm').toDate()
+           // var newDateObj = moment(req.body.accurate_date_start + " " + req.body.accurate_time_start + ":00", 'DD-MM-YYYYTHH:mm').toDate();
+
+            var newDateObj;
+            if (req.body.start_type === "interval") {
+                newDateObj = moment(new Date()).add(req.body.wait_minutes, 'm').toDate();
+            } else {
+                newDateObj = moment(req.body.accurate_date_start + " " + req.body.accurate_time_start + ":00", 'DD-MM-YYYYTHH:mm').toDate();
+            }
+
+
             console.log("============")
             console.log(req.body.wait_minutes)
             let office = {
@@ -280,6 +306,8 @@ module.exports = function(app, passport, pool, i18n) {
                 type: req.body.type,
                 amount: req.body.amount,
                 start_time: newDateObj,
+                start_type: req.body.start_type,
+
                 is_online: req.body.is_online,
                 accurate_date_start: req.body.accurate_date_start,
                 accurate_time_start: req.body.accurate_time_start,
@@ -290,8 +318,8 @@ module.exports = function(app, passport, pool, i18n) {
                 school_id: req.session.passport.user.school_id,
             };
            // moment(req.body.accurate_date_start)
-            console.log( moment(req.body.accurate_date_start + " " + req.body.accurate_time_start + ":00", 'DD-MM-YYYYTHH:mm').toDate());
-            console.log(req.body.accurate_time_start);
+           // console.log( moment(req.body.accurate_date_start + " " + req.body.accurate_time_start + ":00", 'DD-MM-YYYYTHH:mm').toDate());
+          //  console.log(req.body.accurate_time_start);
 
             //res.json({
              //   status : "ok",

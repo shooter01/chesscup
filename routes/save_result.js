@@ -180,7 +180,7 @@ const save_result = function (data) {
 
             }).then(function (results) {
                 console.log(">>>");
-                //console.log(tourney.is_online);
+                console.log(results[0].count == 0);
                 if (results[0].count == 0 && tourney.is_online == 1 && !throttle[tourney.id + "" + tourney.current_tour]) {
                     throttle[tourney.id + "" + tourney.current_tour] = true;
                     make_draw({
@@ -192,6 +192,11 @@ const save_result = function (data) {
                     });
                     console.log(throttle);
                     console.log("OVER");
+
+                    setTimeout(function () {
+                        delete throttle[tourney.id + "" + tourney.current_tour];
+                    }, 10000)
+
                 } else {
                     console.log(throttle);
                     //запускаем всем свежую информацию

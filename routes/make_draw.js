@@ -35,6 +35,7 @@ const make_draw = function (data) {
         team_berger_object,
         colors, //цвета, которыми играли участники
         team_berger,
+        flag_changed = false,
         after_tour_team_results_sum_buhgolz = {}
         ;
 
@@ -76,7 +77,11 @@ const make_draw = function (data) {
             })
             .then(rows => {
                 //2 - круговой турнир, если первый тур, то выставляем количество туров по числу участников
-                if (tourney.type === 2 && tourney.is_active === 0) {
+                console.log(tourney.type == 1);
+                console.log(tourney.tours_count > participants.length);
+                if ((tourney.type == 1 && tourney.tours_count > participants.length) || (tourney.type === 2 && tourney.is_active === 0)) {
+                    console.log("UPDATED");
+                    flag_changed = true;
                     return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
                         tours_count : participants.length - 1,
                     },tourney.id]);
@@ -85,7 +90,7 @@ const make_draw = function (data) {
                 }
             }).then(rows => {
 
-            if (tourney.type === 1 && participants.length <= tourney.tours_count) {
+            if (!flag_changed && (tourney.type === 1 && participants.length <= tourney.tours_count)) {
                 throw new Error("Too few participants. Change the number of tours or the number of participants.");
             }
             //сортировка участников по полю scores - кто сколько набрал
@@ -205,8 +210,8 @@ const make_draw = function (data) {
                             "tournament_id": tournament_id,
                             "p1_last_move": null,
                             "p2_last_move": null,
-                            "p1_time_left": tourney.amount * 60000 * 10,
-                            "p2_time_left": tourney.amount * 60000 * 10,
+                            "p1_time_left": tourney.amount * 60000,
+                            "p2_time_left": tourney.amount * 60000,
                             "p1_visited": false,
                             "p2_visited": false,
                             "is_started": 0,

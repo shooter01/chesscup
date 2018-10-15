@@ -24,7 +24,20 @@ class Tours extends React.Component {
 
     render() {
 
-        var tours = (this.props.tournament.current_tour > 0) ? Array.from(Array(parseInt(this.props.tournament.current_tour) - 1).keys()) : [];
+        var tours = [];
+
+        if (this.props.tournament.current_tour > 0) {
+
+            if (this.props.tournament.current_tour <= this.props.tournament.tours_count) {
+                tours = Array.from(Array(parseInt(this.props.tournament.current_tour)).keys())
+            } else {
+                tours = Array.from(Array(parseInt(this.props.tournament.current_tour) - 1).keys())
+            }
+
+            /*(this.props.tournament.current_tour > 0) ? Array.from(Array(parseInt(this.props.tournament.current_tour) - 1).keys()) : [];*/
+
+        }
+
         return (
 
             <div>

@@ -74,11 +74,9 @@
 <div class="row">
     <div class="col-sm-9">
 <% if (user && user.user && user.user.id === tournament.creator_id) { %>
-
-
-<a href="/tournament/<%= tournament.id %>/edit" class="btn btn-success"><%- __("Edit_tournament") %></a>
-
-
+    <% if (tournament.is_closed != 1) { %>
+        <a href="/tournament/<%= tournament.id %>/edit" class="btn btn-success"><%- __("Edit_tournament") %></a>
+    <% } %>
 <span class="dropdown mr-2 noprint">
     <button class="btn btn-info dropdown-toggle noprint" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <%- __("Actions") %>

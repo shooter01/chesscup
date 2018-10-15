@@ -56,9 +56,11 @@ module.exports = function (app) {
             }
 
             socket.join(socket.game_id);
+            console.log(online_players);
+
 
             io.to(socket.game_id).emit('playerOnline',
-                JSON.stringify(online_players[handshakeData._query['g']]));
+                JSON.stringify(online_players[handshakeData._query['g']] || {}));
 
 
            // io.sockets.emit('playerOnline', JSON.stringify(online_players[handshakeData._query['g']]));

@@ -276,6 +276,11 @@ class App extends React.Component {
 
         }
 
+
+        $("body").on("click", "move", function () {
+            console.log("a");
+        })
+
     }
 
     fillMoves(){
