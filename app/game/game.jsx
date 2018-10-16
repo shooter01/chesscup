@@ -35,6 +35,9 @@ class App extends React.Component {
         this.resign = this.resign.bind(this);
         this.fillMoves = this.fillMoves.bind(this);
         this.addMove = this.addMove.bind(this);
+        this.goBack = this.goBack.bind(this);
+        this.goForward = this.goForward.bind(this);
+        this.scrollToBottom = this.scrollToBottom.bind(this);
 
         this.resignCount = 0;
 
@@ -143,7 +146,13 @@ class App extends React.Component {
         // console.log(fen);
 
         if (typeof fen != "undefined" && fen != "undefined" && fen != "" && fen != null) {
-            this.game = new Chess(fen);
+            this.game = new Chess();
+
+            for (var i = 0; i < self.state.moves.length; i++) {
+                var obj = self.state.moves[i];
+                this.game.move(obj);
+            }
+
         } else {
             // this.game = new Chess("8/5KP1/8/1k6/8/8/8/8 w - - 34 74");
             this.game = new Chess();
@@ -263,6 +272,7 @@ class App extends React.Component {
 
 
         this.row = 0;
+        this.temp_move = this.state.moves.length - 2;
 
         if (this.state.moves && this.state.moves.length) {
 
@@ -272,15 +282,143 @@ class App extends React.Component {
                 });
             } else {
                 this.fillMoves();
+                this.scrollToBottom();
+
             }
 
         }
 
 
         $("body").on("click", "move", function () {
-            console.log("a");
-        })
+            console.log($(this).prevAll("index")[0]);
+            var history = self.game.history();
+            var index = $(this).index("move");
+            self.temp_game = new Chess();
+            console.log(history);
+            console.log(index);
+            console.log(self.state.moves);
 
+
+            if (index != history.length - 1) {
+                for (var i = 0; i < history.length; i++) {
+                    var obj1 = history[i];
+                    if (i <= index) {
+                        self.temp_game.move(obj1);
+
+                    }
+                }
+
+                self.temp_move = index;
+
+
+                self.cg.set({
+                    fen: self.temp_game.fen(),
+                    viewOnly : true
+                });
+            } else {
+                self.cg.set({
+                    fen: self.game.fen(),
+                    viewOnly : false
+                });
+            }
+
+
+        });
+
+
+
+        $(document).keydown(function(e) {
+
+
+
+            switch(e.which) {
+                case 37: // left
+                    self.goBack();
+                    break;
+                case 38: // up
+                    break;
+                case 39: // right
+                    self.goForward();
+                    break;
+                case 40: // down
+                    break;
+
+                default: return; // exit this handler for other keys
+            }
+            e.preventDefault(); // prevent the default action (scroll / move caret)
+        });
+
+    }
+
+    goBack(){
+        var self = this;
+        var history = self.game.history();
+
+        self.temp_game = new Chess();
+        console.log(self.temp_move);
+        if (self.temp_move - 1 >= 0) {
+            --self.temp_move;
+
+            for (var i = 0; i < history.length; i++) {
+                var obj1 = history[i];
+                if (i <= self.temp_move) {
+                    self.temp_game.move(obj1);
+                }
+            }
+            self.move_sound.play();
+
+            self.cg.set({
+                fen: self.temp_game.fen(),
+                viewOnly : true
+            });
+        } else {
+            self.cg.set({
+                fen: self.temp_game.fen(),
+                viewOnly : false
+
+            });
+
+        }
+    }
+    goForward(){
+        var self = this;
+        var history = self.game.history();
+
+        self.temp_game = new Chess();
+        console.log(self.temp_move);
+        if ((self.temp_move + 1 < history.length)) {
+            self.temp_move++;
+
+            console.log(self.temp_move);
+            var lastMove;
+
+            for (var i = 0; i < history.length; i++) {
+                var obj1 = history[i];
+                if (i <= self.temp_move) {
+                    lastMove = self.temp_game.move(obj1);
+
+                }
+            }
+
+            if (lastMove.captured) {
+                self.capture_sound.play();
+            } else {
+                self.move_sound.play();
+            }
+
+            self.cg.set({
+                fen: self.temp_game.fen(),
+                viewOnly : true
+
+            });
+
+        } else {
+            self.cg.set({
+                fen: self.game.fen(),
+                viewOnly : false
+
+            });
+        }
     }
 
     fillMoves(){
@@ -300,7 +438,6 @@ class App extends React.Component {
         if (typeof m == "undefined"){
             m = this.state.moves.length - 1;
         }
-        console.log(m);
         if (m % 2 == 0) {
             $(".moves").append($("<index>" + ++this.row + "</index>"));
         }
@@ -381,8 +518,8 @@ class App extends React.Component {
             })
 
             if (data.event === "move") {
-                self.game.load(data.fen);
-
+               // self.game.load(data.fen);
+                self.game.move(data.san);
                 self.setState({
                     who_to_move: (self.game.turn() === 'w') ? "white" : "black",
                     white_time: data.p1_time_left / 1000,
@@ -420,6 +557,7 @@ class App extends React.Component {
                             moves: a,
                         }, function () {
                             this.addMove(data.san);
+                            self.scrollToBottom();
 
                         });
 
@@ -432,7 +570,13 @@ class App extends React.Component {
 
 
 
+
                 });
+
+
+
+
+
             } else if (data.event === "rating_change") {
 
                 if (self.state.orientation === "white" && self.state.is_over === 1) {
@@ -568,6 +712,12 @@ class App extends React.Component {
          });
          }
          });*/
+    }
+
+    scrollToBottom(){
+        //scroll to bottom
+        var objDiv = document.querySelector(".moves");
+        objDiv.scrollTop = objDiv.scrollHeight;
     }
 
     tick() {
@@ -892,6 +1042,8 @@ class App extends React.Component {
                     }
 
 
+
+
                     <div className="side_box padded">
                         <div className="players">
 
@@ -905,6 +1057,11 @@ class App extends React.Component {
                             </div>
 
                         </div>
+                    </div>
+
+                    <div>
+                        <button className="fbt mobile-btn d-lg-none" onClick={this.goBack} data-icon="Y" data-ply="28"></button>
+                        <button className="fbt mobile-btn d-lg-none" onClick={this.goForward} data-icon="X" data-ply="30" disabled=""></button>
                     </div>
 
                     {/*<a href="" className="btn btn-light mt-2">Скачать pgn</a>*/}
