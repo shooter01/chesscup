@@ -717,7 +717,9 @@ class App extends React.Component {
     scrollToBottom(){
         //scroll to bottom
         var objDiv = document.querySelector(".moves");
-        objDiv.scrollTop = objDiv.scrollHeight;
+        if (objDiv) {
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }
     }
 
     tick() {
