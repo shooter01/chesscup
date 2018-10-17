@@ -8,20 +8,7 @@ class Chat extends React.Component {
         super(props);
         this.state = {
             tournament : tournament,
-            messages : [
-                {name : "Alesha", msg : "Тому, что можно найти красивый подвод белому парню назвать нигера чернокожим в его присутствии!"},
-                {name : "Sergey", msg : "test message 2"},
-                {name : "Nurik", msg : "test message 3"},
-                {name : "Alesha", msg : "Тому, что можно найти красивый подвод белому парню назвать нигера чернокожим в его присутствии!"},
-                {name : "Sergey", msg : "test message 2"},
-                {name : "Nurik", msg : "test message 3"},
-                {name : "Alesha", msg : "Тому, что можно найти красивый подвод белому парню назвать нигера чернокожим в его присутствии!"},
-                {name : "Sergey", msg : "test message 2"},
-                {name : "Nurik", msg : "test message 3"},
-                {name : "Alesha", msg : "Тому, что можно найти красивый подвод белому парню назвать нигера чернокожим в его присутствии!"},
-                {name : "Sergey", msg : "test message 2"},
-                {name : "Nurik", msg : "test message 3"},
-                ]
+            messages : []
         };
 
         this.getChat = this.getChat.bind(this);
