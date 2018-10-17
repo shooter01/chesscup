@@ -524,8 +524,12 @@ class App extends React.Component {
                     is_started: 1,
                 }, function () {
                     self.setTime();
+
+                    var is_over = (data.is_over == 1) ? true : false;
+
                     self.cg.set({
                         fen: self.game.fen(),
+                        viewOnly : is_over,
                         lastMove: [data.from, data.to],
                         movable: {
                             dests: getDests(self.game)
@@ -586,6 +590,15 @@ class App extends React.Component {
                         up_rating_change: data.rating_change_p1
                     });
                 }
+
+                self.cg.set({
+                    viewOnly : true,
+                    movable: {
+                        color: null
+                    },
+                    turnColor: null
+                });
+
             } else if (data.event === "game_over") {
 // debugger;
                 clearInterval(self.timer);
@@ -594,6 +607,7 @@ class App extends React.Component {
                 });
 
                 self.cg.set({
+                    viewOnly : true,
                     movable: {
                         color: null
                     },
