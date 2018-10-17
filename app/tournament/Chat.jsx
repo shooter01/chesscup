@@ -39,6 +39,7 @@ class Chat extends React.Component {
 
         this.scrollToBottom();
         this.getChat();
+        console.log(typeof u == "undefined" || u == null);
 
     }
 
@@ -123,7 +124,6 @@ class Chat extends React.Component {
 
 
     render () {
-
         return (
             <div className="">
                 <div>
@@ -132,12 +132,19 @@ class Chat extends React.Component {
                             <div key={index} className="mt-1 mt-2"><b>{item.name}</b>&nbsp;&nbsp;{item.msg}</div>
                         ))}
                     </div>
-                    <div className="input-group posAbsolute">
-                        <input onKeyDown={this.handleKeyPress} onInput={this.checkLength} onPaste={this.checkLength} type="text" className="form-control" ref="text" placeholder="Message..."  aria-label="Recipient's username" aria-describedby="basic-addon2" />
-                            <div className="input-group-append">
-                                <button className="btn btn-outline-secondary" type="button" onClick={this.sendMessage}>Send</button>
-                            </div>
-                    </div>
+
+                        {(typeof u == "undefined" || u == null) ?
+
+                            <div className="input-group posAbsolute d-flex justify-content-center align-items-end"><a href="/login">Login</a>&nbsp; or &nbsp;<a href="/signup">register</a>&nbsp; to&nbsp; chat </div>
+
+                            : <div className="input-group posAbsolute">
+                                <input onKeyDown={this.handleKeyPress} onInput={this.checkLength} onPaste={this.checkLength} type="text" className="form-control" ref="text" placeholder="Message..."  aria-label="Recipient's username" aria-describedby="basic-addon2" />
+                                <div className="input-group-append">
+                                    <button className="btn btn-outline-secondary" type="button" onClick={this.sendMessage}>Send</button>
+                                </div>
+                            </div>}
+
+
                 </div>
             </div>
 
