@@ -41,7 +41,7 @@ module.exports = function (app) {
 
 
         }
-        console.log(Object.keys(app.globalPlayers));
+       // console.log(Object.keys(app.globalPlayers));
 
         //события игры
 
@@ -56,7 +56,7 @@ module.exports = function (app) {
             }
 
             socket.join(socket.game_id);
-            console.log(online_players);
+          //  console.log(online_players);
 
 
             io.to(socket.game_id).emit('playerOnline',
@@ -97,7 +97,7 @@ module.exports = function (app) {
                 try {
                     msg = JSON.parse(msg);
                     console.log(msg);
-                    console.log(socket.p_id);
+                    //console.log(socket.p_id);
                     msg.id = parseInt(msg.id);
                     app.mongoDB.collection("users").findOne({_id: msg.id}, function (err, mongoGame) {
 
@@ -266,8 +266,8 @@ module.exports = function (app) {
         }
 
         socket.on('disconnect', function () {
-            console.log("disconnect");
-            console.log(Object.keys(app.globalPlayers));
+          //  console.log("disconnect");
+          //  console.log(Object.keys(app.globalPlayers));
 
             if (typeof online_players[socket.game_id] !== "undefined"
                 && typeof online_players[socket.game_id][this.p_id] !== "undefined") {

@@ -1,0 +1,658 @@
+div.mchat {
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+}
+body.kid div.mchat {
+  display: none;
+}
+div.mchat .spinner {
+  padding-top: 100px;
+}
+div.mchat .chat_tabs {
+  flex: 0 0 auto;
+  display: flex;
+}
+div.mchat .chat_tabs .tab {
+  flex: 1 1 auto;
+  border: 1px solid #ccc;
+  border-width: 0 1px 1px 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 4px 8px 5px 8px;
+}
+div.mchat .chat_tabs .tab:not(.active) {
+  background: #e0e0e0;
+  opacity: 0.7;
+  cursor: pointer;
+}
+div.mchat .chat_tabs .tab:not(.active):hover {
+  opacity: 1;
+}
+div.mchat .chat_tabs .tab.active {
+  font-weight: bold;
+}
+div.mchat .chat_tabs .tab input {
+  cursor: pointer;
+}
+div.mchat.optional .chat_tabs .tab.discussion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+div.mchat .chat_tabs .tab span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+div.mchat .chat_tabs .tab:last-child {
+  border-right: none;
+}
+div.mchat .chat_tabs:not(.nb_1) .tab.active {
+  border-bottom-color: transparent!important;
+}
+div.mchat .content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: hidden;
+}
+div.mchat .note textarea {
+  flex-grow: 1;
+  padding: 8px;
+  box-sizing: border-box;
+  border: none;
+  background-color: transparent;
+  color: #707070;
+  line-height: 1.7em;
+  outline: none;
+  resize: none;
+}
+div.mchat .lichess_say {
+  border: 0;
+  border-top: 1px solid #ccc;
+  padding: 3px 20px 3px 4px;
+  flex: 0 0 auto;
+  outline: none;
+}
+div.mchat .lichess_say.whisper {
+  color: #759900;
+  font-weight: bold;
+  font-style: italic;
+}
+div.mchat .messages {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+  overflow-y: auto;
+  word-wrap: break-word;
+  padding-bottom: 2px;
+  cursor: initial;
+}
+div.mchat .messages li {
+  padding: 0.4em 0 0.4em 5px;
+  line-height: 14px;
+  margin: 0;
+  overflow-y: hidden;
+}
+body.no-select div.mchat .messages li {
+  -moz-user-select: text;
+  -webkit-user-select: text;
+}
+div.mchat .messages .deleted {
+  opacity: 0.5;
+}
+div.mchat .messages .system {
+  display: block;
+  opacity: 0.8;
+  font-style: italic;
+  font-size: 0.8em;
+  margin-left: 0;
+  text-align: center;
+}
+div.mchat .messages span,
+div.mchat .messages .user_link {
+  font-weight: bold;
+  padding: 0;
+  color: #888;
+  word-spacing: 0.3em;
+  letter-spacing: -1px;
+}
+body.dark div.mchat .messages span,
+body.dark div.mchat .messages .user_link {
+  color: #777;
+}
+div.mchat .messages a:not(.user_link) {
+  font-family: 'Roboto';
+  color: #3893E8;
+}
+div.mchat .presets {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  flex-flow: row nowrap;
+}
+div.mchat .presets span {
+  flex: 1 1 auto;
+  text-align: center;
+  display: block;
+  opacity: 0.7;
+  border-top: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+div.mchat .presets span:not(.disabled) {
+  cursor: pointer;
+}
+div.mchat .presets span.disabled {
+  color: transparent;
+}
+div.mchat .presets span:not(.disabled):hover {
+  background: #3893E8;
+  color: #fff;
+  opacity: 1;
+}
+
+
+
+/*
+#app {
+    background-color: #f8f8f8 !important;
+
+    font-family: 'Open Sans',sans-serif;
+    font-size: 12px;
+    line-height: 1.66666667;
+    color: #787c83;
+
+    !*height: calc(100% - 50px);*!
+    flex: 1;
+    height: 1000px;
+
+}*/
+
+.MessagingWrapper {
+  height: 100%!important;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  border-radius: 8px!important;
+  padding: 10px;
+  height: calc(100% - 16px);
+  position: relative;
+}
+
+.mobileShow {
+  height: 40px;
+  width: 100%;
+  background: green;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  flex-flow: row;
+  justify-content: left;
+  cursor: pointer;
+  color: white;
+  display: none;
+}
+.mobileShow .glyphicon {
+  margin-right: 10px;
+}
+/* Smartphone Portrait and Landscape */
+@media only screen
+and (min-device-width : 200px)
+and (max-device-width : 600px){
+  .mobileShow { display: block;}
+}
+
+.onlinestatus-wrapper {
+  position: absolute;
+  right: 0;
+  top: 0;
+  text-align: right;
+  color: #333;
+  z-index: 99999;
+  cursor: pointer;
+
+}
+
+.onlineuserslist {
+  width: 140px;
+  border: 0px solid #000;
+  padding: 10px;
+  padding-top: 30px;
+  text-align: right;
+  display: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+
+
+#useronline, #useroffline {
+  display: none;
+}
+
+.extra-margin-top-xl {
+  margin-top: 16px !important;
+}
+.extra-margin-top-xl {
+  margin-top: 16px !important;
+}
+.chat-container {
+  margin: auto;
+}
+
+
+.MessagingWrapper .row {
+  height: 100%;
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  /*box-shadow: 1px 1px 1px 0 rgba(0,0,0,0.1);*/
+}
+
+
+.MessagingWrapper .RoomListWrapper, .MessagingWrapper .MessageRoomWrapper {
+  padding: 0 !important;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-inline-flexbox;
+  display: -webkit-inline-flex;
+  display: inline-flex;
+  height: 100%;
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+
+.RoomList {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.MessagingWrapper .RoomListWrapper .chat-filterbox, .MessagingWrapper .MessageRoomWrapper .chat-filterbox {
+  border-top-left-radius: 4px;
+  border: 1px solid #ccc;
+  border-right: 0;
+}
+
+
+.RoomList .RoomListEntry.unread {
+  background-color: #ecf0f1;
+}
+
+.RoomList .chat-filterbox {
+  min-height: 100px;
+  background-color: #fff;
+  padding: 20px;
+  -webkit-box-shadow: 0 3px 2px -2px rgba(0,0,0,0.1);
+  box-shadow: 0 3px 2px -2px rgba(0,0,0,0.1);
+}
+.RoomList .ScrollableRoomList {
+  position: relative;
+  overflow-y: auto;
+  border-left: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  border-top: #fff;
+  border-bottom-left-radius: 4px;
+  background-color: #eee;
+  height: 100%;
+}
+
+.RoomList .RoomListEntry.selected {
+  box-shadow: rgba(0,0,0,0) 0 0 2px 0;
+  background-color: #daf0fe;
+}
+.RoomList .RoomListEntry {
+  box-shadow: rgba(0,0,0,0) 1px 0 1px 0;
+  position: relative;
+  cursor: pointer;
+  min-width: 260px;
+  overflow: hidden;
+  background-color: #fff;
+  padding: 10px;
+  border: 1px solid rgba(204,204,204,0.24);
+  height: 70px;
+  margin-top: 0;
+}
+
+.verb-profile-pic.round {
+  border-radius: 50%;
+}
+.verb-profile-pic.round {
+  border-radius: 50%;
+}
+.verb-profile-pic.small {
+  height: 50px;
+  width: 50px;
+}
+.verb-profile-pic {
+  display: block;
+  -webkit-transition: opacity .3s ease-in-out;
+  -moz-transition: opacity .3s ease-in-out;
+  -o-transition: opacity .3s ease-in-out;
+  transition: opacity .3s ease-in-out;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.media-left, .media-right, .media-body {
+  display: table-cell;
+  vertical-align: top;
+}
+.media-body {
+  width: 10000px;
+}
+.media, .media-body {
+  zoom: 1;
+  overflow: hidden;
+}
+
+.RoomList .RoomListEntry.selected .time {
+  color: #888;
+}
+
+.RoomList .RoomListEntry .time {
+  color: #ccc;
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  margin-bottom: 0;
+}
+.RoomList .RoomListEntry.selected .MessagePreview {
+  color: #888 !important;
+}
+.RoomList .RoomListEntry .MessagePreview {
+  height: 20px;
+  white-space: nowrap;
+  width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #aaa;
+}
+
+.RoomList .RoomListEntry .media-heading {
+  font-weight: 400;
+  color: #4c4848;
+  white-space: nowrap;
+  width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.media-heading {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+h4, .h4 {
+  font-size: 15px;
+}
+
+.MessagingWrapper .MessageRoomWrapper .MessageRoom {
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.MessageRoom {
+  width: 100%;
+  flex: 1 1 auto;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-inline-flexbox;
+  display: -webkit-inline-flex;
+  display: inline-flex;
+  -webkit-flex-flow: column;
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+
+.MessagesHeader {
+  position: relative;
+  min-height: 80px;
+}
+
+.MessagesHeader .chat-information {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  height: 80px;
+  position: static;
+  background-color: #fff;
+  padding: 20px;
+  text-align: center;
+  -webkit-box-shadow: 0 3px 2px -2px rgba(0,0,0,0.1);
+  box-shadow: 0 3px 2px -2px rgba(0,0,0,0.1);
+}
+
+
+.MessagesHeader .chat-members {
+  text-align: left;
+  float: left;
+}
+
+.HoverCardWrapper {
+  position: relative;
+  display: inline-block;
+}
+.MessagesHeader .PresenceProfilePic .ProfilePic {
+  border-radius: 50%;
+}
+.MessagesHeader .PresenceProfilePic .ProfilePic {
+  width: 40px;
+  height: 40px;
+  display: inline;
+}
+
+.PresenceProfilePic {
+  position:relative;
+}
+
+.MessagesHeader .chat-information-teacher-picture {
+  border: 4px solid #e5e5e5;
+}
+.verb-profile-pic.clickable {
+  cursor: pointer;
+}
+.verb-profile-pic {
+  display: block;
+  -webkit-transition: opacity .3s ease-in-out;
+  -moz-transition: opacity .3s ease-in-out;
+  -o-transition: opacity .3s ease-in-out;
+  transition: opacity .3s ease-in-out;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+.HoverCardWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.MessageRoom .MessageList {
+  -moz-box-flex: 1 1 auto;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+  overflow-x: hidden;
+  min-height: 400px;
+}
+
+.MessageRoom .MessageList .date-hr {
+  width: 100%;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  line-height: .1em;
+  margin: 20px 0 20px;
+}
+.markdown h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+  cursor: text;
+  position: relative;
+}
+h4, .h4 {
+  font-size: 15px;
+}
+
+.MessageRoom .Message {
+  font-size: 13px;
+  font-weight: lighter;
+  padding: 5px 10px;
+  margin-bottom: 10px;
+}
+.MessageRoom .messages {
+  margin: 15px 0;
+}
+.hoverfix {
+  overflow: visible;
+}
+
+.MessageRoom .Message .media-left {
+  width: 45px;
+}
+
+.media-left, .media-right, .media-body {
+  display: table-cell;
+  vertical-align: top;
+}
+.media-left, .media>.pull-left {
+  padding-right: 10px;
+}
+
+.HoverCardWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.MessageRoom .Message .verb-profile-pic {
+  min-width: 35px;
+}
+.verb-profile-pic.round {
+  border-radius: 50%;
+}
+.verb-profile-pic.round {
+  border-radius: 50%;
+}
+.verb-profile-pic.clickable {
+  cursor: pointer;
+}
+.verb-profile-pic.medium {
+  height: 35px;
+  width: 35px;
+}
+img.media-object {
+  max-width: none;
+}
+
+.media-left, .media-right, .media-body {
+  display: table-cell;
+  vertical-align: top;
+}
+.media-body {
+  width: 10000px;
+}
+.media, .media-body {
+  zoom: 1;
+  overflow: hidden;
+}
+
+.MessageRoom .Message .MessageBody {
+  margin-bottom: 10px;
+  word-break: break-word;
+  color: #01080d;
+  font-weight: normal;
+}
+
+.MessageRoom .Message .sender {
+  font-weight: 400;
+  color: #4c4848!important;
+}
+
+.MessageRoom .Message .date {
+  color: #d1d1d1;
+}
+
+.MessageRoom a {
+  color: #129dfa;
+  text-decoration: none;
+}
+
+.MessageRoom .MessageInput {
+  padding: 20px;
+  padding-top: 5px;
+  background-color: #eee;
+  padding-bottom: 5px;
+  border-top: 1px solid #ccc;
+  -webkit-box-flex: 0 0 auto;
+  -moz-box-flex: 0 0 auto;
+  -webkit-flex: 0 0 auto;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  -webkit-flex-flow: column;
+  flex-direction: column;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+.MessageRoom .MessageInput textarea {
+  border-radius: 2px;
+  border: 1px solid #d2d9dd;
+  margin-bottom: 5px;
+  padding: 5px;
+  padding-right: 25px;
+  width: 100%;
+}
+
+.sendMessageButton {
+  margin: 0 0 10px
+}
+
+.height72 {
+  height: 72px;
+}
+.posRelative {
+  position:relative;
+}
+.posAbsolute {
+  position:absolute;
+  bottom: 0;
+}
+.MessageList {
+  max-height: 700px;
+}
+
+.cursorpointer {
+  cursor:pointer;
+}

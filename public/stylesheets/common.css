@@ -669,7 +669,7 @@ div.side h2 {
 .side_box {
     margin-top: 12px;
     /*margin-left: -30px;*/
-    width: 226px;
+    /*width: 226px;*/
     box-sizing: border-box;
 }
 div.side_box,
@@ -693,7 +693,7 @@ div.side_box .padded {
     .side_box,
     #site_header a.stream {
         margin-left: 0!important;
-        width: 196px!important;
+        /*width: 196px!important;*/
     }
 }
 .notification .message_infos,

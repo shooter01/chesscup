@@ -65,7 +65,6 @@ class App extends React.Component {
             return false;
         }
 
-        console.log(move);
 
         if (move.captured) {
             this.capture_sound.play();
@@ -106,7 +105,6 @@ class App extends React.Component {
             is_over: 0,
             player: (this.game.turn() === 'w') ? "p2" : "p1", //who made the last move
         };
-        console.log(send_data);
         // checkmate?
         if (that.game.in_checkmate() === true) {
             send_data.is_over = 1;
@@ -158,6 +156,8 @@ class App extends React.Component {
             this.game = new Chess();
         }
 
+
+
         var isPlayer = false;
         var playerColor = null;
 
@@ -171,7 +171,6 @@ class App extends React.Component {
 
 
         var width = $("#wrpr").outerWidth();
-        console.log(width);
         $("#dirty").width(width).height(width);
         $(".player_bar").width(width);
 
@@ -187,6 +186,7 @@ class App extends React.Component {
                 var obj = valid[i];
                 p.push(obj.slice(-2));
             }
+
 
             this.cg = Chessground(document.getElementById('dirty'), {
                 fen: this.game.fen(),
@@ -290,13 +290,9 @@ class App extends React.Component {
 
 
         $("body").on("click", "move", function () {
-            console.log($(this).prevAll("index")[0]);
             var history = self.game.history();
             var index = $(this).index("move");
             self.temp_game = new Chess();
-            console.log(history);
-            console.log(index);
-            console.log(self.state.moves);
 
 
             if (index != history.length - 1) {
@@ -355,7 +351,6 @@ class App extends React.Component {
         var history = self.game.history();
 
         self.temp_game = new Chess();
-        console.log(self.temp_move);
         if (self.temp_move - 1 >= 0) {
             --self.temp_move;
 
@@ -385,11 +380,9 @@ class App extends React.Component {
         var history = self.game.history();
 
         self.temp_game = new Chess();
-        console.log(self.temp_move);
         if ((self.temp_move + 1 < history.length)) {
             self.temp_move++;
 
-            console.log(self.temp_move);
             var lastMove;
 
             for (var i = 0; i < history.length; i++) {
@@ -422,7 +415,6 @@ class App extends React.Component {
     }
 
     fillMoves(){
-        console.log(this.state.moves);
 
 
         for (var i = 0; i < this.state.moves.length; i++) {
@@ -445,7 +437,6 @@ class App extends React.Component {
     }
 
     resign(event) {
-        console.log(this);
         // var element = this;
 
         var self = this;
@@ -507,7 +498,6 @@ class App extends React.Component {
 
         this.socket.on('eventClient', function (data) {
             data = JSON.parse(data);
-            console.log(data);
             //  debugger;
 
             self.cg.set({
@@ -519,7 +509,13 @@ class App extends React.Component {
 
             if (data.event === "move") {
                // self.game.load(data.fen);
-                self.game.move(data.san);
+                //self.game.move(data.san);
+                self.game.move({ from: data.from, to: data.to });
+
+                if (self.game.fen() !== data.fen) {
+                    self.game.load(data.fen);
+                }
+
                 self.setState({
                     who_to_move: (self.game.turn() === 'w') ? "white" : "black",
                     white_time: data.p1_time_left / 1000,
@@ -609,7 +605,6 @@ class App extends React.Component {
 
         this.socket.on('playerOnline', function (data) {
             data = JSON.parse(data);
-            console.log(data);
 
             if (!data[p1]) {
                 if (self.state.orientation === "black") {

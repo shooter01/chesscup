@@ -86,7 +86,7 @@ module.exports = function(app, passport, pool, i18n) {
                     return app.mongoDB.collection("users").findOne( { _id: gameId } )
                 }).then(data => {
                 mongoGame = data;
-                console.log(mongoGame);
+                //console.log(mongoGame);
 
 
 
@@ -102,7 +102,7 @@ module.exports = function(app, passport, pool, i18n) {
                 } else if (mongoGame.is_started && mongoGame.is_over == 0 && ((lm > lm2) || (mongoGame.p2_last_move == null && mongoGame.p1_last_move != null))) {
                     p1_time_left = mongoGame.p1_time_left - spent_time;
                 }
-                console.log(mongoGame);
+              //  console.log(mongoGame);
             //    var actual_time = new Date().getTime();
              //   (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
 
@@ -186,7 +186,7 @@ module.exports = function(app, passport, pool, i18n) {
         ],
         function (req, res, next) {
         const errors = validationResult(req);
-            console.log(req.body.amount);
+            //console.log(req.body.amount);
         if (!errors.isEmpty()) {
             return res.status(422).json({
                 errors: errors.mapped()
@@ -295,8 +295,8 @@ module.exports = function(app, passport, pool, i18n) {
             }
 
 
-            console.log("============")
-            console.log(req.body.wait_minutes)
+           // console.log("============")
+            //console.log(req.body.wait_minutes)
             let office = {
                 title: req.body.title.trim(),
                 city: req.body.city.trim(),
@@ -1304,7 +1304,7 @@ module.exports = function(app, passport, pool, i18n) {
                        rows[0].start_date = moment(rows[0].start_date).format("YYYY-MM-DD");
                        rows[0].end_date = moment(rows[0].end_date).format("YYYY-MM-DD");
                        // 2018-05-31
-                       console.log(rows[0]);
+                       //console.log(rows[0]);
                        res.render('tournament/edit', {
                            tournament  : rows[0],
                            tournamentJSON  : JSON.stringify(rows[0]),
@@ -1391,7 +1391,7 @@ module.exports = function(app, passport, pool, i18n) {
                    // participants = rows;
                     participants = DRAW.sortArr(a);
 
-                    console.log(tournament);
+                    //console.log(tournament);
 
                     res.render('tournament/pairing', {
                         tournament  : tournament,
