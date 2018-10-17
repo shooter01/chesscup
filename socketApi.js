@@ -38,10 +38,11 @@ module.exports = function (app) {
 
         if ((handshakeData._query['t1'] && handshakeData._query['t1'] != "undefined")) {
             socket.join('t' + handshakeData._query['t1']);
-
-
         }
-       // console.log(Object.keys(app.globalPlayers));
+        if ((handshakeData._query['chat'] && handshakeData._query['chat'] != "undefined")) {
+            socket.join('chat' + handshakeData._query['chat']);
+        }
+        console.log(handshakeData._query);
 
         //события игры
 
@@ -267,6 +268,19 @@ module.exports = function (app) {
           //  console.log(Object.keys(app.viewers[handshakeData._query['t1']]));
             // console.log(Object.keys(app.globalPlayers));
             // console.log(handshakeData._query['h']);
+        } else if (
+            handshakeData._query['chat'] && handshakeData._query['chat'] != "undefined"
+        ) {
+
+            socket.on('message', function (data) {
+               // data = JSON.parse(data);
+                io.to("chat" + handshakeData._query['chat']).emit('message', data);
+                var game = app.mongoDB.collection("chat").insertOne({
+                    msg : data,
+                    chat_id : parseInt(handshakeData._query['chat']),
+                });
+            });
+
         }
 
         socket.on('disconnect', function () {
