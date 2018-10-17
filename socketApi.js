@@ -146,7 +146,10 @@ module.exports = function (app) {
                                 }
                             },
 
-                            {upsert: true},
+                            {
+                                upsert: true,
+                                writeConcern: true
+                            },
                             function (err, data) {
 
 
@@ -173,7 +176,8 @@ module.exports = function (app) {
                                 app.mongoDB.collection("users").updateOne({
                                         _id: parseInt(msg.id)
                                     },
-                                    {$push: {"moves": msg.move}}
+                                    {$push: {"moves": msg.move}},
+                                    { writeConcern: true }
                                 );
 
                                 if (msg.is_over == 1) {
