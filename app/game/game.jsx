@@ -10,8 +10,8 @@ class App extends React.Component {
             promotion: "q",
             who_to_move: null,
             isPlayer: false,
-            white_time: p1_time_left / 1000,
-            black_time: p2_time_left / 1000,
+            white_time: p1_time_left,
+            black_time: p2_time_left,
             tourney_id: tourney_id,
             tour_id: tour_id,
             moves: moves.split(","),
@@ -518,8 +518,8 @@ class App extends React.Component {
 
                 self.setState({
                     who_to_move: (self.game.turn() === 'w') ? "white" : "black",
-                    white_time: data.p1_time_left / 1000,
-                    black_time: data.p2_time_left / 1000,
+                    white_time: data.p1_time_left ,
+                    black_time: data.p2_time_left ,
                     is_over: data.is_over,
                     is_started: 1,
                 }, function () {
@@ -734,7 +734,7 @@ class App extends React.Component {
     tick() {
         if (this.state.who_to_move === "white") {
             this.setState({
-                white_time: --this.state.white_time
+                white_time: this.state.white_time - 100
             }, function () {
                 if (this.state.white_time < 0) {
                     var send_data = {
@@ -759,7 +759,7 @@ class App extends React.Component {
             });
         } else if (this.state.who_to_move === "black") {
             this.setState({
-                black_time: --this.state.black_time
+                black_time: this.state.black_time - 100
             }, function () {
                 //debugger;
                 if (this.state.black_time < 0 && this.state.is_over != 1) {
@@ -793,14 +793,27 @@ class App extends React.Component {
             } else {
                 clearInterval(this.timer);
             }
-        }, 1000);
+        }, 100);
 
     }
 
 
     setTime() {
-        var p1_minutes = Math.floor((this.state.white_time) / 60);
-        var p1_secs = Math.floor((this.state.white_time) % 60 % 60);
+
+
+        /*var milliseconds = parseInt((this.state.white_time%1000)/10)
+            , seconds = parseInt((this.state.white_time/1000)%60)
+            , minutes = parseInt((this.state.white_time/(1000*60))%60)
+            , hours = parseInt((this.state.white_time/(1000*60*60))%24);*/
+
+
+      //  console.log(this.state.white_time);
+      //  console.log(minutes +  " " + seconds + " " + milliseconds);
+
+
+        var p1_minutes = Math.floor((this.state.white_time/(1000*60)));
+        var p1_secs = Math.floor((this.state.white_time/1000) % 60);
+        var p1_milliseconds = Math.floor((this.state.white_time % 1000)/100);
         var p2_minutes = Math.floor((this.state.black_time) / 60);
         var p2_secs = Math.floor((this.state.black_time) % 60 % 60);
 
@@ -852,7 +865,8 @@ class App extends React.Component {
             up_clock_minutes: up_clock_minutes,
             up_clock_seconds: up_clock_seconds,
             bottom_clock_minutes: bottom_clock_minutes,
-            bottom_clock_seconds: bottom_clock_seconds
+            bottom_clock_seconds: bottom_clock_seconds,
+            bottom_clock_milliseconds: p1_milliseconds,
         });
 
 
@@ -1011,6 +1025,8 @@ class App extends React.Component {
                                 <div className="time">{this.state.bottom_clock_minutes}
                                     <span className="low">:</span>
                                     {this.state.bottom_clock_seconds}
+                                    <span className="low">:</span>
+                                    {this.state.bottom_clock_milliseconds}
                                 </div>
                             </div>
                         </div>

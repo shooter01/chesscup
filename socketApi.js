@@ -16,6 +16,7 @@ const save_result = require('./routes/save_result');
 const game_over = require('./routes/game_over');
 const save_result_mongo = require('./routes/save_result_mongo');
 const bluebird = require('bluebird');
+const ObjectId = require('mongodb').ObjectId;
 
 
 let online_players = {};
@@ -41,6 +42,9 @@ module.exports = function (app) {
         }
         if ((handshakeData._query['chat'] && handshakeData._query['chat'] != "undefined")) {
             socket.join('chat' + handshakeData._query['chat']);
+        }
+        if ((handshakeData._query['lobby'] && handshakeData._query['lobby'] != "undefined")) {
+            socket.join('lobby');
         }
         console.log(handshakeData._query);
 
@@ -281,6 +285,98 @@ module.exports = function (app) {
                 });
             });
 
+        }else if (
+            handshakeData._query['lobby'] && handshakeData._query['lobby'] != "undefined"
+        ) {
+
+            getCurrentPlayGames(socket, data.insertedId);
+
+
+            socket.on('create_game', function (data) {
+                console.log('create_game');
+                console.log(data);
+                data = JSON.parse(data);
+
+                var game = app.mongoDB.collection("challenges").insertOne({
+                    "owner" : data.user_id,
+                    "user_name" : data.user_name,
+                    "created_at" : new Date(),
+                    "time_control" : data.amount
+                }, function (err, data) {
+                    getCurrentPlayGames(socket, data.insertedId);
+                    console.log(data.insertedId);
+                });
+
+
+
+            });
+
+            socket.on('cancel_game', function (data) {
+                console.log('cancel_game');
+                console.log(data);
+            });
+
+            socket.on('accept_game', function (data) {
+                console.log('accept_game');
+                data = JSON.parse(data);
+               // console.log(data.user_id);
+                console.log(data.game_id);
+
+                app.mongoDB.collection("challenges").findOne({_id: ObjectId(data.game_id)}, function (err, mongoGame) {
+                    console.log("test");
+                    console.log(mongoGame);
+
+
+                    app.mongoDB.collection("play_games").insertOne({
+                        "moves": [],
+                        "is_over": 0,
+                        "p1_id": data.user_id,
+                        "p2_id": mongoGame.owner,
+                        "p1_last_move": null,
+                        "p2_last_move": null,
+                        "p1_time_left": mongoGame.time_control * 60000 * 100,
+                        "p2_time_left": mongoGame.time_control * 60000 * 100,
+                        "is_started": 0,
+                        "time_addition": 0,
+                    }, function (err, insertedGame) {
+                        app.mongoDB.collection("challenges").findOne({_id: ObjectId(data.game_id)})
+
+
+                        socket.emit('start_game', {
+                            created_id : insertedGame.insertedId,
+                        });
+                        console.log(Object.keys(app.globalPlayers));
+
+                        app.globalPlayers[mongoGame.owner].emit('start_game', {
+                            created_id : insertedGame.insertedId,
+                        });
+
+                    });
+
+                });
+
+
+                /*
+*/
+            });
+
+        }
+
+
+        function getCurrentPlayGames(socket, created_id) {
+            app.mongoDB.collection("challenges").find({}, function(err, cursor) {
+                let games = [];
+                cursor.forEach(function (message) {
+                    games.push(message);
+
+                }, function () {
+                    socket.emit('games_list', {
+                        list : JSON.stringify(games),
+                        created_id : created_id,
+                    });
+
+                });
+            });
         }
 
         socket.on('disconnect', function () {

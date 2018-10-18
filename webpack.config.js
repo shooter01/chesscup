@@ -23,6 +23,7 @@ var config = {
         timer : './app/tournament/Timer.jsx',
         start_date : './app/tournament/StartDate.jsx',
         game : './app/game/game.jsx',
+        play : './app/play/play.jsx',
         team_pairing : './app/tournament/team_pairing.jsx',
     },
     output: {
@@ -39,7 +40,7 @@ var config = {
         ]
     },
     plugins: [
-       new webpack.DefinePlugin({
+        /*new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('production')
         }),
         new webpack.optimize.UglifyJsPlugin({
