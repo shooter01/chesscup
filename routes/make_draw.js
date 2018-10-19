@@ -63,10 +63,10 @@ const make_draw = function (data) {
 
             }).then(rows => {
 
-            if (tourney.type > 10 && rows.length <= tourney.tours_count) {
+           // if (tourney.type > 10 && rows.length <= tourney.tours_count) {
                 //throw new Error(__("TooSmallQuantity"));
-                throw new Error("Too few participants. Change the number of tours or the number of participants.");
-            }
+          //      throw new Error("Too few participants. Change the number of tours or the number of participants.");
+         //   }
 
             let sql = "SELECT tp.user_id, tp.start_rating, ts.scores, tp.is_active FROM tournaments_participants tp LEFT JOIN tournaments_scores ts ON ts.user_id = tp.user_id AND  tp.tournament_id = ts.tournament_id WHERE tp.tournament_id = ?";
 
@@ -79,20 +79,22 @@ const make_draw = function (data) {
                 //2 - круговой турнир, если первый тур, то выставляем количество туров по числу участников
                 console.log(tourney.type == 1);
                 console.log(tourney.tours_count > participants.length);
-                if ((tourney.type == 1 && tourney.tours_count > participants.length) || (tourney.type === 2 && tourney.is_active === 0)) {
+                if ((tourney.type == 1 && tourney.tours_count >= participants.length) || (tourney.type === 2 && tourney.is_active === 0)) {
+
+                    var t_count = (participants.length % 2 == 0) ? participants.length - 1  : participants.length;
                     console.log("UPDATED");
                     flag_changed = true;
                     return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
-                        tours_count : participants.length - 1,
+                        tours_count : t_count,
                     },tourney.id]);
                 } else {
                     return rows;
                 }
             }).then(rows => {
 
-            if (!flag_changed && (tourney.type === 1 && participants.length <= tourney.tours_count)) {
-                throw new Error("Too few participants. Change the number of tours or the number of participants.");
-            }
+            //if (!flag_changed && (tourney.type === 1 && participants.length <= tourney.tours_count)) {
+            //    throw new Error("Too few participants. Change the number of tours or the number of participants.");
+           // }
             //сортировка участников по полю scores - кто сколько набрал
             participants = DRAW.sortArr(participants);
             //создает объект участников - ключ - id участника - значение - сколько набрал очков
@@ -210,8 +212,8 @@ const make_draw = function (data) {
                             "tournament_id": tournament_id,
                             "p1_last_move": null,
                             "p2_last_move": null,
-                            "p1_time_left": tourney.amount * 60000 * 100,
-                            "p2_time_left": tourney.amount * 60000 * 100,
+                            "p1_time_left": tourney.amount * 60000,
+                            "p2_time_left": tourney.amount * 60000,
                             "p1_visited": false,
                             "p2_visited": false,
                             "is_started": 0,

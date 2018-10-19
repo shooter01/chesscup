@@ -19,7 +19,7 @@ class PlayerSockets {
                     if (!isNaN(parseInt(g)) && g != data.game_id) {
                         location.href = "/tournament/" + data.tournament_id + "/game/" + data.game_id;
                     } else {
-                        console.log("id совпадает");
+                        // console.log("id совпадает");
                     }
                 }
 

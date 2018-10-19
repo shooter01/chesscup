@@ -85,40 +85,54 @@ module.exports = function(app, passport, pool, i18n) {
 
                     return app.mongoDB.collection("users").findOne( { _id: gameId } )
                 }).then(data => {
-                mongoGame = data;
-                //console.log(mongoGame);
+
+                    if (data) {
+
+
+                        mongoGame = data;
+                        //console.log(mongoGame);
 
 
 
-                var p1_time_left =  mongoGame.p1_time_left, p2_time_left = mongoGame.p2_time_left;
-                var actual_time = new Date().getTime();
-                var lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
-                var spent_time = actual_time - lm;
-                var lm2 = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
-                var spent_time2 = actual_time - lm2;
-                if (mongoGame.is_started && mongoGame.is_over == 0 && ((lm < lm2) || (mongoGame.p1_last_move == null && mongoGame.p2_last_move != null))) {
-                   // p1_time_left = mongoGame.p1_time_left - spent_time;
-                    p2_time_left = mongoGame.p2_time_left - spent_time2;
-                } else if (mongoGame.is_started && mongoGame.is_over == 0 && ((lm > lm2) || (mongoGame.p2_last_move == null && mongoGame.p1_last_move != null))) {
-                    p1_time_left = mongoGame.p1_time_left - spent_time;
-                }
-              //  console.log(mongoGame);
-            //    var actual_time = new Date().getTime();
-             //   (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
+                        var p1_time_left =  mongoGame.p1_time_left, p2_time_left = mongoGame.p2_time_left;
+                        var actual_time = new Date().getTime();
+                        var lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
+                        var spent_time = actual_time - lm;
+                        var lm2 = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
+                        var spent_time2 = actual_time - lm2;
+                        if (mongoGame.is_started && mongoGame.is_over == 0 && ((lm < lm2) || (mongoGame.p1_last_move == null && mongoGame.p2_last_move != null))) {
+                           // p1_time_left = mongoGame.p1_time_left - spent_time;
+                            p2_time_left = mongoGame.p2_time_left - spent_time2;
+                        } else if (mongoGame.is_started && mongoGame.is_over == 0 && ((lm > lm2) || (mongoGame.p2_last_move == null && mongoGame.p1_last_move != null))) {
+                            p1_time_left = mongoGame.p1_time_left - spent_time;
+                        }
+                      //  console.log(mongoGame);
+                    //    var actual_time = new Date().getTime();
+                     //   (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
 
-                let timeleft = (mongoGame.startTime) ? mongoGame.startTime.getTime() - new Date().getTime() : 0;
+                        let timeleft = (mongoGame.startTime) ? mongoGame.startTime.getTime() - new Date().getTime() : 0;
 
 
-                res.render('game/game',
-                    {
-                        mongoGame : mongoGame,
-                        game : game,
-                        timeleft : timeleft,
-                        tournament : tournament,
-                        p1_time_left : p1_time_left,
-                        p2_time_left : p2_time_left
+                        res.render('game/game',
+                            {
+                                mongoGame : mongoGame,
+                                game : game,
+                                timeleft : timeleft,
+                                tournament : tournament,
+                                p1_time_left : p1_time_left,
+                                p2_time_left : p2_time_left
+                            });
+
+                } else {
+                    res.render('error', {
+                        message  : "Игра не найдена",
                     });
+                }
             })
+        } else {
+            res.render('error', {
+                message  : "Игра не найдена",
+            });
         }
     });
 
@@ -650,7 +664,23 @@ module.exports = function(app, passport, pool, i18n) {
 
     router.post('/delete', [
         isLoggedIn,
-        check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 }),
+        check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 }).custom((value, { req }) => {
+
+            return new Promise((resolve, reject) => {
+
+                pool.query('SELECT * FROM tournaments WHERE id = ?', [
+                    req.body.tournament_id.trim()
+                ]).then(function (rows) {
+                    console.log(rows);
+                    console.log(rows.length > 0 && rows[0].is_online == 1 && rows[0].is_active == 1 && rows[0].is_closed == 0);
+                    if(rows.length > 0 && rows[0].is_online == 1 && rows[0].is_active == 1 && rows[0].is_closed == 0) {
+                        return reject("Турнир не завершен. Завершите все матчи");
+                    } else {
+                        return resolve();
+                    }
+                });
+            });
+        }),
 
     ],
         function (req, res, next) {
@@ -659,8 +689,10 @@ module.exports = function(app, passport, pool, i18n) {
             return res.status(422).json({
                 errors: errors.mapped()
             });
+            console.log("FALSE");
         } else {
-            let office = {
+            console.log("TRUE");
+            /*let office = {
                 tournament_id: req.body.tournament_id,
                 user_id: req.body.user_id,
             };
@@ -694,14 +726,28 @@ module.exports = function(app, passport, pool, i18n) {
                 });
             }).catch((err) => {
                 console.log(err);
-            });
+            });*/
         }
     });
 
 
     router.post('/delete_tournament', [
         isLoggedIn,
-        check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 }),
+        check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 }).custom((value, { req }) => {
+
+            return new Promise((resolve, reject) => {
+
+                pool.query('SELECT * FROM tournaments WHERE id = ?', [
+                    req.body.tournament_id.trim()
+                ]).then(function (rows) {
+                    if(rows.length > 0 && rows[0].is_online == 1 && rows[0].is_closed == 0) {
+                        return reject("Турнир не завершен. Завершите все матчи");
+                    } else {
+                        return resolve();
+                    }
+                });
+            });
+        }),
     ],
         function (req, res, next) {
         const errors = validationResult(req);
@@ -745,7 +791,21 @@ module.exports = function(app, passport, pool, i18n) {
 
     router.post('/undo_last_tour', [
         isLoggedIn,
-        check('tournament_id', 'id is required').exists().isLength({ min: 1 }),
+        check('tournament_id', 'id is required').exists().isLength({ min: 1 }).custom((value, { req }) => {
+
+            return new Promise((resolve, reject) => {
+
+                pool.query('SELECT * FROM tournaments WHERE id = ?', [
+                    req.body.tournament_id.trim()
+                ]).then(function (rows) {
+                    if(rows.length > 0 && rows[0].is_online == 1 && rows[0].is_closed == 0) {
+                        return reject("Турнир не завершен. Завершите все матчи");
+                    } else {
+                        return resolve();
+                    }
+                });
+            });
+        }),
 
     ],
         function (req, res, next) {
@@ -1044,6 +1104,7 @@ module.exports = function(app, passport, pool, i18n) {
                 } else {
                     res.render('error', {
                         message  : req.i18n.__("TourneyNotFound"),
+                        error  : req.i18n.__("TourneyNotFound"),
                     });
                 }
 
@@ -1053,7 +1114,9 @@ module.exports = function(app, passport, pool, i18n) {
                 console.log(err);
             });
         } else {
-            res.render('error');
+            res.render('error', {
+                message  : "Турнир не найден",
+            });
         }
     });
 

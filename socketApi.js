@@ -107,6 +107,16 @@ module.exports = function (app) {
                     app.mongoDB.collection("users").findOne({_id: msg.id}, function (err, mongoGame) {
 
 
+                        if (!mongoGame) {
+                            console.log("Игра не найдена.");
+                            const a = {
+                                event: "game_aborted",
+                            };
+                            io.to(msg.id).emit('eventClient', JSON.stringify(a));
+                            return false;
+                        }
+
+
                         var obj = {
                             "fen": msg.data,
                             "is_over": msg.is_over,
@@ -345,11 +355,18 @@ module.exports = function (app) {
                         socket.emit('start_game', {
                             created_id : insertedGame.insertedId,
                         });
-                        console.log(Object.keys(app.globalPlayers));
 
-                        app.globalPlayers[mongoGame.owner].emit('start_game', {
-                            created_id : insertedGame.insertedId,
-                        });
+                        //если пользователь на сайте
+                        if ( app.globalPlayers[mongoGame.owner]) {
+                            app.globalPlayers[mongoGame.owner].emit('start_game', {
+                                created_id : insertedGame.insertedId,
+                            });
+                        }
+
+
+                        console.log(Object.keys(app.globalPlayers));
+                        console.log(app.globalPlayers[mongoGame.owner]);
+                        console.log(mongoGame.owner);
 
                     });
 

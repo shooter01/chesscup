@@ -15,7 +15,7 @@ class Tours extends React.Component {
 
 
     componentWillReceiveProps(nextProps){
-        console.log(nextProps);
+        // console.log(nextProps);
         if(nextProps.tournament !== this.state.tournament){
             this.setState({tournament:nextProps.tournament});
         }

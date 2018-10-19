@@ -31,12 +31,13 @@ class PlaySockets extends React.Component {
                 list : list
             });
 
-            console.log(list);
+            // console.log(list);
 
         });
         this.socket.on('start_game', function (data) {
+            // console.log(data);
+
             location.href = "/play/game/" + data.created_id;
-            console.log(data);
 
         });
 
@@ -64,7 +65,7 @@ class PlaySockets extends React.Component {
             "game_id" : attr,
         }));
 
-        console.log(attr);
+        // console.log(attr);
     }
 
 

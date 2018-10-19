@@ -21,7 +21,7 @@ class GetInButton extends React.Component {
 
     componentDidMount(){
         var that = this;
-        console.log(this.state.is_in);
+        // console.log(this.state.is_in);
     }
 
 

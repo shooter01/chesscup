@@ -33,13 +33,13 @@ class Chat extends React.Component {
 
         this.socket.on('message', function (data) {
             data = JSON.parse(data);
-            console.log(data);
+            // console.log(data);
             self.addMessage(data);
         });
 
         this.scrollToBottom();
         this.getChat();
-        console.log(typeof u == "undefined" || u == null);
+        // console.log(typeof u == "undefined" || u == null);
 
     }
 
@@ -51,7 +51,7 @@ class Chat extends React.Component {
         }, function () {
             this.scrollToBottom();
         });
-        console.log(temp);
+        // console.log(temp);
     }
 
     getChat() {
@@ -61,7 +61,7 @@ class Chat extends React.Component {
                 try {
                     data = JSON.parse(data.messages);
                     var temp = [];
-                    console.log(data);
+                    // console.log(data);
 
                     for (var i = 0; i < data.length; i++) {
                         var obj = JSON.parse(data[i].msg);
@@ -74,7 +74,7 @@ class Chat extends React.Component {
                         this.scrollToBottom();
                     });
 
-                    console.log(temp);
+                    // console.log(temp);
                 } catch(e) {
                     console.log(e.message);
                 }
@@ -94,7 +94,7 @@ class Chat extends React.Component {
     sendMessage () {
         let textDOM = ReactDOM.findDOMNode(this.refs.text);
         let mes = $.trim(textDOM.value);
-        console.log(mes);
+        // console.log(mes);
 
         if (mes != "") {
             if (typeof current_user === "undefined") {

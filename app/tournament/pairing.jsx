@@ -222,7 +222,7 @@ class Pairing extends React.Component {
                     }
                 }).done(function (data) {
                     if (data.status === "ok") {
-                        console.log(parseInt(self.state.current_tour));
+                        // console.log(parseInt(self.state.current_tour));
                         location.href = "/tournament/" + self.state.tournament_id + "/tour/" + (parseInt(self.state.current_tour) - 1);
                     } else {
                         alert(data.msg);
@@ -289,7 +289,7 @@ class Pairing extends React.Component {
 
             this.socket.on('tournament_event', function (data) {
                 data = JSON.parse(data);
-                console.log(data);
+                // console.log(data);
                 self.getActualData();
             });
         }

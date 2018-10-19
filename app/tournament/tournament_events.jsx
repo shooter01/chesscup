@@ -11,13 +11,13 @@ class TournamentSockets {
         } else {
             url = 'h=null';
         }
-        console.log(tournament_id);
+        // console.log(tournament_id);
         this.socket = io(window.location.origin, {query: url + '&t1=' + tournament_id});
-        console.log(this);
+        // console.log(this);
 
 
         this.socket.on('tournament_start', function (data) {
-            console.log(data);
+            // console.log(data);
             data = JSON.parse(data);
 
             var a = 4;
