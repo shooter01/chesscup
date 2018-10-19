@@ -152,7 +152,14 @@ class Pairing extends React.Component {
                         alert(data.msg);
                     }
                 }).fail(function ( jqXHR, textStatus ) {
-                    alert( "Request failed: " + textStatus );
+
+                    var error = "";
+                    for (var obj in jqXHR.responseJSON.errors) {
+                        error = jqXHR.responseJSON.errors[obj].msg;
+                    }
+
+                    alert(error);
+                    //alert( "Request failed: " + textStatus );
                 }).always(function () {
                     self.setState({
                         request_sent : false
@@ -190,7 +197,13 @@ class Pairing extends React.Component {
                         alert(data.msg);
                     }
                 }).fail(function ( jqXHR, textStatus ) {
-                    alert( "Request failed: " + textStatus );
+                    var error = "";
+                    for (var obj in jqXHR.responseJSON.errors) {
+                        error = jqXHR.responseJSON.errors[obj].msg;
+                    }
+
+                    alert(error);
+                    //alert( "Request failed: " + textStatus );
                 }).always(function () {
                     self.setState({
                         request_sent : false
@@ -228,7 +241,12 @@ class Pairing extends React.Component {
                         alert(data.msg);
                     }
                 }).fail(function ( jqXHR, textStatus ) {
-                    alert( "Request failed: " + textStatus );
+                    var error = "";
+                    for (var obj in jqXHR.responseJSON.errors) {
+                        error = jqXHR.responseJSON.errors[obj].msg;
+                    }
+                    alert(error);
+                    //alert( "Request failed: " + textStatus );
                 }).always(function () {
                     self.setState({
                         request_sent : false

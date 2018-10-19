@@ -671,9 +671,8 @@ module.exports = function(app, passport, pool, i18n) {
                 pool.query('SELECT * FROM tournaments WHERE id = ?', [
                     req.body.tournament_id.trim()
                 ]).then(function (rows) {
-                    console.log(rows);
-                    console.log(rows.length > 0 && rows[0].is_online == 1 && rows[0].is_active == 1 && rows[0].is_closed == 0);
-                    if(rows.length > 0 && rows[0].is_online == 1 && rows[0].is_active == 1 && rows[0].is_closed == 0) {
+
+                    if(rows.length > 0 && rows[0].is_online == 1 && rows[0].is_active == 1 && !rows[0].is_closed) {
                         return reject("Турнир не завершен. Завершите все матчи");
                     } else {
                         return resolve();
@@ -689,10 +688,10 @@ module.exports = function(app, passport, pool, i18n) {
             return res.status(422).json({
                 errors: errors.mapped()
             });
-            console.log("FALSE");
+
         } else {
-            console.log("TRUE");
-            /*let office = {
+
+            let office = {
                 tournament_id: req.body.tournament_id,
                 user_id: req.body.user_id,
             };
@@ -726,7 +725,7 @@ module.exports = function(app, passport, pool, i18n) {
                 });
             }).catch((err) => {
                 console.log(err);
-            });*/
+            });
         }
     });
 
@@ -741,6 +740,21 @@ module.exports = function(app, passport, pool, i18n) {
                     req.body.tournament_id.trim()
                 ]).then(function (rows) {
                     if(rows.length > 0 && rows[0].is_online == 1 && rows[0].is_closed == 0) {
+                        return reject("Турнир не завершен. Завершите все матчи");
+                    } else {
+                        return resolve();
+                    }
+                });
+            });
+        }).custom((value, { req }) => {
+
+            return new Promise((resolve, reject) => {
+
+                pool.query('SELECT * FROM tournaments WHERE id = ?', [
+                    req.body.tournament_id.trim()
+                ]).then(function (rows) {
+
+                    if(rows.length > 0 && rows[0].is_online == 1 && rows[0].is_active == 1 && !rows[0].is_closed) {
                         return reject("Турнир не завершен. Завершите все матчи");
                     } else {
                         return resolve();
@@ -798,7 +812,8 @@ module.exports = function(app, passport, pool, i18n) {
                 pool.query('SELECT * FROM tournaments WHERE id = ?', [
                     req.body.tournament_id.trim()
                 ]).then(function (rows) {
-                    if(rows.length > 0 && rows[0].is_online == 1 && rows[0].is_closed == 0) {
+
+                    if(rows.length > 0 && rows[0].is_online == 1 && rows[0].is_active == 1 && !rows[0].is_closed) {
                         return reject("Турнир не завершен. Завершите все матчи");
                     } else {
                         return resolve();
@@ -1383,42 +1398,86 @@ module.exports = function(app, passport, pool, i18n) {
     });
 
 
-    router.get('/:tournament_id/edit', [isLoggedIn],
+    router.get('/:tournament_id/edit', [
+        isLoggedIn,
+        check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 }).custom((value, { req }) => {
+            console.log("===");
+            console.log(value);
+            return new Promise((resolve, reject) => {
+
+                pool.query('SELECT * FROM tournaments WHERE id = ?', [
+                    value.trim()
+                ]).then(function (rows) {
+                    if(rows.length > 0 && rows[0].creator_id != req.session.passport.user.id) {
+                        return reject("У вас нет прав редактировать турнир");
+                    } else {
+                        return resolve();
+                    }
+                });
+            });
+        })
+        ],
         function (req, res, next) {
         let tournament_id = req.params.tournament_id;
         tournament_id = parseInt(tournament_id);
-        if (!isNaN(tournament_id)) {
-            pool
-                .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
-               .then(rows => {
+            const errors = validationResult(req);
 
-                   if (rows.length > 0) {
-                       rows[0].start_date = moment(rows[0].start_date).format("YYYY-MM-DD");
-                       rows[0].end_date = moment(rows[0].end_date).format("YYYY-MM-DD");
-                       // 2018-05-31
-                       //console.log(rows[0]);
-                       res.render('tournament/edit', {
-                           tournament  : rows[0],
-                           tournamentJSON  : JSON.stringify(rows[0]),
+            if (!errors.isEmpty()) {
 
-                           countries : countries
-                       });
-                   } else {
-                       res.render('error', {
-                           message  : req.i18n.__("TourneyNotFound"),
-                           error  : req.i18n.__("TourneyNotFound"),
-                       });
-                   }
+                var error = "";
+                for (var obj in errors.mapped()) {
+                    error = errors.mapped()[obj].msg;
+                }
+
+                console.log(errors.mapped());
 
 
-            }).catch(function (err) {
-                console.log(err);
-            });
-        } else {
-            res.render('error', {
-                message  : req.i18n.__("TourneyNotFound"),
-            });
-        }
+
+                res.render('error', {
+                    message  : error
+                });
+                /*return res.status(422).json({
+                    errors: errors.mapped()
+                });*/
+            } else {
+
+
+
+
+                    if (!isNaN(tournament_id)) {
+                        pool
+                            .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
+                           .then(rows => {
+
+                               if (rows.length > 0) {
+                                   rows[0].start_date = moment(rows[0].start_date).format("YYYY-MM-DD");
+                                   rows[0].end_date = moment(rows[0].end_date).format("YYYY-MM-DD");
+                                   // 2018-05-31
+                                   //console.log(rows[0]);
+                                   res.render('tournament/edit', {
+                                       tournament  : rows[0],
+                                       tournamentJSON  : JSON.stringify(rows[0]),
+
+                                       countries : countries
+                                   });
+                               } else {
+                                   res.render('error', {
+                                       message  : req.i18n.__("TourneyNotFound"),
+                                       error  : req.i18n.__("TourneyNotFound"),
+                                   });
+                               }
+
+
+                        }).catch(function (err) {
+                            console.log(err);
+                        });
+                    } else {
+                        res.render('error', {
+                            message  : req.i18n.__("TourneyNotFound"),
+                        });
+                    }
+
+            }
     });
 
 

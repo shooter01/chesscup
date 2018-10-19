@@ -214,6 +214,11 @@ class App extends React.Component {
             $(function () {
                 self.move_sound = $("#move_sound")[0];
                 self.capture_sound = $("#capture_sound")[0];
+                self.confirmation_sound = $("#confirmation_sound")[0];
+                self.defeat_sound = $("#defeat_sound")[0];
+
+                self.confirmation_sound.play();
+
             });
 
             this.socketIOConnect();
@@ -527,6 +532,10 @@ class App extends React.Component {
 
                     var is_over = (data.is_over == 1) ? true : false;
 
+                    if (is_over) {
+                        self.defeat_sound.play()
+                    }
+
                     self.cg.set({
                         fen: self.game.fen(),
                         viewOnly : is_over,
@@ -613,6 +622,8 @@ class App extends React.Component {
                     },
                     turnColor: null
                 });
+
+                self.defeat_sound = $("#defeat_sound")[0];
 
             } else if (data.event === "game_aborted") {
 

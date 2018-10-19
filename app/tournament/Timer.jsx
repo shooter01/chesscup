@@ -62,6 +62,26 @@ class Timer extends React.Component {
         var minutes = Math.floor((this.state.timeleft) / 60);
         var secs = Math.floor((this.state.timeleft) % 60 % 60);
 
+
+        var a = 4;
+
+        function playTournamentStart(secs) {
+            setTimeout(function () {
+                if (a >= 0 && $("[id^='tournament']").length > 0){
+                    $("#tournament" + secs).get(0).play();
+                }
+            }, 1000)
+        }
+
+
+
+        if (minutes == 0 && secs < 4 && secs >= 0) {
+            playTournamentStart(secs);
+        }
+
+
+
+
         this.setState({
             minutes_left : (minutes < 10) ? "0" + minutes : minutes,
             secs_left : (secs < 10) ? "0" + secs : secs,
@@ -73,7 +93,7 @@ class Timer extends React.Component {
         return (
             <span>
                 {this._isMounted ? <span>
-                                        {this.state.timeleft > 0 ? <span>{this.state.minutes_left}:{this.state.secs_left}</span> : <span>0:00</span>}
+                                        {this.state.timeleft > 0 ? <span>{this.state.minutes_left}:{this.state.secs_left}</span> : <span>00:00</span>}
 
                     </span> : null}
             </span>
