@@ -577,15 +577,7 @@ class App extends React.Component {
                         if (data.captured) {
                             self.capture_sound.play();
                         } else {
-                            try {
-                                var audio = new Audio('/sounds/Move.mp3');
-                                audio.play();
-                            } catch (e){
-                                console.log(e.message);
-                            }
-
-
-                            //self.move_sound.play();
+                            self.move_sound.play();
                         }
                     }
 
