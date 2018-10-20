@@ -217,8 +217,9 @@ class App extends React.Component {
                 self.confirmation_sound = $("#confirmation_sound")[0];
                 self.defeat_sound = $("#defeat_sound")[0];
 
-                self.confirmation_sound.play();
-
+                if (isPlayer && self.state.is_started == 0 && self.state.is_over == 0) {
+                        self.confirmation_sound.play();
+                }
             });
 
             this.socketIOConnect();
@@ -272,6 +273,8 @@ class App extends React.Component {
 
             if (this.state.is_started == 0 && this.state.is_over == 0) {
                 $("#timeleft_white").removeClass("hidden");
+
+
             }
         });
 
@@ -570,10 +573,19 @@ class App extends React.Component {
 
                         });
 
+
                         if (data.captured) {
                             self.capture_sound.play();
                         } else {
-                            self.move_sound.play();
+                            try {
+                                var audio = new Audio('/sounds/Move.mp3');
+                                audio.play();
+                            } catch (e){
+                                console.log(e.message);
+                            }
+
+
+                            //self.move_sound.play();
                         }
                     }
 
