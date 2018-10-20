@@ -85,6 +85,7 @@ module.exports = function (app, passport, pool) {
                             password: req.body.password.trim(),
                             name: req.body.name.trim(),
                             rating: 1200,
+                            tournaments_rating: 1200,
                         };
                         if (theme.school_id == 'null') {
                             theme.school_id = null;
