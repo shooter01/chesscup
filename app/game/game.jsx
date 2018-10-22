@@ -1,6 +1,50 @@
 import React from 'react';
 import {render} from 'react-dom';
 import Timer from "../tournament/Timer.jsx";
+import Sounds from "../sounds.jsx";
+
+
+var aa;
+(function(){
+    function ArcadeAudio() {
+        this.sounds = {};
+    }
+
+    ArcadeAudio.prototype.add = function( key, count, settings ) {
+        this.sounds[ key ] = [];
+        settings.forEach( function( elem, index ) {
+            this.sounds[ key ].push( {
+                tick: 0,
+                count: count,
+                pool: []
+            } );
+            for( var i = 0; i < count; i++ ) {
+                var audio = new Audio("data:audio/wav;base64," + Sounds[key]);
+                //audio.src = move;
+                this.sounds[ key ][ index ].pool.push( audio );
+            }
+        }, this );
+    };
+
+    ArcadeAudio.prototype.play = function( key ) {
+        var sound = this.sounds[ key ];
+        var soundData = sound.length > 1 ? sound[ Math.floor( Math.random() * sound.length ) ] : sound[ 0 ];
+        soundData.pool[ soundData.tick ].play();
+        soundData.tick < soundData.count - 1 ? soundData.tick++ : soundData.tick = 0;
+    };
+
+    aa = new ArcadeAudio();
+
+
+
+    aa.add( 'move', 1,[[]]);
+    aa.add( 'capture', 1,[[]]);
+
+
+
+
+
+})();;
 
 
 class App extends React.Component {
@@ -12,8 +56,8 @@ class App extends React.Component {
             isPlayer: false,
             white_time: p1_time_left / 1000,
             black_time: p2_time_left / 1000,
-            tourney_id: tourney_id,
-            tour_id: tour_id,
+            tourney_id: (typeof tourney_id != "undefined") ? tourney_id : null,
+            tour_id: (typeof tour_id != "undefined") ? tour_id : null,
             moves: moves.split(","),
             up_rating_change: null,
             row: 0,
@@ -21,7 +65,8 @@ class App extends React.Component {
             up_player_online: false,
             bottom_player_online: false,
             playerColor: null,
-            tourney_href: "/tournament/" + tourney_id,
+            tourney_href: (typeof tourney_id != "undefined") ? "/tournament/" + tourney_id : "/play",
+            tourney_text: (typeof tourney_id != "undefined") ? "Вернуться к турниру" : "REMATCH",
             is_over: is_over,
             is_started: parseInt(is_started),
             orientation: "white",
@@ -38,6 +83,7 @@ class App extends React.Component {
         this.goBack = this.goBack.bind(this);
         this.goForward = this.goForward.bind(this);
         this.scrollToBottom = this.scrollToBottom.bind(this);
+        this.rematchClick = this.rematchClick.bind(this);
 
         this.resignCount = 0;
 
@@ -66,11 +112,17 @@ class App extends React.Component {
         }
 
 
-        if (move.captured) {
-            this.capture_sound.play();
+        /*if (move.captured) {
+            setTimeout(function () {
+                aa.play('capture');
+            }, 175)
+            //this.capture_sound.play();
         } else {
-            this.move_sound.play();
-        }
+            setTimeout(function () {
+                aa.play('move');
+            }, 175)
+            // this.move_sound.play();
+        }*/
         //  console.log(that.game.history());
 
 
@@ -98,6 +150,7 @@ class App extends React.Component {
         var send_data = {
             data: that.game.fen(),
             id: g,
+            tourney_id: this.state.tourney_id,
             move: move.san,
             captured: move.captured,
             from: move.from,
@@ -218,7 +271,7 @@ class App extends React.Component {
                 self.defeat_sound = $("#defeat_sound")[0];
 
                 if (isPlayer && self.state.is_started == 0 && self.state.is_over == 0) {
-                        self.confirmation_sound.play();
+                    self.confirmation_sound.play();
                 }
             });
 
@@ -235,8 +288,8 @@ class App extends React.Component {
 
                 if (this.state.is_over == 1) {
                     this.setState({
-                        bottom_rating_change: rating_change_p1,
-                        up_rating_change: rating_change_p2,
+                        bottom_rating_change: (typeof rating_change_p1 != "undefined") ? rating_change_p1 : 0,
+                        up_rating_change: (typeof rating_change_p2 != "undefined") ? rating_change_p2 : 0,
                     });
 
                     self.cg.set({
@@ -257,8 +310,8 @@ class App extends React.Component {
 
                 if (this.state.is_over == 1) {
                     this.setState({
-                        up_rating_change: rating_change_p1,
-                        bottom_rating_change: rating_change_p2,
+                        up_rating_change: (typeof rating_change_p1 != "undefined") ? rating_change_p1 : 0,
+                        bottom_rating_change: (typeof rating_change_p2 != "undefined") ? rating_change_p2 : 0,
                     });
 
                     self.cg.set({
@@ -354,6 +407,22 @@ class App extends React.Component {
 
     }
 
+    rematchClick(event){
+        var self = this;
+        var element = $(event.target);
+
+        this.socket.emit('rematch_game', JSON.stringify({
+            "user_id" : u,
+            "user_name" : user_name,
+            "enemy_id" : (u == p1) ? p2 : p1,
+        }));
+
+
+
+
+        event.preventDefault();
+        return false;
+    }
     goBack(){
         var self = this;
         var history = self.game.history();
@@ -507,7 +576,6 @@ class App extends React.Component {
         this.socket.on('eventClient', function (data) {
             data = JSON.parse(data);
             //  debugger;
-
             self.cg.set({
                 check: false,
                 state: {
@@ -516,7 +584,7 @@ class App extends React.Component {
             })
 
             if (data.event === "move") {
-               // self.game.load(data.fen);
+                // self.game.load(data.fen);
                 //self.game.move(data.san);
                 self.game.move({ from: data.from, to: data.to });
 
@@ -575,9 +643,9 @@ class App extends React.Component {
 
 
                         if (data.captured) {
-                            self.capture_sound.play();
+                            aa.play('capture');
                         } else {
-                            self.move_sound.play();
+                            aa.play('move');
                         }
                     }
 
@@ -645,6 +713,9 @@ class App extends React.Component {
                 });
 
                 alert("Игра отменена сервером");
+
+            } else if (data.event === "rematch_offer") {
+                $("#rematchModal").modal("show");
 
             }
         });
@@ -904,7 +975,7 @@ class App extends React.Component {
                             <i className="line"
                                title="Joined the game"></i>
                             <a className="text ulpt name" data-pt-pos="s" href="" target="_self">{this.state.up_name}
-                                <span className="rating"> ({this.state.up_tournaments_rating})
+                                <span className="rating"> {this.state.up_tournaments_rating}
                                     {(this.state.up_rating_change) ? <span
                                             className={(this.state.up_rating_change >= 0) ? "rp up" : "rp down"}>{(this.state.up_rating_change > 0) ? "+" : ""}{this.state.up_rating_change}</span> : null}
                                 </span>
@@ -930,7 +1001,7 @@ class App extends React.Component {
                                title="Joined the game"></i>
                             <a className="text ulpt name" data-pt-pos="s" href=""
                                target="_self">{this.state.bottom_name}
-                                <span className="rating"> ({this.state.bottom_tournaments_rating})
+                                <span className="rating">{this.state.bottom_tournaments_rating}
                                     {(this.state.bottom_rating_change) ? <span
                                             className={(this.state.bottom_rating_change >= 0) ? "rp up" : "rp down"}>{(this.state.bottom_rating_change > 0) ? "+" : ""}{this.state.bottom_rating_change}</span> : null}
                                 </span>
@@ -1000,9 +1071,11 @@ class App extends React.Component {
                                             {(this.state.is_over == 1) ?
                                                 <div className="control buttons">
                                                     <div className="follow_up"><a className="text fbt strong glowed"
+
+                                                                                  onClick={this.rematchClick}
+
                                                                                   data-icon="G"
-                                                                                  href={this.state.tourney_href}>Вернуться
-                                                        к турниру</a></div>
+                                                                                  href={this.state.tourney_href}>{this.state.tourney_text}</a></div>
                                                 </div> :
 
                                                 <div className="control icons ">
@@ -1061,8 +1134,7 @@ class App extends React.Component {
                                 {(this.state.is_over == 1) ?
                                     <div className="control buttons">
                                         <div className="follow_up"><a className="text fbt strong glowed" data-icon="G"
-                                                                      href={this.state.tourney_href}>Вернуться к
-                                            турниру</a></div>
+                                                                      href={this.state.tourney_href}>{this.state.tourney_text}</a></div>
                                     </div> :
 
                                     <div className="control icons ">
@@ -1091,12 +1163,12 @@ class App extends React.Component {
                         <div className="players">
 
                             <div className="player color-icon is white text">
-                                <a className="user_link ulpt" href="">{p1_name}&nbsp;({p1_tournaments_rating})</a>
+                                <a className="user_link ulpt" href="">{p1_name}&nbsp;{p1_tournaments_rating}</a>
                             </div>
 
                             <div className="player color-icon is black text">
                                 <a className="user_link" href="">
-                                    {p2_name}&nbsp;({p2_tournaments_rating})</a>
+                                    {p2_name}&nbsp;{p2_tournaments_rating}</a>
                             </div>
 
                         </div>

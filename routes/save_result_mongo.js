@@ -27,7 +27,8 @@ const save_result_mongo = function (msg, mongoGame, app) {
     }
    // console.log(msg);
 
-    app.mongoDB.collection("users").updateOne({_id: parseInt(msg.id)},{$set: obj}, function (err, res) {
+    app.mongoDB.collection("users").updateOne({_id: parseInt(msg.id)},{$set: obj}, {                                writeConcern: true
+    }, function (err, res) {
        // console.log(res);
     });
 

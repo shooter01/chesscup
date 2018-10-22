@@ -40,7 +40,6 @@ module.exports = function (app) {
 
         app.mongoDB.collection("users").find({ startTime: { $lte: new Date() }, is_started : 0, is_over : 0 }, function(err, cursor) {
             cursor.forEach(function (game) {
-                console.log("game mongo : " + game._id);
                 //сохраняем завершение партии в монго
                 app.mongoDB.collection("users").updateOne({_id: parseInt(game._id)},{$set: {is_over : 1}}, function (err, res) {
 

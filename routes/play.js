@@ -8,6 +8,7 @@ const DRAW = require('./draw_functions');
 const save_result = require('./save_result');
 const make_draw = require('./make_draw');
 const save_result_mongo = require('./save_result_mongo');
+const ObjectId = require('mongodb').ObjectId;
 
 const DRAW_TEAM = require('./draw_team_functions');
 // const tournament_teams = require('./tournament_teams')(app, passport, pool);
@@ -46,54 +47,17 @@ module.exports = function(app, passport, pool, i18n) {
 
 
     router.get('/game/:gameId', function (req, res, next) {
-        res.render('play/playgame',
-            {
 
-            });
 
-  /*      var mongoGame, game;
+        var mongoGame, game;
         let tournament;
-        let tournament_id = req.params.tournament_id;
-        let gameId = req.params.gameId;
-        tournament_id = parseInt(tournament_id);
-        gameId = parseInt(gameId);*/
-/*        if (!isNaN(tournament_id) && !isNaN(gameId)) {
+        var gameId = req.params.gameId;
+    console.log(gameId);
 
-            pool
-                .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
-                .then(rows => {
-                    tournament = rows[0];
-                    return pool
-                        .query('SELECT tr.*, ' +
-                            'u2.name as p2_name, ' +
-                            'u2.tournaments_rating as p2_tournaments_rating, ' +
-                            'tr.rating_change_p1 as rating_change_p1, ' +
-                            'tr.rating_change_p2 as rating_change_p2, ' +
-                            'tr.p1_rating_for_history as p1_rating_for_history, ' +
-                            'tr.p2_rating_for_history as p2_rating_for_history, ' +
-                            'u1.tournaments_rating as p1_tournaments_rating, ' +
-                            'u1.name AS p1_name ' +
-                            'FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN users u2 ON tr.p2_id = u2.id  WHERE tr.id = ? LIMIT 1', gameId);
-                }).then(rows => {
-                    game = rows[0];
-                    if (typeof game != "undefined" && req.isAuthenticated()){
-                        if (req.session.passport.user.id == game.p1_id) {
-                            app.mongoDB.collection("users").updateOne({_id: parseInt(game.id)},{$set: {p1_visited : true}});
-                        }
-                        if (typeof game != "undefined" && req.session.passport.user.id == game.p2_id) {
-                            app.mongoDB.collection("users").updateOne({_id: parseInt(game.id)},{$set: {p2_visited : true}});
-                        }
-                    }
-            }).then(rows => {
-                //console.log(rows);
-
-
-                }).then(rows => {
-
-                    return app.mongoDB.collection("users").findOne( { _id: gameId } )
-                }).then(data => {
+            app.mongoDB.collection("users").findOne( ObjectId(gameId) )
+                .then((data) => {
                 mongoGame = data;
-                //console.log(mongoGame);
+                console.log(mongoGame);
 
 
 
@@ -104,14 +68,12 @@ module.exports = function(app, passport, pool, i18n) {
                 var lm2 = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
                 var spent_time2 = actual_time - lm2;
                 if (mongoGame.is_started && mongoGame.is_over == 0 && ((lm < lm2) || (mongoGame.p1_last_move == null && mongoGame.p2_last_move != null))) {
-                   // p1_time_left = mongoGame.p1_time_left - spent_time;
                     p2_time_left = mongoGame.p2_time_left - spent_time2;
                 } else if (mongoGame.is_started && mongoGame.is_over == 0 && ((lm > lm2) || (mongoGame.p2_last_move == null && mongoGame.p1_last_move != null))) {
                     p1_time_left = mongoGame.p1_time_left - spent_time;
                 }
-              //  console.log(mongoGame);
-            //    var actual_time = new Date().getTime();
-             //   (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
+                console.log(mongoGame);
+
 
                 let timeleft = (mongoGame.startTime) ? mongoGame.startTime.getTime() - new Date().getTime() : 0;
 
@@ -119,14 +81,15 @@ module.exports = function(app, passport, pool, i18n) {
                 res.render('game/game',
                     {
                         mongoGame : mongoGame,
-                        game : game,
                         timeleft : timeleft,
                         tournament : tournament,
                         p1_time_left : p1_time_left,
                         p2_time_left : p2_time_left
                     });
+            }).catch(function (err) {
+                console.log(err);
             })
-        }*/
+
     });
 
 

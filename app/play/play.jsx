@@ -7,7 +7,8 @@ class PlaySockets extends React.Component {
 
         super(props);
         this.state = {
-            list : []
+            games : [],
+            challenges : [],
         };
 
         this.accept = this.accept.bind(this);
@@ -25,17 +26,20 @@ class PlaySockets extends React.Component {
         this.socket = io(window.location.origin, {query: url + "&lobby=true"});
 
         this.socket.on('games_list', function (data) {
-            const list = JSON.parse(data.list);
+            const games = JSON.parse(data.games);
+            const challenges = JSON.parse(data.challenges);
 
             self.setState({
-                list : list
+                games : games,
+                challenges : challenges,
             });
 
-            // console.log(list);
+             console.log(challenges);
+             console.log(games);
 
         });
-        this.socket.on('start_game', function (data) {
-            // console.log(data);
+        this.socket.on('playzone_start_game', function (data) {
+             console.log(data);
 
             location.href = "/play/game/" + data.created_id;
 
@@ -45,11 +49,14 @@ class PlaySockets extends React.Component {
 
         //$(function () {
         $("#create_game").on("click", function () {
+
             self.socket.emit('create_game', JSON.stringify({
                 "amount" : $("#amount").val(),
                 "user_id" : u,
                 "user_name" : user_name,
             }));
+
+            $("#exampleModal").modal("hide");
 
         });
         // })
@@ -63,6 +70,8 @@ class PlaySockets extends React.Component {
         this.socket.emit('accept_game', JSON.stringify({
             "user_id" : u,
             "game_id" : attr,
+            "user_name" : user_name,
+
         }));
 
         // console.log(attr);
@@ -72,6 +81,8 @@ class PlaySockets extends React.Component {
     render () {
         return (
             <div>
+
+                <h2>Вызовы</h2>
 
                 <table className="table table-sm">
                     <thead className="thead-dark">
@@ -87,7 +98,7 @@ class PlaySockets extends React.Component {
 
 
 
-                        {this.state.list.map((item, index) => (
+                        {this.state.challenges.map((item, index) => (
 
                         <tr key={index}>
                             <th>{item.user_id}</th>
@@ -97,6 +108,33 @@ class PlaySockets extends React.Component {
                                 <span className="btn btn-primary" data-game_id={item._id} onClick={this.accept}>Принять</span>
                             </td>
                         </tr>
+                        ))}
+
+                    </tbody>
+                </table>
+
+                <h2>Игры</h2>
+
+                <table className="table table-sm">
+                    <thead className="thead-light">
+                    <tr>
+                        <th scope="col" className="text-center">#</th>
+                        <th scope="col" className="text-center"></th>
+                        <th scope="col" className="text-center">Контроль</th>
+                        <th scope="col" className="text-center"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {this.state.games.map((item, index) => (
+
+                            <tr key={index}>
+                                <th>{item.user_id}</th>
+                                <td className="text-center">{item.p1_name} vs {item.p2_name}</td>
+                                <td className="text-center">{item.amount} + 0</td>
+                                <td className="text-center">
+                                    <a className="btn btn-primary btn-sm" href={ "/play/game/" + item._id }>Смотреть</a>
+                                </td>
+                            </tr>
                         ))}
 
                     </tbody>

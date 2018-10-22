@@ -1,6 +1,8 @@
 #!/usr/bin/nodejs
 var debug = require('debug')('my-application');
 var app = require('../app');
+// var WebSocketServer = require('ws');
+
 let globalPlayers = {};
 
 app.set('port', process.env.PORT || 7000);
@@ -11,6 +13,10 @@ app.viewers = {};
 var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);
 });
+
+// const wss = new WebSocketServer.Server({ server });
+// app.wss = wss;
+
 var socketApi = require('../socketApi')(app);
 const timers = require('../routes/timers')(app);
 

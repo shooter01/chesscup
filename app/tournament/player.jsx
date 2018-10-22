@@ -1,7 +1,7 @@
 class PlayerSockets {
     constructor(){
         var url;
-        if (typeof u != "undefined") {
+        /*if (typeof u != "undefined") {
             url = 'h=' + u;
         } else {
             url = 'h=null';
@@ -18,17 +18,14 @@ class PlayerSockets {
                 } else {
                     if (!isNaN(parseInt(g)) && g != data.game_id) {
                         location.href = "/tournament/" + data.tournament_id + "/game/" + data.game_id;
-                    } else {
-                        // console.log("id совпадает");
                     }
                 }
-
-
-            } else {
-                console.log("нет id турнира или id игры");
             }
-
         });
+
+        this.socket.on('playzone_start_game', function (data) {
+            location.href = "/play/game/" + data.created_id;
+        });*/
 
     }
 }

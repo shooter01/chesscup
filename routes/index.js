@@ -25,7 +25,7 @@ module.exports = function (app, passport, pool) {
     router.get('/', function(req, res) {
 
 
-        pool.query('SELECT tournaments.*, users.name FROM tournaments LEFT JOIN users on users.id = tournaments.creator_id ORDER BY tournaments.id DESC').then(function (results) {
+        pool.query('SELECT * FROM tournaments ORDER BY tournaments.id DESC LIMIT 15').then(function (results) {
 
             res.render('index', {
                 tournaments : results,

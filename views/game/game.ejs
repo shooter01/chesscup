@@ -15,26 +15,34 @@
     }
 </style>
 
+<% if (tournament) { %>
 
-<div class="row mt-3">
-    <div class="col-lg-12 d-none d-lg-block">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/"><%- __("Tournaments") %></a></li>
-                <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>"><%= tournament.title %></a></li>
-                <li class="breadcrumb-item" aria-current="page">Game № <%= game.id %></li>
-            </ol>
-        </nav>
+
+    <div class="row mt-3">
+        <div class="col-lg-12 d-none d-lg-block">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/"><%- __("Tournaments") %></a></li>
+                    <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>"><%= tournament.title %></a></li>
+                    <li class="breadcrumb-item" aria-current="page">Game № <%= game.id %></li>
+                </ol>
+            </nav>
+        </div>
     </div>
-</div>
 
 <a href="/tournament/<%= tournament.id %>" class="btn btn-primary "><%- __("ParticipantsToTournament") %></a>
 
-<!--<h3 class="d-flex justify-content-between mt-3 mb-3 d-none d-lg-block">Game № <%= game.id %></h3>-->
 
 
+<% } else { %>
+<div class="row mt-3">
+    <div class="col-lg-12 d-none d-lg-block">
+        <a href="/play" class="btn btn-primary ">В лобби</a>
+    </div>
+</div>
 
 
+<% } %>
 
     <div class="col-12 is2d" id="task_header">
         <div class="row">
@@ -81,58 +89,86 @@
 
     var clientWidth = document.documentElement.clientWidth;
     var u;
-    var g = '<%= game.id %>';
     var fen = '<%= (mongoGame) ? mongoGame.fen : null %>';
     var moves = '<%= (mongoGame) ? mongoGame.moves : null %>';
     var is_started = '<%= (mongoGame) ? mongoGame.is_started : 0 %>';
-    var is_over = parseInt('<%= game.is_over %>');
     var timeleft = parseInt('<%- timeleft %>');
+    var p1_time_left = '<%= p1_time_left %>';
+    var p2_time_left = '<%= p2_time_left %>';
+    var is_over = parseInt('<%= mongoGame.is_over %>');
+    var p1_name = '<%= mongoGame.p1_name %>';
+    var p2_name = '<%= mongoGame.p2_name %>';
 
+    var p1 = '<%= mongoGame.p1_id %>';
+    var p2 = '<%= mongoGame.p2_id %>';
 </script>
 
 
 <% if (user && user.user) { %>
     <script>
         var u = '<%= user.user.id %>';
-        var g = '<%= game.id %>';
+        var user_name = '<%= user.user.name %>';
+
         var fen = '<%= (mongoGame) ? mongoGame.fen : null %>';
     </script>
 <% }  %>
 
+<% if (typeof game != "undefined") { %>
+
+
+    <script>
+
+        var g = '<%= game.id %>';
+        var tourney_id = '<%= game.tournament_id %>';
+        var tour_id = '<%= game.tour %>';
+        var p1_tournaments_rating = (is_over) ? '<%= game.p1_rating_for_history %>' : '<%= game.p1_tournaments_rating %>';
+        var p2_tournaments_rating = (is_over) ? '<%= game.p2_rating_for_history %>' : '<%= game.p2_tournaments_rating %>';
+
+        var p1_rating_for_history = '<%= game.p1_rating_for_history %>';
+        var p2_rating_for_history = '<%= game.p2_rating_for_history %>';
+        var rating_change_p1 = '<%= game.rating_change_p1 %>' || null;
+        var rating_change_p2 = '<%= game.rating_change_p2 %>' || null;
+
+        var p1_name = '<%= game.p1_name %>';
+        var p2_name = '<%= game.p2_name %>';
+
+    </script>
+<% } else {  %>
 <script>
+    var g = '<%= mongoGame._id %>';
 
-    var p1 = '<%= game.p1_id %>';
-    var p2 = '<%= game.p2_id %>';
-
-
-    var tourney_id = '<%= game.tournament_id %>';
-    var tour_id = '<%= game.tour %>';
-
-    var p1_name = '<%= game.p1_name %>';
-    var p2_name = '<%= game.p2_name %>';
-
-    var p1_time_left = '<%= p1_time_left %>';
-    var p2_time_left = '<%= p2_time_left %>';
-
-    var p1_tournaments_rating = (is_over) ? '<%= game.p1_rating_for_history %>' : '<%= game.p1_tournaments_rating %>';
-    var p2_tournaments_rating = (is_over) ? '<%= game.p2_rating_for_history %>' : '<%= game.p2_tournaments_rating %>';
-
-    var p1_rating_for_history = '<%= game.p1_rating_for_history %>';
-    var p2_rating_for_history = '<%= game.p2_rating_for_history %>';
-
-    var rating_change_p1 = '<%= game.rating_change_p1 %>' || null;
-    var rating_change_p2 = '<%= game.rating_change_p2 %>' || null;
-
+    var p1_tournaments_rating = null;
+    var p2_tournaments_rating = null;
 </script>
+<% }  %>
 
-<script src="/socket.io/socket.io.js"></script>
 
 
-<script src="/js/j.js"></script>
+<script src="/js/jquery/dist/jquery.min.js"></script>
+<script src="/js/cg/dist/chess.min.js"></script>
 <script src="/js/cg/dist/chessground.js"></script>
 
 <script src="/js/game.min.js"></script>
 
+
+<!-- small modal -->
+<div class="modal" id="rematchModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center" id="myModalLabel" style="width: 100%">РЕВАНШ</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal">Отказ</button>
+                <button type="button" class="btn btn-primary btn-lg">Согласен</button>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 
 
