@@ -50,7 +50,6 @@ module.exports = function (app) {
         if ((handshakeData._query['lobby'] && handshakeData._query['lobby'] != "undefined")) {
             socket.join('lobby');
         }
-        console.log(handshakeData._query);
 
         //события игры
 
@@ -104,7 +103,7 @@ module.exports = function (app) {
                 try {
                     msg = JSON.parse(msg);
                     //console.log(msg);
-                    let temp;
+                    let temp, game_over = false;
                     //console.log(socket.p_id);
                     if (msg.tourney_id) {
                         msg.id = parseInt(msg.id);
@@ -140,73 +139,96 @@ module.exports = function (app) {
                             p__another_time_left = "p2_time_left";
                             var lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
                             var spent_time = actual_time - lm;
-                            // console.log("spent_time : " + spent_time/1000  + " s");
                             obj[p_time_left] = mongoGame.p1_time_left - spent_time;
                             obj.p2_last_move = new Date();
+                            game_over = (obj[p_time_left] < 0);
 
                         } else if (msg.player === "p2") {
                             p_time_left = "p2_time_left";
                             p__another_time_left = "p1_time_left";
-
-                            // var p2_time_left = mongoGame.p2_time_left.getTime() - new Date().getTime();
                             var lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
                             var spent_time = actual_time - lm;
-                            //   console.log("spent_time : " + spent_time/1000  + " s");
                             obj[p_time_left] = mongoGame.p2_time_left - spent_time;
                             obj.p1_last_move = new Date();
+                            game_over = (obj[p_time_left] < 0);
                         }
 
-                           // console.log(obj);
-                        //  console.log(mongoGame);
+                         if (game_over === true) {
+                             var send_data = {
+                                 id: mongoGame._id,
+                             };
+                             //по времени проиграл второй игрок
+                             if (msg.player === "p2") {
+                                 send_data.p1_won = 1;
+                                 send_data.p2_won = 0;
+                                 send_data.p1_id = mongoGame.p1_id;
+                                 send_data.p2_id = mongoGame.p2_id;
+                                 send_data.p2_time_left = -1;
+                                 send_data.p1_time_left = mongoGame.p1_time_left;
+                                 send_data.tourney_id = mongoGame.tournament_id;
+                             } else {
+                                 //по времени проиграл первый игрок
+                                 send_data.p1_won = 0;
+                                 send_data.p2_won = 1;
+                                 send_data.p1_id = mongoGame.p1_id;
+                                 send_data.p2_id = mongoGame.p2_id;
+                                 send_data.p1_time_left = -1;
+                                 send_data.p2_time_left = mongoGame.p2_time_left;
+                                 send_data.tourney_id = mongoGame.tournament_id;
+                             }
+                             save_result_mongo(send_data, mongoGame, app);
+                         } else {
+                             app.mongoDB.collection("users").updateOne(temp,
+                                 {
+                                     $set: obj,
+                                     $setOnInsert: {
+                                         "moves": [],
+                                         "is_over": game_over,
+                                     }
+                                 },
 
-                        app.mongoDB.collection("users").updateOne(temp,
-                            {
-                                $set: obj,
-                                $setOnInsert: {
-                                    "moves": [],
-                                    "is_over": 0,
-                                }
-                            },
-
-                            {
-                                upsert: true,
-                                writeConcern: true
-                            },
-                            function (err, data) {
+                                 {
+                                     upsert: true,
+                                     writeConcern: true
+                                 },
+                                 function (err, data) {
 
 
-                                var a = {
-                                    event: "move",
-                                    fen: msg.data,
-                                    san: msg.move,
-                                    captured: msg.captured,
-                                    from: msg.from,
-                                    to: msg.to,
-                                    // p1_time_left: mongoGame.p1_time_end.getTime() - new Date().getTime(),
-                                    // p2_time_left: mongoGame.p2_time_end.getTime() - new Date().getTime(),
-                                    is_over: msg.is_over
-                                };
+                                     var a = {
+                                         event: "move",
+                                         fen: msg.data,
+                                         san: msg.move,
+                                         captured: msg.captured,
+                                         from: msg.from,
+                                         to: msg.to,
+                                         // p1_time_left: mongoGame.p1_time_end.getTime() - new Date().getTime(),
+                                         // p2_time_left: mongoGame.p2_time_end.getTime() - new Date().getTime(),
+                                         is_over: msg.is_over
+                                     };
 
-                                a[p_time_left] = obj[p_time_left];
-                                a[p__another_time_left] = mongoGame[p__another_time_left];
+                                     a[p_time_left] = obj[p_time_left];
+                                     a[p__another_time_left] = mongoGame[p__another_time_left];
 
 
-                                io.to(msg.id).emit('eventClient', JSON.stringify(a));
+                                     io.to(msg.id).emit('eventClient', JSON.stringify(a));
 
-                                //io.sockets.emit('eventClient', JSON.stringify(a));
+                                     //io.sockets.emit('eventClient', JSON.stringify(a));
 
-                                app.mongoDB.collection("users").updateOne(temp,
-                                    {$push: {"moves": msg.move}},
-                                    { writeConcern: true }
-                                ).catch(function () {
-                                    console.log(arguments);
-                                });
+                                     app.mongoDB.collection("users").updateOne(temp,
+                                         {$push: {"moves": msg.move}},
+                                         { writeConcern: true }
+                                     ).catch(function () {
+                                         console.log(arguments);
+                                     });
 
-                                if (msg.is_over == 1 && msg.tourney_id) {
-                                    game_over(msg, app);
-                                }
-                            }
-                        );
+                                     if (msg.is_over == 1 && msg.tourney_id) {
+                                         game_over(msg, app);
+                                     }
+                                 }
+                             );
+
+                         }
+
 
                     })
 
@@ -219,48 +241,53 @@ module.exports = function (app) {
 
 
 
-            socket.on('checkTime1', function (data) {
+            /*socket.on('checkTime1', function (data) {
                 var msg = JSON.parse(data);
 
-                // console.log(msg);
+                console.log("checkTime1");
+                console.log(msg);
+
+                let temp;
+                if (msg.tourney_id) {
+                    temp = {_id: msg.id};
+                } else {
+                    temp = {_id: ObjectId(msg.id)};
+                }
 
                 if (msg.id) {
-                    app.mongoDB.collection("users").findOne({_id: parseInt(msg.id)}, function (err, mongoGame) {
+                    app.mongoDB.collection("users").findOne(temp, function (err, mongoGame) {
                         //console.log(mongoGame);
 
 
-                        if (mongoGame && mongoGame.p2_last_move && (mongoGame.p2_last_move.getTime() - new Date().getTime()) <= 0) {
+                        /!*if (mongoGame && mongoGame.p2_last_move && (mongoGame.p2_last_move.getTime() - new Date().getTime()) <= 0) {
 
                         } else if (mongoGame && mongoGame.p2_last_move && (mongoGame.p2_last_move.getTime() - new Date().getTime()) <= 0){
 
                         } else {
                             return false;
-                        }
+                        }*!/
 
                         //сохраняем завершение партии в монго
                         save_result_mongo(msg, mongoGame, app);
 
-                        io.to(msg.id).emit('eventClient', JSON.stringify({
-                            event: "game_over",
-                            bitch: msg,
-                            is_over: 1
-                        }));
+                        console.log(msg.tourney_id == null);
+                        console.log(typeof msg.tourney_id);
+                            io.to(msg.id).emit('eventClient', JSON.stringify({
+                                event: "game_over",
+                                bitch: msg,
+                                is_over: 1
+                            }));
 
-                        /*io.sockets.emit('eventClient', JSON.stringify({
-                            event: "game_over",
-                            bitch: msg,
-                            is_over: 1
-                        }));*/
 
-                        game_over(msg, app);
-
+                        //если это турнирная партия сохранияем в mysql
+                        if (msg.tourney_id != null) {
+                            game_over(msg, app);
+                        }
                     });
                 } else {
                     console.log("id not defined");
                 }
-
-
-            });
+            });*/
 
             socket.on('playerOnOff', function (data) {
                 data = JSON.parse(data);
@@ -370,8 +397,8 @@ module.exports = function (app) {
 
                         "p1_last_move": null,
                         "p2_last_move": null,
-                        "p1_time_left": mongoGame.time_control * 60000 * 100,
-                        "p2_time_left": mongoGame.time_control * 60000 * 100,
+                        "p1_time_left": mongoGame.time_control * 60000,
+                        "p2_time_left": mongoGame.time_control * 60000,
                         "is_started": 0,
                         "time_addition": 0,
                     }, function (err, insertedGame) {

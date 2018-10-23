@@ -1,4 +1,6 @@
-
+@media all and (max-width:768px) {
+    .btn-sm-block { width: 100%; display:block; }
+}
 time {
     display: inline-block;
     white-space: nowrap;

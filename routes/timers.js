@@ -2,6 +2,7 @@
 const make_draw = require('./make_draw');
 const save_result_mongo = require('./save_result_mongo');
 const game_over = require('./game_over');
+const ObjectId = require('mongodb').ObjectId;
 
 
 module.exports = function (app) {
@@ -87,5 +88,87 @@ module.exports = function (app) {
         });
 
     }, 5000);
+
+    setInterval(function () {
+        app.mongoDB.collection("users").find({ is_started : 1, is_over : 0 }, function(err, cursor) {
+            cursor.forEach(function (mongoGame) {
+                //debugger;
+                var send_data = {
+                    id: mongoGame._id,
+                };
+
+                let who_move_last = "", game_over = false;
+
+                //белые пошли а черные не ответили
+                if (mongoGame.p1_last_move == null) {
+                    who_move_last = "p1";
+                } else if (mongoGame.p2_last_move.getTime() < mongoGame.p1_last_move.getTime()) {
+                    who_move_last = "p2";
+                } else {
+                    who_move_last = "p1";
+                }
+
+                //последний кто двигал фигуры - белые
+                if (who_move_last === "p1") {
+                    //истекло ли время черных
+                    if (mongoGame.p2_time_left + mongoGame.p2_last_move.getTime() < new Date().getTime()) {
+                        send_data.p1_won = 1;
+                        send_data.p2_won = 0;
+                        send_data.p1_id = mongoGame.p1_id;
+                        send_data.p2_id = mongoGame.p2_id;
+                        send_data.p2_time_left = -1;
+                        send_data.p1_time_left = mongoGame.p1_time_left;
+                        send_data.tourney_id = mongoGame.tournament_id;
+                        game_over = true;
+                    }
+
+                } else {
+                    //последние ходили черные
+
+                    //истекло ли время белых
+                    if (mongoGame.p1_time_left + mongoGame.p1_last_move.getTime() < new Date().getTime()) {
+                        send_data.p1_won = 0;
+                        send_data.p2_won = 1;
+                        send_data.p1_id = mongoGame.p1_id;
+                        send_data.p2_id = mongoGame.p2_id;
+                        send_data.p1_time_left = -1;
+                        send_data.p2_time_left = mongoGame.p2_time_left;
+                        send_data.tourney_id = mongoGame.tournament_id;
+                        game_over = true;
+                    }
+                }
+
+
+                if (game_over) {
+
+                    save_result_mongo(send_data, mongoGame, app);
+
+                    /*let temp;
+                    if (mongoGame.tourney_id) {
+                        mongoGame.id = parseInt(mongoGame._id);
+                        temp = {_id: mongoGame._id};
+                    } else {
+                        temp = {_id: ObjectId(mongoGame._id)};
+                    }
+
+
+                    //сохраняем результат в mongo
+                    app.mongoDB.collection("users").updateOne(temp, {$set: {is_over : 1}}, function (err, res) {
+                        app.io.to(mongoGame._id).emit('eventClient', JSON.stringify({
+                            event: "game_over",
+                            is_over: 1
+                        }));
+                        console.log(!!mongoGame.tournament_id);
+                        if (!!mongoGame.tournament_id === true) {
+                            game_over(send_data, app);
+                        }
+                    });*/
+                }
+
+
+            }, function () {});
+        });
+    }, 2000);
+
 
 }
