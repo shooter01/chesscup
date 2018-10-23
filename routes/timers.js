@@ -26,15 +26,6 @@ module.exports = function (app) {
                                 });
                             })
                     }
-
-                    /*return pool
-                        .query('UPDATE tournaments SET is_active = 1  WHERE is_active = 0 AND start_time < ?', new Date()).then(rows => {
-                            make_draw({
-                                tournament_id : 43,
-                                pool : app.pool,
-                                app : app,
-                            });
-                        })*/
                 }
         });
 
@@ -140,31 +131,8 @@ module.exports = function (app) {
 
 
                 if (game_over) {
-
                     save_result_mongo(send_data, mongoGame, app);
-
-                    /*let temp;
-                    if (mongoGame.tourney_id) {
-                        mongoGame.id = parseInt(mongoGame._id);
-                        temp = {_id: mongoGame._id};
-                    } else {
-                        temp = {_id: ObjectId(mongoGame._id)};
-                    }
-
-
-                    //сохраняем результат в mongo
-                    app.mongoDB.collection("users").updateOne(temp, {$set: {is_over : 1}}, function (err, res) {
-                        app.io.to(mongoGame._id).emit('eventClient', JSON.stringify({
-                            event: "game_over",
-                            is_over: 1
-                        }));
-                        console.log(!!mongoGame.tournament_id);
-                        if (!!mongoGame.tournament_id === true) {
-                            game_over(send_data, app);
-                        }
-                    });*/
                 }
-
 
             }, function () {});
         });

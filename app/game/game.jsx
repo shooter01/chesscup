@@ -92,7 +92,9 @@ class App extends React.Component {
     move(source, target, promotion) {
         var that = this;
         var prom = this.state.promotion;
-        var piece = that.game.get(source).type;
+        console.log(source, target, promotion);
+
+        //var piece = that.game.get(source).type;
 
 
         // see if the move is legal
@@ -233,12 +235,12 @@ class App extends React.Component {
             playerColor: playerColor,
             orientation: (isPlayer) ? playerColor : "white"
         }, function () {
-            var valid = self.game.moves();
+            /*var valid = self.game.moves();
             var p = [];
             for (var i = 0; i < valid.length; i++) {
                 var obj = valid[i];
                 p.push(obj.slice(-2));
-            }
+            }*/
 
 
             this.cg = Chessground(document.getElementById('dirty'), {
@@ -603,6 +605,28 @@ class App extends React.Component {
 
                     var is_over = (data.is_over == 1) ? true : false;
 
+                    if (u == p1 && this.state.who_to_move == "white") {
+                        if (!is_over) {
+                            const moves = self.game.moves({verbose:true});
+                            const move = moves[Math.floor(Math.random() * moves.length)];
+                            console.log(move);
+                            setTimeout(function () {
+                                self.move(move.from, move.to);
+                            }, 700);
+                        }
+                    }
+
+                    if (u == p2 && this.state.who_to_move == "black") {
+                        if (!is_over) {
+                            const moves = self.game.moves({verbose:true});
+                            const move = moves[Math.floor(Math.random() * moves.length)];
+                            console.log(move);
+                            setTimeout(function () {
+                                self.move(move.from, move.to);
+                            }, 700);
+                        }
+                    }
+
                     if (is_over) {
                         self.defeat_sound.play()
                     }
@@ -641,22 +665,13 @@ class App extends React.Component {
 
                         });
 
-
                         if (data.captured) {
                             aa.play('capture');
                         } else {
                             aa.play('move');
                         }
                     }
-
-
-
-
                 });
-
-
-
-
 
             } else if (data.event === "rating_change") {
 
