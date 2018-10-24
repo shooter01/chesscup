@@ -54,8 +54,8 @@ class App extends React.Component {
             promotion: "q",
             who_to_move: null,
             isPlayer: false,
-            white_time: p1_time_left / 1000,
-            black_time: p2_time_left / 1000,
+            white_time: p1_time_left,
+            black_time: p2_time_left,
             tourney_id: (typeof tourney_id != "undefined") ? tourney_id : null,
             tour_id: (typeof tour_id != "undefined") ? tour_id : null,
             moves: moves.split(","),
@@ -68,6 +68,8 @@ class App extends React.Component {
             tourney_href: (typeof tourney_id != "undefined") ? "/tournament/" + tourney_id : "/play",
             tourney_text: (typeof tourney_id != "undefined") ? "Вернуться к турниру" : "REMATCH",
             is_over: is_over,
+            p1_won: p1_won,
+            p2_won: p2_won,
             is_started: parseInt(is_started),
             orientation: "white",
 
@@ -596,8 +598,8 @@ class App extends React.Component {
 
                 self.setState({
                     who_to_move: (self.game.turn() === 'w') ? "white" : "black",
-                    white_time: data.p1_time_left / 1000,
-                    black_time: data.p2_time_left / 1000,
+                    white_time: data.p1_time_left,
+                    black_time: data.p2_time_left,
                     is_over: data.is_over,
                     is_started: 1,
                 }, function () {
@@ -605,14 +607,14 @@ class App extends React.Component {
 
                     var is_over = (data.is_over == 1) ? true : false;
 
-                    if (u == p1 && this.state.who_to_move == "white") {
+                    /*if (u == p1 && this.state.who_to_move == "white") {
                         if (!is_over) {
                             const moves = self.game.moves({verbose:true});
                             const move = moves[Math.floor(Math.random() * moves.length)];
                             console.log(move);
                             setTimeout(function () {
                                 self.move(move.from, move.to);
-                            }, 700);
+                            }, 0);
                         }
                     }
 
@@ -623,9 +625,9 @@ class App extends React.Component {
                             console.log(move);
                             setTimeout(function () {
                                 self.move(move.from, move.to);
-                            }, 700);
+                            }, 0);
                         }
-                    }
+                    }*/
 
                     if (is_over) {
                         self.defeat_sound.play()
@@ -699,7 +701,9 @@ class App extends React.Component {
 // debugger;
                 clearInterval(self.timer);
                 self.setState({
-                    is_over: data.is_over
+                    is_over: data.is_over,
+                    p1_won: data.p1_won,
+                    p2_won: data.p2_won,
                 });
 
                 self.cg.set({
@@ -852,7 +856,7 @@ class App extends React.Component {
     tick() {
         if (this.state.who_to_move === "white") {
             this.setState({
-                white_time: --this.state.white_time
+                white_time: this.state.white_time - 100
             }, function () {
                 if (this.state.white_time < 0) {
                     var send_data = {
@@ -877,7 +881,7 @@ class App extends React.Component {
             });
         } else if (this.state.who_to_move === "black") {
             this.setState({
-                black_time: --this.state.black_time
+                black_time: this.state.black_time - 100
             }, function () {
                 //debugger;
                 if (this.state.black_time < 0 && this.state.is_over != 1) {
@@ -911,16 +915,26 @@ class App extends React.Component {
             } else {
                 clearInterval(this.timer);
             }
-        }, 1000);
+        }, 100);
 
     }
 
 
     setTime() {
-        var p1_minutes = Math.floor((this.state.white_time) / 60);
+       /* var p1_minutes = Math.floor((this.state.white_time) / 60);
         var p1_secs = Math.floor((this.state.white_time) % 60 % 60);
         var p2_minutes = Math.floor((this.state.black_time) / 60);
-        var p2_secs = Math.floor((this.state.black_time) % 60 % 60);
+        var p2_secs = Math.floor((this.state.black_time) % 60 % 60);*/
+
+
+        var p1_minutes = Math.floor((this.state.white_time/(1000*60)));
+        var p1_secs = Math.floor((this.state.white_time/1000) % 60);
+        var p1_milliseconds = Math.floor((this.state.white_time % 1000 / 100).toFixed(1));
+
+        var p2_minutes = Math.floor((this.state.black_time/(1000*60)));
+        var p2_secs = Math.floor((this.state.black_time/1000) % 60);
+        var p2_milliseconds = Math.floor((this.state.black_time % 1000 / 100).toFixed(1));
+        console.log(p1_minutes, p1_secs,  p1_milliseconds);
 
         p1_minutes = (p1_minutes < 0) ? 0 : p1_minutes;
         p1_secs = (p1_secs < 0) ? 0 : p1_secs;
@@ -936,31 +950,61 @@ class App extends React.Component {
         var up_clock_seconds;
         var bottom_clock_minutes;
         var bottom_clock_seconds;
+        var bottom_clock_milliseconds;
+        var up_clock_milliseconds;
         // console.log(this.state.orientation);
         if (this.state.orientation === "white") {
             bottom_clock_minutes = p1_minutes;
             bottom_clock_seconds = p1_secs;
+            bottom_clock_milliseconds = p1_milliseconds;
             up_clock_minutes = p2_minutes;
             up_clock_seconds = p2_secs;
+            up_clock_milliseconds = p2_milliseconds;
         } else if (this.state.orientation === "black") {
             bottom_clock_minutes = p2_minutes;
             bottom_clock_seconds = p2_secs;
+            bottom_clock_milliseconds = p2_milliseconds;
             up_clock_minutes = p1_minutes;
             up_clock_seconds = p1_secs;
+            up_clock_milliseconds = p1_milliseconds;
         }
 
         if (this.state.orientation === "white" && this.state.who_to_move === "white" && this.state.is_over !== 1) {
             $(".clock_bottom").addClass("running");
             $(".clock_top").removeClass("running");
+
+            if (this.state.white_time < 10000) {
+                $(".clock_bottom").addClass("emerg");
+                $(".clock_top").removeClass("emerg");
+            }
+
         } else if (this.state.orientation === "black" && this.state.who_to_move === "white" && this.state.is_over !== 1) {
             $(".clock_top").addClass("running");
             $(".clock_bottom").removeClass("running");
+
+            if (this.state.white_time < 10000) {
+                $(".clock_top").addClass("emerg");
+                $(".clock_bottom").removeClass("emerg");
+            }
+
         } else if (this.state.orientation === "white" && this.state.who_to_move === "black" && this.state.is_over !== 1) {
             $(".clock_top").addClass("running");
             $(".clock_bottom").removeClass("running");
+
+            if (this.state.black_time < 10000) {
+                $(".clock_top").addClass("emerg");
+                $(".clock_bottom").removeClass("emerg");
+            }
+
         } else if (this.state.orientation === "black" && this.state.who_to_move === "black" && this.state.is_over !== 1) {
             $(".clock_bottom").addClass("running");
             $(".clock_top").removeClass("running");
+
+            if (this.state.black_time < 10000) {
+                $(".clock_bottom").addClass("emerg");
+                $(".clock_top").removeClass("emerg");
+            }
+
         } else {
             $(".clock_top").removeClass("running");
             $(".clock_bottom").removeClass("running");
@@ -969,8 +1013,10 @@ class App extends React.Component {
         this.setState({
             up_clock_minutes: up_clock_minutes,
             up_clock_seconds: up_clock_seconds,
+            up_clock_milliseconds: up_clock_milliseconds,
             bottom_clock_minutes: bottom_clock_minutes,
-            bottom_clock_seconds: bottom_clock_seconds
+            bottom_clock_seconds: bottom_clock_seconds,
+            bottom_clock_milliseconds: bottom_clock_milliseconds,
         });
 
 
@@ -1040,7 +1086,7 @@ class App extends React.Component {
                             <div className="clock clock_top">
                                 <div className="time">{this.state.up_clock_minutes}
                                     <span className="low">:</span>
-                                    {this.state.up_clock_seconds}
+                                    {this.state.up_clock_seconds} {this.state.up_clock_milliseconds}
                                 </div>
                                 <div className="bar"></div>
                             </div>
@@ -1130,12 +1176,26 @@ class App extends React.Component {
                                 <div className="bar"></div>
                                 <div className="time">{this.state.bottom_clock_minutes}
                                     <span className="low">:</span>
-                                    {this.state.bottom_clock_seconds}
+                                    {this.state.bottom_clock_seconds} {this.state.bottom_clock_milliseconds}
                                 </div>
                             </div>
                         </div>
 
                         : null}
+
+                    {this.state.p1_won == 1 ?
+                        <div className="alert alert-secondary mt-1 mb-1 " ><b>Белые выиграли</b>
+                        </div> : null
+                    }
+
+                    {this.state.p2_won == 1 ?
+                        <div className="alert alert-secondary mt-1 mb-1 " ><b>Черные выиграли</b>
+                        </div> : null
+                    }
+                    {this.state.p2_won == 0.5 ?
+                        <div className="alert alert-secondary mt-1 mb-1 " ><b>Ничья</b>
+                        </div> : null
+                    }
 
                     {this.state.is_started ? null :
                         <div className="alert alert-danger mt-1 mb-1 " id="timeleft_white">Время на ход белых: <Timer/>

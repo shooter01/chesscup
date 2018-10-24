@@ -241,11 +241,13 @@ module.exports = function (app) {
 
 
 
-            /*socket.on('checkTime1', function (data) {
+            socket.on('checkTime1', function (data) {
                 var msg = JSON.parse(data);
 
                 console.log("checkTime1");
                 console.log(msg);
+
+                var who_get_flagged = msg.player;
 
                 let temp;
                 if (msg.tourney_id) {
@@ -254,30 +256,49 @@ module.exports = function (app) {
                     temp = {_id: ObjectId(msg.id)};
                 }
 
+                let who_move_last = "", game_over = false;
+
+
                 if (msg.id) {
                     app.mongoDB.collection("users").findOne(temp, function (err, mongoGame) {
-                        //console.log(mongoGame);
 
+                        var send_data = {
+                            id: mongoGame._id,
+                        };
 
-                        /!*if (mongoGame && mongoGame.p2_last_move && (mongoGame.p2_last_move.getTime() - new Date().getTime()) <= 0) {
-
-                        } else if (mongoGame && mongoGame.p2_last_move && (mongoGame.p2_last_move.getTime() - new Date().getTime()) <= 0){
+                        //последний кто двигал фигуры - белые
+                        if (who_get_flagged === "p2") {
+                            //истекло ли время черных
+                            if (mongoGame.p2_time_left + mongoGame.p2_last_move.getTime() < new Date().getTime()) {
+                                send_data.p1_won = 1;
+                                send_data.p2_won = 0;
+                                send_data.p1_id = mongoGame.p1_id;
+                                send_data.p2_id = mongoGame.p2_id;
+                                send_data.p2_time_left = -1;
+                                send_data.p1_time_left = mongoGame.p1_time_left;
+                                send_data.tourney_id = mongoGame.tournament_id;
+                                game_over = true;
+                            }
 
                         } else {
-                            return false;
-                        }*!/
+                            //последние ходили черные
 
-                        //сохраняем завершение партии в монго
-                        save_result_mongo(msg, mongoGame, app);
+                            //истекло ли время белых
+                            if (mongoGame.p1_time_left + mongoGame.p1_last_move.getTime() < new Date().getTime()) {
+                                send_data.p1_won = 0;
+                                send_data.p2_won = 1;
+                                send_data.p1_id = mongoGame.p1_id;
+                                send_data.p2_id = mongoGame.p2_id;
+                                send_data.p1_time_left = -1;
+                                send_data.p2_time_left = mongoGame.p2_time_left;
+                                send_data.tourney_id = mongoGame.tournament_id;
+                                game_over = true;
+                            }
+                        }
 
-                        console.log(msg.tourney_id == null);
-                        console.log(typeof msg.tourney_id);
-                            io.to(msg.id).emit('eventClient', JSON.stringify({
-                                event: "game_over",
-                                bitch: msg,
-                                is_over: 1
-                            }));
-
+                        if (game_over) {
+                            save_result_mongo(send_data, mongoGame, app);
+                        }
 
                         //если это турнирная партия сохранияем в mysql
                         if (msg.tourney_id != null) {
@@ -287,7 +308,7 @@ module.exports = function (app) {
                 } else {
                     console.log("id not defined");
                 }
-            });*/
+            });
 
             socket.on('playerOnOff', function (data) {
                 data = JSON.parse(data);
@@ -390,6 +411,8 @@ module.exports = function (app) {
                         "is_over": 0,
                         "p1_id": data.user_id,
                         "p2_id": mongoGame.owner,
+                        "p1_won": 0,
+                        "p2_won": 0,
                         "p1_name" : data.user_name,
                         "p2_name" : mongoGame.user_name,
                         "playzone" : true,
