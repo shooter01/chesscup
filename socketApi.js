@@ -404,7 +404,10 @@ module.exports = function (app) {
                 app.mongoDB.collection("challenges").findOne({_id: ObjectId(data.game_id)}, function (err, mongoGame) {
                    // console.log("test");
                    // console.log(mongoGame);
-
+                    //влдаелец не найден
+                    if (!mongoGame || !mongoGame.owner) {
+                        return false;
+                    }
 
                     app.mongoDB.collection("users").insertOne({
                         "moves": [],

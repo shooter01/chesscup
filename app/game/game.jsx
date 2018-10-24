@@ -704,6 +704,8 @@ class App extends React.Component {
                     is_over: data.is_over,
                     p1_won: data.p1_won,
                     p2_won: data.p2_won,
+                    white_time : data.p1_time_left,
+                    black_time : data.p2_time_left
                 });
 
                 self.cg.set({
