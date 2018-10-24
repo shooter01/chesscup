@@ -709,7 +709,7 @@ class App extends React.Component {
                 });
 
                 self.cg.set({
-                    viewOnly : true,
+
                     movable: {
                         color: null
                     },
