@@ -100,6 +100,7 @@
     var p2_won = parseInt('<%= mongoGame.p2_won %>');
     var p1_name = '<%= mongoGame.p1_name %>';
     var p2_name = '<%= mongoGame.p2_name %>';
+    var amount = '<%= mongoGame.amount %>';
 
     var p1 = '<%= mongoGame.p1_id %>';
     var p2 = '<%= mongoGame.p2_id %>';
@@ -165,7 +166,7 @@
             </div>
             <div class="modal-body text-center">
                 <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal">Отказ</button>
-                <button type="button" class="btn btn-primary btn-lg">Согласен</button>
+                <button type="button" class="btn btn-primary btn-lg" id="accept_rematch">Согласен</button>
             </div>
 
         </div>

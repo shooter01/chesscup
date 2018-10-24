@@ -54,7 +54,10 @@ class App extends React.Component {
             promotion: "q",
             who_to_move: null,
             isPlayer: false,
+            amount: amount,
             white_time: p1_time_left,
+            p1_name: p1_name,
+            p2_name: p2_name,
             black_time: p2_time_left,
             tourney_id: (typeof tourney_id != "undefined") ? tourney_id : null,
             tour_id: (typeof tour_id != "undefined") ? tour_id : null,
@@ -382,8 +385,17 @@ class App extends React.Component {
                     viewOnly : false
                 });
             }
+        });
 
-
+        $("body").on("click", "#accept_rematch", function () {
+            console.log("AA");
+            self.socket.emit('rematch_accepted', JSON.stringify({
+                "user_id" : u,
+                "user_name" : self.state.p1_name,
+                "enemy_name" : self.state.p2_name,
+                "amount" : self.state.amount,
+                "enemy_id" : (u == p1) ? p2 : p1,
+            }));
         });
 
 
@@ -414,7 +426,6 @@ class App extends React.Component {
     rematchClick(event){
         var self = this;
         var element = $(event.target);
-
         this.socket.emit('rematch_game', JSON.stringify({
             "user_id" : u,
             "user_name" : user_name,
@@ -815,6 +826,14 @@ class App extends React.Component {
 
         });
 
+
+        this.socket.on('playzone_start_game', function (data) {
+            console.log(data);
+
+            location.href = "/play/game/" + data.created_id;
+
+        });
+
         if (this.state.isPlayer == true) {
             var who_online = "white";
             if (this.state.orientation === "black") {
@@ -1133,12 +1152,9 @@ class App extends React.Component {
                                         <div>
                                             {(this.state.is_over == 1) ?
                                                 <div className="control buttons">
-                                                    <div className="follow_up"><a className="text fbt strong glowed"
-
-                                                                                  onClick={this.rematchClick}
-
-                                                                                  data-icon="G"
-                                                                                  href={this.state.tourney_href}>{this.state.tourney_text}</a></div>
+                                                    <div className="follow_up">
+                                                        <a className="text fbt strong glowed" onClick={this.rematchClick} data-icon="G"
+                                                           href={this.state.tourney_href}>{this.state.tourney_text}</a></div>
                                                 </div> :
 
                                                 <div className="control icons ">
@@ -1210,7 +1226,7 @@ class App extends React.Component {
                             <div>
                                 {(this.state.is_over == 1) ?
                                     <div className="control buttons">
-                                        <div className="follow_up"><a className="text fbt strong glowed" data-icon="G"
+                                        <div className="follow_up"><a className="text fbt strong glowed" data-icon="G" onClick={this.rematchClick}
                                                                       href={this.state.tourney_href}>{this.state.tourney_text}</a></div>
                                     </div> :
 

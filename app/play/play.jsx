@@ -8,6 +8,7 @@ class PlaySockets extends React.Component {
         super(props);
         this.state = {
             games : [],
+            user_id : typeof u != "undefined" ? u : null,
             challenges : [],
         };
 
@@ -105,7 +106,8 @@ class PlaySockets extends React.Component {
                             <td className="text-center">{item.user_name}</td>
                             <td className="text-center">{item.time_control} + 0</td>
                             <td className="text-center">
-                                <span className="btn btn-primary" data-game_id={item._id} onClick={this.accept}>Принять</span>
+                                {this.state.user_id != null && (item.owner !=  this.state.user_id) ?
+                                <span className="btn btn-primary" data-game_id={item._id} onClick={this.accept}>Принять</span> : null}
                             </td>
                         </tr>
                         ))}

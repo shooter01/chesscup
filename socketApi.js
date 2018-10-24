@@ -331,6 +331,48 @@ module.exports = function (app) {
 
             });
 
+            socket.on('rematch_accepted', function (data) {
+                data = JSON.parse(data);
+                console.log(data);
+
+
+                app.mongoDB.collection("users").insertOne({
+                    "moves": [],
+                    "is_over": 0,
+                    "p1_id": data.user_id,
+                    "p2_id": data.enemy_id,
+                    "p1_won": 0,
+                    "p2_won": 0,
+                    "p1_name" : data.user_name,
+                    "p2_name" : data.enemy_name,
+                    "playzone" : true,
+                    "amount" : data.amount,
+                    "p1_last_move": null,
+                    "p2_last_move": null,
+                    "p1_time_left": data.amount * 60000,
+                    "p2_time_left": data.amount * 60000,
+                    "is_started": 0,
+                    "time_addition": 0,
+                }, function (err, insertedGame) {
+
+
+                    socket.emit('playzone_start_game', {
+                        created_id : insertedGame.insertedId,
+                    });
+
+                    //если пользователь на сайте
+                    if ( app.globalPlayers[data.enemy_id]) {
+                        app.globalPlayers[data.enemy_id].emit('playzone_start_game', {
+                            created_id : insertedGame.insertedId,
+                        });
+                    }
+                });
+
+
+
+
+            });
+
 
 
 
@@ -444,10 +486,6 @@ module.exports = function (app) {
                                 created_id : insertedGame.insertedId,
                             });
                         }
-
-
-
-
                     });
 
                 });
