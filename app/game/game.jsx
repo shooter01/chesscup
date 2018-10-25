@@ -56,6 +56,8 @@ class App extends React.Component {
             isPlayer: false,
             amount: amount,
             white_time: p1_time_left,
+            p1_made_move: p1_made_move,
+            p2_made_move: p2_made_move,
             p1_name: p1_name,
             p2_name: p2_name,
             black_time: p2_time_left,
@@ -97,10 +99,7 @@ class App extends React.Component {
     move(source, target, promotion) {
         var that = this;
         var prom = this.state.promotion;
-        console.log(source, target, promotion);
-
-        //var piece = that.game.get(source).type;
-
+        console.log(this.premoved);
 
         // see if the move is legal
         var move = that.game.move({
@@ -108,9 +107,7 @@ class App extends React.Component {
             to: target,
             promotion: prom
         });
-        //  console.log(source);
-        //  console.log(target);
-        //  console.log(move);
+
         // illegal move
         if (move === null) {
             that.game.undo();
@@ -146,13 +143,22 @@ class App extends React.Component {
             }
         });
 
-        //var a = this.state.moves;
-        //a.push(move.san);
-
-        that.setState({
+        var newState = {
             who_to_move: (this.game.turn() === 'w') ? "white" : "black",
-            //moves: a,
-        });
+        };
+
+        //черные сделали ход
+        if (this.game.turn() === 'w') {
+            newState["p2_made_move"] = true;
+        }
+
+        //белые сделали ход
+        if (this.game.turn() === 'b') {
+            newState["p1_made_move"] = true;
+        }
+
+
+        that.setState(newState);
 
         var send_data = {
             data: that.game.fen(),
@@ -165,6 +171,10 @@ class App extends React.Component {
             is_over: 0,
             player: (this.game.turn() === 'w') ? "p2" : "p1", //who made the last move
         };
+        if (this.premoved === true) {
+            send_data['premoved'] = true;
+            this.premoved = false;
+        }
         // checkmate?
         if (that.game.in_checkmate() === true) {
             send_data.is_over = 1;
@@ -388,7 +398,6 @@ class App extends React.Component {
         });
 
         $("body").on("click", "#accept_rematch", function () {
-            console.log("AA");
             self.socket.emit('rematch_accepted', JSON.stringify({
                 "user_id" : u,
                 "user_name" : self.state.p1_name,
@@ -400,10 +409,9 @@ class App extends React.Component {
 
 
 
+
+
         $(document).keydown(function(e) {
-
-
-
             switch(e.which) {
                 case 37: // left
                     self.goBack();
@@ -420,6 +428,9 @@ class App extends React.Component {
             }
             e.preventDefault(); // prevent the default action (scroll / move caret)
         });
+
+        //флаг премува
+        this.premoved = false;
 
     }
 
@@ -654,7 +665,7 @@ class App extends React.Component {
                         turnColor: (self.game.turn() === 'w') ? "white" : "black"
                     });
 
-                    self.cg.playPremove();
+                    self.premoved = self.cg.playPremove();
 
 
                     if (self.game.in_check() === true) {
@@ -717,6 +728,8 @@ class App extends React.Component {
                     p2_won: data.p2_won,
                     white_time : data.p1_time_left,
                     black_time : data.p2_time_left
+                }, function () {
+                    self.setTime();
                 });
 
                 self.cg.set({
@@ -828,9 +841,10 @@ class App extends React.Component {
 
 
         this.socket.on('playzone_start_game', function (data) {
+            data = JSON.parse(data);
             console.log(data);
 
-            location.href = "/play/game/" + data.created_id;
+            location.href = "/play/game/" + data.game_id;
 
         });
 
@@ -931,7 +945,12 @@ class App extends React.Component {
         if (this.timer) clearInterval(this.timer);
 
         this.timer = setInterval(function () {
-            if (self.state.is_over == 0 && self.state.is_started == 1) {
+            if (
+                self.state.is_over == 0
+                && self.state.is_started == 1
+                && self.state.p1_made_move === true
+                && self.state.p2_made_move === true
+            ) {
                 self.tick();
             } else {
                 clearInterval(this.timer);
@@ -1107,7 +1126,7 @@ class App extends React.Component {
                             <div className="clock clock_top">
                                 <div className="time">{this.state.up_clock_minutes}
                                     <span className="low">:</span>
-                                    {this.state.up_clock_seconds} {this.state.up_clock_milliseconds}
+                                    {this.state.up_clock_seconds}.<span className="small-bottom">{this.state.up_clock_milliseconds}</span>
                                 </div>
                                 <div className="bar"></div>
                             </div>
@@ -1194,7 +1213,7 @@ class App extends React.Component {
                                 <div className="bar"></div>
                                 <div className="time">{this.state.bottom_clock_minutes}
                                     <span className="low">:</span>
-                                    {this.state.bottom_clock_seconds} {this.state.bottom_clock_milliseconds}
+                                    {this.state.bottom_clock_seconds}.<span className="small-bottom">{this.state.bottom_clock_milliseconds}</span>
                                 </div>
                             </div>
                         </div>
@@ -1216,8 +1235,14 @@ class App extends React.Component {
                     }
 
                     {this.state.is_started ? null :
-                        <div className="alert alert-danger mt-1 mb-1 " id="timeleft_white">Время на ход белых: <Timer/>
-                        </div>}
+                        <div>
+                            {(!this.state.p1_made_move) ?
+                                <div className="alert alert-danger mt-1 mb-1 " id="timeleft_white">Время на ход белых: <Timer/></div> : null}
+
+                            {(this.state.p1_made_move && !this.state.p1_made_move) ?
+                                <div className="alert alert-danger mt-1 mb-1 " id="timeleft_white">Время на ход черных: <Timer/></div> : null}
+                        </div>
+                    }
 
                     {(clientWidth < 1000) ?
 

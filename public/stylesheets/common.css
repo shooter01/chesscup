@@ -5,6 +5,11 @@ time {
     display: inline-block;
     white-space: nowrap;
 }
+.small-bottom {
+    font-size: 11.5px;
+    vertical-align: 0px!important;
+    opacity: 1!important;
+}
 @font-face {
     font-family: "lichess";
     src: url("../font80/fonts/lichess.eot");

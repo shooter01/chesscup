@@ -1,5 +1,7 @@
 const DRAW = require('./draw_functions');
 const moment = require('moment');
+const invite_user_to_game = require('./invite_user_to_game');
+const create_game_mongo = require('./create_game_mongo');
 
 const make_draw = function (data) {
     const tournament_id = data.tournament_id;
@@ -200,27 +202,45 @@ const make_draw = function (data) {
                 for (var i = 0; i < data.length; i++) {
 
                     var obj = data[i];
+
                     if (obj.p1_id != null && obj.p2_id != null) {
-                        var game = app.mongoDB.collection("users").insertOne({
+
+                        data['amount'] = tourney.amount;
+                        data['p1_id'] = data.p1_id;
+                        data['p2_id'] = data.p2_id;
+                        data['tournament_id'] = tournament_id;
+                        data['p1_name'] = data.user_name;
+                        data['p2_name'] = data.enemy_name;
+                        data['p1_time_left'] = tourney.amount * 60000;
+                        data['p2_time_left'] = tourney.amount * 60000;
+
+                        create_game_mongo(data, app, function (err, insertedGame) {
+                            app.mongoDB.collection("challenges").deleteMany({owner: mongoGame.owner}, function () {});
+
+                            invite_user_to_game(obj.p1_id, JSON.stringify({tournament_id: tournament_id, game_id : obj.id}), app);
+
+                            invite_user_to_game(obj.p2_id, JSON.stringify({tournament_id: tournament_id, game_id : obj.id}), app);
+
+                        });
+
+
+
+                        /*var game = app.mongoDB.collection("users").insertOne({
                             "_id": obj.id,
                             "moves": [],
                             "is_over": 0,
                             "p1_id": obj.p1_id,
                             "p2_id": obj.p2_id,
-                            "p1_time_end": newDateObj,
-                            "p2_time_end": newDateObj,
                             "tournament_id": tournament_id,
                             "p1_last_move": null,
                             "p2_last_move": null,
                             "p1_time_left": tourney.amount * 60000,
                             "p2_time_left": tourney.amount * 60000,
-                            "p1_visited": false,
-                            "p2_visited": false,
                             "is_started": 0,
                             "startTime": startTime,
                             "time_length": 300,
                             "time_addition": 0,
-                        });
+                        });*/
 
 
 

@@ -52,12 +52,10 @@ module.exports = function(app, passport, pool, i18n) {
         var mongoGame, game;
         let tournament;
         var gameId = req.params.gameId;
-    console.log(gameId);
 
             app.mongoDB.collection("users").findOne( ObjectId(gameId) )
                 .then((data) => {
                 mongoGame = data;
-                console.log(mongoGame);
 
 
 
@@ -72,7 +70,6 @@ module.exports = function(app, passport, pool, i18n) {
                 } else if (mongoGame.is_started && mongoGame.is_over == 0 && ((lm > lm2) || (mongoGame.p2_last_move == null && mongoGame.p1_last_move != null))) {
                     p1_time_left = mongoGame.p1_time_left - spent_time;
                 }
-                console.log(mongoGame);
 
 
                 let timeleft = (mongoGame.startTime) ? mongoGame.startTime.getTime() - new Date().getTime() : 0;

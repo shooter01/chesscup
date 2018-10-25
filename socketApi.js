@@ -1,6 +1,7 @@
 var socket_io = require('socket.io');
 var io = socket_io();
 var socketApi = {};
+const moment = require('moment');
 
 socketApi.io = io;
 var Elo = require('arpad');
@@ -15,6 +16,8 @@ var max_score = 10000;
 const save_result = require('./routes/save_result');
 const game_over = require('./routes/game_over');
 const save_result_mongo = require('./routes/save_result_mongo');
+const create_game_mongo = require('./routes/create_game_mongo');
+const invite_user_to_game = require('./routes/invite_user_to_game');
 const bluebird = require('bluebird');
 const ObjectId = require('mongodb').ObjectId;
 
@@ -111,7 +114,7 @@ module.exports = function (app) {
                     } else {
                         temp = {_id: ObjectId(msg.id)};
                     }
-
+                    console.log(msg.premoved);
                     app.mongoDB.collection("users").findOne(temp, function (err, mongoGame) {
 
 
@@ -131,24 +134,37 @@ module.exports = function (app) {
                             "is_started" : 1
                         }
 
-                        var p_time_left;
-                        var p__another_time_left;
                         var actual_time = new Date().getTime();
+                        var p_time_left, lm, spent_time;
+                        var p__another_time_left;
                         if (msg.player === "p1") {
                             p_time_left = "p1_time_left";
                             p__another_time_left = "p2_time_left";
-                            var lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
-                            var spent_time = actual_time - lm;
-                            obj[p_time_left] = mongoGame.p1_time_left - spent_time;
+                            //если премув - время не отнимается
+                            if (msg.premoved || !mongoGame.p1_made_move || !mongoGame.p2_made_move) {
+                                obj[p_time_left] = mongoGame.p1_time_left;
+                            } else {
+                                lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
+                                spent_time = actual_time - lm;
+                                obj[p_time_left] = mongoGame.p1_time_left - spent_time;
+                            }
+
                             obj.p2_last_move = new Date();
                             game_over = (obj[p_time_left] < 0);
 
                         } else if (msg.player === "p2") {
                             p_time_left = "p2_time_left";
                             p__another_time_left = "p1_time_left";
-                            var lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
-                            var spent_time = actual_time - lm;
-                            obj[p_time_left] = mongoGame.p2_time_left - spent_time;
+                            //если премув - время не отнимается
+
+                            if (msg.premoved) {
+                                obj[p_time_left] = mongoGame.p2_time_left;
+                            } else {
+                                lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
+                                spent_time = actual_time - lm;
+                                obj[p_time_left] = mongoGame.p2_time_left - spent_time;
+                            }
+
                             obj.p1_last_move = new Date();
                             game_over = (obj[p_time_left] < 0);
                         }
@@ -251,17 +267,17 @@ module.exports = function (app) {
 
                 let temp;
                 if (msg.tourney_id) {
-                    temp = {_id: msg.id};
+                    temp = {_id: parseInt(msg.id)};
                 } else {
                     temp = {_id: ObjectId(msg.id)};
                 }
 
-                let who_move_last = "", game_over = false;
+                let who_move_last = "", is_over = false;
 
 
                 if (msg.id) {
                     app.mongoDB.collection("users").findOne(temp, function (err, mongoGame) {
-
+                        console.log(temp);
                         var send_data = {
                             id: mongoGame._id,
                         };
@@ -277,7 +293,7 @@ module.exports = function (app) {
                                 send_data.p2_time_left = -1;
                                 send_data.p1_time_left = mongoGame.p1_time_left;
                                 send_data.tourney_id = mongoGame.tournament_id;
-                                game_over = true;
+                                is_over = true;
                             }
 
                         } else {
@@ -292,11 +308,11 @@ module.exports = function (app) {
                                 send_data.p1_time_left = -1;
                                 send_data.p2_time_left = mongoGame.p2_time_left;
                                 send_data.tourney_id = mongoGame.tournament_id;
-                                game_over = true;
+                                is_over = true;
                             }
                         }
 
-                        if (game_over) {
+                        if (is_over) {
                             save_result_mongo(send_data, mongoGame, app);
                         }
 
@@ -333,44 +349,21 @@ module.exports = function (app) {
 
             socket.on('rematch_accepted', function (data) {
                 data = JSON.parse(data);
-                console.log(data);
 
+                //берем от клиента информацию
+                data['amount'] = data.amount;
+                data['p1_id'] = data.user_id;
+                data['p2_id'] = data.enemy_id;
+                data['p1_name'] = data.user_name;
+                data['p2_name'] = data.enemy_name;
+                data['p1_time_left'] = data.amount * 60000;
+                data['p2_time_left'] = data.amount * 60000;
+                data['tournament_id'] = null;
 
-                app.mongoDB.collection("users").insertOne({
-                    "moves": [],
-                    "is_over": 0,
-                    "p1_id": data.user_id,
-                    "p2_id": data.enemy_id,
-                    "p1_won": 0,
-                    "p2_won": 0,
-                    "p1_name" : data.user_name,
-                    "p2_name" : data.enemy_name,
-                    "playzone" : true,
-                    "amount" : data.amount,
-                    "p1_last_move": null,
-                    "p2_last_move": null,
-                    "p1_time_left": data.amount * 60000,
-                    "p2_time_left": data.amount * 60000,
-                    "is_started": 0,
-                    "time_addition": 0,
-                }, function (err, insertedGame) {
-
-
-                    socket.emit('playzone_start_game', {
-                        created_id : insertedGame.insertedId,
-                    });
-
-                    //если пользователь на сайте
-                    if ( app.globalPlayers[data.enemy_id]) {
-                        app.globalPlayers[data.enemy_id].emit('playzone_start_game', {
-                            created_id : insertedGame.insertedId,
-                        });
-                    }
+                create_game_mongo(data, app, function (err, insertedGame) {
+                    invite_user_to_game(data.user_id, JSON.stringify({tournament_id: null, game_id : insertedGame.insertedId}),app);
+                    invite_user_to_game(data.enemy_id, JSON.stringify({tournament_id: null, game_id : insertedGame.insertedId}),app);
                 });
-
-
-
-
             });
 
 
@@ -427,9 +420,6 @@ module.exports = function (app) {
                     getCurrentPlayGames(socket, data.insertedId);
                  //   console.log(data.insertedId);
                 });
-
-
-
             });
 
             socket.on('cancel_game', function (data) {
@@ -438,63 +428,36 @@ module.exports = function (app) {
             });
 
             socket.on('accept_game', function (data) {
-                //console.log('accept_game');
                 data = JSON.parse(data);
-               // console.log(data.user_id);
-                console.log(data.game_id);
 
                 app.mongoDB.collection("challenges").findOne({_id: ObjectId(data.game_id)}, function (err, mongoGame) {
-                   // console.log("test");
-                   // console.log(mongoGame);
-                    //влдаелец не найден
+                    //владелец не найден
                     if (!mongoGame || !mongoGame.owner) {
                         return false;
                     }
 
-                    app.mongoDB.collection("users").insertOne({
-                        "moves": [],
-                        "is_over": 0,
-                        "p1_id": data.user_id,
-                        "p2_id": mongoGame.owner,
-                        "p1_won": 0,
-                        "p2_won": 0,
-                        "p1_name" : data.user_name,
-                        "p2_name" : mongoGame.user_name,
-                        "playzone" : true,
-                        "amount" : mongoGame.time_control,
+                    //берем из монго
+                    data['amount'] = mongoGame.time_control;
+                    data['p2_name'] = mongoGame.user_name;
+                    data['p1_id'] = mongoGame.owner;
+                    data['p1_time_left'] = mongoGame.time_control * 60000;
+                    data['p2_time_left'] = mongoGame.time_control * 60000;
 
-                        "p1_last_move": null,
-                        "p2_last_move": null,
-                        "p1_time_left": mongoGame.time_control * 60000,
-                        "p2_time_left": mongoGame.time_control * 60000,
-                        "is_started": 0,
-                        "time_addition": 0,
-                    }, function (err, insertedGame) {
-                        app.mongoDB.collection("challenges").remove({owner: mongoGame.owner}, function () {
+                    //берем от клиента информацию
+                    data['p1_name'] = data.user_name;
+                    data['p2_id'] = data.user_id;
+                    data['tournament_id'] = null;
 
+                    create_game_mongo(data, app, function (err, insertedGame) {
+                        app.mongoDB.collection("challenges").deleteMany({owner: mongoGame.owner}, function () {});
 
-                        });
+                        invite_user_to_game(mongoGame.owner, JSON.stringify({tournament_id: null, game_id : insertedGame.insertedId}),app);
 
+                        invite_user_to_game(data.user_id, JSON.stringify({tournament_id: null, game_id : insertedGame.insertedId}),app);
 
-                        socket.emit('playzone_start_game', {
-                            created_id : insertedGame.insertedId,
-                        });
-
-                        //если пользователь на сайте
-                        if ( app.globalPlayers[mongoGame.owner]) {
-                            app.globalPlayers[mongoGame.owner].emit('playzone_start_game', {
-                                created_id : insertedGame.insertedId,
-                            });
-                        }
                     });
-
                 });
-
-
-                /*
-*/
             });
-
         }
 
 

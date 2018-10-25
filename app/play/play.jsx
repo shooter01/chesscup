@@ -40,9 +40,10 @@ class PlaySockets extends React.Component {
 
         });
         this.socket.on('playzone_start_game', function (data) {
-             console.log(data);
+            data = JSON.parse(data);
+            console.log(data);
 
-            location.href = "/play/game/" + data.created_id;
+            location.href = "/play/game/" + data.game_id;
 
         });
 
