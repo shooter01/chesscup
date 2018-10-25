@@ -36,8 +36,18 @@ module.exports = function (app) {
                 var send_data = {
                     id : game._id
                 };
-                send_data.p1_won = 0;
-                send_data.p2_won = 1;
+
+                if (game.p2_last_move == null) {
+                    //черные выиграли так как белые не сходили
+                    send_data.p1_won = 0;
+                    send_data.p2_won = 1;
+                } else if (game.p1_last_move == null) {
+                    //белые выиграли так как черные не сходили
+                    send_data.p1_won = 1;
+                    send_data.p2_won = 0;
+                }
+
+
                 send_data.p1_id = game.p1_id;
                 send_data.p2_id = game.p2_id;
                 send_data.p1_time_left = game.p2_time_left;

@@ -132,6 +132,7 @@ class App extends React.Component {
 
         if (this.state.is_started != 0) {
             $("#timeleft_white").addClass("hidden");
+            $("#timeleft_black").addClass("hidden");
         }
 
 
@@ -158,7 +159,10 @@ class App extends React.Component {
         }
 
 
-        that.setState(newState);
+        that.setState(newState, function () {
+            console.log(this.state.p1_made_move);
+            console.log(this.state.p2_made_move);
+        });
 
         var send_data = {
             data: that.game.fen(),
@@ -432,6 +436,8 @@ class App extends React.Component {
         //флаг премува
         this.premoved = false;
 
+        console.log(this.state.p2_made_move);
+
     }
 
     rematchClick(event){
@@ -570,7 +576,7 @@ class App extends React.Component {
             send_data.p1_id = p1;
             send_data.p2_id = p2;
             send_data.tourney_id = self.state.tourney_id;
-            self.socket.emit('eventServer', JSON.stringify(send_data));
+            self.socket.emit('resign', JSON.stringify(send_data));
 
         }
 
@@ -622,10 +628,15 @@ class App extends React.Component {
                     who_to_move: (self.game.turn() === 'w') ? "white" : "black",
                     white_time: data.p1_time_left,
                     black_time: data.p2_time_left,
+                    p2_made_move: (self.game.turn() === 'w') ? true : self.state.p2_made_move,
+                    p1_made_move: (self.game.turn() === 'b') ? true : self.state.p1_made_move,
                     is_over: data.is_over,
-                    is_started: 1,
+                    is_started: (self.game.turn() === 'w') ? 1 : self.state.is_started,
                 }, function () {
                     self.setTime();
+
+                    console.log(this.state.p1_made_move);
+                    console.log(this.state.p2_made_move);
 
                     var is_over = (data.is_over == 1) ? true : false;
 
@@ -721,6 +732,7 @@ class App extends React.Component {
 
             } else if (data.event === "game_over") {
 // debugger;
+                console.log(data);
                 clearInterval(self.timer);
                 self.setState({
                     is_over: data.is_over,
@@ -1234,13 +1246,13 @@ class App extends React.Component {
                         </div> : null
                     }
 
-                    {this.state.is_started ? null :
+                    {(this.state.is_started === 1 || this.state.is_over === 1) ? null :
                         <div>
-                            {(!this.state.p1_made_move) ?
+                            {(this.state.p1_made_move == "false") ?
                                 <div className="alert alert-danger mt-1 mb-1 " id="timeleft_white">Время на ход белых: <Timer/></div> : null}
 
-                            {(this.state.p1_made_move && !this.state.p1_made_move) ?
-                                <div className="alert alert-danger mt-1 mb-1 " id="timeleft_white">Время на ход черных: <Timer/></div> : null}
+                            {(this.state.p1_made_move != "false" && this.state.p2_made_move == "false") ?
+                                <div className="alert alert-danger mt-1 mb-1 " id="timeleft_black">Время на ход черных: <Timer/></div> : null}
                         </div>
                     }
 

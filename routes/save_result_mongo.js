@@ -9,6 +9,9 @@ const save_result_mongo = function (msg, mongoGame, app) {
         "p1_won" : msg.p1_won,
         "p2_won" : msg.p2_won,
     };
+    console.log("save_result_mongo");
+    console.log(msg);
+    console.log(mongoGame);
     if (msg && mongoGame) {
         msg["fen"] = msg.data;
         var p_time_left;
@@ -31,7 +34,6 @@ const save_result_mongo = function (msg, mongoGame, app) {
             obj.p1_last_move = new Date();
         }
     }
-    console.log(msg);
 
 
     let temp;

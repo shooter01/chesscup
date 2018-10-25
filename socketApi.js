@@ -114,7 +114,8 @@ module.exports = function (app) {
                     } else {
                         temp = {_id: ObjectId(msg.id)};
                     }
-                    console.log(msg.premoved);
+
+
                     app.mongoDB.collection("users").findOne(temp, function (err, mongoGame) {
 
 
@@ -131,7 +132,13 @@ module.exports = function (app) {
                         var obj = {
                             "fen": msg.data,
                             "is_over": msg.is_over,
-                            "is_started" : 1
+                            "is_started" : (mongoGame.p1_last_move !== null) ? 1 : mongoGame.is_started
+                        };
+
+                        //игра не началась, но ход сделан, значит белые сходили
+                        if (obj.is_started === 0) {
+                            var startTime = moment(new Date()).add(1, 'm').toDate();
+                            obj.startTime = startTime;
                         }
 
                         var actual_time = new Date().getTime();
@@ -140,9 +147,11 @@ module.exports = function (app) {
                         if (msg.player === "p1") {
                             p_time_left = "p1_time_left";
                             p__another_time_left = "p2_time_left";
+
                             //если премув - время не отнимается
                             if (msg.premoved || !mongoGame.p1_made_move || !mongoGame.p2_made_move) {
                                 obj[p_time_left] = mongoGame.p1_time_left;
+                                obj["p1_made_move"] = true;
                             } else {
                                 lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
                                 spent_time = actual_time - lm;
@@ -155,10 +164,11 @@ module.exports = function (app) {
                         } else if (msg.player === "p2") {
                             p_time_left = "p2_time_left";
                             p__another_time_left = "p1_time_left";
-                            //если премув - время не отнимается
 
-                            if (msg.premoved) {
+                            //если премув - время не отнимается
+                            if (msg.premoved || !mongoGame.p1_made_move || !mongoGame.p2_made_move) {
                                 obj[p_time_left] = mongoGame.p2_time_left;
+                                obj["p2_made_move"] = true;
                             } else {
                                 lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
                                 spent_time = actual_time - lm;
@@ -167,39 +177,15 @@ module.exports = function (app) {
 
                             obj.p1_last_move = new Date();
                             game_over = (obj[p_time_left] < 0);
+
                         }
 
-                         if (game_over === true) {
-                             var send_data = {
-                                 id: mongoGame._id,
-                             };
-                             //по времени проиграл второй игрок
-                             if (msg.player === "p2") {
-                                 send_data.p1_won = 1;
-                                 send_data.p2_won = 0;
-                                 send_data.p1_id = mongoGame.p1_id;
-                                 send_data.p2_id = mongoGame.p2_id;
-                                 send_data.p2_time_left = -1;
-                                 send_data.p1_time_left = mongoGame.p1_time_left;
-                                 send_data.tourney_id = mongoGame.tournament_id;
-                             } else {
-                                 //по времени проиграл первый игрок
-                                 send_data.p1_won = 0;
-                                 send_data.p2_won = 1;
-                                 send_data.p1_id = mongoGame.p1_id;
-                                 send_data.p2_id = mongoGame.p2_id;
-                                 send_data.p1_time_left = -1;
-                                 send_data.p2_time_left = mongoGame.p2_time_left;
-                                 send_data.tourney_id = mongoGame.tournament_id;
-                             }
-                             save_result_mongo(send_data, mongoGame, app);
-                         } else {
-                             app.mongoDB.collection("users").updateOne(temp,
+                         app.mongoDB.collection("users").updateOne(temp,
                                  {
                                      $set: obj,
                                      $setOnInsert: {
                                          "moves": [],
-                                         "is_over": game_over,
+                                         "is_over": 0,
                                      }
                                  },
 
@@ -242,19 +228,40 @@ module.exports = function (app) {
                                      }
                                  }
                              );
-
-                         }
-
-
+                      //  }
                     })
-
-
                 } catch (e) {
                     console.log(e.message);
                 }
             });
 
 
+
+
+            socket.on('resign', function (data) {
+                var data = JSON.parse(data);
+
+                let temp, game_over = false;
+                //console.log(socket.p_id);
+                if (data.tourney_id) {
+                    data.id = parseInt(data.id);
+                    temp = {_id: data.id};
+                } else {
+                    temp = {_id: ObjectId(data.id)};
+                }
+
+
+                app.mongoDB.collection("users").findOne(temp, function (err, mongoGame) {
+                    save_result_mongo(data, mongoGame, app);
+                });
+
+                if (data.tourney_id != null) {
+                    game_over(data, app);
+                }
+
+
+                console.log(data);
+            });
 
 
             socket.on('checkTime1', function (data) {
