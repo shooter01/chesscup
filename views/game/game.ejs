@@ -92,8 +92,6 @@
     var fen = '<%= (mongoGame) ? mongoGame.fen : null %>';
     var moves = '<%= (mongoGame) ? mongoGame.moves : null %>';
     var is_started = '<%= (mongoGame) ? mongoGame.is_started : 0 %>';
-    var p1_made_move = '<%= (mongoGame) ? mongoGame.p1_made_move : false %>';
-    var p2_made_move = '<%= (mongoGame) ? mongoGame.p2_made_move : false %>';
     var timeleft = parseInt('<%- timeleft %>');
     var p1_time_left = '<%= p1_time_left %>';
     var p2_time_left = '<%= p2_time_left %>';

@@ -56,8 +56,6 @@ class App extends React.Component {
             isPlayer: false,
             amount: amount,
             white_time: p1_time_left,
-            p1_made_move: p1_made_move,
-            p2_made_move: p2_made_move,
             p1_name: p1_name,
             p2_name: p2_name,
             black_time: p2_time_left,
@@ -148,21 +146,7 @@ class App extends React.Component {
             who_to_move: (this.game.turn() === 'w') ? "white" : "black",
         };
 
-        //черные сделали ход
-        if (this.game.turn() === 'w') {
-            newState["p2_made_move"] = true;
-        }
-
-        //белые сделали ход
-        if (this.game.turn() === 'b') {
-            newState["p1_made_move"] = true;
-        }
-
-
-        that.setState(newState, function () {
-            console.log(this.state.p1_made_move);
-            console.log(this.state.p2_made_move);
-        });
+        that.setState(newState);
 
         var send_data = {
             data: that.game.fen(),
@@ -202,8 +186,7 @@ class App extends React.Component {
                     state: {
                         check: true,
                     }
-                })
-
+                });
             }
         }
 
@@ -436,7 +419,6 @@ class App extends React.Component {
         //флаг премува
         this.premoved = false;
 
-        console.log(this.state.p2_made_move);
 
     }
 
@@ -567,7 +549,7 @@ class App extends React.Component {
                 data: self.game.fen(),
                 id: g,
                 is_over: 1,
-                player: (self.state.playerColor === 'white') ? "p1" : "p2", //who made the last move
+                player: (self.state.who_to_move === 'white') ? "p1" : "p2", //кто должен ходить
             };
 
             send_data.is_over = 1;
@@ -576,7 +558,7 @@ class App extends React.Component {
             send_data.p1_id = p1;
             send_data.p2_id = p2;
             send_data.tourney_id = self.state.tourney_id;
-            self.socket.emit('resign', JSON.stringify(send_data));
+            self.socket.emit('eventServer', JSON.stringify(send_data));
 
         }
 
@@ -628,15 +610,11 @@ class App extends React.Component {
                     who_to_move: (self.game.turn() === 'w') ? "white" : "black",
                     white_time: data.p1_time_left,
                     black_time: data.p2_time_left,
-                    p2_made_move: (self.game.turn() === 'w') ? true : self.state.p2_made_move,
-                    p1_made_move: (self.game.turn() === 'b') ? true : self.state.p1_made_move,
                     is_over: data.is_over,
                     is_started: (self.game.turn() === 'w') ? 1 : self.state.is_started,
                 }, function () {
                     self.setTime();
 
-                    console.log(this.state.p1_made_move);
-                    console.log(this.state.p2_made_move);
 
                     var is_over = (data.is_over == 1) ? true : false;
 
@@ -823,32 +801,6 @@ class App extends React.Component {
                 }
             }
 
-
-            /*for (var obj in data) {
-             if (p1 == obj) {
-             if (self.state.orientation === "black") {
-             this.setState({
-             bottom_player_online : true
-             });
-             } else {
-             self.setState({
-             up_player_online : true
-             });
-             }
-
-             } else if (p2 == obj){
-             if (self.state.orientation === "black") {
-             self.setState({
-             bottom_player_online : true
-             });
-             } else {
-             self.setState({
-             up_player_online : true
-             });
-             }
-             }
-             }*/
-
         });
 
 
@@ -943,7 +895,6 @@ class App extends React.Component {
                     send_data.p1_id = p1;
                     send_data.p2_id = p2;
                     send_data.tourney_id = this.state.tourney_id;
-// console.log("test");
                     this.socket.emit('checkTime1', JSON.stringify(send_data));
                 } else {
                     this.setTime();
@@ -960,8 +911,6 @@ class App extends React.Component {
             if (
                 self.state.is_over == 0
                 && self.state.is_started == 1
-                && self.state.p1_made_move === true
-                && self.state.p2_made_move === true
             ) {
                 self.tick();
             } else {
@@ -986,7 +935,6 @@ class App extends React.Component {
         var p2_minutes = Math.floor((this.state.black_time/(1000*60)));
         var p2_secs = Math.floor((this.state.black_time/1000) % 60);
         var p2_milliseconds = Math.floor((this.state.black_time % 1000 / 100).toFixed(1));
-        console.log(p1_minutes, p1_secs,  p1_milliseconds);
 
         p1_minutes = (p1_minutes < 0) ? 0 : p1_minutes;
         p1_secs = (p1_secs < 0) ? 0 : p1_secs;
@@ -1248,10 +1196,10 @@ class App extends React.Component {
 
                     {(this.state.is_started === 1 || this.state.is_over === 1) ? null :
                         <div>
-                            {(this.state.p1_made_move == "false") ?
+                            {(this.state.moves.length == 0) ?
                                 <div className="alert alert-danger mt-1 mb-1 " id="timeleft_white">Время на ход белых: <Timer/></div> : null}
 
-                            {(this.state.p1_made_move != "false" && this.state.p2_made_move == "false") ?
+                            {(this.state.moves.length == 1) ?
                                 <div className="alert alert-danger mt-1 mb-1 " id="timeleft_black">Время на ход черных: <Timer/></div> : null}
                         </div>
                     }

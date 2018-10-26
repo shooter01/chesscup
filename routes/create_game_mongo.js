@@ -10,8 +10,6 @@ const create_game_mongo = function (data, app, callback) {
         "p2_id": data.p2_id,
         "p1_won": 0,
         "p2_won": 0,
-        "p1_made_move": false,
-        "p2_made_move": false,
         "tournament_id": data.tournament_id,
         "startTime": startTime,
         "p1_name" : data.p1_name,
