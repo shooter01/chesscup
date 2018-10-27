@@ -459,6 +459,21 @@ module.exports = function (app) {
                     });
                 });
             });
+
+            socket.on('remove', function (data) {
+                data = JSON.parse(data);
+
+                app.mongoDB.collection("challenges").deleteOne({_id: ObjectId(data.game_id)}, function (err, mongoGame) {
+                    getCurrentPlayGames();
+                });
+            });
+            socket.on('remove_all_challenges', function (data) {
+                data = JSON.parse(data);
+
+                app.mongoDB.collection("challenges").deleteMany({owner: data.user_id}, function (err, mongoGame) {
+                    getCurrentPlayGames();
+                });
+            });
         }
 
 

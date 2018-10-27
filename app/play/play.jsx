@@ -13,6 +13,7 @@ class PlaySockets extends React.Component {
         };
 
         this.accept = this.accept.bind(this);
+        this.remove = this.remove.bind(this);
 
     }
 
@@ -59,8 +60,16 @@ class PlaySockets extends React.Component {
             }));
 
             $("#exampleModal").modal("hide");
-
         });
+
+
+        window.onbeforeunload = function(e) {
+            console.log("aa");
+            self.socket.emit('remove_all_challenges', JSON.stringify({
+                "user_id" : u,
+            }));
+        };
+
         // })
     }
 
@@ -73,6 +82,19 @@ class PlaySockets extends React.Component {
             "user_id" : u,
             "game_id" : attr,
             "user_name" : user_name,
+
+        }));
+
+        // console.log(attr);
+    }
+    remove(event){
+        var $target = $(event.target);
+        var attr = $target.data("game_id");
+
+
+        this.socket.emit('remove', JSON.stringify({
+            "user_id" : u,
+            "game_id" : attr,
 
         }));
 
@@ -108,7 +130,10 @@ class PlaySockets extends React.Component {
                             <td className="text-center">{item.time_control} + 0</td>
                             <td className="text-center">
                                 {this.state.user_id != null && (item.owner !=  this.state.user_id) ?
-                                <span className="btn btn-primary" data-game_id={item._id} onClick={this.accept}>Принять</span> : null}
+                                <span className="btn btn-primary btn-sm" data-game_id={item._id} onClick={this.accept}>Принять</span> :
+
+                                <span className="btn btn-danger btn-sm" data-game_id={item._id} onClick={this.remove}>Удалить</span>
+                                }
                             </td>
                         </tr>
                         ))}
