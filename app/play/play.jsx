@@ -39,8 +39,8 @@ class PlaySockets extends React.Component {
              console.log(games);
 
         });
-        this.socket.on('playzone_start_game', function (data) {
-            data = JSON.parse(data);
+        this.socket.on('eventClient', function (data) {
+            //data = JSON.parse(data);
             console.log(data);
 
             location.href = "/play/game/" + data.game_id;

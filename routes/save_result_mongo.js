@@ -90,15 +90,14 @@ const save_result_mongo = function (msg, mongoGame, app) {
         {
             writeConcern: true
         }, function (err, res) {
-            app.io.to(mongoGame._id).emit('eventClient', JSON.stringify({
+            app.io.to(mongoGame._id).emit('eventClient', {
                 event: "game_over",
                 "p1_time_left" : msg.p1_time_left,
                 "p2_time_left" : msg.p2_time_left,
                 "p1_won" : msg.p1_won,
                 "p2_won" : msg.p2_won,
                 is_over: 1
-            }));
-       // console.log(res);
+            });
     });
 
 

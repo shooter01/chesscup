@@ -36,7 +36,7 @@
     "babel-loader": "^7.1.5",
     "babel-preset-react": "^6.24.1",
     "compression-webpack-plugin": "^1.1.11",
-    "css-loader": "^0.28.10",
+    "css-loader": "^0.28.11",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^0.11.2",
     "laravel-mix": "^1.2.0",

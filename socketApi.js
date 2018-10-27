@@ -156,7 +156,7 @@ module.exports = function (app) {
                             const a = {
                                 event: "game_aborted",
                             };
-                            io.to(msg.id).emit('eventClient', JSON.stringify(a));
+                            io.to(msg.id).emit('eventClient', a);
                             return false;
                         }
 
@@ -213,7 +213,7 @@ module.exports = function (app) {
                                      a.p1_time_left = obj.p1_time_left;
                                      a.p2_time_left = obj.p2_time_left;
 
-                                     io.to(msg.id).emit('eventClient', JSON.stringify(a));
+                                     io.to(msg.id).emit('eventClient',a);
 
                                      app.mongoDB.collection("users").updateOne(temp,
                                          {$push: {"moves": msg.move}},
@@ -311,9 +311,18 @@ module.exports = function (app) {
 
             socket.on('playerOnOff', function (data) {
                 data = JSON.parse(data);
-                io.to(data.game_id).emit('playerOnline', JSON.stringify(online_players[data.game_id]));
+                io.to(data.game_id).emit('eventClient', {
+                    event : "playerOnline",
+                    players : online_players[data.game_id]
+                });
+            });
 
-               // io.sockets.emit('playerOnline', JSON.stringify(online_players[data.game_id]));
+            socket.on('decline_draw', function (data) {
+                data = JSON.parse(data);
+                io.to(data.game_id).emit('eventClient', {
+                    event : "decline_draw",
+                    game_id : data.game_id,
+                });
             });
 
 
@@ -323,11 +332,20 @@ module.exports = function (app) {
                 if (app.globalPlayers[data.enemy_id]) {
                     console.log(JSON.stringify(store));
 
-                    io.to(store[data.enemy_id]).emit('eventClient', JSON.stringify({
+                    io.to(store[data.enemy_id]).emit('eventClient', {
                         event : "rematch_offer"
-                    }));
+                    });
                 }
+            });
 
+            socket.on('draw_offer', function (data) {
+                data = JSON.parse(data);
+                if ( app.globalPlayers[data.enemy_id]) {
+                    app.globalPlayers[data.enemy_id].emit('eventClient', {
+                        event : "draw_offer",
+                        game_id : data.game_id
+                    });
+                }
             });
 
             socket.on('rematch_accepted', function (data) {
@@ -344,8 +362,8 @@ module.exports = function (app) {
                 data['tournament_id'] = null;
 
                 create_game_mongo(data, app, function (err, insertedGame) {
-                    invite_user_to_game(data.user_id, JSON.stringify({tournament_id: null, game_id : insertedGame.insertedId}),app);
-                    invite_user_to_game(data.enemy_id, JSON.stringify({tournament_id: null, game_id : insertedGame.insertedId}),app);
+                    invite_user_to_game(data.user_id, {event : "playzone_start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
+                    invite_user_to_game(data.enemy_id, {event : "playzone_start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
                 });
             });
 
@@ -434,9 +452,9 @@ module.exports = function (app) {
                     create_game_mongo(data, app, function (err, insertedGame) {
                         app.mongoDB.collection("challenges").deleteMany({owner: mongoGame.owner}, function () {});
 
-                        invite_user_to_game(mongoGame.owner, JSON.stringify({tournament_id: null, game_id : insertedGame.insertedId}),app);
+                        invite_user_to_game(mongoGame.owner, {event : "playzone_start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
 
-                        invite_user_to_game(data.user_id, JSON.stringify({tournament_id: null, game_id : insertedGame.insertedId}),app);
+                        invite_user_to_game(data.user_id, {event : "playzone_start_game",tournament_id: null, game_id : insertedGame.insertedId},app);
 
                     });
                 });
@@ -486,7 +504,13 @@ module.exports = function (app) {
 
                 if (online_players[socket.game_id][socket.p_id] <= 0) {
                     delete online_players[socket.game_id][socket.p_id];
-                    io.to(socket.game_id).emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
+
+                    io.to(socket.game_id).emit('eventClient', {
+                        event : "playerOnline",
+                        players : online_players[socket.game_id]
+                    });
+
+                   // io.to(socket.game_id).emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
                     //io.sockets.emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
                 }
 
@@ -511,16 +535,7 @@ module.exports = function (app) {
         });
     });
 
-        socketApi.game_over = function (msg) {
-
-        };
-        socketApi.sendNotification = function () {
-            io.sockets.emit('hello', {msg: 'Hello World!'});
-        };
-
-
-
-        return socketApi
+    return socketApi
 };
 
 
