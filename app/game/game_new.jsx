@@ -155,7 +155,7 @@ class App {
         this.socketIOConnect();
         this.setNames();
         this.setTime();
-        this.setIsOver();
+        this.setIsOver("init");
         this.checkMobile();
         this.setTimer();
         this.setListeners();
@@ -271,9 +271,9 @@ class App {
 
 
     checkMobile(){
-        if (clientWidth < 1000) {
+        if (clientWidth < 1000 && this.state.is_over === 0) {
             $(".mobile-controls").removeClass("hidden");
-        } else {
+        } else if (clientWidth > 1000 ) {
             $(".table_wrap").removeClass("hidden");
         }
     }
@@ -317,7 +317,7 @@ class App {
         }));
     }
 
-    setIsOver(){
+    setIsOver(caller){
         const self = this;
         //если игра завершена
         if (this.state.is_over === 1) {
@@ -360,7 +360,7 @@ class App {
             //скрываем все управляющие кнопки
             $(".control.buttons").not(".rematch").addClass("hidden");
 
-            if (this.state.isPlayer) {
+            if (this.state.isPlayer && caller != "init") {
                 aa.play('endgame');
             }
 
@@ -431,8 +431,6 @@ class App {
             element.wrap($("<div class='act_confirm resign'></div>"));
 
         }
-
-
         setTimeout(function () {
             if (self.state.is_over == 0) {
                 element.unwrap();

@@ -192,24 +192,37 @@
 
                     <div class="mobile-controls hidden">
                         <div>
-                            <div class="control buttons">
+                            <div class="control buttons rematch hidden">
                                 <div class="follow_up">
                                     <a class="text fbt strong glowed tourney_text tourney_href rematch hidden" data-icon="G"   href=""></a>
                                 </div>
                             </div>
 
-                            <div class="control icons">
+                            <div class="control buttons hidden">
+                                <div class="negotiation"><p>Ваш соперник предлагает вам ничью</p>
+                                    <a class="accept" data-icon="E" title="Принять"></a>
+                                    <a class="decline" data-icon="L" title="Отклонить"></a>
+                                </div>
+                            </div>
+                            <div class="control buttons hidden">
+                                <div class="pending">
+                                    <p>Предложение ничьей отправлено</p>
+                                </div>
+                            </div>
+
+                            <div class="control icons players-btns hidden">
                                 <button disabled class="fbt hint--bottom takeback-yes"
                                         data-hint="Попросить соперника вернуть ход">
                                     <span data-icon="i"></span>
                                 </button>
-                                <button class="fbt hint--bottom draw-yes" disabled
+                                <button class="fbt hint--bottom draw-yes draw" disabled
                                         data-hint="Предложить ничью">
                                     <span data-icon="2"></span>
                                 </button>
 
                                 <button class="fbt hint--bottom resign-confirm resign"
-                                        data-hint="Сдаться"><span data-icon="b"></span></button>
+                                        onClick={this.resign} data-hint="Сдаться"><span
+                                            data-icon="b"></span></button>
                             </div>
                         </div>
                     </div>
@@ -234,11 +247,12 @@
                         </div>
                     </div>
 
-                    <div>
+                    <div id="chat"></div>
+
+                    <!--<div>
                         <button class="fbt mobile-btn d-lg-none" onClick={this.goBack} data-icon="Y" data-ply="28"></button>
                         <button class="fbt mobile-btn d-lg-none" onClick={this.goForward} data-icon="X" data-ply="30" disabled=""></button>
-                    </div>
-
+                    </div>-->
                 </div>
             </div>
         </div>
@@ -249,27 +263,6 @@
 <div class="col-lg-12">
     <div id="tsk" class="row"></div>
 </div>
-
-
-
-<audio id="move_sound" preload="none">
-    <source src="/sounds/Move.mp3" type="audio/mpeg"></source>
-    <source src="/sounds/Move.ogg" type="audio/ogg"></source>
-</audio>
-
-<audio id="capture_sound" preload="none">
-    <source src="/sounds/Capture.mp3" type="audio/mpeg"></source>
-    <source src="/sounds/Capture.ogg" type="audio/ogg"></source>
-</audio>
-
-<audio id="confirmation_sound" preload="none">
-    <source src="/sounds/Confirmation.mp3" type="audio/mpeg"></source>
-    <source src="/sounds/Confirmation.ogg" type="audio/ogg"></source>
-</audio>
-<audio id="defeat_sound" preload="none">
-    <source src="/sounds/Defeat.mp3" type="audio/mpeg"></source>
-    <source src="/sounds/Defeat.ogg" type="audio/ogg"></source>
-</audio>
 
 
 <script>
@@ -338,6 +331,7 @@
 <script src="/js/cg/dist/chessground.js"></script>
 
 <script src="/js/game_new.min.js"></script>
+<!--<script src="/js/chat.min.js"></script>-->
 
 
 <!-- small modal -->

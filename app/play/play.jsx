@@ -44,8 +44,9 @@ class PlaySockets extends React.Component {
             //data = JSON.parse(data);
             console.log(data);
 
-            location.href = "/play/game/" + data.game_id;
-
+            if (data.event === "playzone_start_game") {
+                location.href = "/play/game/" + data.game_id;
+            }
         });
 
 
@@ -64,10 +65,11 @@ class PlaySockets extends React.Component {
 
 
         window.onbeforeunload = function(e) {
-            console.log("aa");
-            self.socket.emit('remove_all_challenges', JSON.stringify({
-                "user_id" : u,
-            }));
+            if (typeof u !== "undefined") {
+                self.socket.emit('remove_all_challenges', JSON.stringify({
+                    "user_id" : u,
+                }));
+            }
         };
 
         // })
@@ -77,13 +79,14 @@ class PlaySockets extends React.Component {
         var $target = $(event.target);
         var attr = $target.data("game_id");
 
+        if (typeof u !== "undefined") {
+            this.socket.emit('accept_game', JSON.stringify({
+                "user_id": u,
+                "game_id": attr,
+                "user_name": user_name,
 
-        this.socket.emit('accept_game', JSON.stringify({
-            "user_id" : u,
-            "game_id" : attr,
-            "user_name" : user_name,
-
-        }));
+            }));
+        }
 
         // console.log(attr);
     }
@@ -92,11 +95,14 @@ class PlaySockets extends React.Component {
         var attr = $target.data("game_id");
 
 
-        this.socket.emit('remove', JSON.stringify({
-            "user_id" : u,
-            "game_id" : attr,
+        if (typeof u !== "undefined") {
+            this.socket.emit('remove', JSON.stringify({
+                "user_id" : u,
+                "game_id" : attr,
 
-        }));
+            }));
+        }
+
 
         // console.log(attr);
     }
@@ -129,10 +135,12 @@ class PlaySockets extends React.Component {
                             <td className="text-center">{item.user_name}</td>
                             <td className="text-center">{item.time_control} + 0</td>
                             <td className="text-center">
-                                {this.state.user_id != null && (item.owner !=  this.state.user_id) ?
-                                <span className="btn btn-primary btn-sm" data-game_id={item._id} onClick={this.accept}>Принять</span> :
-
-                                <span className="btn btn-danger btn-sm" data-game_id={item._id} onClick={this.remove}>Удалить</span>
+                                {this.state.user_id != null ?
+                                     (item.owner !=  this.state.user_id) ?
+                                         <span className="btn btn-primary btn-sm" data-game_id={item._id} onClick={this.accept}>Принять</span>
+                                         :
+                                         <span className="btn btn-danger btn-sm" data-game_id={item._id} onClick={this.remove}>Удалить</span>
+                                    : null
                                 }
                             </td>
                         </tr>
