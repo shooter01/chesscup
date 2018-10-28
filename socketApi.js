@@ -189,7 +189,7 @@ module.exports = function (app) {
                         console.log(mongoGame);
                         console.log(new Date().getTime());
 
-                        console.log(data.player);
+                        console.log(msg.player);
 
                         //последний кто двигал фигуры - черные
                         if (msg.player === "p2") {
