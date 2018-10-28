@@ -271,9 +271,9 @@ class App {
 
 
     checkMobile(){
-        if (clientWidth < 1000 && this.state.is_over === 0) {
+        if (clientWidth < 635 && this.state.is_over === 0) {
             $(".mobile-controls").removeClass("hidden");
-        } else if (clientWidth > 1000 ) {
+        } else if (clientWidth > 635 ) {
             $(".table_wrap").removeClass("hidden");
         }
     }
@@ -537,11 +537,11 @@ class App {
     setTime(){
         let p1_minutes = Math.floor((this.state.white_time/(1000*60)));
         let p1_secs = Math.floor((this.state.white_time/1000) % 60);
-        let p1_milliseconds = Math.floor((this.state.white_time % 1000 / 100).toFixed(1));
+        let p1_milliseconds = Math.floor((this.state.white_time % 1000 / 10).toFixed(2));
 
         let p2_minutes = Math.floor((this.state.black_time/(1000*60)));
         let p2_secs = Math.floor((this.state.black_time/1000) % 60);
-        let p2_milliseconds = Math.floor((this.state.black_time % 1000 / 100).toFixed(1));
+        let p2_milliseconds = Math.floor((this.state.black_time % 1000 / 10).toFixed(2));
 
         p1_minutes = (p1_minutes < 0) ? 0 : p1_minutes;
         p1_secs = (p1_secs < 0) ? 0 : p1_secs;
@@ -630,6 +630,28 @@ class App {
                 self.setTime();
 
                 const is_over = (data.is_over == 1);
+
+                /*if (u == p1 && this.state.who_to_move == "white") {
+                    if (!is_over) {
+                        const moves = self.game.moves({verbose:true});
+                        const move = moves[Math.floor(Math.random() * moves.length)];
+                        console.log(move);
+                        setTimeout(function () {
+                            self.move(move.from, move.to);
+                        }, 0);
+                    }
+                }*/
+
+                if (u == p2 && this.state.who_to_move == "black") {
+                    if (!is_over) {
+                        const moves = self.game.moves({verbose:true});
+                        const move = moves[Math.floor(Math.random() * moves.length)];
+                        console.log(move);
+                        setTimeout(function () {
+                            self.move(move.from, move.to);
+                        }, 0);
+                    }
+                }
 
                 /* if (is_over) {
                  self.defeat_sound.play()
