@@ -503,7 +503,7 @@ class App {
                     //debugger;
 
 
-                   // this.socket.emit('checkTime1', JSON.stringify(send_data));
+                    this.socket.emit('checkTime1', JSON.stringify(send_data));
 
                 } else {
                     this.setTime();
