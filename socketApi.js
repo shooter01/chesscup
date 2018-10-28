@@ -216,7 +216,7 @@ module.exports = function (app) {
                                 is_over = true;
                             }
 
-                        } else {
+                        } else if (msg.player === "p1") {
                             //истекло ли время белых
                             if (mongoGame.p2_last_move !== null && (mongoGame.p1_time_left + mongoGame.p2_last_move.getTime() < new Date().getTime())) {
                                 //проверяем, а хватает ли матер
