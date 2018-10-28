@@ -642,7 +642,7 @@ class App {
                     }
                 }*/
 
-                if (u == p2 && this.state.who_to_move == "black") {
+                /*if (u == p2 && this.state.who_to_move == "black") {
                     if (!is_over) {
                         const moves = self.game.moves({verbose:true});
                         const move = moves[Math.floor(Math.random() * moves.length)];
@@ -651,7 +651,7 @@ class App {
                             self.move(move.from, move.to);
                         }, 0);
                     }
-                }
+                }*/
 
                 /* if (is_over) {
                  self.defeat_sound.play()
