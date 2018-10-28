@@ -365,7 +365,7 @@ module.exports = function (app) {
                         //последний кто двигал фигуры - белые
                     //    if (who_get_flagged === "p2") {
                             //истекло ли время черных
-                            if ((mongoGame.p1_time_left + mongoGame.p1_last_move.getTime() + 1000) < new Date().getTime()) {
+                            if ((mongoGame.p1_time_left + mongoGame.p2_last_move.getTime() + 1000) < new Date().getTime()) {
                                 send_data.p1_won = 0;
                                 send_data.p2_won = 1;
                                 send_data.p1_id = mongoGame.p1_id;
@@ -380,7 +380,7 @@ module.exports = function (app) {
                             //последние ходили черные
 
                             //истекло ли время белых
-                            if ((mongoGame.p2_time_left + mongoGame.p2_last_move.getTime() + 1000) < new Date().getTime()) {
+                            if ((mongoGame.p2_time_left + mongoGame.p1_last_move.getTime() + 1000) < new Date().getTime()) {
                                 send_data.p1_won = 1;
                                 send_data.p2_won = 0;
                                 send_data.p1_id = mongoGame.p1_id;
