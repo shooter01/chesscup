@@ -115,7 +115,7 @@ module.exports = function (app) {
                         obj["p1_time_left"] = mongoGame.p1_time_left - spent_time;
                     }
                     obj["p2_last_move"] = new Date();
-                    obj["p2_time_left"] = mongoGame.p2_time_left;
+                    obj["p1_time_left"] = mongoGame.p2_time_left;
 
 
                 } else {
@@ -131,7 +131,7 @@ module.exports = function (app) {
                     }
 
                     obj["p1_last_move"] = new Date();
-                    obj["p1_time_left"] = mongoGame.p1_time_left;
+                    obj["p2_time_left"] = mongoGame.p1_time_left;
 
                 }
 
