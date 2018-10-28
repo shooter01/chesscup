@@ -53,6 +53,7 @@ module.exports = function (app) {
                 send_data.p1_time_left = game.p2_time_left;
                 send_data.p2_time_left = game.p2_time_left;
                 send_data.tourney_id = game.tournament_id;
+                send_data.caller = "timers";
 
                 //сохраняем завершение партии в монго
                 save_result_mongo(send_data, game, app);
@@ -138,6 +139,7 @@ module.exports = function (app) {
 
 
                 if (game_over) {
+                    send_data.caller = "timers";
                     save_result_mongo(send_data, mongoGame, app);
                 }
 

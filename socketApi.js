@@ -138,9 +138,9 @@ module.exports = function (app) {
 
             socket.on('eventServer', function (msg) {
                 try {
-                    msg = JSON.parse(msg);
-                    //console.log(msg);
-                    let temp, game_over = false;
+                    //msg = JSON.parse(msg);
+                    console.log(msg);
+                    let temp, is_over = false, send_data = {};
                     if (msg.tourney_id) {
                         msg.id = parseInt(msg.id);
                         temp = {_id: msg.id};
@@ -159,6 +159,69 @@ module.exports = function (app) {
                             io.to(msg.id).emit('eventClient', a);
                             return false;
                         }
+
+
+                       /* socket.emit('eventClient', {
+                            event: "cancel_move",
+                            "p1_time_left" : msg.p1_time_left,
+                            "p2_time_left" : msg.p2_time_left,
+                            "p1_won" : msg.p1_won,
+                            "p2_won" : msg.p2_won,
+                            is_over: 1
+                        });*/
+                       // console.log("cancel_move");
+                        //return false;
+
+                        //42["eventServer",{"data":"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1","id":"5bd5827555dd16073270d111","tourney_id":null,"move":"e4","from":"e2","to":"e4","is_over":0,"player":"p1"}]
+
+
+                        //последний кто двигал фигуры - черные
+                        if (data.player === "p2") {
+                            //истекло ли время черных
+                            if (mongoGame.p1_last_move !== null && (mongoGame.p2_time_left + mongoGame.p1_last_move.getTime() < new Date().getTime())) {
+
+                                send_data.id = mongoGame._id;
+                                send_data.p1_won = 1;
+                                send_data.p2_won = 0;
+                                send_data.p1_id = mongoGame.p1_id;
+                                send_data.p2_id = mongoGame.p2_id;
+                                send_data.p2_time_left = -1;
+                                send_data.p1_time_left = mongoGame.p1_time_left;
+                                send_data.tourney_id = mongoGame.tournament_id;
+                                send_data.flagged = "black";
+                                is_over = true;
+                            }
+
+                        } else {
+                            //истекло ли время белых
+                            if (mongoGame.p2_last_move !== null && (mongoGame.p1_time_left + mongoGame.p2_last_move.getTime() < new Date().getTime())) {
+
+                                send_data.id = mongoGame._id;
+                                send_data.p1_won = 0;
+                                send_data.p2_won = 1;
+                                send_data.p1_id = mongoGame.p1_id;
+                                send_data.p2_id = mongoGame.p2_id;
+                                send_data.p1_time_left = -1;
+                                send_data.p2_time_left = mongoGame.p2_time_left;
+                                send_data.tourney_id = mongoGame.tournament_id;
+                                send_data.flagged = "white";
+                                is_over = true;
+                            }
+                        }
+
+                        if (is_over === true) {
+                            console.log("flagged");
+                            save_result_mongo(send_data, mongoGame, app);
+
+
+                            //если это турнирная партия сохранияем в mysql
+                            if (msg.tourney_id != null) {
+                                game_over(msg, app);
+                            }
+                            //если игра завершена, останавливаем дальнейшее действие
+                            return false;
+                        }
+
 
 
                         var obj = {
@@ -243,8 +306,6 @@ module.exports = function (app) {
             socket.on('checkTime1', function (data) {
                 var msg = JSON.parse(data);
 
-                console.log("checkTime1");
-                console.log(msg);
 
                 var who_get_flagged = msg.player;
 
@@ -260,7 +321,6 @@ module.exports = function (app) {
 
                 if (msg.id) {
                     app.mongoDB.collection("users").findOne(temp, function (err, mongoGame) {
-                        console.log(temp);
                         var send_data = {
                             id: mongoGame._id,
                         };
@@ -268,7 +328,7 @@ module.exports = function (app) {
                         //последний кто двигал фигуры - белые
                         if (who_get_flagged === "p2") {
                             //истекло ли время черных
-                            if (mongoGame.p2_time_left + mongoGame.p2_last_move.getTime() < new Date().getTime()) {
+                            if (mongoGame.p2_time_left + mongoGame.p1_last_move.getTime() < new Date().getTime()) {
                                 send_data.p1_won = 1;
                                 send_data.p2_won = 0;
                                 send_data.p1_id = mongoGame.p1_id;
@@ -283,7 +343,7 @@ module.exports = function (app) {
                             //последние ходили черные
 
                             //истекло ли время белых
-                            if (mongoGame.p1_time_left + mongoGame.p1_last_move.getTime() < new Date().getTime()) {
+                            if (mongoGame.p1_time_left + mongoGame.p2_last_move.getTime() < new Date().getTime()) {
                                 send_data.p1_won = 0;
                                 send_data.p2_won = 1;
                                 send_data.p1_id = mongoGame.p1_id;

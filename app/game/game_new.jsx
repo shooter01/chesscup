@@ -258,7 +258,7 @@ class App {
             }
         }
 
-        this.socket.emit('eventServer', JSON.stringify(send_data));
+        this.socket.emit('eventServer', send_data);
 
 
     }
@@ -423,7 +423,7 @@ class App {
             send_data.p1_id = p1;
             send_data.p2_id = p2;
             send_data.tourney_id = self.state.tourney_id;
-            self.socket.emit('eventServer', JSON.stringify(send_data));
+            self.socket.emit('eventServer', send_data);
 
         } else {
             element.closest(".control").addClass("confirm");
@@ -613,86 +613,113 @@ class App {
 
     socketMove(data){
         const self = this;
-        self.game.move({ from: data.from, to: data.to });
 
-        if (self.game.fen() !== data.fen) {
-            self.game.load(data.fen);
-        }
+
+            self.game.move({ from: data.from, to: data.to });
+            if (self.game.fen() !== data.fen) {
+                self.game.load(data.fen);
+            }
+
+            self.setState({
+                who_to_move: (self.game.turn() === 'w') ? "white" : "black",
+                white_time: data.p1_time_left,
+                black_time: data.p2_time_left,
+                is_over: data.is_over,
+                is_started: (self.game.turn() === 'w') ? 1 : self.state.is_started,
+            }, function () {
+                self.setTime();
+
+                const is_over = (data.is_over == 1);
+
+                /* if (is_over) {
+                 self.defeat_sound.play()
+                 }*/
+
+                self.cg.set({
+                    fen: self.game.fen(),
+                    viewOnly : is_over,
+                    lastMove: [data.from, data.to],
+                    movable: {
+                        dests: getDests(self.game)
+                    },
+                    turnColor: (self.game.turn() === 'w') ? "white" : "black"
+                });
+
+                self.premoved = self.cg.playPremove();
+
+
+                if (self.game.in_check() === true) {
+                    self.cg.set({
+                        check: true,
+                        state: {
+                            check: true,
+                        }
+                    })
+
+                }
+
+                if (typeof data.san != "undefined" && data.san != "undefined") {
+                    var a = this.state.moves;
+                    a.push(data.san);
+                    self.setState({
+                        moves: a,
+                    }, function () {
+                        self.addMove(data.san);
+                        self.scrollToBottom();
+
+                    });
+
+                    if (data.captured) {
+                        aa.play('capture');
+                    } else {
+                        aa.play('move');
+                    }
+                }
+            });
+
+            if (this.state.is_started === 1) {
+                self.$timeleft_black.addClass("hidden");
+                self.$timeleft_white.addClass("hidden");
+                if (this.state.moves.length > 2) {
+                    $(".draw-yes").removeAttr("disabled")
+                }
+                self.setRunning();
+            } else {
+                if (this.state.moves.length === 0) {
+                    self.$timeleft_white.removeClass("hidden");
+                }
+                if (this.state.moves.length === 1) {
+                    self.$timeleft_black.removeClass("hidden");
+                    self.$timeleft_white.addClass("hidden");
+                    self.startTimer();
+                }
+            }
+
+    }
+    cancelMove(data){
+        const self = this;
+        self.game.undo();
 
         self.setState({
             who_to_move: (self.game.turn() === 'w') ? "white" : "black",
-            white_time: data.p1_time_left,
-            black_time: data.p2_time_left,
+           // white_time: data.p1_time_left,
+            //black_time: data.p2_time_left,
             is_over: data.is_over,
             is_started: (self.game.turn() === 'w') ? 1 : self.state.is_started,
         }, function () {
             self.setTime();
-
-            const is_over = (data.is_over == 1);
-
-            /* if (is_over) {
-             self.defeat_sound.play()
-             }*/
-
+            self.setIsOver();
             self.cg.set({
                 fen: self.game.fen(),
-                viewOnly : is_over,
-                lastMove: [data.from, data.to],
+                viewOnly : 1,
+                lastMove : null,
                 movable: {
                     dests: getDests(self.game)
                 },
-                turnColor: (self.game.turn() === 'w') ? "white" : "black"
             });
-
-            self.premoved = self.cg.playPremove();
-
-
-            if (self.game.in_check() === true) {
-                self.cg.set({
-                    check: true,
-                    state: {
-                        check: true,
-                    }
-                })
-
-            }
-
-            if (typeof data.san != "undefined" && data.san != "undefined") {
-                var a = this.state.moves;
-                a.push(data.san);
-                self.setState({
-                    moves: a,
-                }, function () {
-                    self.addMove(data.san);
-                    self.scrollToBottom();
-
-                });
-
-                if (data.captured) {
-                    aa.play('capture');
-                } else {
-                    aa.play('move');
-                }
-            }
         });
 
-        if (this.state.is_started === 1) {
-            self.$timeleft_black.addClass("hidden");
-            self.$timeleft_white.addClass("hidden");
-            if (this.state.moves.length > 2) {
-                $(".draw-yes").removeAttr("disabled")
-            }
-            self.setRunning();
-        } else {
-            if (this.state.moves.length === 0) {
-                self.$timeleft_white.removeClass("hidden");
-            }
-            if (this.state.moves.length === 1) {
-                self.$timeleft_black.removeClass("hidden");
-                self.$timeleft_white.addClass("hidden");
-                self.startTimer();
-            }
-        }
+
     }
 
     goBack(){
@@ -868,6 +895,22 @@ class App {
     socketGamerOver(data){
         const self = this;
 
+        //если игра завершена, но пришел ход, значит кто то уронил флаг и это обнаружилось как он сделал ход
+        if (data.flagged) {
+            //отменяем последений ход пользователя для него, если он уронил флаг
+            if (typeof u !== "undefined" && u == p1 && data.flagged === "white") {
+                var undo = self.game.undo();
+                console.log("white undo");
+                console.log(undo);
+            } else if (typeof u !== "undefined" && u == p2 && data.flagged === "black") {
+                var undo =  self.game.undo();
+                console.log("black undo");
+
+                console.log(undo);
+            }
+            console.log(self.game.fen());
+        }
+
         clearInterval(self.timer);
         self.setState({
             is_over: data.is_over,
@@ -881,7 +924,9 @@ class App {
         });
 
         self.cg.set({
-
+            fen: self.game.fen(),
+            // viewOnly : 1,
+            lastMove : null,
             movable: {
                 color: null
             },
@@ -996,7 +1041,7 @@ class App {
             send_data.p1_id = p1;
             send_data.p2_id = p2;
             send_data.tourney_id = self.state.tourney_id;
-            self.socket.emit('eventServer', JSON.stringify(send_data));
+            self.socket.emit('eventServer', send_data);
         });
 
         $("body").off("click.decline_draw").on("click.decline_draw", ".decline", function () {
@@ -1031,7 +1076,12 @@ class App {
             if (data.event === "move") {
                 self.socketMove(data);
 
-            } else if (data.event === "rating_change") {
+            }
+            if (data.event === "cancel_move") {
+                self.cancelMove(data);
+
+            }
+            else if (data.event === "rating_change") {
 
                 self.socketRatingChange(data);
 
