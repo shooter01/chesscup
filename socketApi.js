@@ -110,12 +110,12 @@ module.exports = function (app) {
                     if (msg.premoved || mongoGame.is_started === 0) {
                         obj["p1_time_left"] = mongoGame.p1_time_left;
                     } else {
-                        lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
+                        lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
                         spent_time = actual_time - lm;
                         obj["p1_time_left"] = mongoGame.p1_time_left - spent_time;
                     }
                     obj["p2_last_move"] = new Date();
-                    obj["p1_time_left"] = mongoGame.p2_time_left;
+                    obj["p2_time_left"] = mongoGame.p2_time_left;
 
 
                 } else {
@@ -124,16 +124,19 @@ module.exports = function (app) {
                     if (msg.premoved || mongoGame.is_started === 0) {
                         obj["p2_time_left"] = mongoGame.p2_time_left;
                     } else {
-                        lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
+                        lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
                         spent_time = actual_time - lm;
                         obj["p2_time_left"] = mongoGame.p2_time_left - spent_time;
 
                     }
 
                     obj["p1_last_move"] = new Date();
-                    obj["p2_time_left"] = mongoGame.p1_time_left;
+                    obj["p1_time_left"] = mongoGame.p1_time_left;
 
                 }
+
+                console.log(msg.player);
+                console.log(obj);
 
                 return obj;
             }
@@ -194,7 +197,7 @@ module.exports = function (app) {
                         //последний кто двигал фигуры - черные
                         if (msg.player === "p2") {
                             //истекло ли время черных
-                            if (mongoGame.p1_last_move !== null && (mongoGame.p2_time_left + mongoGame.p1_last_move.getTime() < new Date().getTime())) {
+                            if (mongoGame.p2_last_move !== null && (mongoGame.p2_time_left + mongoGame.p2_last_move.getTime() < new Date().getTime())) {
                                 const chess = new Chess();
                                 chess.load(mongoGame.fen);
                                 if (chess.in_draw()) {
@@ -218,7 +221,7 @@ module.exports = function (app) {
 
                         } else if (msg.player === "p1") {
                             //истекло ли время белых
-                            if (mongoGame.p2_last_move !== null && (mongoGame.p1_time_left + mongoGame.p2_last_move.getTime() < new Date().getTime())) {
+                            if (mongoGame.p1_last_move !== null && (mongoGame.p1_time_left + mongoGame.p1_last_move.getTime() < new Date().getTime())) {
                                 //проверяем, а хватает ли матер
                                 const chess = new Chess();
                                 chess.load(mongoGame.fen);
@@ -280,7 +283,7 @@ module.exports = function (app) {
                             }
                         }
 
-                        calculateTime(msg, mongoGame, obj);
+                        obj = calculateTime(msg, mongoGame, obj);
 
                              app.mongoDB.collection("users").updateOne(temp,
                                  {
@@ -362,13 +365,13 @@ module.exports = function (app) {
                         //последний кто двигал фигуры - белые
                     //    if (who_get_flagged === "p2") {
                             //истекло ли время черных
-                            if ((mongoGame.p2_time_left + mongoGame.p1_last_move.getTime() + 1000) < new Date().getTime()) {
-                                send_data.p1_won = 1;
-                                send_data.p2_won = 0;
+                            if ((mongoGame.p1_time_left + mongoGame.p1_last_move.getTime() + 1000) < new Date().getTime()) {
+                                send_data.p1_won = 0;
+                                send_data.p2_won = 1;
                                 send_data.p1_id = mongoGame.p1_id;
                                 send_data.p2_id = mongoGame.p2_id;
-                                send_data.p2_time_left = 0;
-                                send_data.p1_time_left = mongoGame.p1_time_left;
+                                send_data.p1_time_left = 0;
+                                send_data.p2_time_left = mongoGame.p2_time_left;
                                 send_data.tourney_id = mongoGame.tournament_id;
                                 is_over = true;
                             }
@@ -377,13 +380,13 @@ module.exports = function (app) {
                             //последние ходили черные
 
                             //истекло ли время белых
-                            if ((mongoGame.p1_time_left + mongoGame.p2_last_move.getTime() + 1000) < new Date().getTime()) {
-                                send_data.p1_won = 0;
-                                send_data.p2_won = 1;
+                            if ((mongoGame.p2_time_left + mongoGame.p2_last_move.getTime() + 1000) < new Date().getTime()) {
+                                send_data.p1_won = 1;
+                                send_data.p2_won = 0;
                                 send_data.p1_id = mongoGame.p1_id;
                                 send_data.p2_id = mongoGame.p2_id;
-                                send_data.p1_time_left = 0;
-                                send_data.p2_time_left = mongoGame.p2_time_left;
+                                send_data.p1_time_left = mongoGame.p1_time_left;
+                                send_data.p2_time_left = 0;
                                 send_data.tourney_id = mongoGame.tournament_id;
                                 is_over = true;
                             }
