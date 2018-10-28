@@ -312,6 +312,7 @@ class App {
         //const element = $(event.target);
         this.socket.emit('rematch_game', JSON.stringify({
             "user_id" : u,
+            "current_color" : (u == p1) ? "white" : "black",
             "user_name" : user_name,
             "enemy_id" : (u == p1) ? p2 : p1,
         }));
@@ -1192,8 +1193,9 @@ class App {
         $("body").on("click", "#accept_rematch", function () {
             self.socket.emit('rematch_accepted', JSON.stringify({
                 "user_id" : u,
-                "user_name" : self.state.p1_name,
-                "enemy_name" : self.state.p2_name,
+                "current_color" : (u == p1) ? "white" : "black",
+                "user_name" : (u == p1) ? p1_name : p2_name,
+                "enemy_name" : (u == p2) ? p1_name : p2_name,
                 "amount" : self.state.amount,
                 "enemy_id" : (u == p1) ? p2 : p1,
             }));

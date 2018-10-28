@@ -365,6 +365,8 @@ module.exports = function (app) {
                         //последний кто двигал фигуры - белые
                     //    if (who_get_flagged === "p2") {
                             //истекло ли время черных
+                        console.log("checkTime1");
+                        console.log(mongoGame);
                             if ((mongoGame.p1_time_left + mongoGame.p2_last_move.getTime() + 1000) < new Date().getTime()) {
                                 send_data.p1_won = 0;
                                 send_data.p2_won = 1;
@@ -381,6 +383,7 @@ module.exports = function (app) {
 
                             //истекло ли время белых
                             if ((mongoGame.p2_time_left + mongoGame.p1_last_move.getTime() + 1000) < new Date().getTime()) {
+
                                 send_data.p1_won = 1;
                                 send_data.p2_won = 0;
                                 send_data.p1_id = mongoGame.p1_id;
@@ -447,13 +450,14 @@ module.exports = function (app) {
 
             socket.on('rematch_accepted', function (data) {
                 data = JSON.parse(data);
-
+                console.log(data);
                 //берем от клиента информацию
                 data['amount'] = data.amount;
-                data['p1_id'] = data.user_id;
-                data['p2_id'] = data.enemy_id;
-                data['p1_name'] = data.user_name;
-                data['p2_name'] = data.enemy_name;
+                data['p1_id'] = (data.current_color !== "white") ? data.user_id : data.enemy_id;
+                data['p2_id'] = (data.current_color === "white") ? data.user_id : data.enemy_id;
+                //data['current_color'] = ;
+                data['p1_name'] = (data.current_color !== "white") ? data.user_name : data.enemy_name;
+                data['p2_name'] = (data.current_color === "white") ? data.user_name : data.enemy_name;
                 data['p1_time_left'] = data.amount * 60000;
                 data['p2_time_left'] = data.amount * 60000;
                 data['tournament_id'] = null;
@@ -536,13 +540,13 @@ module.exports = function (app) {
 
                     //берем из монго
                     data['amount'] = mongoGame.time_control;
-                    data['p2_name'] = mongoGame.user_name;
+                    data['p1_name'] = mongoGame.user_name;
                     data['p1_id'] = mongoGame.owner;
                     data['p1_time_left'] = mongoGame.time_control * 60000;
                     data['p2_time_left'] = mongoGame.time_control * 60000;
 
                     //берем от клиента информацию
-                    data['p1_name'] = data.user_name;
+                    data['p2_name'] = data.user_name;
                     data['p2_id'] = data.user_id;
                     data['tournament_id'] = null;
 
@@ -626,9 +630,12 @@ module.exports = function (app) {
                     //io.sockets.emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
                 }
 
-                if (Object.keys(online_players[socket.game_id]).length === 0) {
-                    delete online_players[socket.game_id];
+                if (online_players) {
+                    if (Object.keys(online_players[socket.game_id]).length === 0) {
+                        delete online_players[socket.game_id];
+                    }
                 }
+
             }
 
             if (typeof app.globalPlayers[socket.p_id] !== "undefined"){
