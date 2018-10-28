@@ -169,7 +169,7 @@ module.exports = function (app) {
                             console.log("Игра завершена. Отмена действия.");
                             console.log("Полученные данные:");
                             console.log(msg);
-                            console.log("Данны игры");
+                            console.log("Данные игры");
                             console.log(mongoGame);
 
 
@@ -361,6 +361,17 @@ module.exports = function (app) {
                         var send_data = {
                             id: mongoGame._id,
                         };
+
+                        if (mongoGame.is_over === 1) {
+                            console.log("Игра завершена. Отмена действия.");
+                            console.log("Полученные данные:");
+                            console.log(msg);
+                            console.log("Данные игры");
+                            console.log(mongoGame);
+
+
+                            return false;
+                        }
 
                         //последний кто двигал фигуры - белые
                     //    if (who_get_flagged === "p2") {
