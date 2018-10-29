@@ -250,7 +250,7 @@ module.exports = function (app) {
 
                         if (is_over === true) {
                             console.log("flagged");
-                            save_result_mongo(send_data, mongoGame, app);
+                            save_result_mongo(send_data, mongoGame, app, "flagged");
 
 
                             //если это турнирная партия сохранияем в mysql
@@ -325,7 +325,7 @@ module.exports = function (app) {
                                      });
 
                                      if (msg.is_over == 1) {
-                                         save_result_mongo(obj, mongoGame, app);
+                                         save_result_mongo(obj, mongoGame, app, "msg");
                                          if (msg.tourney_id) {
                                              game_over(msg, app);
                                          }
@@ -419,7 +419,7 @@ module.exports = function (app) {
                     //    }
 
                         if (is_over) {
-                            save_result_mongo(send_data, mongoGame, app);
+                            save_result_mongo(send_data, mongoGame, app, "checkTime1");
                         }
 
                         //если это турнирная партия сохранияем в mysql
