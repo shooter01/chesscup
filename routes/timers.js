@@ -70,8 +70,6 @@ module.exports = function (app) {
 
         app.mongoDB.collection("users").find({ is_over: 0 }, function(err, cursor) {
             cursor.forEach(function (game) {
-                console.log('eventClient');
-                console.log(app.globalPlayers);
 
                 if (typeof app.globalPlayers[game.p1_id] !== "undefined"){
                     app.globalPlayers[game.p1_id].emit('eventClient', {
