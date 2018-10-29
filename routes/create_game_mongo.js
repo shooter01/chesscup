@@ -2,7 +2,7 @@ const moment = require('moment');
 
 const create_game_mongo = function (data, app, callback) {
     const startTime = moment(new Date()).add(1, 'm').toDate();
-    //console.log(data);
+    console.log(data);
     let temp = {
         "moves": [],
         "is_over": 0,
