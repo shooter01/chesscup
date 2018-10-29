@@ -702,7 +702,7 @@ module.exports = function (app) {
                     //io.sockets.emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
                 }
 
-                if (online_players) {
+                if (online_players && online_players[socket.game_id]) {
                     if (Object.keys(online_players[socket.game_id]).length === 0) {
                         delete online_players[socket.game_id];
                     }
