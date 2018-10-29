@@ -379,7 +379,7 @@ module.exports = function (app) {
                     //    if (who_get_flagged === "p2") {
                             //истекло ли время черных
 
-                            if ((mongoGame.p2_time_left + mongoGame.p2_last_move.getTime() + 1000) < new Date().getTime()) {
+                            if ((mongoGame.p2_time_left + mongoGame.p2_last_move.getTime()) < new Date().getTime()) {
                                 console.log("checkTime WHITE LOST");
                                 console.log(mongoGame.p1_time_left);
                                 console.log(mongoGame.p1_last_move.getTime());
@@ -398,7 +398,7 @@ module.exports = function (app) {
                             //последние ходили черные
 
                             //истекло ли время белых
-                            if ((mongoGame.p1_time_left + mongoGame.p1_last_move.getTime() + 1000) < new Date().getTime()) {
+                            if ((mongoGame.p1_time_left + mongoGame.p1_last_move.getTime()) < new Date().getTime()) {
                                 console.log("checkTime BLACK LOST");
                                 console.log(mongoGame.p2_time_left);
                                 console.log(mongoGame.p2_last_move.getTime());
