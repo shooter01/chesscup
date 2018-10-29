@@ -618,14 +618,14 @@ class App extends React.Component {
 
                     var is_over = (data.is_over == 1) ? true : false;
 
-                    /*if (u == p1 && this.state.who_to_move == "white") {
+                    if (u == p1 && this.state.who_to_move == "white") {
                         if (!is_over) {
                             const moves = self.game.moves({verbose:true});
                             const move = moves[Math.floor(Math.random() * moves.length)];
                             console.log(move);
                             setTimeout(function () {
                                 self.move(move.from, move.to);
-                            }, 0);
+                            }, 100);
                         }
                     }
 
@@ -636,9 +636,9 @@ class App extends React.Component {
                             console.log(move);
                             setTimeout(function () {
                                 self.move(move.from, move.to);
-                            }, 0);
+                            }, 100);
                         }
-                    }*/
+                    }
 
                     if (is_over) {
                         self.defeat_sound.play()

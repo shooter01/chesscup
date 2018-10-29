@@ -197,7 +197,7 @@ module.exports = function (app) {
                         console.log(msg.player);
 
                         //последний кто двигал фигуры - черные
-                        if (msg.player === "p2") {
+                        if (mongoGame.is_started === 1 && msg.player === "p2") {
                             //истекло ли время черных
                             if (mongoGame.p2_last_move !== null && (mongoGame.p2_time_left + mongoGame.p2_last_move.getTime() < new Date().getTime())) {
                                 const chess = new Chess();
@@ -221,7 +221,7 @@ module.exports = function (app) {
                                 is_over = true;
                             }
 
-                        } else if (msg.player === "p1") {
+                        } else if (mongoGame.is_started === 1 && msg.player === "p1") {
                             //истекло ли время белых
                             if (mongoGame.p1_last_move !== null && (mongoGame.p1_time_left + mongoGame.p1_last_move.getTime() < new Date().getTime())) {
                                 //проверяем, а хватает ли матер
