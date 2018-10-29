@@ -109,10 +109,13 @@ module.exports = function (app) {
                 if (msg.player === "p1") {
 
                     //если премув - время не отнимается
-                    if (msg.premoved || mongoGame.is_started === 0) {
+                    if (msg.premoved) {
                         obj["p1_time_left"] = mongoGame.p1_time_left;
                         obj["p2_last_move"] = mongoGame.p2_last_move;
-                    } else {
+                    } else if (mongoGame.is_started === 0) {
+                        obj["p1_time_left"] = mongoGame.p1_time_left;
+                        obj["p2_last_move"] = new Date();
+                    }  else {
                         lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
                         spent_time = actual_time - lm;
                         obj["p1_time_left"] = mongoGame.p1_time_left - spent_time;
@@ -124,9 +127,12 @@ module.exports = function (app) {
                 } else {
 
                     //если премув - время не отнимается
-                    if (msg.premoved || mongoGame.is_started === 0) {
+                    if (msg.premoved) {
                         obj["p2_time_left"] = mongoGame.p2_time_left;
                         obj["p1_last_move"] = mongoGame.p1_last_move;
+                    } else if (mongoGame.is_started === 0) {
+                        obj["p2_time_left"] = mongoGame.p2_time_left;
+                        obj["p1_last_move"] = new Date();
                     } else {
                         lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
                         spent_time = actual_time - lm;
