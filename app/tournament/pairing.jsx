@@ -20,8 +20,14 @@ import UserTable from "./UserTable.jsx";
 
 
 class Pairing extends React.Component {
+
     constructor(props) {
+
         super(props);
+
+        this._isMounted = false;
+
+
         this.state = {
             pairs: (typeof pairs != "undefined") ? pairs : null,
             participants: participants,
@@ -40,6 +46,7 @@ class Pairing extends React.Component {
     }
     componentDidMount(){
         var self = this;
+        this._isMounted = true;
 
         $("#next_tour").on("click", function () {
             $.ajax({
@@ -302,10 +309,10 @@ class Pairing extends React.Component {
         }
 
         if (this.state.tournament.is_online == 1 && typeof tour_choosed === "undefined"){
-            this.socket = io(window.location.origin, {query: 't1=' + this.state.tournament_id});
+           //this.socket = io(window.location.origin, {query: 't1=' + this.state.tournament_id});
 
 
-            this.socket.on('tournament_event', function (data) {
+            window.socket.on('tournament_event', function (data) {
                 data = JSON.parse(data);
                 // console.log(data);
                 self.getActualData();
@@ -316,14 +323,23 @@ class Pairing extends React.Component {
 
     }
 
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
     getActualData(){
         var self = this;
+
+
         $.getJSON('/tournament/' + this.state.tournament_id + '/get_info').done(function (data) {
-            self.setState({
-                pairs : JSON.parse(data.pairing) || [],
-                tournament : data.tournament || {},
-                participants : data.participants || [],
-            });
+            if (self._isMounted) {
+
+                self.setState({
+                    pairs: JSON.parse(data.pairing) || [],
+                    tournament: data.tournament || {},
+                    participants: data.participants || [],
+                });
+            }
         });
     }
     saveResult(event){

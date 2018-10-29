@@ -1,9 +1,9 @@
 const moment = require('moment');
 
 const create_game_mongo = function (data, app, callback) {
-    var startTime = moment(new Date()).add(1, 'm').toDate();
-    console.log(data);
-    app.mongoDB.collection("users").insertOne({
+    const startTime = moment(new Date()).add(1, 'm').toDate();
+    //console.log(data);
+    let temp = {
         "moves": [],
         "is_over": 0,
         "p1_id": data.p1_id,
@@ -22,7 +22,15 @@ const create_game_mongo = function (data, app, callback) {
         "p2_time_left": data.amount * 60000,
         "is_started": 0,
         "time_addition": 0,
-    }, callback);
+    };
+    if (typeof data.id !== "undefined") {
+        temp._id = data.id;
+    }
+    console.log(temp);
+
+    app.mongoDB.collection("users").insertOne(temp, callback);
+
+    temp = null;
 
 };
 

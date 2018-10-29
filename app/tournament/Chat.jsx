@@ -29,9 +29,9 @@ class Chat extends React.Component {
     componentDidMount() {
         var self = this;
 
-        this.socket = io(window.location.origin, {query: 'chat=' + tournament.id});
+        //this.socket = io(window.location.origin, {query: 'chat=' + tournament.id});
 
-        this.socket.on('message', function (data) {
+        window.socket.on('message', function (data) {
             data = JSON.parse(data);
             // console.log(data);
             self.addMessage(data);

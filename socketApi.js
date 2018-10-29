@@ -46,6 +46,8 @@ module.exports = function (app) {
             store[socket.p_id] = socket.id;
         }
 
+        //console.log(app.globalPlayers);
+
         if ((handshakeData._query['t1'] && handshakeData._query['t1'] != "undefined")) {
             socket.join('t' + handshakeData._query['t1']);
         }
@@ -376,9 +378,12 @@ module.exports = function (app) {
                         //последний кто двигал фигуры - белые
                     //    if (who_get_flagged === "p2") {
                             //истекло ли время черных
-                        console.log("checkTime1");
-                        console.log(mongoGame);
-                            if ((mongoGame.p1_time_left + mongoGame.p2_last_move.getTime() + 1000) < new Date().getTime()) {
+
+                            if ((mongoGame.p2_time_left + mongoGame.p2_last_move.getTime() + 1000) < new Date().getTime()) {
+                                console.log("checkTime WHITE LOST");
+                                console.log(mongoGame.p1_time_left);
+                                console.log(mongoGame.p1_last_move.getTime());
+
                                 send_data.p1_won = 0;
                                 send_data.p2_won = 1;
                                 send_data.p1_id = mongoGame.p1_id;
@@ -393,8 +398,10 @@ module.exports = function (app) {
                             //последние ходили черные
 
                             //истекло ли время белых
-                            if ((mongoGame.p2_time_left + mongoGame.p1_last_move.getTime() + 1000) < new Date().getTime()) {
-
+                            if ((mongoGame.p1_time_left + mongoGame.p1_last_move.getTime() + 1000) < new Date().getTime()) {
+                                console.log("checkTime BLACK LOST");
+                                console.log(mongoGame.p2_time_left);
+                                console.log(mongoGame.p2_last_move.getTime());
                                 send_data.p1_won = 1;
                                 send_data.p2_won = 0;
                                 send_data.p1_id = mongoGame.p1_id;
@@ -404,6 +411,11 @@ module.exports = function (app) {
                                 send_data.tourney_id = mongoGame.tournament_id;
                                 is_over = true;
                             }
+
+
+                        console.log("checkTime1");
+                        console.log(mongoGame);
+
                     //    }
 
                         if (is_over) {

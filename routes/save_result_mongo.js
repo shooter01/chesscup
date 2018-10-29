@@ -9,9 +9,20 @@ const save_result_mongo = function (msg, mongoGame, app) {
         "p1_won" : msg.p1_won,
         "p2_won" : msg.p2_won,
     };
-    console.log("save_result_mongo");
-    console.log(msg);
-    console.log(mongoGame);
+
+    if (!mongoGame) {
+        console.log("Игра не найдена (save_result_mongo)");
+        console.log("Полученные данные:");
+        console.log(msg);
+        console.log("Данные игры");
+        console.log(mongoGame);
+        const a = {
+            event: "game_aborted",
+        };
+        app.io.to(msg.id).emit('eventClient', a);
+        return false;
+    }
+
 
 
 

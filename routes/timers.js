@@ -58,7 +58,7 @@ module.exports = function (app) {
                 //сохраняем завершение партии в монго
                 save_result_mongo(send_data, game, app);
 
-                if (game.tourney_id) {
+                if (game.tournament_id) {
                     game_over(send_data, app);
                 }
 
@@ -70,17 +70,23 @@ module.exports = function (app) {
 
         app.mongoDB.collection("users").find({ is_over: 0 }, function(err, cursor) {
             cursor.forEach(function (game) {
+                console.log('eventClient');
+                console.log(app.globalPlayers);
 
                 if (typeof app.globalPlayers[game.p1_id] !== "undefined"){
-                    app.globalPlayers[game.p1_id].emit('game_start', JSON.stringify({
-                        tournament_id: game.tournament_id, game_id : game._id
-                    }));
+                    app.globalPlayers[game.p1_id].emit('eventClient', {
+                        event : "start_game",
+                        tournament_id: game.tournament_id,
+                        game_id : game._id
+                    });
                 }
 
                 if (typeof app.globalPlayers[game.p2_id] !== "undefined") {
-                    app.globalPlayers[game.p2_id].emit('game_start', JSON.stringify({
-                        tournament_id: game.tournament_id, game_id : game._id
-                    }));
+                    app.globalPlayers[game.p2_id].emit('eventClient', {
+                        event : "start_game",
+                        tournament_id: game.tournament_id,
+                        game_id : game._id
+                    });
                 }
 
             }, function () {});
@@ -96,7 +102,7 @@ module.exports = function (app) {
                     id: mongoGame._id,
                 };
 
-                let who_move_last = "", game_over = false;
+                let who_move_last = "", is_over = false;
 
                 //белые пошли а черные не ответили
                 if (mongoGame.p1_last_move == null) {
@@ -118,7 +124,7 @@ module.exports = function (app) {
                         send_data.p2_time_left = 0;
                         send_data.p1_time_left = mongoGame.p1_time_left;
                         send_data.tourney_id = mongoGame.tournament_id;
-                        game_over = true;
+                        is_over = true;
                     }
 
                 } else {
@@ -133,14 +139,21 @@ module.exports = function (app) {
                         send_data.p1_time_left = 0;
                         send_data.p2_time_left = mongoGame.p2_time_left;
                         send_data.tourney_id = mongoGame.tournament_id;
-                        game_over = true;
+                        is_over = true;
                     }
                 }
 
 
-                if (game_over) {
+                if (is_over) {
                     send_data.caller = "timers";
                     save_result_mongo(send_data, mongoGame, app);
+                }
+
+                console.log('если это турнирная партия сохранияем в mysql');
+                console.log(send_data);
+                //если это турнирная партия сохранияем в mysql
+                if (send_data.tourney_id != null) {
+                    game_over(send_data, app);
                 }
 
             }, function () {});

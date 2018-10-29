@@ -26,6 +26,7 @@ var config = {
         game_new : './app/game/game_new.jsx',
         play : './app/play/play.jsx',
         team_pairing : './app/tournament/team_pairing.jsx',
+        ws : './app/websockets/ws.jsx',
     },
     output: {
         path: BUILD_DIR,
@@ -41,7 +42,7 @@ var config = {
         ]
     },
     plugins: [
-        new webpack.DefinePlugin({
+        /*new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('production')
         }),
         new webpack.optimize.UglifyJsPlugin({
