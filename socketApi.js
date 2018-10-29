@@ -107,14 +107,14 @@ module.exports = function (app) {
                 var actual_time = new Date().getTime(), lm = 0, spent_time = 0;
 
                 if (msg.player === "p1") {
-
-                    //если премув - время не отнимается
-                    if (msg.premoved) {
-                        obj["p1_time_left"] = mongoGame.p1_time_left;
-                        obj["p2_last_move"] = mongoGame.p2_last_move;
-                    } else if (mongoGame.is_started === 0) {
+                    if (mongoGame.is_started === 0) {
                         obj["p1_time_left"] = mongoGame.p1_time_left;
                         obj["p2_last_move"] = new Date();
+                    }
+                    //если премув - время не отнимается
+                    else if (msg.premoved) {
+                        obj["p1_time_left"] = mongoGame.p1_time_left;
+                        obj["p2_last_move"] = mongoGame.p2_last_move;
                     }  else {
                         lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
                         spent_time = actual_time - lm;
@@ -126,13 +126,14 @@ module.exports = function (app) {
 
                 } else {
 
-                    //если премув - время не отнимается
-                    if (msg.premoved) {
-                        obj["p2_time_left"] = mongoGame.p2_time_left;
-                        obj["p1_last_move"] = mongoGame.p1_last_move;
-                    } else if (mongoGame.is_started === 0) {
+                    if (mongoGame.is_started === 0) {
                         obj["p2_time_left"] = mongoGame.p2_time_left;
                         obj["p1_last_move"] = new Date();
+                    }
+                    //если премув - время не отнимается
+                    else if (msg.premoved) {
+                        obj["p2_time_left"] = mongoGame.p2_time_left;
+                        obj["p1_last_move"] = mongoGame.p1_last_move;
                     } else {
                         lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
                         spent_time = actual_time - lm;
