@@ -2,7 +2,14 @@
 import Sounds from "../sounds.jsx";
 
 
-var aa;
+
+window.s_capture = new Audio("data:audio/wav;base64," + Sounds["capture"]);
+window.s_move = new Audio("data:audio/wav;base64," + Sounds["move"]);
+window.s_endgame = new Audio("data:audio/wav;base64," + Sounds["endgame"]);
+window.s_lowtime = new Audio("data:audio/wav;base64," + Sounds["lowtime"]);
+
+
+/*var aa;
 (function(){
     function ArcadeAudio() {
         this.sounds = {};
@@ -38,7 +45,7 @@ var aa;
     aa.add( 'endgame', 1,[[]]);
     aa.add( 'lowtime', 1,[[]]);
 
-})();
+})();*/
 
 
 class App {
@@ -362,7 +369,8 @@ class App {
             $(".control.buttons").not(".rematch").addClass("hidden");
 
             if (this.state.isPlayer && caller != "init") {
-                aa.play('endgame');
+                window.s_endgame.play();
+                //aa.play('endgame');
             }
 
 
@@ -693,9 +701,33 @@ class App {
                     });
 
                     if (data.captured) {
-                        aa.play('capture');
+
+                        if (!window.s_capture.paused) {
+                            setTimeout(function () {
+                                window.s_audio_capture1 = new Audio("data:audio/wav;base64," + Sounds["capture"]);
+                                s_audio_capture1.play()
+                            }, 150);
+                        } else {
+                            window.s_capture.play();
+                        }
+
+
+
+
+
                     } else {
-                        aa.play('move');
+
+
+                        if (!window.s_capture.paused) {
+                            setTimeout(function () {
+                                window.s_audio_move1 = new Audio("data:audio/wav;base64," + Sounds["move"]);
+                                s_audio_move1.play()
+                            }, 150);
+                        } else {
+                            window.s_move.play();
+                        }
+
+
                     }
                 }
             });
@@ -956,7 +988,7 @@ class App {
             turnColor: null
         });
 
-        self.defeat_sound = $("#defeat_sound")[0];
+        //self.defeat_sound = $("#defeat_sound")[0];
 
         self.$timeleft_black.addClass("hidden");
         self.$timeleft_white.addClass("hidden");
