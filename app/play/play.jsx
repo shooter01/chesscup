@@ -19,15 +19,15 @@ class PlaySockets extends React.Component {
 
     componentDidMount(){
         var self = this;
-        var url;
+       /* var url;
         if (typeof u != "undefined") {
             url = 'h=' + u;
         } else {
             url = 'h=null';
-        }
-        this.socket = io(window.location.origin, {query: url + "&lobby=true"});
+        }*/
+        //this.socket = io(window.location.origin, {query: url + "&lobby=true"});
 
-        this.socket.on('games_list', function (data) {
+        window.socket.on('games_list', function (data) {
             const games = JSON.parse(data.games);
             const challenges = JSON.parse(data.challenges);
 
@@ -40,21 +40,13 @@ class PlaySockets extends React.Component {
              console.log(games);
 
         });
-        this.socket.on('eventClient', function (data) {
-            //data = JSON.parse(data);
-            console.log(data);
-
-            if (data.event === "playzone_start_game") {
-                location.href = "/play/game/" + data.game_id;
-            }
-        });
 
 
 
         //$(function () {
         $("#create_game").on("click", function () {
 
-            self.socket.emit('create_game', JSON.stringify({
+            window.socket.emit('create_game', JSON.stringify({
                 "amount" : $("#amount").val(),
                 "user_id" : u,
                 "user_name" : user_name,
@@ -66,7 +58,7 @@ class PlaySockets extends React.Component {
 
         window.onbeforeunload = function(e) {
             if (typeof u !== "undefined") {
-                self.socket.emit('remove_all_challenges', JSON.stringify({
+                window.socket.emit('remove_all_challenges', JSON.stringify({
                     "user_id" : u,
                 }));
             }
@@ -80,7 +72,7 @@ class PlaySockets extends React.Component {
         var attr = $target.data("game_id");
 
         if (typeof u !== "undefined") {
-            this.socket.emit('accept_game', JSON.stringify({
+            window.socket.emit('accept_game', JSON.stringify({
                 "user_id": u,
                 "game_id": attr,
                 "user_name": user_name,
@@ -96,7 +88,7 @@ class PlaySockets extends React.Component {
 
 
         if (typeof u !== "undefined") {
-            this.socket.emit('remove', JSON.stringify({
+            window.socket.emit('remove', JSON.stringify({
                 "user_id" : u,
                 "game_id" : attr,
 
@@ -183,7 +175,8 @@ class PlaySockets extends React.Component {
 
 }
 
-
-render(
-    <PlaySockets/>
-    , document.getElementById('games'));
+$(function () {
+    render(
+        <PlaySockets/>
+        , document.getElementById('games'));
+});

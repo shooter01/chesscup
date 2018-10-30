@@ -1,10 +1,11 @@
 
 class WS {
     constructor(){
-        console.log(g_ws_params);
+        console.log(window.g_ws_params);
         let ws_params = (typeof window.g_ws_params !== "undefined") ? window.g_ws_params : {};
+        let defObject = (typeof window.u !== "undefined") ? {'h' : u} : {};
 
-        const str = this.getUrl(Object.assign(ws_params, {'h' : u}));
+        const str = this.getUrl(Object.assign(ws_params, defObject));
 
         window.socket = io(window.location.origin, {
             query:  str,
@@ -12,7 +13,8 @@ class WS {
 
         window.socket.on('eventClient', function (data) {
             if (data.event === "start_game") {
-                if (typeof data.game_id != "undefined" && typeof data.tournament_id != "undefined"){
+                console.log(data);
+                if (typeof data.game_id != "undefined" && data.tournament_id){
 
                     if (typeof g === "undefined") {
                         location.href = "/tournament/" + data.tournament_id + "/game/" + data.game_id;
@@ -21,7 +23,16 @@ class WS {
                             location.href = "/tournament/" + data.tournament_id + "/game/" + data.game_id;
                         }
                     }
+                } else if (typeof data.game_id != "undefined" && !data.tournament_id){
+                    if (typeof g === "undefined") {
+                        location.href = "/play/game/" + data.game_id;
+                    } else {
+                        if (!isNaN(parseInt(g)) && g != data.game_id) {
+                            location.href = "/play/game/" + data.game_id;
+                        }
+                    }
                 }
+
             }
         });
 
@@ -39,4 +50,8 @@ class WS {
     }
 }
 
-new WS();
+
+$(function () {
+    new WS();
+});
+

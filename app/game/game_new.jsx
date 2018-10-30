@@ -258,7 +258,7 @@ class App {
             }
         }
 
-        this.socket.emit('eventServer', send_data);
+        window.socket.emit('eventServer', send_data);
 
 
     }
@@ -310,7 +310,7 @@ class App {
     rematchClick(event){
         const self = this;
         //const element = $(event.target);
-        this.socket.emit('rematch_game', JSON.stringify({
+        window.socket.emit('rematch_game', JSON.stringify({
             "user_id" : u,
             "current_color" : (u == p1) ? "white" : "black",
             "user_name" : user_name,
@@ -424,7 +424,7 @@ class App {
             send_data.p1_id = p1;
             send_data.p2_id = p2;
             send_data.tourney_id = self.state.tourney_id;
-            self.socket.emit('eventServer', send_data);
+            window.socket.emit('eventServer', send_data);
 
         } else {
             element.closest(".control").addClass("confirm");
@@ -452,7 +452,7 @@ class App {
         self.drawCount++;
         console.log(self.drawCount);
         if (self.drawCount > 1) {
-            self.socket.emit('draw_offer', JSON.stringify({
+            window.socket.emit('draw_offer', JSON.stringify({
                 "enemy_id" : (u == p1) ? p2 : p1,
                 "game_id" : g
             }));
@@ -504,7 +504,7 @@ class App {
                     //debugger;
 
 
-                    this.socket.emit('checkTime1', JSON.stringify(send_data));
+                    window.socket.emit('checkTime1', JSON.stringify(send_data));
 
                 } else {
                     this.setTime();
@@ -527,7 +527,7 @@ class App {
                     send_data.p1_id = p1;
                     send_data.p2_id = p2;
                     send_data.tourney_id = this.state.tourney_id;
-                    this.socket.emit('checkTime1', JSON.stringify(send_data));
+                    window.socket.emit('checkTime1', JSON.stringify(send_data));
                 } else {
                     this.setTime();
                 }
@@ -1064,11 +1064,11 @@ class App {
             send_data.p1_id = p1;
             send_data.p2_id = p2;
             send_data.tourney_id = self.state.tourney_id;
-            self.socket.emit('eventServer', send_data);
+            window.socket.emit('eventServer', send_data);
         });
 
         $("body").off("click.decline_draw").on("click.decline_draw", ".decline", function () {
-            self.socket.emit('decline_draw', JSON.stringify({
+            window.socket.emit('decline_draw', JSON.stringify({
                 game_id : g
             }));
         });
@@ -1082,11 +1082,10 @@ class App {
         } else {
             url = '';
         }
-        this.socket = io(window.location.origin, {query: url + '&g=' + g});
+        //this.socket = io(window.location.origin, {query: url + '&g=' + g});
 
-        this.socket.on('eventClient', function (data) {
+        window.socket.on('eventClient', function (data) {
             //data = JSON.parse(data);
-            //  debugger;
             self.cg.set({
                 check: false,
                 state: {
@@ -1126,7 +1125,7 @@ class App {
             else if (data.event === "playerOnline") {
                 self.socketPlayerOnline(data);
             }
-            else if (data.event === "playzone_start_game") {
+            else if (data.event === "game_start") {
                 self.playzoneStartGame(data);
             }
             else if (data.event === "draw_offer") {
@@ -1142,7 +1141,7 @@ class App {
             if (this.state.orientation === "black") {
                 who_online = "black";
             }
-            this.socket.emit('playerOnOff', JSON.stringify({online: who_online, p_id: u, game_id: g}))
+            window.socket.emit('playerOnOff', JSON.stringify({online: who_online, p_id: u, game_id: g}))
         }
 
 
@@ -1191,7 +1190,7 @@ class App {
         });
 
         $("body").on("click", "#accept_rematch", function () {
-            self.socket.emit('rematch_accepted', JSON.stringify({
+            window.socket.emit('rematch_accepted', JSON.stringify({
                 "user_id" : u,
                 "current_color" : (u == p1) ? "white" : "black",
                 "user_name" : (u == p1) ? p1_name : p2_name,

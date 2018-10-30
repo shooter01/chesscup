@@ -554,10 +554,12 @@ class Pairing extends React.Component {
 
     }
 }
+$(function () {
+    render(
+        <Pairing/>
+        , document.getElementById('pairing'));
+});
 
-render(
-    <Pairing/>
-    , document.getElementById('pairing'));
 
 
 

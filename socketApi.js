@@ -535,8 +535,8 @@ module.exports = function (app) {
                 data['tournament_id'] = null;
 
                 create_game_mongo(data, app, function (err, insertedGame) {
-                    invite_user_to_game(data.user_id, {event : "playzone_start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
-                    invite_user_to_game(data.enemy_id, {event : "playzone_start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
+                    invite_user_to_game(data.user_id, {event : "start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
+                    invite_user_to_game(data.enemy_id, {event : "start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
                 });
             });
 
@@ -625,9 +625,9 @@ module.exports = function (app) {
                     create_game_mongo(data, app, function (err, insertedGame) {
                         app.mongoDB.collection("challenges").deleteMany({owner: mongoGame.owner}, function () {});
 
-                        invite_user_to_game(mongoGame.owner, {event : "playzone_start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
+                        invite_user_to_game(mongoGame.owner, {event : "start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
 
-                        invite_user_to_game(data.user_id, {event : "playzone_start_game",tournament_id: null, game_id : insertedGame.insertedId},app);
+                        invite_user_to_game(data.user_id, {event : "start_game",tournament_id: null, game_id : insertedGame.insertedId},app);
 
                     });
                 });
