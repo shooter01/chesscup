@@ -718,7 +718,7 @@ class App {
                                 window.s_audio_capture1 = new Audio("data:audio/wav;base64," + Sounds["capture"]);
                                 s_audio_capture1.volume = 0.2;
                                 s_audio_capture1.play()
-                            }, 200);
+                            }, 50);
                         } else {
                             window.s_capture.play();
                         }
@@ -735,7 +735,7 @@ class App {
                                 window.s_audio_move1 = new Audio("data:audio/wav;base64," + Sounds["move"]);
                                 s_audio_move1.volume = 0.2;
                                 s_audio_move1.play()
-                            }, 200);
+                            }, 50);
                         } else {
                             window.s_move.play();
                         }
