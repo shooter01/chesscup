@@ -9,3 +9,19 @@ a {
 .hidden {
   display: none!important;
 }
+
+.chat ol {
+  padding: 0;
+  margin: 0;
+}
+.chat {
+  height: 350px;
+  border-left: 1px solid #dee2e6;
+  border-right: 1px solid #dee2e6;
+}
+.messages {
+  height: 312px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 10px;
+}

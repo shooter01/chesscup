@@ -7,7 +7,7 @@ class Chat extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            tournament : tournament,
+            chat_id : (typeof window.chat_id != "undefined") ? window.chat_id : null,
             messages : []
         };
 
@@ -32,8 +32,8 @@ class Chat extends React.Component {
         //this.socket = io(window.location.origin, {query: 'chat=' + tournament.id});
 
         window.socket.on('message', function (data) {
-            data = JSON.parse(data);
-            // console.log(data);
+            //data = JSON.parse(data);
+             console.log(data);
             self.addMessage(data);
         });
 
@@ -56,31 +56,33 @@ class Chat extends React.Component {
 
     getChat() {
         var self = this;
-        $.getJSON("/tournament/" + this.state.tournament.id + "/messages", function (data) {
-            if (data.status == "ok") {
-                try {
-                    data = JSON.parse(data.messages);
-                    var temp = [];
-                    // console.log(data);
+        if (this.state.chat_id) {
+            $.getJSON("/chat/" + this.state.chat_id + "/messages", function (data) {
+                if (data.status == "ok") {
+                    try {
+                        data = JSON.parse(data.messages);
+                        var temp = [];
+                         console.log(data);
 
-                    for (var i = 0; i < data.length; i++) {
-                        var obj = JSON.parse(data[i].msg);
-                        temp.push(obj);
+                        for (var i = 0; i < data.length; i++) {
+                            var obj = JSON.parse(data[i].msg);
+                            temp.push(obj);
+                        }
+
+                        self.setState({
+                            messages : temp
+                        }, function () {
+                            this.scrollToBottom();
+                        });
+
+                        // console.log(temp);
+                    } catch(e) {
+                        console.log(e.message);
                     }
-
-                    self.setState({
-                        messages : temp
-                    }, function () {
-                        this.scrollToBottom();
-                    });
-
-                    // console.log(temp);
-                } catch(e) {
-                    console.log(e.message);
                 }
-            }
 
-        })
+            })
+        }
     }
 
     scrollToBottom(){
@@ -97,16 +99,17 @@ class Chat extends React.Component {
         // console.log(mes);
 
         if (mes != "") {
-            if (typeof current_user === "undefined") {
+            if (typeof user_name === "undefined") {
                 return false;
             }
             let item = {
                 msg: mes,
                 user_id: u,
-                name: current_user
+                name: user_name,
+                chat_id : this.state.chat_id
             };
 
-            this.socket.emit('message', JSON.stringify(item));
+            window.socket.emit('message', item);
 
             textDOM.value = "";
             textDOM.focus();
@@ -125,15 +128,18 @@ class Chat extends React.Component {
 
     render () {
         return (
-            <div className="">
-                <div>
+            <div>
+                {this.state.chat_id ?
+                <div className="chat">
                     <div className="messages p-1" id="messages">
                         {this.state.messages.map((item, index) => (
                             <div key={index} className="mt-1 mt-2"><b>{item.name}</b>&nbsp;&nbsp;{item.msg}</div>
                         ))}
                     </div>
 
-                        {(typeof u == "undefined" || u == null) ?
+
+
+                    {(typeof u == "undefined" || u == null) ?
 
                             <div className="input-group posAbsolute d-flex justify-content-center align-items-end"><a href="/login">Login</a>&nbsp; or &nbsp;<a href="/signup">register</a>&nbsp; to&nbsp; chat </div>
 
@@ -144,8 +150,9 @@ class Chat extends React.Component {
                                 </div>
                             </div>}
 
-
                 </div>
+
+                    : null}
             </div>
 
         );
@@ -157,8 +164,10 @@ class Chat extends React.Component {
 
 
 
-
-
+$(function () {
     render(
         <Chat/>
-    , document.getElementById('chat'));
+        , document.getElementById('chat'));
+});
+
+

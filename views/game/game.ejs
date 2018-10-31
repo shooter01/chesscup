@@ -25,7 +25,8 @@
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/"><%- __("Tournaments") %></a></li>
                 <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>"><%= tournament.title %></a></li>
-                <li class="breadcrumb-item" aria-current="page">Game № <%= game.id %></li>
+                <li class="breadcrumb-item"><a href="/tournament/<%= tournament.id %>/tour/<%= game.tour %>">Tour <%= game.tour %></a></li>
+                <li class="breadcrumb-item" aria-current="page">Game #<%= game.id %></li>
             </ol>
         </nav>
     </div>
@@ -327,14 +328,17 @@
 
 <script>
     window.g_ws_params = {
-        g : g
+        g : g,
     }
+    window.chat_id = "g" + g;
 </script>
+
 
 <script src="/js/cg/dist/chess.min.js"></script>
 <script src="/js/cg/dist/chessground.js"></script>
 
 <script src="/js/game_new.min.js"></script>
+<script src="/js/chat.min.js"></script>
 <!--<script src="/js/chat.min.js"></script>-->
 
 

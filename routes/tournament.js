@@ -1136,33 +1136,7 @@ module.exports = function(app, passport, pool, i18n) {
     });
 
 
-    router.get('/:tournament_id/messages',
-        function (req, res, next) {
-            let tournament_id = req.params.tournament_id;
-            tournament_id = parseInt(tournament_id);
-            var tourney, participants, is_in = false;
-            if (!isNaN(tournament_id)) {
 
-                app.mongoDB.collection("chat").find({chat_id: tournament_id}, function(err, cursor) {
-                    let messages = [];
-                    cursor.forEach(function (message) {
-                        messages.push(message);
-
-                    }, function () {
-                        console.log(messages);
-                        res.json({
-                            status : "ok",
-                            messages : JSON.stringify(messages)
-                        });
-                    });
-                });
-            } else {
-                res.json({
-                    status : "error",
-                    messages : []
-                });
-            }
-        });
 
 
 

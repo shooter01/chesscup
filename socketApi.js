@@ -52,10 +52,9 @@ module.exports = function (app) {
 
         if ((handshakeData._query['t1'] && handshakeData._query['t1'] != "undefined")) {
             socket.join('t' + handshakeData._query['t1']);
+            socket.join('chatt' + handshakeData._query['t1']);
         }
-        if ((handshakeData._query['chat'] && handshakeData._query['chat'] != "undefined")) {
-            socket.join('chat' + handshakeData._query['chat']);
-        }
+
         if ((handshakeData._query['lobby'] && handshakeData._query['lobby'] != "undefined")) {
             socket.join('lobby');
         }
@@ -73,6 +72,7 @@ module.exports = function (app) {
             }
 
             socket.join(socket.game_id);
+            socket.join('chatg' + socket.game_id);
 
             io.to(socket.game_id).emit('playerOnline',
                 JSON.stringify(online_players[handshakeData._query['g']] || {}));
@@ -552,10 +552,6 @@ module.exports = function (app) {
                     invite_user_to_game(data.enemy_id, {event : "start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
                 });
             });
-
-
-
-
         } else if (
             (!handshakeData._query['h'] ||
             handshakeData._query['h'] == "undefined"
@@ -569,24 +565,15 @@ module.exports = function (app) {
             socket.t1 = handshakeData._query['t1'];
             app.viewers[handshakeData._query['t1']] =  app.viewers[handshakeData._query['t1']] || {};
             app.viewers[handshakeData._query['t1']][random] = socket;
-          //  console.log(Object.keys(app.viewers));
+
+
+
+
+            //  console.log(Object.keys(app.viewers));
           //  console.log(Object.keys(app.viewers[handshakeData._query['t1']]));
             // console.log(Object.keys(app.globalPlayers));
             // console.log(handshakeData._query['h']);
         } else if (
-            handshakeData._query['chat'] && handshakeData._query['chat'] != "undefined"
-        ) {
-
-            socket.on('message', function (data) {
-               // data = JSON.parse(data);
-                io.to("chat" + handshakeData._query['chat']).emit('message', data);
-                var game = app.mongoDB.collection("chat").insertOne({
-                    msg : data,
-                    chat_id : parseInt(handshakeData._query['chat']),
-                });
-            });
-
-        }else if (
             handshakeData._query['lobby'] && handshakeData._query['lobby'] != "undefined"
         ) {
 
@@ -736,6 +723,17 @@ module.exports = function (app) {
 
             }
 
+        });
+
+        socket.on('message', function (data) {
+            // data = JSON.parse(data);
+            console.log(data.chat_id);
+            io.to("chat" + data.chat_id).emit('message', data);
+            console.log(data);
+            var game = app.mongoDB.collection("chat").insertOne({
+                msg : JSON.stringify(data),
+                chat_id : data.chat_id,
+            });
         });
     });
 

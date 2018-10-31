@@ -2,24 +2,6 @@
 <% layout('boilerplate') -%>
 
 
-<style>
-    #chat ol {
-        padding: 0;
-        margin: 0;
-    }
-    #chat {
-        height: 350px;
-        border-left: 1px solid #dee2e6;
-        border-right: 1px solid #dee2e6;
-    }
-    .messages {
-        height: 312px;
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding-bottom: 10px;
-    }
-</style>
-
 <div class="row mt-3">
     <div class="col-lg-12 d-none d-lg-block">
         <nav aria-label="breadcrumb">
@@ -86,7 +68,7 @@
 <% if (user && user.user) { %>
 <script>
     var u = '<%= user.user.id %>';
-    var current_user = '<%= user.user.name %>';
+    var user_name = '<%= user.user.name %>';
 </script>
 <% }  %>
 
@@ -196,13 +178,26 @@
                 <div id="chat" class="side_box mchat optional"></div>
             </div>
             <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                <div class="alert alert-light" role="alert" style="padding-top: 0">
-                    <div><%- __("CreateToursCount") %> : <%= tournament.tours_count %></div>
-                    <div><%- __("CreateCity") %> : <%= tournament.city %> </div>
-                    <div><%- __("CreateDateStart") %> : <%= tournament.start_date %></div>
-                    <div><%- __("CreateDateEnd") %> : <%= tournament.end_date %></div>
-                    <div><%- __("Created") %> : <%= tournament.created_at %></div>
-                    <div><%- __("Creator") %> : <%= tournament.name %></div>
+                <style>
+                    #profile .alert {
+                        padding: 0;
+                    }
+                    #profile .alert-success {
+                        padding: .75rem 1.25rem;
+                    }
+
+                </style>
+                <div class="alert alert-light mt-2" role="alert" style="padding-top: 0">
+                    <div class="alert alert-success" role="alert">
+                        <div><%- __("CreateToursCount") %> : <%= tournament.tours_count %></div>
+                        <!--<div><%- __("CreateCity") %> : <%= tournament.city %> </div>-->
+                        <div><%- __("CreateDateStart") %> : <%= tournament.start_date %></div>
+                        <div>Контроль времени : <%= tournament.amount %> мин.</div>
+                        <!--<div><%- __("CreateDateEnd") %> : <%= tournament.end_date %></div>-->
+                        <!--<div><%- __("Created") %> : <%= tournament.created_at %></div>-->
+                        <div><%- __("Creator") %> : <%= tournament.name %></div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -228,10 +223,13 @@
 
 <script>
     window.g_ws_params = {
-        t1 : tournament.id
+        t1 : tournament.id,
+
     }
+    window.chat_id = "t" + tournament.id;
+
 </script>
 
 
 <script src="/js/pairing.min.js"></script>
-<!--<script src="/js/chat.min.js"></script>-->
+<script src="/js/chat.min.js"></script>

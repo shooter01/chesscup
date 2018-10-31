@@ -41,6 +41,35 @@ module.exports = function (app, passport, pool) {
     });
 
 
+    router.get('/chat/:chat_id/messages',
+        function (req, res, next) {
+            let chat_id = req.params.chat_id;
+            var tourney, participants, is_in = false;
+            console.log(chat_id);
+            if (chat_id) {
+
+                app.mongoDB.collection("chat").find({chat_id: chat_id}, function(err, cursor) {
+                    let messages = [];
+                    cursor.forEach(function (message) {
+                        messages.push(message);
+
+                    }, function () {
+                        console.log(messages);
+                        res.json({
+                            status : "ok",
+                            messages : JSON.stringify(messages)
+                        });
+                    });
+                });
+            } else {
+                res.json({
+                    status : "error",
+                    messages : []
+                });
+            }
+        });
+
+
     router.post('/signup', [
 
 
