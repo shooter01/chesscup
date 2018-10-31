@@ -9,11 +9,18 @@ window.s_endgame = new Audio("data:audio/wav;base64," + Sounds["endgame"]);
 window.s_lowtime = new Audio("data:audio/wav;base64," + Sounds["lowtime"]);
 window.s_confirmation = new Audio("data:audio/wav;base64," + Sounds["confirmation"]);
 
+window.s_audio_capture1 = new Audio("data:audio/wav;base64," + Sounds["capture"]);
+window.s_audio_move1 = new Audio("data:audio/wav;base64," + Sounds["move"]);
+
 s_capture.volume = 0.2;
 s_move.volume = 0.2;
 s_endgame.volume = 0.2;
 s_lowtime.volume = 0.2;
 s_confirmation.volume = 0.2;
+s_audio_move1.volume = 0.2;
+s_audio_capture1.volume = 0.2;
+
+
 
 
 /*var aa;
@@ -715,8 +722,6 @@ class App {
 
                         if (!window.s_capture.paused) {
                             setTimeout(function () {
-                                window.s_audio_capture1 = new Audio("data:audio/wav;base64," + Sounds["capture"]);
-                                s_audio_capture1.volume = 0.2;
                                 s_audio_capture1.play()
                             }, 50);
                         } else {
@@ -732,8 +737,6 @@ class App {
 
                         if (!window.s_move.paused) {
                             setTimeout(function () {
-                                window.s_audio_move1 = new Audio("data:audio/wav;base64," + Sounds["move"]);
-                                s_audio_move1.volume = 0.2;
                                 s_audio_move1.play()
                             }, 50);
                         } else {
