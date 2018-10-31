@@ -3,6 +3,7 @@ const make_draw = require('./make_draw');
 const save_result_mongo = require('./save_result_mongo');
 const game_over = require('./game_over');
 const ObjectId = require('mongodb').ObjectId;
+const is_draw = require('./is_draw');
 
 
 module.exports = function (app) {
@@ -115,8 +116,13 @@ module.exports = function (app) {
                 if (who_move_last === "p1") {
                     //истекло ли время черных
                     if (mongoGame.p2_last_move !== null && (mongoGame.p2_time_left + mongoGame.p2_last_move.getTime() + 1000) < new Date().getTime()) {
-                        send_data.p1_won = 1;
-                        send_data.p2_won = 0;
+                        if (is_draw(mongoGame, "black")) {
+                            send_data.p1_won = 0.5;
+                            send_data.p2_won = 0.5;
+                        } else {
+                            send_data.p1_won = 1;
+                            send_data.p2_won = 0;
+                        }
                         send_data.p1_id = mongoGame.p1_id;
                         send_data.p2_id = mongoGame.p2_id;
                         send_data.p2_time_left = 0;
@@ -130,8 +136,13 @@ module.exports = function (app) {
 
                     //истекло ли время белых
                     if (mongoGame.p1_last_move !== null && (mongoGame.p1_time_left + mongoGame.p1_last_move.getTime() + 1000) < new Date().getTime()) {
-                        send_data.p1_won = 0;
-                        send_data.p2_won = 1;
+                        if (is_draw(mongoGame, "white")) {
+                            send_data.p1_won = 0.5;
+                            send_data.p2_won = 0.5;
+                        } else {
+                            send_data.p1_won = 0;
+                            send_data.p2_won = 1;
+                        }
                         send_data.p1_id = mongoGame.p1_id;
                         send_data.p2_id = mongoGame.p2_id;
                         send_data.p1_time_left = 0;

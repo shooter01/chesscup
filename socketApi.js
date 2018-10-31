@@ -11,7 +11,6 @@ var uscf = {
     2400: 10
 };
 
-var Chess = require('chess.js').Chess;
 
 var min_score = 100;
 var max_score = 10000;
@@ -20,6 +19,7 @@ const game_over = require('./routes/game_over');
 const save_result_mongo = require('./routes/save_result_mongo');
 const create_game_mongo = require('./routes/create_game_mongo');
 const invite_user_to_game = require('./routes/invite_user_to_game');
+const is_draw = require('./routes/is_draw');
 const bluebird = require('bluebird');
 const ObjectId = require('mongodb').ObjectId;
 
@@ -28,6 +28,8 @@ let online_players = {};
 let store = {};
 
 var elo = new Elo(uscf, min_score, max_score);
+
+
 
 module.exports = function (app) {
 
@@ -200,11 +202,9 @@ module.exports = function (app) {
                         if (mongoGame.is_started === 1 && msg.player === "p2") {
                             //истекло ли время черных
                             if (mongoGame.p2_last_move !== null && (mongoGame.p2_time_left + mongoGame.p2_last_move.getTime() < new Date().getTime())) {
-                                const chess = new Chess();
-                                chess.load(mongoGame.fen);
-                                if (chess.in_draw()) {
+                                if (is_draw(mongoGame, "black")) {
                                     send_data.p1_won = 0.5;
-                                    send_data.p1_won = 0.5;
+                                    send_data.p2_won = 0.5;
                                 } else {
                                     send_data.p1_won = 1;
                                     send_data.p2_won = 0;
@@ -225,19 +225,17 @@ module.exports = function (app) {
                             //истекло ли время белых
                             if (mongoGame.p1_last_move !== null && (mongoGame.p1_time_left + mongoGame.p1_last_move.getTime() < new Date().getTime())) {
                                 //проверяем, а хватает ли матер
-                                const chess = new Chess();
-                                chess.load(mongoGame.fen);
-                                if (chess.in_draw()) {
+                                if (is_draw(mongoGame, "white")) {
                                     send_data.p1_won = 0.5;
-                                    send_data.p1_won = 0.5;
+                                    send_data.p2_won = 0.5;
                                 } else {
-                                    send_data.p1_won = 1;
-                                    send_data.p2_won = 0;
+                                    send_data.p1_won = 0;
+                                    send_data.p2_won = 1;
                                 }
 
+                                console.log(send_data);
+
                                 send_data.id = mongoGame._id;
-                                send_data.p1_won = 0;
-                                send_data.p2_won = 1;
                                 send_data.p1_id = mongoGame.p1_id;
                                 send_data.p2_id = mongoGame.p2_id;
                                 send_data.p1_time_left = 0;
@@ -247,6 +245,9 @@ module.exports = function (app) {
                                 is_over = true;
                             }
                         }
+
+
+
 
                         if (is_over === true) {
                             console.log("flagged");
@@ -395,11 +396,17 @@ module.exports = function (app) {
                         //последний кто двигал фигуры - белые
                         if (who_move_last === "p1") {
                             //истекло ли время черных
-                            if (mongoGame.p2_last_move !== null && (mongoGame.p2_time_left + mongoGame.p2_last_move.getTime() + 1000) < new Date().getTime()) {
+                            if (mongoGame.p2_last_move !== null && (mongoGame.p2_time_left + mongoGame.p2_last_move.getTime() + 700) < new Date().getTime()) {
                                 console.log("checkTime BLACK LOST");
+                                if (is_draw(mongoGame, "black")) {
+                                    send_data.p1_won = 0.5;
+                                    send_data.p2_won = 0.5;
+                                } else {
+                                    send_data.p1_won = 1;
+                                    send_data.p2_won = 0;
+                                }
 
-                                send_data.p1_won = 1;
-                                send_data.p2_won = 0;
+
                                 send_data.p1_id = mongoGame.p1_id;
                                 send_data.p2_id = mongoGame.p2_id;
                                 send_data.p2_time_left = 0;
@@ -412,11 +419,17 @@ module.exports = function (app) {
                             //последние ходили черные
 
                             //истекло ли время белых
-                            if (mongoGame.p1_last_move !== null && (mongoGame.p1_time_left + mongoGame.p1_last_move.getTime() + 1000) < new Date().getTime()) {
+                            if (mongoGame.p1_last_move !== null && (mongoGame.p1_time_left + mongoGame.p1_last_move.getTime() + 700) < new Date().getTime()) {
                                 console.log("checkTime WHITE LOST");
+                                if (is_draw(mongoGame, "white")) {
+                                    send_data.p1_won = 0.5;
+                                    send_data.p2_won = 0.5;
+                                } else {
+                                    send_data.p1_won = 0;
+                                    send_data.p2_won = 1;
+                                }
 
-                                send_data.p1_won = 0;
-                                send_data.p2_won = 1;
+
                                 send_data.p1_id = mongoGame.p1_id;
                                 send_data.p2_id = mongoGame.p2_id;
                                 send_data.p1_time_left = 0;
