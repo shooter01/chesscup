@@ -4,15 +4,16 @@ const save_result_mongo = function (msg, mongoGame, app, caller) {
     console.log("save_result_mongo");
     console.log(caller);
     console.log(msg);
-    console.log(mongoGame);
-    console.log("==================================================");
+   // console.log(mongoGame);
+   // console.log("==================================================");
 
-    var obj = {
+    let obj1 = {
         "is_over": 1,
         "p1_time_left" : msg.p1_time_left,
         "p2_time_left" : msg.p2_time_left,
         "p1_won" : msg.p1_won,
         "p2_won" : msg.p2_won,
+        "reason" : msg.reason,
     };
 
     if (!mongoGame) {
@@ -40,7 +41,7 @@ const save_result_mongo = function (msg, mongoGame, app, caller) {
 
     app.mongoDB.collection("users").updateOne(
         temp,
-        {$set: obj},
+        {$set: obj1},
         {
             writeConcern: true
         }, function (err, res) {
@@ -50,6 +51,7 @@ const save_result_mongo = function (msg, mongoGame, app, caller) {
                 "p2_time_left" : msg.p2_time_left,
                 "p1_won" : msg.p1_won,
                 "p2_won" : msg.p2_won,
+                "reason" : msg.reason,
                 "flagged" : msg.flagged, //кто проиграл по времени
                 is_over: 1
             });

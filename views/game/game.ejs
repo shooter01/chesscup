@@ -14,6 +14,9 @@
     #dirty {
         display: none;
     }
+    .result {
+        margin-bottom: 0;
+    }
 </style>
 
 <% if (tournament) { %>
@@ -123,7 +126,9 @@
                                         <button class="fbt  hint--top" data-hint="Перевернуть доску"
                                                 data-act="" disabled><span data-icon=""></span></button></div>
                                     <div class="moves"></div>
+
                                 </div>
+
 
                                 <div>
                                     <div class="control buttons rematch hidden">
@@ -277,11 +282,12 @@
     var p1_time_left = '<%= p1_time_left %>';
     var p2_time_left = '<%= p2_time_left %>';
     var is_over = parseInt('<%= mongoGame.is_over %>');
-    var p1_won = parseInt('<%= mongoGame.p1_won %>');
-    var p2_won = parseInt('<%= mongoGame.p2_won %>');
+    var p1_won = parseFloat('<%= mongoGame.p1_won %>');
+    var p2_won = parseFloat('<%= mongoGame.p2_won %>');
     var p1_name = '<%= mongoGame.p1_name %>';
     var p2_name = '<%= mongoGame.p2_name %>';
     var amount = '<%= mongoGame.amount %>';
+    var reason = '<%= mongoGame.reason %>';
 
     var p1 = '<%= mongoGame.p1_id %>';
     var p2 = '<%= mongoGame.p2_id %>';

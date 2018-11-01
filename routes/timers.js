@@ -119,9 +119,11 @@ module.exports = function (app) {
                         if (is_draw(mongoGame, "black")) {
                             send_data.p1_won = 0.5;
                             send_data.p2_won = 0.5;
+                            send_data.reason = "insufficient_material";
                         } else {
                             send_data.p1_won = 1;
                             send_data.p2_won = 0;
+                            send_data.reason = "time_run_out";
                         }
                         send_data.p1_id = mongoGame.p1_id;
                         send_data.p2_id = mongoGame.p2_id;
@@ -139,9 +141,11 @@ module.exports = function (app) {
                         if (is_draw(mongoGame, "white")) {
                             send_data.p1_won = 0.5;
                             send_data.p2_won = 0.5;
+                            send_data.reason = "insufficient_material";
                         } else {
                             send_data.p1_won = 0;
                             send_data.p2_won = 1;
+                            send_data.reason = "time_run_out";
                         }
                         send_data.p1_id = mongoGame.p1_id;
                         send_data.p2_id = mongoGame.p2_id;

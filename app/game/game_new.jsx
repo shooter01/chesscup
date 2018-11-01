@@ -20,6 +20,30 @@ s_confirmation.volume = 0.2;
 s_audio_move1.volume = 0.2;
 s_audio_capture1.volume = 0.2;
 
+const REASONS = {
+    "insufficient_material" : "Недостаточно материала",
+    "time_run_out" : "Время истекло",
+    "stalemate" : "Пат",
+    "draw" : "Ничья",
+    "mate" : "Мат",
+    "resign" : function (p1_won) {
+        if (p1_won === 0) {
+            return "Белые сдались";
+        } else if (p1_won === 1) {
+            return "Черные сдались";
+        }
+    },
+    "titles" : function (p1_won) {
+        if (p1_won === 0) {
+            return "Победа черных";
+        } else if (p1_won === 1) {
+            return "Победа белых";
+        }else if (p1_won === 0.5) {
+            return "Ничья";
+        }
+    },
+};
+
 
 
 
@@ -89,6 +113,7 @@ class App {
             tourney_href: (typeof tourney_id != "undefined") ? "/tournament/" + tourney_id : "/play",
             tourney_text: (typeof tourney_id != "undefined") ? "Вернуться к турниру" : "REMATCH",
             is_over: is_over,
+            reason: reason,
             p1_won: p1_won,
             p2_won: p2_won,
             is_started: parseInt(is_started),
@@ -149,6 +174,9 @@ class App {
         this.$moves = $(".moves");
         this.$timeleft_black = $("#timeleft_black");
         this.$timeleft_white = $("#timeleft_white");
+        this.$tourney_text = $(".tourney_text");
+        this.objDiv = document.querySelector(".moves");
+
 
 
         this.cg = Chessground(dirty[0], {
@@ -199,8 +227,12 @@ class App {
         this.setInitialTimers();
         self.setRunning();
 
-        if (this.state.isPlayer && this.state.is_started === 0) {
+        if (this.state.isPlayer && this.state.is_started === 0 && this.state.is_over === 0) {
             s_confirmation.play();
+        }
+
+        if (this.state.is_over) {
+            this.addResult();
         }
 
     }
@@ -263,6 +295,7 @@ class App {
             send_data.p2_won = (this.game.turn() === "b") ? 0 : 1;
             send_data.p1_id = p1;
             send_data.p2_id = p2;
+            send_data.reason = "mate";
             send_data.tourney_id = this.state.tourney_id;
         } else if (self.game.in_draw() === true) {
             send_data.is_over = 1;
@@ -270,6 +303,15 @@ class App {
             send_data.p2_won = 0.5;
             send_data.p1_id = p1;
             send_data.p2_id = p2;
+
+            if (self.game.in_stalemate()){
+                send_data.reason = "stalemate";
+            } else if (self.game.in_threefold_repetition()){
+                send_data.reason = "threefold_repetition";
+            } else if (self.game.insufficient_material()){
+                send_data.reason = "insufficient_material";
+            }
+
             send_data.tourney_id = this.state.tourney_id;
         } else {
             // check?
@@ -362,14 +404,18 @@ class App {
                 $(".p2_draw").removeClass("hidden");
             }
 
-            if (this.state.isPlayer && this.state.tourney_id === null) {
-                $(".tourney_text").text("РЕВАНШ");
-                $(".rematch").on("click", function (event) {
-                    self.rematchClick();
-                    return false;
-                });
+            if (this.state.isPlayer) {
+                if (this.state.tourney_id === null) {
+                    this.$tourney_text.text("РЕВАНШ");
+                    $(".rematch").on("click", function (event) {
+                        self.rematchClick();
+                        return false;
+                    });
+                } else {
+                    this.$tourney_text.text("К ТУРНИРУ");
+                    this.$tourney_text.attr("href", this.state.tourney_href);
+                }
             }
-
 
             self.setState({
                 bottom_rating_change: (typeof rating_change_p1 != "undefined") ? rating_change_p1 : 0,
@@ -392,12 +438,32 @@ class App {
             }
 
 
+
+
+            console.log(this.state.reason);
+
+
         } else {
             //если партия не завершена
             if (this.state.isPlayer){
                 $(".players-btns").removeClass("hidden");
             }
         }
+    }
+
+    addResult(){
+        var reason = "";
+        if (this.state.reason === "resign") {
+            reason = REASONS[this.state.reason](this.state.p1_won);
+        } else {
+            reason = REASONS[this.state.reason];
+        }
+        this.$moves.append($('<div class="result_wrap"><p class="result">' + this.state.p1_won + '-' + this.state.p2_won
+            + '</p><div class="status"><div>' + reason + '</div><div>' + REASONS.titles(this.state.p1_won) + '</div></p></div>'));
+
+        this.scrollToBottom();
+
+
     }
 
     fillMoves(){
@@ -438,6 +504,8 @@ class App {
         self.resignCount++;
 
         if (self.resignCount > 1) {
+            self.resignCount = 0;
+
             var send_data = {
                 data: self.game.fen(),
                 id: g,
@@ -449,6 +517,7 @@ class App {
             send_data.p2_won = (self.state.playerColor === 'black') ? 0 : 1;
             send_data.p1_id = p1;
             send_data.p2_id = p2;
+            send_data.reason = "resign";
             send_data.tourney_id = self.state.tourney_id;
             window.socket.emit('eventServer', send_data);
 
@@ -478,6 +547,8 @@ class App {
         self.drawCount++;
         console.log(self.drawCount);
         if (self.drawCount > 1) {
+            self.drawCount = 0;
+
             window.socket.emit('draw_offer', JSON.stringify({
                 "enemy_id" : (u == p1) ? p2 : p1,
                 "game_id" : g
@@ -934,9 +1005,8 @@ class App {
 
     scrollToBottom(){
         //scroll to bottom
-        const objDiv = document.querySelector(".moves");
-        if (objDiv) {
-            objDiv.scrollTop = objDiv.scrollHeight;
+        if (this.objDiv) {
+            this.objDiv.scrollTop = this.objDiv.scrollHeight;
         }
     }
 
@@ -987,6 +1057,7 @@ class App {
             is_over: data.is_over,
             p1_won: data.p1_won,
             p2_won: data.p2_won,
+            reason: data.reason,
             white_time : data.p1_time_left,
             black_time : data.p2_time_left
         }, function () {
@@ -1008,6 +1079,8 @@ class App {
 
         self.$timeleft_black.addClass("hidden");
         self.$timeleft_white.addClass("hidden");
+
+        self.addResult();
 
     }
     socketGameAborted(data){
@@ -1111,6 +1184,7 @@ class App {
             send_data.p2_won = 0.5;
             send_data.p1_id = p1;
             send_data.p2_id = p2;
+            send_data.reason = "draw";
             send_data.tourney_id = self.state.tourney_id;
             window.socket.emit('eventServer', send_data);
         });

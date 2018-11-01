@@ -21,6 +21,7 @@ const create_game_mongo = function (data, app, callback) {
         "p1_time_left": data.amount * 60000,
         "p2_time_left": data.amount * 60000,
         "is_started": 0,
+        "reason": null,
         "time_addition": 0,
     };
     if (typeof data.id !== "undefined") {
