@@ -138,14 +138,14 @@ class App {
 
 
         if (typeof fen != "undefined" && fen != "undefined" && fen != "" && fen != null) {
-            this.game = new Chess('4k3/p7/8/8/8/7R/4K3/8 w - - 0 1');
+            this.game = new Chess();
             for (let i = 0; i < self.state.moves.length; i++) {
                 let obj = self.state.moves[i];
                 this.game.move(obj);
             }
 
         } else {
-            this.game = new Chess('4k3/p7/8/8/8/7R/4K3/8 w - - 0 1');
+            this.game = new Chess();
         }
 
         if (typeof u != "undefined" && p1 == u) {
