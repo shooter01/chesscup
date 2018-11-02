@@ -1358,6 +1358,7 @@ class App {
         });
 
         $("body").on("click", "#accept_rematch", function () {
+            $(this).attr("disabled", "disabled");
             window.socket.emit('rematch_accepted', JSON.stringify({
                 "user_id" : u,
                 "current_color" : (u == p1) ? "white" : "black",
