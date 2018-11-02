@@ -524,6 +524,13 @@ module.exports = function (app) {
                     game_id : data.game_id,
                 });
             });
+            socket.on('rematch_cancel', function (data) {
+                data = JSON.parse(data);
+                io.to(data.game_id).emit('eventClient', {
+                    event : "rematch_cancel",
+                    game_id : data.game_id,
+                });
+            });
 
 
             socket.on('rematch_game', function (data) {
@@ -613,7 +620,7 @@ module.exports = function (app) {
 
             socket.on('cancel_game', function (data) {
                // console.log('cancel_game');
-                console.log(data);
+               // console.log(data);
             });
 
             socket.on('accept_game', function (data) {

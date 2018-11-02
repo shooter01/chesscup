@@ -341,9 +341,9 @@ class App {
 
 
     checkMobile(){
-        if (clientWidth < 635 && this.state.is_over === 0) {
+        if (clientWidth < 635) {
             $(".mobile-controls").removeClass("hidden");
-        } else if (clientWidth > 635 ) {
+        } else {
             $(".table_wrap").removeClass("hidden");
         }
     }
@@ -381,6 +381,21 @@ class App {
         const self = this;
 
         if (typeof this.rematchSent != "undefined" && this.rematchSent === true) {
+
+            $(".offer_sent").replaceWith(this.rematchBtnCache);
+            this.rematchSent = false;
+            this.$tourney_text = $(".tourney_text");
+            window.socket.emit('rematch_cancel', JSON.stringify({
+                game_id : g
+            }));
+            let item = {
+                msg: "отменил реванш",
+                user_id: u,
+                name: user_name,
+                chat_id : this.state.chat_id
+            };
+
+            window.socket.emit('message', item);
             return false;
         }
 
@@ -1203,6 +1218,14 @@ class App {
 
 
     }
+    rematch_cancel(data){
+        const self = this;
+       // console.log(data);
+        $("#rematchModal").modal("hide");
+
+
+
+    }
     draw_offer(data){
         const self = this;
        // console.log(data);
@@ -1304,6 +1327,9 @@ class App {
             }
             else if (data.event === "decline_rematch") {
                 self.decline_rematch(data);
+            }
+            else if (data.event === "rematch_cancel") {
+                self.rematch_cancel(data);
             }
         });
 
