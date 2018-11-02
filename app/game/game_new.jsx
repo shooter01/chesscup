@@ -25,6 +25,8 @@ const REASONS = {
     "time_run_out" : "Время истекло",
     "stalemate" : "Пат",
     "draw" : "Ничья",
+    "whitedidntmove" : "Белые не сделали ход",
+    "blackdidntmove" : "Черные не сделали ход",
     "mate" : "Мат",
     "resign" : function (p1_won) {
         if (p1_won === 0) {
@@ -469,6 +471,7 @@ class App {
     }
 
     addResult(){
+        console.log(this.state.reason);
         var reason = "";
         if (this.state.reason === "resign") {
             reason = REASONS[this.state.reason](this.state.p1_won);

@@ -42,10 +42,12 @@ module.exports = function (app) {
                     //черные выиграли так как белые не сходили
                     send_data.p1_won = 0;
                     send_data.p2_won = 1;
+                    send_data.reason = "whitedidntmove";
                 } else if (game.p1_last_move == null) {
                     //белые выиграли так как черные не сходили
                     send_data.p1_won = 1;
                     send_data.p2_won = 0;
+                    send_data.reason = "blackdidntmove";
                 }
 
 
