@@ -706,7 +706,7 @@ module.exports = function(app, passport, pool, i18n) {
                 }).then(function (results) {
                     return pool.query('DELETE FROM tournaments_teams_scores WHERE tournament_id = ?', office.tournament_id);
                 }).then(function (results) {
-                var newDateObj = moment(new Date()).add(0.1, 'm').toDate();
+                var newDateObj = moment(new Date()).add(0.5, 'm').toDate();
 
                 return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[
                     {
