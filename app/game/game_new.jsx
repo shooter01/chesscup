@@ -95,6 +95,7 @@ class App {
             promotion: "q",
             who_to_move: null,
             isPlayer: false,
+            chat_id : (typeof window.chat_id != "undefined") ? window.chat_id : null,
             amount: amount,
             white_time: p1_time_left,
             p1_name: p1_name,
@@ -137,14 +138,14 @@ class App {
 
 
         if (typeof fen != "undefined" && fen != "undefined" && fen != "" && fen != null) {
-            this.game = new Chess();
+            this.game = new Chess('4k3/p7/8/8/8/7R/4K3/8 w - - 0 1');
             for (let i = 0; i < self.state.moves.length; i++) {
                 let obj = self.state.moves[i];
                 this.game.move(obj);
             }
 
         } else {
-            this.game = new Chess();
+            this.game = new Chess('4k3/p7/8/8/8/7R/4K3/8 w - - 0 1');
         }
 
         if (typeof u != "undefined" && p1 == u) {
@@ -374,15 +375,37 @@ class App {
         $(".p2_name").html(this.state.p2_name);
     }
 
-    rematchClick(event){
+    rematchClick(){
         const self = this;
-        //const element = $(event.target);
+
+        if (typeof this.rematchSent != "undefined" && this.rematchSent === true) {
+            return false;
+        }
+
+        this.rematchBtnCache = this.$tourney_text.get(0).outerHTML;
+        this.rematchSent = true;
+
+        this.$tourney_text.replaceWith('<a class="button rematch offer_sent white me" title="Предложение реванша отправлено">' +
+            '<div class="spinner"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none"></circle></svg></div></a>')
+
+        //console.log(element);
+
         window.socket.emit('rematch_game', JSON.stringify({
             "user_id" : u,
             "current_color" : (u == p1) ? "white" : "black",
             "user_name" : user_name,
             "enemy_id" : (u == p1) ? p2 : p1,
         }));
+
+        let item = {
+            msg: "предложил реванш",
+            user_id: u,
+            name: user_name,
+            chat_id : this.state.chat_id
+        };
+
+        window.socket.emit('message', item);
+
     }
 
     setIsOver(caller){
@@ -436,12 +459,6 @@ class App {
                 window.s_endgame.play();
                 //aa.play('endgame');
             }
-
-
-
-
-            console.log(this.state.reason);
-
 
         } else {
             //если партия не завершена
@@ -545,7 +562,6 @@ class App {
 
 
         self.drawCount++;
-        console.log(self.drawCount);
         if (self.drawCount > 1) {
             self.drawCount = 0;
 
@@ -562,6 +578,15 @@ class App {
             self.drawCount = 0;
             clearTimeout(this.drawTimeout);
             $(".draw").attr("disabled", "disabled");
+
+            let item = {
+                msg: "предложил ничью",
+                user_id: u,
+                name: user_name,
+                chat_id : this.state.chat_id
+            };
+
+            window.socket.emit('message', item);
 
         } else {
             element.closest(".control").addClass("confirm");
@@ -1041,15 +1066,15 @@ class App {
             //отменяем последений ход пользователя для него, если он уронил флаг
             if (typeof u !== "undefined" && u == p1 && data.flagged === "white") {
                 var undo = self.game.undo();
-                console.log("white undo");
+                //console.log("white undo");
                 console.log(undo);
             } else if (typeof u !== "undefined" && u == p2 && data.flagged === "black") {
                 var undo =  self.game.undo();
-                console.log("black undo");
+               // console.log("black undo");
 
-                console.log(undo);
+                //console.log(undo);
             }
-            console.log(self.game.fen());
+           // console.log(self.game.fen());
         }
 
         clearInterval(self.timer);
@@ -1153,22 +1178,31 @@ class App {
     }
     playzoneStartGame(data){
         const self = this;
-        console.log(data);
+       // console.log(data);
 
         location.href = "/play/game/" + data.game_id;
     }
     decline_draw(data){
         const self = this;
-        console.log(data);
+       // console.log(data);
 
         $(".pending").parent().addClass("hidden");
         $(".negotiation").parent().addClass("hidden");
+
+    }
+    decline_rematch(data){
+        const self = this;
+       // console.log(data);
+
+        $(".offer_sent").replaceWith(this.rematchBtnCache);
+        this.rematchSent = false;
+        this.$tourney_text = $(".tourney_text");
 
 
     }
     draw_offer(data){
         const self = this;
-        console.log(data);
+       // console.log(data);
 
         $(".draw").parent().removeClass("hidden").attr("disabled", "disabled");
         $(".negotiation").parent().removeClass("hidden");
@@ -1193,6 +1227,15 @@ class App {
             window.socket.emit('decline_draw', JSON.stringify({
                 game_id : g
             }));
+
+            let item = {
+                msg: "отклонил ничью",
+                user_id: u,
+                name: user_name,
+                chat_id : self.state.chat_id
+            };
+
+            window.socket.emit('message', item);
         });
 
     }
@@ -1215,7 +1258,7 @@ class App {
                 }
             });
 
-            console.log(data);
+           // console.log(data);
 
             if (data.event === "move") {
                 self.socketMove(data);
@@ -1255,6 +1298,9 @@ class App {
             }
             else if (data.event === "decline_draw") {
                 self.decline_draw(data);
+            }
+            else if (data.event === "decline_rematch") {
+                self.decline_rematch(data);
             }
         });
 
@@ -1320,6 +1366,19 @@ class App {
                 "amount" : self.state.amount,
                 "enemy_id" : (u == p1) ? p2 : p1,
             }));
+        });
+        $("body").on("click", "#decline_rematch", function () {
+            window.socket.emit('decline_rematch', JSON.stringify({
+                game_id : g
+            }));
+            let item = {
+                msg: "отклонил реванш",
+                user_id: u,
+                name: user_name,
+                chat_id : self.state.chat_id
+            };
+
+            window.socket.emit('message', item);
         });
 
 

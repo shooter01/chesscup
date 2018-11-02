@@ -517,6 +517,13 @@ module.exports = function (app) {
                     game_id : data.game_id,
                 });
             });
+            socket.on('decline_rematch', function (data) {
+                data = JSON.parse(data);
+                io.to(data.game_id).emit('eventClient', {
+                    event : "decline_rematch",
+                    game_id : data.game_id,
+                });
+            });
 
 
             socket.on('rematch_game', function (data) {
@@ -661,16 +668,16 @@ module.exports = function (app) {
         function getCurrentPlayGames(socket, created_id) {
             app.mongoDB.collection("challenges").find({}, function(err, cursor) {
                 let challenges = [];
-                cursor.forEach(function (message) {
-                    challenges.push(message);
+                cursor.forEach(function (game) {
+                    challenges.push(game);
                  //   console.log(message);
                 }, function () {
 
 
                     app.mongoDB.collection("users").find({"playzone" : true, "is_over" : 0}, function(err, cursor) {
                         let games = [];
-                        cursor.forEach(function (message) {
-                            games.push(message);
+                        cursor.forEach(function (game) {
+                            games.push(game);
                          //   console.log(message);
                         }, function () {
 
