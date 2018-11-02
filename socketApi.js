@@ -22,6 +22,7 @@ const invite_user_to_game = require('./routes/invite_user_to_game');
 const is_draw = require('./routes/is_draw');
 const bluebird = require('bluebird');
 const ObjectId = require('mongodb').ObjectId;
+let throttle = {};
 
 
 let online_players = {};
@@ -175,7 +176,12 @@ module.exports = function (app) {
                             console.log(msg);
                             console.log("Данные игры");
                             console.log(mongoGame);
+                            socket.emit('eventClient', {
+                                event: "cancel_move",
+                                canceled_side : msg.player
+                            });
 
+                            console.log("cancel_move");
 
                             return false;
                         }
@@ -250,16 +256,15 @@ module.exports = function (app) {
 
 
 
-
                         if (is_over === true) {
                            // console.log("flagged");
                             save_result_mongo(send_data, mongoGame, app, "flagged");
 
-
                             //если это турнирная партия сохранияем в mysql
                             if (msg.tourney_id != null) {
-                                game_over(msg, app);
+                                game_over(send_data, app);
                             }
+
                             //если игра завершена, останавливаем дальнейшее действие
                             return false;
                         }
@@ -331,7 +336,8 @@ module.exports = function (app) {
                                      if (msg.is_over == 1) {
                                          obj.reason = msg.reason;
                                          save_result_mongo(obj, mongoGame, app, "msg");
-                                         if (msg.tourney_id) {
+                                         //если это турнирная партия сохранияем в mysql
+                                         if (msg.tourney_id != null) {
                                              game_over(msg, app);
                                          }
                                      }
@@ -488,14 +494,25 @@ module.exports = function (app) {
 
                     //    }
 
-                        if (is_over) {
+                        if (is_over && !throttle[mongoGame._id]) {
+                            throttle[mongoGame._id] = true;
+                            console.log(throttle);
+                            console.log("ADDED");
                             save_result_mongo(send_data, mongoGame, app, "checkTime1");
+                            //если это турнирная партия сохранияем в mysql
+                            if (msg.tourney_id != null) {
+                                game_over(msg, app);
+                            }
+
+                            setTimeout(function () {
+                                delete throttle[mongoGame._id];
+                                console.log(throttle);
+                                console.log("DELETED");
+                            }, 10000)
+
                         }
 
-                        //если это турнирная партия сохранияем в mysql
-                        if (msg.tourney_id != null) {
-                            game_over(msg, app);
-                        }
+
                     });
                 } else {
                     console.log("id not defined");

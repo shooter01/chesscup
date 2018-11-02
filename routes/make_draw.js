@@ -53,7 +53,7 @@ const make_draw = function (data) {
             })
             .then(res => {
                 if (tourney.is_closed === 1) {
-                    throw new Error(__("TourneyClosed"));
+                    throw new Error("Tournament closed");
                 }
 
                 if (tourney.type > 10) {

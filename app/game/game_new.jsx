@@ -883,27 +883,28 @@ class App {
     }
     cancelMove(data){
         const self = this;
-        self.game.undo();
+        //если игра завершена, но сокет с ходом проскочил и это обнаружилось как он сделал ход
+        //отменяем последений ход пользователя для него, если игра уже завершена, но сокет с ходом проскочил
+        if (typeof u !== "undefined" && u == p1 && data.canceled_side === "p1") {
+            const undo = self.game.undo();
+           // console.log("white undo");
+           // console.log(undo);
+        } else if (typeof u !== "undefined" && u == p2 && data.canceled_side === "p2") {
+            const undo =  self.game.undo();
+           // console.log("black undo");
 
-        self.setState({
-            who_to_move: (self.game.turn() === 'w') ? "white" : "black",
-           // white_time: data.p1_time_left,
-            //black_time: data.p2_time_left,
-            is_over: data.is_over,
-            is_started: (self.game.turn() === 'w') ? 1 : self.state.is_started,
-        }, function () {
-            self.setTime();
-            self.setIsOver();
-            self.cg.set({
-                fen: self.game.fen(),
-                viewOnly : 1,
-                lastMove : null,
-                movable: {
-                    dests: getDests(self.game)
-                },
-            });
+           // console.log(undo);
+        }
+        // console.log(self.game.fen());
+
+        self.cg.set({
+            fen: self.game.fen(),
+            viewOnly : true,
+            movable: {
+                color: null
+            },
+            turnColor: null
         });
-
 
     }
 
