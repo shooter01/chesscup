@@ -368,7 +368,7 @@ class App {
     checkMobile(){
         if (clientWidth < 768) {
             $(".mobile-controls").removeClass("hidden");
-            $("#lichess_ground").append($("#chat_side"));
+            // $("#lichess_ground").append($("#chat_side"));
 
         } else {
             $(".table_wrap").removeClass("hidden");

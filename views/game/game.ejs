@@ -56,34 +56,7 @@
         <div id="game">
             <div class="mt-1 row lichess_ground lichess_board_wrap" id="lichess_ground">
 
-                <div class="col-md-3 col-sm-12" id="chat_side">
-                    <div class="side_box padded">
-                        <div class="players">
 
-                            <div class="player color-icon is white text">
-                                <a class="user_link ulpt" href="">
-                                    <span class="p1_name"></span>&nbsp;<span class="p1_tournaments_rating"></span>
-                                </a>
-                            </div>
-
-                            <div class="player color-icon is black text">
-                                <a class="user_link" href="">
-                                    <span class="p2_name"></span>
-                                    &nbsp;
-                                    <span class="p2_tournaments_rating"></span>
-                                </a>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div id="chat"></div>
-
-                    <form class="row" id="download_pgn_form">
-                        <input class="btn btn-light btn-block"  type="submit" value="Download PGN">
-                    </form>
-
-                </div>
 
                 <div class="col-md-6 col-sm-12">
 
@@ -281,6 +254,36 @@
                     </div>-->
                 </div>
 
+
+                <div class="col-md-3 col-sm-12" id="chat_side">
+                    <div class="side_box padded">
+                        <div class="players">
+
+                            <div class="player color-icon is white text">
+                                <a class="user_link ulpt" href="">
+                                    <span class="p1_name"></span>&nbsp;<span class="p1_tournaments_rating"></span>
+                                </a>
+                            </div>
+
+                            <div class="player color-icon is black text">
+                                <a class="user_link" href="">
+                                    <span class="p2_name"></span>
+                                    &nbsp;
+                                    <span class="p2_tournaments_rating"></span>
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div id="chat"></div>
+
+                    <form class="row" id="download_pgn_form">
+                        <input class="btn btn-light btn-block"  type="submit" value="Download PGN">
+                    </form>
+
+                </div>
+
             </div>
         </div>
     </div>
@@ -360,12 +363,12 @@
     window.chat_id = "g" + g;
 </script>
 
+<script src="/js/chat.min.js"></script>
 
 <script src="/js/cg/dist/chess.min.js"></script>
 <script src="/js/cg/dist/chessground.js"></script>
 
 <script src="/js/game_new.min.js"></script>
-<script src="/js/chat.min.js"></script>
 <!--<script src="/js/chat.min.js"></script>-->
 
 
