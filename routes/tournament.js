@@ -1253,11 +1253,20 @@ module.exports = function(app, passport, pool, i18n) {
                 .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
                 .then(rows => {
                     const tournament = rows[0];
-                    if (tournament.type > 10) {
-                        DRAW.teamSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app);
+                    if (typeof tournament != "undefined") {
+                        if (tournament.type > 10) {
+                            DRAW.teamSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app);
+                        } else {
+                            DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app);
+                        }
                     } else {
-                        DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app);
+                        res.render('error', {
+                            message  : req.i18n.__("TourneyNotFound"),
+                        });
                     }
+
+                }).catch(function (error) {
+                    console.log(error);
                 });
 
         } else {

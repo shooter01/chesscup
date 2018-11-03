@@ -153,10 +153,13 @@ class App {
         if (typeof u != "undefined" && p1 == u) {
             this.state.isPlayer = true;
             this.state.playerColor = "white";
+
+
         } else if (typeof u != "undefined" && p2 == u) {
             this.state.isPlayer = true;
             this.state.playerColor = "black";
             this.state.orientation = "black";
+
         }
 
         const width = $("#wrpr").outerWidth();
@@ -167,6 +170,8 @@ class App {
         this.setState({
             who_to_move: (this.game.turn() === 'w') ? "white" : "black"
         });
+
+
 
 
 
@@ -238,6 +243,26 @@ class App {
             this.addResult();
         }
 
+        this.game.header('White', p1_name);
+        this.game.header('Black', p2_name);
+        this.game.header('Site', 'chessround.com');
+
+    }
+
+    downloadPgn(){
+
+        const filename = "chessround.com_" + g;
+        const pgn = this.game.pgn();
+        let element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.game.pgn()));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
     }
 
     move(source, target, promotion) {
@@ -341,8 +366,10 @@ class App {
 
 
     checkMobile(){
-        if (clientWidth < 635) {
+        if (clientWidth < 768) {
             $(".mobile-controls").removeClass("hidden");
+            $("#lichess_ground").append($("#chat_side"));
+
         } else {
             $(".table_wrap").removeClass("hidden");
         }
@@ -1410,6 +1437,11 @@ class App {
             };
 
             window.socket.emit('message', item);
+        });
+
+        $("#download_pgn_form").on("submit", function () {
+            self.downloadPgn();
+            return false;
         });
 
 

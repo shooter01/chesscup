@@ -57,6 +57,14 @@ module.exports = function(app, passport, pool, i18n) {
                 .then((data) => {
                 mongoGame = data;
 
+                if (!mongoGame) {
+                    console.log("Игра не найдена.");
+                    res.render('error', {
+                        message  : "Game not found",
+                    });
+                    return false;
+                }
+
 
 
                 var p1_time_left =  mongoGame.p1_time_left, p2_time_left = mongoGame.p2_time_left;

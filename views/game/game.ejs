@@ -36,7 +36,7 @@
 </div>
 
 <a href="/tournament/<%= tournament.id %>" class="btn btn-primary "><%- __("ParticipantsToTournament") %></a>
-
+<a href="/tournament/<%= tournament.id %>/tour/<%= game.tour %>" class="btn btn-info">Тур <%= game.tour %></a>
 
 
 <% } else { %>
@@ -54,9 +54,38 @@
         <div class="col-md-6 col-sm-8 col-xs-12" id="wrpr"></div>
         <div class="col-md-6 d-none d-lg-block" ></div>
         <div id="game">
-            <div class="mt-1 row lichess_ground lichess_board_wrap">
+            <div class="mt-1 row lichess_ground lichess_board_wrap" id="lichess_ground">
 
-                <div class="col-sm-8 col-xs-12">
+                <div class="col-md-3 col-sm-12" id="chat_side">
+                    <div class="side_box padded">
+                        <div class="players">
+
+                            <div class="player color-icon is white text">
+                                <a class="user_link ulpt" href="">
+                                    <span class="p1_name"></span>&nbsp;<span class="p1_tournaments_rating"></span>
+                                </a>
+                            </div>
+
+                            <div class="player color-icon is black text">
+                                <a class="user_link" href="">
+                                    <span class="p2_name"></span>
+                                    &nbsp;
+                                    <span class="p2_tournaments_rating"></span>
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div id="chat"></div>
+
+                    <form class="row" id="download_pgn_form">
+                        <input class="btn btn-light btn-block"  type="submit" value="Download PGN">
+                    </form>
+
+                </div>
+
+                <div class="col-md-6 col-sm-12">
 
                     <div class="clock_top">
                         <div id="up_player_online" class="username user_link black offline pt-2 pb-2 player_bar up_player_online">
@@ -73,7 +102,9 @@
 
 
                     <div class="blue merida">
-                        <div id="dirty" class="cg-board-wrap"></div>
+                        <div id="dirty" class="cg-board-wrap">
+                            <h2>Загрузка...</h2>
+                        </div>
                     </div>
 
                     <div class="clock_bottom">
@@ -89,7 +120,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-4 col-xs-12">
+                <div class="col-md-3 col-sm-12">
 
 
                     <div class="table_wrap hidden">
@@ -233,33 +264,23 @@
                         </div>
                     </div>
 
-                    <div class="side_box padded">
-                        <div class="players">
 
-                            <div class="player color-icon is white text">
-                                <a class="user_link ulpt" href="">
-                                    <span class="p1_name"></span>&nbsp;<span class="p1_tournaments_rating"></span>
-                                </a>
-                            </div>
 
-                            <div class="player color-icon is black text">
-                                <a class="user_link" href="">
-                                    <span class="p2_name"></span>
-                                    &nbsp;
-                                    <span class="p2_tournaments_rating"></span>
-                                </a>
-                            </div>
+                    <style>
+                        form * {
+                            display: block;
+                            margin: 10px;
+                        }
+                    </style>
 
-                        </div>
-                    </div>
 
-                    <div id="chat"></div>
 
                     <!--<div>
                         <button class="fbt mobile-btn d-lg-none" onClick={this.goBack} data-icon="Y" data-ply="28"></button>
                         <button class="fbt mobile-btn d-lg-none" onClick={this.goForward} data-icon="X" data-ply="30" disabled=""></button>
                     </div>-->
                 </div>
+
             </div>
         </div>
     </div>
