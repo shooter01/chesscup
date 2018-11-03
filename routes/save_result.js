@@ -200,8 +200,11 @@ const save_result = function (data) {
                 } else {
                     console.log(throttle);
                     //запускаем всем свежую информацию
-                    app.io.to('t' + tournament_id).emit('tournament_event',
-                        JSON.stringify({}));
+                    app.mongoDB.collection("cache").deleteMany({tournament_id: tourney.id}, function (err, mongoGame) {
+                        app.io.to('t' + tournament_id).emit('tournament_event',
+                            JSON.stringify({}));
+                    });
+
 
 
                     setTimeout(function () {

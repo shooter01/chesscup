@@ -433,7 +433,7 @@ class Pairing extends React.Component {
 
                 <div>
                     {(this.state.tournament.is_closed == 1) ? <div className="badge badge-danger">Турнир завершен</div> : null}
-                    {(this.state.tournament.is_closed == 0 && this.state.tournament.is_active == 1) ? <div>
+                    {(!this.state.tournament.is_closed && this.state.tournament.is_active == 1) ? <div>
                             <div className="badge badge-success">Турнир активен</div>
                             <div><div className="badge badge-info">Текущий тур: {this.state.tournament.current_tour}</div></div>
                         </div> : null}

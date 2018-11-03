@@ -534,9 +534,12 @@ const make_draw = function (data) {
 
                 var tour = ((tourney.current_tour + 1) <= tourney.tours_count) ? tourney.current_tour + 1 : null;
 
+                app.mongoDB.collection("cache").deleteMany({tournament_id: tourney.id}, function (err, mongoGame) {
+                    app.io.to('t' + tournament_id).emit('tournament_event',
+                        JSON.stringify({}));
+                });
 
-                app.io.to('t' + tournament_id).emit('tournament_event',
-                    JSON.stringify({}));
+
 
                 /*app.io.to(game._id).emit('eventClient', JSON.stringify({
                     event: "game_over",
