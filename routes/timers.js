@@ -28,6 +28,8 @@ module.exports = function (app) {
                             })
                     }
                 }
+        }).catch(function (err) {
+            console.log(err);
         });
 
 
@@ -73,7 +75,8 @@ module.exports = function (app) {
         app.mongoDB.collection("users").find({ is_over: 0 }, function(err, cursor) {
             cursor.forEach(function (game) {
 
-                if (typeof app.globalPlayers[game.p1_id] !== "undefined"){
+
+               if (typeof app.globalPlayers[game.p1_id] !== "undefined"){
                     app.globalPlayers[game.p1_id].emit('eventClient', {
                         event : "start_game",
                         tournament_id: game.tournament_id,
@@ -88,6 +91,8 @@ module.exports = function (app) {
                         game_id : game._id
                     });
                 }
+
+
 
             }, function () {});
         });
@@ -159,8 +164,8 @@ module.exports = function (app) {
 
 
                 if (is_over) {
-                    console.log('если это турнирная партия сохранияем в mysql');
-                    console.log(send_data);
+                    //console.log('если это турнирная партия сохранияем в mysql');
+                    //console.log(send_data);
                     send_data.caller = "timers";
                     save_result_mongo(send_data, mongoGame, app, "setInterval");
                 }

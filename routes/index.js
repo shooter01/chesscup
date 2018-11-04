@@ -119,8 +119,8 @@ module.exports = function (app, passport, pool) {
                         var insertId, user_id;
                         pool.query('INSERT INTO users SET ?', theme).then(function (results) {
                             if (results.insertId > 0) {
-                                console.log(theme.role == 100 && theme.school_id == "null");
-                                console.log(theme.school_id == "null");
+                                //console.log(theme.role == 100 && theme.school_id == "null");
+                                //console.log(theme.school_id == "null");
                                 insertId = (theme.school_id == null) ? results.insertId : theme.school_id;
                                 user_id = results.insertId;
                                 return pool.query('UPDATE users SET school_id = ? WHERE id = ?', [insertId, insertId]);
@@ -151,7 +151,7 @@ module.exports = function (app, passport, pool) {
                                 });
                             }
                         }).catch(function (err) {
-                            console.log(err);
+                            //console.log(err);
                         });
 
                     } else {

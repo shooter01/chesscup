@@ -43,7 +43,7 @@ const make_draw = function (data) {
 
 
     var team_temp;
-    console.log(tournament_id);
+    //console.log(tournament_id);
     if (!isNaN(tournament_id)) {
 
         pool
@@ -79,12 +79,12 @@ const make_draw = function (data) {
             })
             .then(rows => {
                 //2 - круговой турнир, если первый тур, то выставляем количество туров по числу участников
-                console.log(tourney.type == 1);
-                console.log(tourney.tours_count > participants.length);
+                //console.log(tourney.type == 1);
+                //console.log(tourney.tours_count > participants.length);
                 if ((tourney.type == 1 && tourney.tours_count >= participants.length) || (tourney.type === 2 && tourney.is_active === 0)) {
 
                     var t_count = (participants.length % 2 == 0) ? participants.length - 1  : participants.length;
-                    console.log("UPDATED");
+                    //console.log("UPDATED");
                     flag_changed = true;
                     return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
                         tours_count : t_count,
@@ -199,32 +199,40 @@ const make_draw = function (data) {
             var newDateObj = moment(new Date()).add(30, 'm').toDate();
             var startTime = moment(new Date()).add(1, 'm').toDate();
             if (data && data.length && tourney.is_online == 1) {
+                var addition = [];
+                const startTime = moment(new Date()).add(1, 'm').toDate();
+
                 for (var i = 0; i < data.length; i++) {
                     var obj = data[i];
-                    console.log(obj);
+                    //console.log(obj);
+
+
 
                     if (obj.p1_id != null && obj.p2_id != null) {
 
-                        data['id'] = obj.id;
-                        data['amount'] = tourney.amount;
-                        data['p1_id'] = obj.p1_id;
-                        data['p2_id'] = obj.p2_id;
-                        data['tournament_id'] = tournament_id;
-                        //data['p1_name'] = data.user_name;
-                        //data['p2_name'] = data.enemy_name;
-                        data['p1_time_left'] = tourney.amount * 60000;
-                        data['p2_time_left'] = tourney.amount * 60000;
 
-                        create_game_mongo(data, app, function (err, insertedGame) {
-                          //  app.mongoDB.collection("challenges").deleteMany({owner: mongoGame.owner}, function () {});
+                        let temp = {
+                            _id : obj.id,
+                            "moves": [],
+                            "is_over": 0,
+                            "p1_id": obj.p1_id,
+                            "p2_id": obj.p2_id,
+                            "p1_won": 0,
+                            "p2_won": 0,
+                            "tournament_id": tournament_id,
+                            "startTime": startTime,
+                            "playzone" : true,
+                            "amount" : tourney.amount,
+                            "p1_last_move": null,
+                            "p2_last_move": null,
+                            "p1_time_left": tourney.amount * 60000,
+                            "p2_time_left": tourney.amount * 60000,
+                            "is_started": 0,
+                            "reason": null,
+                            "time_addition": 0,
+                        };
 
-                            invite_user_to_game(obj.p1_id, JSON.stringify({tournament_id: tournament_id, game_id : obj.id}), app);
-
-                            invite_user_to_game(obj.p2_id, JSON.stringify({tournament_id: tournament_id, game_id : obj.id}), app);
-
-                        });
-
-
+                        addition.push(temp);
 
                         /*var game = app.mongoDB.collection("users").insertOne({
                             "_id": obj.id,
@@ -261,7 +269,26 @@ const make_draw = function (data) {
                             app.globalPlayers[obj.p2_id].emit('game_start', JSON.stringify({tournament_id: tournament_id, game_id : obj.id}));
                         }*/
                     }
+
+
+
+                   // create_game_mongo(data, app, function (err, insertedGame) {
+                        //  app.mongoDB.collection("challenges").deleteMany({owner: mongoGame.owner}, function () {});
+
+                       // invite_user_to_game(obj.p1_id, JSON.stringify({tournament_id: tournament_id, game_id : obj.id}), app);
+
+                      //  invite_user_to_game(obj.p2_id, JSON.stringify({tournament_id: tournament_id, game_id : obj.id}), app);
+
+                  //  });
+
+
+
                 }
+
+
+                console.log(addition);
+
+                app.mongoDB.collection("users").insertMany(addition);
 
 
 
@@ -534,10 +561,15 @@ const make_draw = function (data) {
 
                 var tour = ((tourney.current_tour + 1) <= tourney.tours_count) ? tourney.current_tour + 1 : null;
 
-                app.mongoDB.collection("cache").deleteMany({tournament_id: tourney.id}, function (err, mongoGame) {
+
+
+               app.mongoDB.collection("cache").deleteMany({tournament_id: tourney.id}, function (err, mongoGame) {
                     app.io.to('t' + tournament_id).emit('tournament_event',
                         JSON.stringify({}));
                 });
+
+
+
 
 
 
@@ -569,7 +601,6 @@ const make_draw = function (data) {
                     });
                 }
 
-
             }).catch(function (err) {
             console.log(err);
             if (typeof res != "undefined") {
@@ -577,7 +608,10 @@ const make_draw = function (data) {
                     "status": "error",
                     "msg": err.message
                 });
+
             }
+
+
         });
 
     } else {

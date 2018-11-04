@@ -130,7 +130,7 @@ module.exports = function(app, passport, pool) {
             for (var i = 0; i < rows.length; i++) {
                 var obj = rows[i];
                 var temp = {};
-                console.log(obj);
+                //console.log(obj);
 
                 if (obj.p1_id == req.params.user_id) {
                     temp.created_at = obj.created_at;
@@ -142,7 +142,7 @@ module.exports = function(app, passport, pool) {
                     tournament_ratings.push(temp);
                 }
             }
-            console.log(tournament_ratings);
+            //console.log(tournament_ratings);
 
             res.render('administrators/stat', {
                 ratings : JSON.stringify(ratings),

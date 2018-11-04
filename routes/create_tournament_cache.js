@@ -15,7 +15,7 @@ const create_tournament_cache = function(tournament_id, app, callback, res) {
 
                 app.mongoDB.collection("cache").findOne({tournament_id : tournament.id, tour : tour_id}, function (err, mongoTournament) {
                     if (!mongoTournament) {
-                        console.log("CACHE NOT FOUND");
+                        //console.log("CACHE NOT FOUND");
 
                         pool
                             .query('SELECT tr.*, u1.name AS p1_name,u1.tournaments_rating AS p1_rating, u2.name AS p2_name, u2.tournaments_rating AS p2_rating FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN  users u2 ON tr.p2_id = u2.id WHERE tr.tournament_id = ? AND tr.tour = ?', [tournament_id, tour_id])
@@ -69,13 +69,13 @@ const create_tournament_cache = function(tournament_id, app, callback, res) {
                                     "tournament_id": parseInt(tournament.id),
                                 }
                                 , function () {
-                                    console.log("INSERTED");
+                                    //console.log("INSERTED");
 
                                     if (typeof callback !== "undefined") {
                                         callback();
                                     }
-                                    console.log("КЕШ СОЗДАН");
-                                    console.log(res);
+                                    //console.log("КЕШ СОЗДАН");
+                                    //console.log(res);
 
                                     if (typeof res !== "undefined" && res) {
 
@@ -110,7 +110,7 @@ const create_tournament_cache = function(tournament_id, app, callback, res) {
                             tour_id : tour_id,
                             scores_object :  JSON.stringify(scores_object),
                         });
-                        console.log("КЕШ ОБНАРУЖЕН И НЕ СОЗДАН");
+                        //console.log("КЕШ ОБНАРУЖЕН И НЕ СОЗДАН");
                     }
                 });
             });

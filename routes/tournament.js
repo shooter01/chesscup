@@ -508,11 +508,13 @@ module.exports = function(app, passport, pool, i18n) {
 
                 return pool.query(sql, office.tournament_id)
             }).then(function (results) {
-                console.log(office);
+                //console.log(office);
+
                 app.mongoDB.collection("cache").deleteMany({tournament_id: parseInt(office.tournament_id)}, function (err, mongoGame) {
                     app.io.to('t' + office.tournament_id).emit('tournament_event',
                         JSON.stringify({}));
                 });
+
 
 
                 if (req.body.tournament_type > 10 && user_type != "admins") {
@@ -588,10 +590,13 @@ module.exports = function(app, passport, pool, i18n) {
                     return pool.query(sql, office.tournament_id);
                 }).then(function (results) {
 
+
                 app.mongoDB.collection("cache").deleteMany({tournament_id: parseInt(office.tournament_id)}, function (err, mongoGame) {
                     app.io.to('t' + office.tournament_id).emit('tournament_event',
                         JSON.stringify({}));
                 });
+
+
 
 
                 if (req.body.tournament_type > 10) {
@@ -790,7 +795,7 @@ module.exports = function(app, passport, pool, i18n) {
 
             var insertId, insert = [];
 
-            for (var i = 0; i < 10; i++) {
+            for (var i = 0; i < 500; i++) {
                 insert.push([
                     generateEmail(),
                     12,
@@ -813,7 +818,7 @@ module.exports = function(app, passport, pool, i18n) {
                 }).then(function (rows) {
                     let participants = [];
                     for (var i = 0; i < rows.length; i++) {
-                        console.log(rows[i]);
+                        //console.log(rows[i]);
 
                         participants.push([
                             rows[i].id,
@@ -826,6 +831,11 @@ module.exports = function(app, passport, pool, i18n) {
                     return pool.query('INSERT INTO tournaments_participants (' +
                         'user_id, ' +
                         'tournament_id, is_active, start_rating) VALUES ?', [participants]);
+                }).then(function (rows) {
+                    app.mongoDB.collection("cache").deleteMany({tournament_id: parseInt(office.tournament_id)}, function (err, mongoGame) {
+                        app.io.to('t' + req.body.tournament_id).emit('tournament_event',
+                            JSON.stringify({}));
+                    });
                 }).catch((err) => {
                     console.log(err);
                 });;
@@ -1264,6 +1274,7 @@ module.exports = function(app, passport, pool, i18n) {
         function (req, res, next) {
 
 
+
             let tournament_id = req.params.tournament_id;
             tournament_id = parseInt(tournament_id);
             if (!isNaN(tournament_id)) {
@@ -1308,6 +1319,8 @@ module.exports = function(app, passport, pool, i18n) {
                                             return a.scores < b.scores;
                                         }*/
 
+                                       return true;
+
                                     }).then(rows => {
 
                                     let sql = 'SELECT tp.user_id,tp.is_active, ts.scores, u.name, u.tournaments_rating, ts.rating,ts.rating_change,ts.bh,ts.berger FROM tournaments_participants tp LEFT JOIN tournaments_scores ts ON ts.user_id = tp.user_id LEFT JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? AND ts.tournament_id = ?';
@@ -1345,9 +1358,9 @@ module.exports = function(app, passport, pool, i18n) {
 
 
                                 }).then(rows => {
-                                    /*return pool
+                                    return pool
                                         .query('SELECT * FROM tournaments_results tr WHERE tr.tournament_id = ?', tournament_id)
-                                }).then(rows => {*/
+                                }).then(rows => {
                                     // crosstable = DRAW.makeCrossatable(rows, participants);
 
                                     app.mongoDB.collection("cache").insertOne({
@@ -1359,19 +1372,19 @@ module.exports = function(app, passport, pool, i18n) {
                                                 "tournament_id": parseInt(tournament.id),
                                             }
                                         , function () {
-                                                console.log("INSERTED");
+                                            res.json({
+                                                tournament  : tournament,
+                                                pairing  : JSON.stringify(pairing),
+                                                participants : participants,
+                                                tour_id : tour_id,
+                                                scores_object :  JSON.stringify(scores_object),
+                                                // arrr : arrr,
+                                            });
                                     });
 
 
                                     // console.log(tournament);
-                                    res.json({
-                                        tournament  : tournament,
-                                        pairing  : JSON.stringify(pairing),
-                                        participants : participants,
-                                        tour_id : tour_id,
-                                        scores_object :  JSON.stringify(scores_object),
-                                        // arrr : arrr,
-                                    });
+
                                 }).catch(function (err) {
                                     console.log(err);
                                 });
@@ -1548,8 +1561,8 @@ module.exports = function(app, passport, pool, i18n) {
     router.get('/:tournament_id/edit', [
         isLoggedIn,
         check('tournament_id', 'Вы не указали турнир.').exists().isLength({ min: 1 }).custom((value, { req }) => {
-            console.log("===");
-            console.log(value);
+            //console.log("===");
+            //console.log(value);
             return new Promise((resolve, reject) => {
 
                 pool.query('SELECT * FROM tournaments WHERE id = ?', [

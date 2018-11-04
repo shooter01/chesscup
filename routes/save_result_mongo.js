@@ -1,9 +1,9 @@
 const ObjectId = require('mongodb').ObjectId;
 
 const save_result_mongo = function (msg, mongoGame, app, caller) {
-    console.log("save_result_mongo");
-    console.log(caller);
-    console.log(msg);
+    //console.log("save_result_mongo");
+    //console.log(caller);
+    //console.log(msg);
    // console.log(mongoGame);
    // console.log("==================================================");
 
@@ -17,15 +17,19 @@ const save_result_mongo = function (msg, mongoGame, app, caller) {
     };
 
     if (!mongoGame) {
-        console.log("Игра не найдена (save_result_mongo)");
-        console.log("Полученные данные:");
-        console.log(msg);
-        console.log("Данные игры");
-        console.log(mongoGame);
+        //console.log("Игра не найдена (save_result_mongo)");
+        //console.log("Полученные данные:");
+        //console.log(msg);
+        //console.log("Данные игры");
+        //console.log(mongoGame);
         const a = {
             event: "game_aborted",
         };
+
+
         app.io.to(msg.id).emit('eventClient', a);
+
+
         return false;
     }
 
@@ -39,7 +43,9 @@ const save_result_mongo = function (msg, mongoGame, app, caller) {
         temp = {_id: ObjectId(msg.id)};
     }
 
-    app.mongoDB.collection("users").updateOne(
+
+
+  app.mongoDB.collection("users").updateOne(
         temp,
         {$set: obj1},
         {
@@ -56,6 +62,7 @@ const save_result_mongo = function (msg, mongoGame, app, caller) {
                 is_over: 1
             });
     });
+
 
 
 }

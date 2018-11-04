@@ -62,12 +62,12 @@ const save_result = function (data) {
                         office["rating_change_p1"] = p1_new_rating - rating_p1;
                         office["rating_change_p2"] = p2_new_rating - rating_p2;
                         office["is_over"] = 1;
-                        console.log(office);
-                        console.log(rating_p1);
-                        console.log(rating_p2);
-                        console.log(odds_p1_wins);
-                        console.log(odds_p2_wins);
-                        console.log(result.p1_won);
+                        //console.log(office);
+                        //console.log(rating_p1);
+                        //console.log(rating_p2);
+                        //console.log(odds_p1_wins);
+                        //console.log(odds_p2_wins);
+                        //console.log(result.p1_won);
                     }
                 }
 
@@ -179,9 +179,9 @@ const save_result = function (data) {
                 return pool.query('SELECT COUNT(*) as count FROM tournaments_results tr WHERE (tr.p1_won IS NULL AND tr.p2_won IS NULL) AND tr.tournament_id = ? AND tr.tour = ?', [tourney.id, tourney.current_tour]);
 
             }).then(function (results) {
-                console.log(">>>");
-                console.log(results[0].count == 0);
-                console.log(throttle[tourney.id + "" + tourney.current_tour]);
+                //console.log(">>>");
+                //console.log(results[0].count == 0);
+                //console.log(throttle[tourney.id + "" + tourney.current_tour]);
                 if (results[0].count == 0 && tourney.is_online == 1 && !throttle[tourney.id + "" + tourney.current_tour]) {
                     throttle[tourney.id + "" + tourney.current_tour] = true;
                     make_draw({
@@ -191,20 +191,22 @@ const save_result = function (data) {
                         req : req,
                         res : res,
                     });
-                    console.log(throttle);
-                    console.log("OVER");
+                    //console.log(throttle);
+                    //console.log("OVER");
 
                     setTimeout(function () {
                         delete throttle[tourney.id + "" + tourney.current_tour];
                     }, 10000)
 
                 } else {
-                    console.log(throttle);
+                    //console.log(throttle);
                     //запускаем всем свежую информацию
-                    app.mongoDB.collection("cache").deleteMany({tournament_id: tourney.id}, function (err, mongoGame) {
+
+                   app.mongoDB.collection("cache").deleteMany({tournament_id: tourney.id}, function (err, mongoGame) {
                         app.io.to('t' + tournament_id).emit('tournament_event',
                             JSON.stringify({}));
                     });
+
 
 
 

@@ -251,7 +251,7 @@ class App {
 
     downloadPgn(){
 
-        const filename = "chessround.com_" + g;
+        const filename = "chessround.com_" + g + ".pgn";
         const pgn = this.game.pgn();
         let element = document.createElement('a');
         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.game.pgn()));

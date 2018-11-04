@@ -1,8 +1,8 @@
 const save_result = require('./save_result');
 
 const game_over = function (msg, app) {
-    console.log("=====");
-    console.log(msg);
+    //console.log("=====");
+    //console.log(msg);
     let tournament_id = msg.tourney_id;
     let result = {
         p1_id: msg.p1_id,
@@ -21,11 +21,16 @@ const game_over = function (msg, app) {
 
     if (!isNaN(tournament_id)) {
         respond.then(function (data) {
+
+
             app.io.to(msg.id).emit('eventClient', JSON.stringify({
                 event: "rating_change",
                 rating_change_p1: data.rating_change_p1,
                 rating_change_p2: data.rating_change_p2
             }));
+
+
+
         })
     }
 
