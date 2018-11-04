@@ -34,7 +34,7 @@
 
              <small>тур <%= (tournaments[i].current_tour <= tournaments[i].tours_count) ? tournaments[i].current_tour : tournaments[i].tours_count %>/<%= tournaments[i].tours_count %></small><br>
             <div class="d-flex justify-content-between">
-                <div class="mt-2"><%= tournaments[i].city %></div>
+                <div class="mt-2"></div>
                 <div><img src="/images/blank.png" class="float-right flag flag-<%= tournaments[i].country.toLocaleLowerCase() %>" title="<%= countries[tournaments[i].country] %>" alt="<%= countries[tournaments[i].country] %>"></div>
             </div>
         </div>
