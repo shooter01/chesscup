@@ -18,10 +18,11 @@ class Link extends React.Component {
 
 
     render() {
-        var href =  "/tournament/" + this.state.tournament_id + "/game/" + this.state.id;
+        console.log(this.props);
+        var href =  "/tournament/" + this.state.tournament_id + "/game/" + this.props.id;
 
         return (
-            (this.state.p1_id != null && this.state.p2_id != null) ? <a href={href}>Партия</a> : null
+            (this.props.p1_id != null && this.props.p2_id != null) ? <a href={href}>Партия</a> : null
 
         );
 

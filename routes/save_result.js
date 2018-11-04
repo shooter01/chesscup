@@ -181,6 +181,7 @@ const save_result = function (data) {
             }).then(function (results) {
                 console.log(">>>");
                 console.log(results[0].count == 0);
+                console.log(throttle[tourney.id + "" + tourney.current_tour]);
                 if (results[0].count == 0 && tourney.is_online == 1 && !throttle[tourney.id + "" + tourney.current_tour]) {
                     throttle[tourney.id + "" + tourney.current_tour] = true;
                     make_draw({

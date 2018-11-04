@@ -33,7 +33,6 @@ module.exports = function (app) {
 
        app.mongoDB.collection("users").find({ startTime: { $lte: new Date() }, is_started : 0, is_over : 0 }, function(err, cursor) {
             cursor.forEach(function (game) {
-                console.log(game);
                 var send_data = {
                     id : game._id
                 };

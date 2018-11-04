@@ -189,7 +189,7 @@ module.exports = function (app, passport, pool) {
 
                     }
                 }).then(function (rows) {
-                console.log(rows);
+                //console.log(rows);
             }).catch(function (err) {
                 console.log(err);
             });

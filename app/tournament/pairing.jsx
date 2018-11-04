@@ -262,6 +262,49 @@ class Pairing extends React.Component {
             }
         });
 
+        /*$("#bots_invasion").on("click", function (event) {
+            event.preventDefault();
+            if (confirm("Are you sure?")) {
+                $.ajax({
+                    url: "/tournament/bot_invasion",
+                    method: "post",
+                    timeout : 3000,
+                    beforeSend : function () {
+                        self.setState({
+                            request_sent : true,
+                        });
+                    },
+                    data : {
+                        //result : value,
+                        tournament_id : self.state.tournament_id
+                    },
+                    statusCode: {
+                        404: function() {
+                            alert( "page not found" );
+                        }
+                    }
+                }).done(function (data) {
+                    if (data.status === "ok") {
+                        // console.log(parseInt(self.state.current_tour));
+                      //  location.href = "/tournament/" + self.state.tournament_id + "/tour/" + (parseInt(self.state.current_tour) - 1);
+                    } else {
+                      //  alert(data.msg);
+                    }
+                }).fail(function ( jqXHR, textStatus ) {
+                    var error = "";
+                    for (var obj in jqXHR.responseJSON.errors) {
+                        error = jqXHR.responseJSON.errors[obj].msg;
+                    }
+                    alert(error);
+                    //alert( "Request failed: " + textStatus );
+                }).always(function () {
+                    self.setState({
+                        request_sent : false
+                    });
+                });
+            }
+        });*/
+
 
 
         $(".removeParticipant").on("click",function (event) {

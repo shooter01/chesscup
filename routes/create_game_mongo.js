@@ -2,7 +2,6 @@ const moment = require('moment');
 
 const create_game_mongo = function (data, app, callback) {
     const startTime = moment(new Date()).add(1, 'm').toDate();
-    console.log(data);
     let temp = {
         "moves": [],
         "is_over": 0,
@@ -27,7 +26,6 @@ const create_game_mongo = function (data, app, callback) {
     if (typeof data.id !== "undefined") {
         temp._id = data.id;
     }
-    console.log(temp);
 
     app.mongoDB.collection("users").insertOne(temp, callback);
 
