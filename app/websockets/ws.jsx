@@ -1,7 +1,7 @@
 
 class WS {
     constructor(){
-        console.log(window.g_ws_params);
+        //console.log(window.g_ws_params);
         let ws_params = (typeof window.g_ws_params !== "undefined") ? window.g_ws_params : {};
         let defObject = (typeof window.u !== "undefined") ? {'h' : u} : {};
 
@@ -13,7 +13,7 @@ class WS {
 
         window.socket.on('eventClient', function (data) {
             if (data.event === "start_game") {
-                console.log(data);
+                //console.log(data);
                 if (typeof data.game_id != "undefined" && data.tournament_id){
 
                     if (typeof g === "undefined") {

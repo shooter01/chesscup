@@ -513,7 +513,7 @@ class App {
     }
 
     addResult(){
-        console.log(this.state.reason);
+        //console.log(this.state.reason);
         var reason = "";
         if (this.state.reason === "resign") {
             reason = REASONS[this.state.reason](this.state.p1_won);
@@ -1113,7 +1113,7 @@ class App {
             if (typeof u !== "undefined" && u == p1 && data.flagged === "white") {
                 var undo = self.game.undo();
                 //console.log("white undo");
-                console.log(undo);
+                //console.log(undo);
             } else if (typeof u !== "undefined" && u == p2 && data.flagged === "black") {
                 var undo =  self.game.undo();
                // console.log("black undo");

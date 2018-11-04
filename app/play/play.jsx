@@ -36,8 +36,8 @@ class PlaySockets extends React.Component {
                 challenges : challenges,
             });
 
-             console.log(challenges);
-             console.log(games);
+             //console.log(challenges);
+             //console.log(games);
 
         });
 

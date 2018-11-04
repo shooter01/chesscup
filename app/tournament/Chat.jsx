@@ -33,7 +33,7 @@ class Chat extends React.Component {
 
         window.socket.on('message', function (data) {
             //data = JSON.parse(data);
-             console.log(data);
+             //console.log(data);
             self.addMessage(data);
         });
 
@@ -62,7 +62,7 @@ class Chat extends React.Component {
                     try {
                         data = JSON.parse(data.messages);
                         var temp = [];
-                         console.log(data);
+                         //console.log(data);
 
                         for (var i = 0; i < data.length; i++) {
                             var obj = JSON.parse(data[i].msg);

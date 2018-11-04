@@ -18,7 +18,7 @@ class Link extends React.Component {
 
 
     render() {
-        console.log(this.props);
+        //console.log(this.props);
         var href =  "/tournament/" + this.state.tournament_id + "/game/" + this.props.id;
 
         return (

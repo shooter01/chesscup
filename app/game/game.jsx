@@ -97,7 +97,7 @@ class App extends React.Component {
     move(source, target, promotion) {
         var that = this;
         var prom = this.state.promotion;
-        console.log(this.premoved);
+        //console.log(this.premoved);
 
         // see if the move is legal
         var move = that.game.move({
@@ -622,7 +622,7 @@ class App extends React.Component {
                         if (!is_over) {
                             const moves = self.game.moves({verbose:true});
                             const move = moves[Math.floor(Math.random() * moves.length)];
-                            console.log(move);
+                            //console.log(move);
                             setTimeout(function () {
                                 self.move(move.from, move.to);
                             }, 100);
@@ -633,7 +633,7 @@ class App extends React.Component {
                         if (!is_over) {
                             const moves = self.game.moves({verbose:true});
                             const move = moves[Math.floor(Math.random() * moves.length)];
-                            console.log(move);
+                            //console.log(move);
                             setTimeout(function () {
                                 self.move(move.from, move.to);
                             }, 100);
@@ -710,7 +710,7 @@ class App extends React.Component {
 
             } else if (data.event === "game_over") {
 // debugger;
-                console.log(data);
+                //console.log(data);
                 clearInterval(self.timer);
                 self.setState({
                     is_over: data.is_over,
@@ -806,7 +806,7 @@ class App extends React.Component {
 
         this.socket.on('playzone_start_game', function (data) {
             data = JSON.parse(data);
-            console.log(data);
+            //console.log(data);
 
             location.href = "/play/game/" + data.game_id;
 
