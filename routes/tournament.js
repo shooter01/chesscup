@@ -508,8 +508,8 @@ module.exports = function(app, passport, pool, i18n) {
 
                 return pool.query(sql, office.tournament_id)
             }).then(function (results) {
-
-                app.mongoDB.collection("cache").deleteMany({tournament_id: office.tournament_id}, function (err, mongoGame) {
+                console.log(office);
+                app.mongoDB.collection("cache").deleteMany({tournament_id: parseInt(office.tournament_id)}, function (err, mongoGame) {
                     app.io.to('t' + office.tournament_id).emit('tournament_event',
                         JSON.stringify({}));
                 });
@@ -588,7 +588,7 @@ module.exports = function(app, passport, pool, i18n) {
                     return pool.query(sql, office.tournament_id);
                 }).then(function (results) {
 
-                app.mongoDB.collection("cache").deleteMany({tournament_id: office.tournament_id}, function (err, mongoGame) {
+                app.mongoDB.collection("cache").deleteMany({tournament_id: parseInt(office.tournament_id)}, function (err, mongoGame) {
                     app.io.to('t' + office.tournament_id).emit('tournament_event',
                         JSON.stringify({}));
                 });
