@@ -49,13 +49,12 @@
 
 <% } %>
 
-<div class="col-12 is2d" id="task_header">
-    <div class="row">
+<div class="is2d" id="game">
+    <div class="">
         <div class="col-md-12 col-lg-6" id="wrpr"></div>
         <div class="col-md-12 col-lg-6" ></div>
-        <div id="game">
-            <div class="mt-1 row lichess_ground lichess_board_wrap" id="lichess_ground">
-
+    </div>
+    <div class="mt-1 row lichess_ground lichess_board_wrap" id="lichess_ground">
 
 
                 <div class="col-md-12 col-lg-6 col-sm-12">
@@ -93,52 +92,121 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-12 col-lg-3 col-sm-12">
+
+                <div class="col-md-12 col-lg-6 col-sm-12">
+                    <div class="row">
+                        <div class="col-md-6 col-lg-6 col-sm-12">
 
 
-                    <div class="table_wrap hidden">
+                            <div class="table_wrap hidden">
 
-                        <div class="clock clock_top">
-                            <div class="time clock_top_time">
+                                <div class="clock clock_top">
+                                    <div class="time clock_top_time">
 
-                            </div>
-                            <div class="bar"></div>
-                        </div>
+                                    </div>
+                                    <div class="bar"></div>
+                                </div>
 
 
-                        <div class="table">
-                            <div>
-                                <div class="username user_link black offline up_player_online" id="up_player_online">
-                                    <i class="line" title="Joined the game"></i>
-                                    <a class="text ulpt up_name" data-pt-pos="s" href="" target="_self"></a>
-                                    <span class="rating up_tournaments_rating">
+                                <div class="table">
+                                    <div>
+                                        <div class="username user_link black offline up_player_online" id="up_player_online">
+                                            <i class="line" title="Joined the game"></i>
+                                            <a class="text ulpt up_name" data-pt-pos="s" href="" target="_self"></a>
+                                            <span class="rating up_tournaments_rating">
                                         <span class="rp down up_rating_change"></span>
                                     </span>
+                                        </div>
+
+
+                                        <div class="replay">
+                                            <div class="buttons">
+                                                <button class="fbt flip hint--top" data-hint="Перевернуть доску"
+                                                        data-act="flip" disabled><span data-icon="B"></span></button>
+                                                <nav>
+                                                    <button class="fbt" data-icon="W" data-ply="0" disabled></button>
+                                                    <button class="fbt" data-icon="Y" data-ply="28" disabled></button>
+                                                    <button class="fbt" data-icon="X" data-ply="30" disabled></button>
+                                                    <button class="fbt" data-icon="V" data-ply="39" disabled></button>
+                                                </nav>
+                                                <button class="fbt  hint--top" data-hint="Перевернуть доску"
+                                                        data-act="" disabled><span data-icon=""></span></button></div>
+                                            <div class="moves"></div>
+
+                                        </div>
+
+
+                                        <div>
+                                            <div class="control buttons rematch hidden">
+                                                <div class="follow_up">
+                                                    <a class="text fbt strong glowed tourney_text" data-icon="G"
+                                                       href=""></a>
+                                                </div>
+                                            </div>
+
+                                            <div class="control buttons hidden">
+                                                <div class="negotiation"><p>Ваш соперник предлагает вам ничью</p>
+                                                    <a class="accept" data-icon="E" title="Принять"></a>
+                                                    <a class="decline" data-icon="L" title="Отклонить"></a>
+                                                </div>
+                                            </div>
+                                            <div class="control buttons hidden">
+                                                <div class="pending">
+                                                    <p>Предложение ничьей отправлено</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="control icons players-btns hidden">
+                                                <button disabled class="fbt hint--bottom takeback-yes"
+                                                        data-hint="Попросить соперника вернуть ход">
+                                                    <span data-icon="i"></span>
+                                                </button>
+                                                <button class="fbt hint--bottom draw-yes draw" disabled
+                                                        data-hint="Предложить ничью">
+                                                    <span data-icon="2"></span>
+                                                </button>
+
+                                                <button class="fbt hint--bottom resign-confirm resign"
+                                                        onClick={this.resign} data-hint="Сдаться"><span
+                                                            data-icon="b"></span></button>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="username user_link black offline bottom_player_online" id="bottom_player_online">
+                                            <i class="line" title="Joined the game"></i>
+                                            <a class="text ulpt bottom_name" data-pt-pos="s" href="" target="_self"></a>
+                                            <span class="rating bottom_tournaments_rating"></span>
+                                            <span class="rp down bottom_rating_change"></span>
+                                        </div>
+                                    </div>
                                 </div>
 
-
-                                <div class="replay">
-                                    <div class="buttons">
-                                        <button class="fbt flip hint--top" data-hint="Перевернуть доску"
-                                                data-act="flip" disabled><span data-icon="B"></span></button>
-                                        <nav>
-                                            <button class="fbt" data-icon="W" data-ply="0" disabled></button>
-                                            <button class="fbt" data-icon="Y" data-ply="28" disabled></button>
-                                            <button class="fbt" data-icon="X" data-ply="30" disabled></button>
-                                            <button class="fbt" data-icon="V" data-ply="39" disabled></button>
-                                        </nav>
-                                        <button class="fbt  hint--top" data-hint="Перевернуть доску"
-                                                data-act="" disabled><span data-icon=""></span></button></div>
-                                    <div class="moves"></div>
-
+                                <div class="clock clock_bottom">
+                                    <div class="bar"></div>
+                                    <div class="time clock_bottom_time"></div>
                                 </div>
+                            </div>
 
 
+                            <div class="alert alert-secondary mt-1 mb-1 p1_won hidden" ><b>Белые выиграли</b></div>
+
+                            <div class="alert alert-secondary mt-1 mb-1 p2_won hidden" ><b>Черные выиграли</b></div>
+
+                            <div class="alert alert-secondary mt-1 mb-1 p2_draw hidden" ><b>Ничья</b></div>
+
+                            <div>
+                                <div class="alert alert-danger mt-1 mb-1 hidden" id="timeleft_white">Время на ход белых: <span class="timeleft"></span></div>
+                                <div class="alert alert-primary mt-1 mb-1 hidden" id="timeleft_black">Время на ход черных: <span class="timeleft"></span></div>
+                            </div>
+
+
+
+                            <div class="mobile-controls hidden">
                                 <div>
                                     <div class="control buttons rematch hidden">
                                         <div class="follow_up">
-                                            <a class="text fbt strong glowed tourney_text" data-icon="G"
-                                               href=""></a>
+                                            <a class="text fbt strong glowed tourney_text tourney_href rematch hidden" data-icon="G"   href=""></a>
                                         </div>
                                     </div>
 
@@ -169,123 +237,60 @@
                                                     data-icon="b"></span></button>
                                     </div>
                                 </div>
-
-
-                                <div class="username user_link black offline bottom_player_online" id="bottom_player_online">
-                                    <i class="line" title="Joined the game"></i>
-                                    <a class="text ulpt bottom_name" data-pt-pos="s" href="" target="_self"></a>
-                                    <span class="rating bottom_tournaments_rating"></span>
-                                    <span class="rp down bottom_rating_change"></span>
-                                </div>
                             </div>
+
+
+
+                            <style>
+                                form * {
+                                    display: block;
+                                    margin: 10px;
+                                }
+                            </style>
+
+
+
+                            <!--<div>
+                                <button class="fbt mobile-btn d-lg-none" onClick={this.goBack} data-icon="Y" data-ply="28"></button>
+                                <button class="fbt mobile-btn d-lg-none" onClick={this.goForward} data-icon="X" data-ply="30" disabled=""></button>
+                            </div>-->
                         </div>
 
-                        <div class="clock clock_bottom">
-                            <div class="bar"></div>
-                            <div class="time clock_bottom_time"></div>
+
+                        <div class="col-md-6 col-lg-6 col-sm-12" id="chat_side">
+                            <div class="side_box padded">
+                                <div class="players">
+
+                                    <div class="player color-icon is white text">
+                                        <a class="user_link ulpt" href="">
+                                            <span class="p1_name"></span>&nbsp;<span class="p1_tournaments_rating"></span>
+                                        </a>
+                                    </div>
+
+                                    <div class="player color-icon is black text">
+                                        <a class="user_link" href="">
+                                            <span class="p2_name"></span>
+                                            &nbsp;
+                                            <span class="p2_tournaments_rating"></span>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div id="chat"></div>
+
+                            <form class="row" id="download_pgn_form">
+                                <input class="btn btn-light btn-block"  type="submit" value="Download PGN">
+                            </form>
+
                         </div>
+
                     </div>
-
-
-                    <div class="alert alert-secondary mt-1 mb-1 p1_won hidden" ><b>Белые выиграли</b></div>
-
-                    <div class="alert alert-secondary mt-1 mb-1 p2_won hidden" ><b>Черные выиграли</b></div>
-
-                    <div class="alert alert-secondary mt-1 mb-1 p2_draw hidden" ><b>Ничья</b></div>
-
-                    <div>
-                        <div class="alert alert-danger mt-1 mb-1 hidden" id="timeleft_white">Время на ход белых: <span class="timeleft"></span></div>
-                        <div class="alert alert-primary mt-1 mb-1 hidden" id="timeleft_black">Время на ход черных: <span class="timeleft"></span></div>
-                    </div>
-
-
-
-                    <div class="mobile-controls hidden">
-                        <div>
-                            <div class="control buttons rematch hidden">
-                                <div class="follow_up">
-                                    <a class="text fbt strong glowed tourney_text tourney_href rematch hidden" data-icon="G"   href=""></a>
-                                </div>
-                            </div>
-
-                            <div class="control buttons hidden">
-                                <div class="negotiation"><p>Ваш соперник предлагает вам ничью</p>
-                                    <a class="accept" data-icon="E" title="Принять"></a>
-                                    <a class="decline" data-icon="L" title="Отклонить"></a>
-                                </div>
-                            </div>
-                            <div class="control buttons hidden">
-                                <div class="pending">
-                                    <p>Предложение ничьей отправлено</p>
-                                </div>
-                            </div>
-
-                            <div class="control icons players-btns hidden">
-                                <button disabled class="fbt hint--bottom takeback-yes"
-                                        data-hint="Попросить соперника вернуть ход">
-                                    <span data-icon="i"></span>
-                                </button>
-                                <button class="fbt hint--bottom draw-yes draw" disabled
-                                        data-hint="Предложить ничью">
-                                    <span data-icon="2"></span>
-                                </button>
-
-                                <button class="fbt hint--bottom resign-confirm resign"
-                                        onClick={this.resign} data-hint="Сдаться"><span
-                                            data-icon="b"></span></button>
-                            </div>
-                        </div>
-                    </div>
-
-
-
-                    <style>
-                        form * {
-                            display: block;
-                            margin: 10px;
-                        }
-                    </style>
-
-
-
-                    <!--<div>
-                        <button class="fbt mobile-btn d-lg-none" onClick={this.goBack} data-icon="Y" data-ply="28"></button>
-                        <button class="fbt mobile-btn d-lg-none" onClick={this.goForward} data-icon="X" data-ply="30" disabled=""></button>
-                    </div>-->
                 </div>
 
 
-                <div class="col-md-12 col-lg-3" id="chat_side">
-                    <div class="side_box padded">
-                        <div class="players">
 
-                            <div class="player color-icon is white text">
-                                <a class="user_link ulpt" href="">
-                                    <span class="p1_name"></span>&nbsp;<span class="p1_tournaments_rating"></span>
-                                </a>
-                            </div>
-
-                            <div class="player color-icon is black text">
-                                <a class="user_link" href="">
-                                    <span class="p2_name"></span>
-                                    &nbsp;
-                                    <span class="p2_tournaments_rating"></span>
-                                </a>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div id="chat"></div>
-
-                    <form class="row" id="download_pgn_form">
-                        <input class="btn btn-light btn-block"  type="submit" value="Download PGN">
-                    </form>
-
-                </div>
-
-            </div>
-        </div>
     </div>
 </div>
 
@@ -363,13 +368,13 @@
     window.chat_id = "g" + g;
 </script>
 
-<script src="/js/chat.min.js"></script>
+<!--<script src="/js/chat.min.js"></script>-->
 
 <script src="/js/cg/dist/chess.min.js"></script>
 <script src="/js/cg/dist/chessground.js"></script>
 
 <script src="/js/game_new.min.js"></script>
-<!--<script src="/js/chat.min.js"></script>-->
+<script src="/js/chat.min.js"></script>
 
 
 <!-- small modal -->
