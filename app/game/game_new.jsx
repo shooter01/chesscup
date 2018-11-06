@@ -706,11 +706,20 @@ class App {
     setTime(){
         let p1_minutes = Math.floor((this.state.white_time/(1000*60)));
         let p1_secs = Math.floor((this.state.white_time/1000) % 60);
-        let p1_milliseconds = Math.floor((this.state.white_time % 1000 / 10).toFixed(2));
+
+        let p1_milliseconds, p2_milliseconds;
 
         let p2_minutes = Math.floor((this.state.black_time/(1000*60)));
         let p2_secs = Math.floor((this.state.black_time/1000) % 60);
-        let p2_milliseconds = Math.floor((this.state.black_time % 1000 / 10).toFixed(2));
+
+
+        if (this.state.is_over === 1) {
+            p1_milliseconds = Math.floor((this.state.white_time % 1000 / 10));
+            p2_milliseconds = Math.floor((this.state.black_time % 1000 / 10));
+        } else {
+            p1_milliseconds = Math.floor((this.state.white_time % 1000 / 100));
+            p2_milliseconds = Math.floor((this.state.black_time % 1000 / 100));
+        }
 
         p1_minutes = (p1_minutes < 0) ? 0 : p1_minutes;
         p1_secs = (p1_secs < 0) ? 0 : p1_secs;
@@ -728,6 +737,7 @@ class App {
         let bottom_clock_seconds;
         let bottom_clock_milliseconds;
         let up_clock_milliseconds;
+
         // console.log(this.state.orientation);
         if (this.state.orientation === "white") {
             bottom_clock_minutes = p1_minutes;
@@ -750,10 +760,10 @@ class App {
             if (this.state.orientation === "white") {
                 this.$clock_bottom.addClass("emerg");
                 //this.$clock_top.removeClass("emerg");
-                /*if (this.state.isPlayer && this.lowTimePlayed === false) {
-                 aa.play('lowtime');
-                 this.lowTimePlayed = true;
-                 }*/
+                if (this.state.isPlayer && this.state.playerColor === "white" && this.lowTimePlayed === false && this.state.is_over === 0) {
+                    s_lowtime.play();
+                    this.lowTimePlayed = true;
+                }
             } else {
                 this.$clock_top.addClass("emerg");
                 //this.$clock_bottom.removeClass("emerg");
@@ -763,10 +773,13 @@ class App {
         if (this.state.black_time < 10000) {
             if (this.state.orientation === "white") {
                 this.$clock_top.addClass("emerg");
-                //this.$clock_bottom.removeClass("emerg");
 
             } else {
                 this.$clock_bottom.addClass("emerg");
+                if (this.state.isPlayer && this.state.playerColor === "black" && this.lowTimePlayed === false && this.state.is_over === 0) {
+                    s_lowtime.play();
+                    this.lowTimePlayed = true;
+                }
                 //this.$clock_top.removeClass("emerg");
 
             }
@@ -774,6 +787,8 @@ class App {
 
 
 
+        /*this.$clock_top_time.html(up_clock_minutes + '<span class="low">:</span>' + up_clock_seconds + "." + '<span class="small-bottom">' + up_clock_milliseconds + '</span>');
+        this.$clock_bottom_time.html(bottom_clock_minutes + '<span class="low">:</span>' + bottom_clock_seconds + "." + '<span class="small-bottom">' + bottom_clock_milliseconds + '</span>');*/
         this.$clock_top_time.html(up_clock_minutes + '<span class="low">:</span>' + up_clock_seconds + "." + '<span class="small-bottom">' + up_clock_milliseconds + '</span>');
         this.$clock_bottom_time.html(bottom_clock_minutes + '<span class="low">:</span>' + bottom_clock_seconds + "." + '<span class="small-bottom">' + bottom_clock_milliseconds + '</span>');
 
@@ -1276,6 +1291,17 @@ class App {
             send_data.reason = "draw";
             send_data.tourney_id = self.state.tourney_id;
             window.socket.emit('eventServer', send_data);
+
+
+            let item = {
+                msg: "принял ничью",
+                user_id: u,
+                name: user_name,
+                chat_id : self.state.chat_id
+            };
+
+            window.socket.emit('message', item);
+
         });
 
         $("body").off("click.decline_draw").on("click.decline_draw", ".decline", function () {
