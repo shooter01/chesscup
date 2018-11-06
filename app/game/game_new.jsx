@@ -26,6 +26,7 @@ const REASONS = {
     "stalemate" : "Пат",
     "draw" : "Ничья",
     "whitedidntmove" : "Белые не сделали ход",
+    "threefold_repetition" : "Троекратное повторение позиции",
     "blackdidntmove" : "Черные не сделали ход",
     "mate" : "Мат",
     "resign" : function (p1_won) {
