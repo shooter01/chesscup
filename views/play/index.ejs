@@ -45,6 +45,14 @@
                             <div id="slider-range-max"></div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-sm-12 mt-3">
+                            <label for="time_inc">Прибавка : </label>
+                            <input type="text" id="time_inc" readonly style="border:0; color:#f6931f; font-weight:bold;">
+
+                            <div id="slider-range-max-time_inc"></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -66,6 +74,17 @@
             }
         });
         $("#amount").val($("#slider-range-max").slider("value"));
+
+        $("#slider-range-max-time_inc").slider({
+            min: 0,
+            max: 10,
+            step: 1,
+            value: 0,
+            slide: function (event, ui) {
+                $("#time_inc").val(ui.value);
+            }
+        });
+        $("#time_inc").val($("#slider-range-max-time_inc").slider("value"));
     });
 
 </script>

@@ -38,6 +38,14 @@
         <div id="slider-range-max"></div>
     </div>
 </div>
+<div class="row">
+    <div class="col-sm-12 mt-3">
+        <label for="time_inc">Прибавка : </label>
+        <input type="text" id="time_inc" readonly style="border:0; color:#f6931f; font-weight:bold;">
+
+        <div id="slider-range-max-time_inc"></div>
+    </div>
+</div>
 
 <div class="row">
     <div class="col-sm-12 mt-3">
@@ -120,6 +128,7 @@
 //        $('#basicExample').datepair();
 
         var defValue = '<%=  (typeof tournament !== "undefined") ? tournament.amount : "3" %>';
+        var defInc = '<%=  (typeof tournament !== "undefined") ? tournament.time_inc : "0" %>';
 
         $("#type").on("change", function () {
             if ($(this).val() > 10) {
@@ -146,6 +155,22 @@
             }
         });
         $("#amount").val($("#slider-range-max").slider("value"));
+
+
+        $("#slider-range-max-time_inc").slider({
+            min: 0,
+            max: 10,
+            step: 1,
+            value: defInc,
+            slide: function (event, ui) {
+                $("#time_inc").val(ui.value);
+            }
+        });
+        $("#time_inc").val($("#slider-range-max-time_inc").slider("value"));
+
+
+
+
     });
 
 

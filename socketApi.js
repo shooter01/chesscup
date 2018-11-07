@@ -117,7 +117,7 @@ module.exports = function (app) {
                     }  else {
                         lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
                         spent_time = actual_time - lm;
-                        obj["p1_time_left"] = mongoGame.p1_time_left - spent_time;
+                        obj["p1_time_left"] = mongoGame.p1_time_left - spent_time + mongoGame.time_inc;
                     }
                     obj["p2_last_move"] = new Date();
                     obj["p2_time_left"] = mongoGame.p2_time_left;
@@ -132,7 +132,7 @@ module.exports = function (app) {
                     } else {
                         lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
                         spent_time = actual_time - lm;
-                        obj["p2_time_left"] = mongoGame.p2_time_left - spent_time;
+                        obj["p2_time_left"] = mongoGame.p2_time_left - spent_time + mongoGame.time_inc;
                     }
 
                     obj["p1_last_move"] = new Date();
@@ -577,6 +577,7 @@ module.exports = function (app) {
                 //console.log(data);
                 //берем от клиента информацию
                 data['amount'] = data.amount;
+                data['time_inc'] = data.time_inc;
                 data['p1_id'] = (data.current_color !== "white") ? data.user_id : data.enemy_id;
                 data['p2_id'] = (data.current_color === "white") ? data.user_id : data.enemy_id;
                 //data['current_color'] = ;
@@ -627,6 +628,7 @@ module.exports = function (app) {
                 var game = app.mongoDB.collection("challenges").insertOne({
                     "owner" : data.user_id,
                     "user_name" : data.user_name,
+                    "time_inc" : data.time_inc,
                     "created_at" : new Date(),
                     "time_control" : data.amount
                 }, function (err, data) {
@@ -653,6 +655,7 @@ module.exports = function (app) {
                     data['amount'] = mongoGame.time_control;
                     data['p1_name'] = mongoGame.user_name;
                     data['p1_id'] = mongoGame.owner;
+                    data['time_inc'] = mongoGame.time_inc;
                     data['p1_time_left'] = mongoGame.time_control * 60000;
                     data['p2_time_left'] = mongoGame.time_control * 60000;
 

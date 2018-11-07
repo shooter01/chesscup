@@ -13,6 +13,7 @@ const create_game_mongo = function (data, app, callback) {
         "startTime": startTime,
         "p1_name" : data.p1_name,
         "p2_name" : data.p2_name,
+        "time_inc" : data.time_inc * 1000 || 0,
         "playzone" : true,
         "amount" : data.amount,
         "p1_last_move": null,

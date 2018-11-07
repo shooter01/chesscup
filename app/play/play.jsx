@@ -49,6 +49,7 @@ class PlaySockets extends React.Component {
             window.socket.emit('create_game', JSON.stringify({
                 "amount" : $("#amount").val(),
                 "user_id" : u,
+                "time_inc" : $("#time_inc").val(),
                 "user_name" : user_name,
             }));
 
@@ -125,7 +126,7 @@ class PlaySockets extends React.Component {
                         <tr key={index}>
                             <th>{item.user_id}</th>
                             <td className="text-center">{item.user_name}</td>
-                            <td className="text-center">{item.time_control} + 0</td>
+                            <td className="text-center">{item.time_control} + {item.time_inc}</td>
                             <td className="text-center">
                                 {this.state.user_id != null ?
                                      (item.owner !=  this.state.user_id) ?

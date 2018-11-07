@@ -100,6 +100,7 @@ class App {
             isPlayer: false,
             chat_id : (typeof window.chat_id != "undefined") ? window.chat_id : null,
             amount: amount,
+            time_inc: time_inc,
             white_time: p1_time_left,
             p1_name: p1_name,
             p2_name: p2_name,
@@ -1478,6 +1479,7 @@ class App {
                 "user_name" : (u == p1) ? p1_name : p2_name,
                 "enemy_name" : (u == p2) ? p1_name : p2_name,
                 "amount" : self.state.amount,
+                "time_inc" : parseInt(self.state.time_inc)/1000,
                 "enemy_id" : (u == p1) ? p2 : p1,
             }));
         });
