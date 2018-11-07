@@ -737,6 +737,8 @@ class App {
         let bottom_clock_seconds;
         let bottom_clock_milliseconds;
         let up_clock_milliseconds;
+        let upclock;
+        let bottomclock;
 
         // console.log(this.state.orientation);
         if (this.state.orientation === "white") {
@@ -759,23 +761,40 @@ class App {
         if (this.state.white_time < 10000) {
             if (this.state.orientation === "white") {
                 this.$clock_bottom.addClass("emerg");
+                bottomclock = bottom_clock_minutes + '<span class="low">:</span>' + bottom_clock_seconds + "." + '<span class="small-bottom">' + bottom_clock_milliseconds + '</span>';
                 //this.$clock_top.removeClass("emerg");
                 if (this.state.isPlayer && this.state.playerColor === "white" && this.lowTimePlayed === false && this.state.is_over === 0) {
                     s_lowtime.play();
                     this.lowTimePlayed = true;
                 }
             } else {
+                upclock = up_clock_minutes + '<span class="low">:</span>' + up_clock_seconds + "." + '<span class="small-bottom">' + up_clock_milliseconds + '</span>';
                 this.$clock_top.addClass("emerg");
                 //this.$clock_bottom.removeClass("emerg");
             }
+        } else {
+
+            if (this.state.orientation === "white") {
+                bottomclock = bottom_clock_minutes + '<span class="low">:</span>' + bottom_clock_seconds;
+            } else {
+                upclock = up_clock_minutes + '<span class="low">:</span>' + up_clock_seconds;
+            }
+
+
+
         }
 
         if (this.state.black_time < 10000) {
             if (this.state.orientation === "white") {
                 this.$clock_top.addClass("emerg");
 
+                upclock = up_clock_minutes + '<span class="low">:</span>' + up_clock_seconds + "." + '<span class="small-bottom">' + up_clock_milliseconds + '</span>';
+
             } else {
                 this.$clock_bottom.addClass("emerg");
+
+                bottomclock = bottom_clock_minutes + '<span class="low">:</span>' + bottom_clock_seconds + "." + '<span class="small-bottom">' + bottom_clock_milliseconds + '</span>';
+
                 if (this.state.isPlayer && this.state.playerColor === "black" && this.lowTimePlayed === false && this.state.is_over === 0) {
                     s_lowtime.play();
                     this.lowTimePlayed = true;
@@ -783,14 +802,24 @@ class App {
                 //this.$clock_top.removeClass("emerg");
 
             }
+        } else {
+
+
+            if (this.state.orientation === "white") {
+                upclock = up_clock_minutes + '<span class="low">:</span>' + up_clock_seconds;
+            } else {
+                bottomclock = bottom_clock_minutes + '<span class="low">:</span>' + bottom_clock_seconds;
+            }
+
+
         }
 
 
 
         /*this.$clock_top_time.html(up_clock_minutes + '<span class="low">:</span>' + up_clock_seconds + "." + '<span class="small-bottom">' + up_clock_milliseconds + '</span>');
         this.$clock_bottom_time.html(bottom_clock_minutes + '<span class="low">:</span>' + bottom_clock_seconds + "." + '<span class="small-bottom">' + bottom_clock_milliseconds + '</span>');*/
-        this.$clock_top_time.html(up_clock_minutes + '<span class="low">:</span>' + up_clock_seconds + "." + '<span class="small-bottom">' + up_clock_milliseconds + '</span>');
-        this.$clock_bottom_time.html(bottom_clock_minutes + '<span class="low">:</span>' + bottom_clock_seconds + "." + '<span class="small-bottom">' + bottom_clock_milliseconds + '</span>');
+        this.$clock_top_time.html(upclock);
+        this.$clock_bottom_time.html(bottomclock);
 
 
     }
