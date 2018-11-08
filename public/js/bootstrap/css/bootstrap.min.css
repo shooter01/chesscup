@@ -1,3 +1,30 @@
+body {
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif!important;
+}
+
+a {
+    color: #00B7FF;
+}
+
+.hidden {
+    display: none!important;
+}
+
+.chat ol {
+    padding: 0;
+    margin: 0;
+}
+.chat {
+    height: 350px;
+    border-left: 1px solid #dee2e6;
+    border-right: 1px solid #dee2e6;
+}
+.messages {
+    height: 312px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 10px;
+}
 /*!
  * Bootstrap v4.1.0 (https://getbootstrap.com/)
  * Copyright 2011-2018 The Bootstrap Authors
