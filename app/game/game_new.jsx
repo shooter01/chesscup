@@ -1362,16 +1362,17 @@ class App {
 
         window.socket.on('eventClient', function (data) {
             //data = JSON.parse(data);
-            self.cg.set({
-                check: false,
-                state: {
-                    check: false,
-                }
-            });
+
 
            // console.log(data);
 
             if (data.event === "move") {
+                self.cg.set({
+                    check: false,
+                    state: {
+                        check: false,
+                    }
+                });
                 self.socketMove(data);
 
             }
@@ -1385,7 +1386,16 @@ class App {
 
             }
             else if (data.event === "game_over") {
+
+                self.cg.set({
+                    check: false,
+                    state: {
+                        check: false,
+                    }
+                });
+
                 self.socketGamerOver(data);
+
 
 
             }
