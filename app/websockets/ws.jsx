@@ -1,5 +1,6 @@
+import WS from "../ws";
 
-class WS {
+class Web {
     constructor(){
         //console.log(window.g_ws_params);
         let ws_params = (typeof window.g_ws_params !== "undefined") ? window.g_ws_params : {};
@@ -7,11 +8,20 @@ class WS {
 
         const str = this.getUrl(Object.assign(ws_params, defObject));
 
-        window.socket = io(window.location.origin, {
-            query:  str,
-        });
 
-        window.socket.on('eventClient', function (data) {
+        /*window.socket = new WS("test23", handleData, "localhost:7000");
+
+
+        function handleData(data) {
+            console.log(arguments);
+            console.log(data);
+        }*/
+
+        /*window.socket = io(window.location.origin, {
+            query:  str,
+        });*/
+
+        /*window.socket.on('eventClient', function (data) {
             if (data.event === "start_game") {
                 //console.log(data);
                 if (typeof data.game_id != "undefined" && data.tournament_id){
@@ -34,7 +44,7 @@ class WS {
                 }
 
             }
-        });
+        });*/
 
     }
 
@@ -52,6 +62,6 @@ class WS {
 
 
 $(function () {
-    new WS();
+    new Web();
 });
 

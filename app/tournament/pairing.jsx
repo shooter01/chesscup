@@ -7,6 +7,7 @@ import ResultsTable from "./ResultsTable.jsx";
 import Timer from "./Timer.jsx";
 import Tours from "./Tours.jsx";
 
+import WS from "../ws";
 
 
 
@@ -42,7 +43,7 @@ class Pairing extends React.Component {
             owner: window.owner,
         }
         this.saveResult = this.saveResult.bind(this);
-        this.getActualData = this.getActualData.bind(this);
+        // this.getActualData = this.getActualData.bind(this);
     }
     componentDidMount(){
         var self = this;
@@ -348,31 +349,64 @@ class Pairing extends React.Component {
 
 
         if (this.state.pairs == null || this.state.pairs.length === 0) {
-            this.getActualData();
+             //this.getActualData();
         }
 
         if (this.state.tournament.is_online == 1 && typeof tour_choosed === "undefined"){
            //this.socket = io(window.location.origin, {query: 't1=' + this.state.tournament_id});
+            let ws_params = (typeof window.g_ws_params !== "undefined") ? window.g_ws_params : {};
+            let defObject = (typeof window.u !== "undefined") ? {'h' : u} : {};
+
+            const socket = new WS("test23", function (data) {
+               // data = JSON.parse(data);
+                console.log(data);
+                self.handleWSData(data);
+            }, "localhost:7000");
 
 
-            window.socket.on('tournament_event', function (data) {
-                data = JSON.parse(data);
+            function handleData(data) {
+                console.log(arguments);
+                console.log(data);
+            }
+
+
+           // window.socket.on('tournament_event', function (data) {
+
                 // console.log(data);
-                self.getActualData();
-            });
+                //self.getActualData();
+          //  });
         }
+    }
 
 
+    getUrl(ws_params){
+        let str = "";
+        for (let key in ws_params) {
+            if (str != "") {
+                str += "&";
+            }
+            str += key + "=" + encodeURIComponent(ws_params[key]);
+        }
+        return str;
+    }
+
+    handleWSData(data){
+
+        if (data.event === "tournament_event") {
+            this.updateTournament();
+        }
 
     }
 
+    updateTournament() {
+        this.getActualData();
+    }
     componentWillUnmount() {
         this._isMounted = false;
     }
 
     getActualData(){
         var self = this;
-
 
         $.getJSON('/tournament/' + this.state.tournament_id + '/get_info').done(function (data) {
             if (self._isMounted) {

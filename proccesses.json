@@ -1,0 +1,11 @@
+{
+  "apps" : [{
+    "script"    : "bin/www",
+    "instances" : "4",
+    "exec_mode" : "cluster",
+    "watch": true,
+    "env": {
+      "NODE_ENV": "dev-linux"
+    }
+  }]
+}
