@@ -20,6 +20,7 @@ const save_result_mongo = require('./routes/save_result_mongo');
 const create_game_mongo = require('./routes/create_game_mongo');
 const invite_user_to_game = require('./routes/invite_user_to_game');
 const is_draw = require('./routes/is_draw');
+const roomsObject = require('./routes/rooms');
 const bluebird = require('bluebird');
 const url = require('url');
 
@@ -29,25 +30,44 @@ let throttle = {};
 
 let online_players = {};
 let store = {};
+let sockets_ids = {};
+
+
+function getRandomId() {
+    let random = Math.random()*10000000000000000;
+    if (sockets_ids[random]) {
+        getRandomId();
+    } else {
+        return random;
+    }
+}
 
 var elo = new Elo(uscf, min_score, max_score);
 
+
+
+const ROOMS = new roomsObject();
 
 
 module.exports = function (app) {
 
 
     const pool = bluebird.promisifyAll(app.pool);
-    console.log("INCLUDED");
+    console.log("INCLUDED!");
+
+
+    app.wss.on("data", function (data) {
+        console.log("data");
+        console.log(data);
+    })
+
+
     app.wss.on('connection', function (socket, req) {
 
-        socket.send(JSON.stringify({event : "start_game", "ha" : "ha"}));
-        socket.send(JSON.stringify({event : "tournament_event"}));
+        //socket.send(JSON.stringify({event : "start_game", "ha" : "ha"}));
+       // socket.send(JSON.stringify({event : "tournament_event"}));
 
-
-        socket.on('close', function() {
-            console.log("DISCONNECTED");
-        });
+        socket.id = getRandomId();
 
         socket.on('error', function() {});
 
@@ -56,41 +76,74 @@ module.exports = function (app) {
         console.log(query);
         console.log("CONNECT!");
 
-        return false;
+
        // var handshakeData = socket.request;
        // let data = handshakeData._query;
 
         if (query['h'] && query['h'] != "undefined") {
-            socket.p_id = data.h;
+            socket.p_id = query.h;
             app.globalPlayers[socket.p_id] = socket;
             store[socket.p_id] = socket.id;
         }
 
-        //console.log(app.globalPlayers);
+        console.log(query);
 
         if ((query['t1'] && query['t1'] != "undefined")) {
-            socket.join('t' + query['t1']);
-            socket.join('chatt' + query['t1']);
+            ROOMS.join('t' + query['t1'], socket);
+            ROOMS.join('chatt' + query['t1'], socket);
+            //socket.join('t' + query['t1']);
+           // socket.join('chatt' + query['t1']);
         }
 
-        if ((query['lobby'] && query['lobby'] != "undefined")) {
-            socket.join('lobby');
-        }
+
+
+        socket.on("message", function (data) {
+            console.log("message");
+            console.log(data);
+            data = JSON.parse(data);
+
+            if (data.action === "create_game") {
+                var game = app.mongoDB.collection("challenges").insertOne({
+                    "owner" : data.user_id,
+                    "user_name" : data.user_name,
+                    "time_inc" : data.time_inc,
+                    "created_at" : new Date(),
+                    "time_control" : data.amount
+                }, function (err, data) {
+                    getCurrentPlayGames(socket, data.insertedId);
+                    //   console.log(data.insertedId);
+                });
+            } else if (data.action === "remove") {
+                app.mongoDB.collection("challenges").deleteOne({_id: ObjectId(data.game_id)}, function (err, mongoGame) {
+                    getCurrentPlayGames();
+                });
+            }else if (data.action === "remove_all_challenges") {
+                app.mongoDB.collection("challenges").deleteMany({owner: data.user_id}, function (err, mongoGame) {
+                    getCurrentPlayGames();
+                });
+            }
+
+
+
+
+        })
+
 
         //события игры
 
         if (query['g'] && query['g'] != "undefined") {
 
-            socket.game_id = data.g;
+            socket.game_id = query.g;
 
             if (query['h'] && query['h'] != "undefined") {
                 online_players[socket.game_id] = online_players[socket.game_id] || {};
                 online_players[socket.game_id][socket.p_id] = online_players[socket.game_id][socket.p_id] || 0;
                 online_players[socket.game_id][socket.p_id] = ++online_players[socket.game_id][socket.p_id];
             }
-
-            socket.join(socket.game_id);
-            socket.join('chatg' + socket.game_id);
+            ROOMS.join(socket.game_id, socket);
+            ROOMS.join('chatg' + socket.game_id, socket);
+           // socket.join(socket.game_id);
+           // socket.join('chatg' + socket.game_id);
 
             /*io.to(socket.game_id).emit('playerOnline',
                 JSON.stringify(online_players[handshakeData._query['g']] || {}));*/
@@ -330,7 +383,8 @@ module.exports = function (app) {
                                  function (err, data) {
 
                                      var a = {
-                                         event: "move",
+                                         event: "eventClient",
+                                         action: "move",
                                          fen: msg.data,
                                          san: msg.move,
                                          captured: msg.captured,
@@ -341,6 +395,9 @@ module.exports = function (app) {
 
                                      a.p1_time_left = obj.p1_time_left;
                                      a.p2_time_left = obj.p2_time_left;
+
+
+                                     ROOMS.emit(msg.id, JSON.stringify(a));
 
                                     // io.to(msg.id).emit('eventClient',a);
 
@@ -618,11 +675,11 @@ module.exports = function (app) {
             &&  query['t1'] != "undefined")
         ) {
 
-            var random = getRandomId(app.viewers);
-            socket.viewer_id = random;
+          //  var random = getRandomId(app.viewers);
+         //   socket.viewer_id = random;
             socket.t1 = query['t1'];
-            app.viewers[query['t1']] =  app.viewers[query['t1']] || {};
-            app.viewers[query['t1']][random] = socket;
+          //  app.viewers[query['t1']] =  app.viewers[query['t1']] || {};
+          //  app.viewers[query['t1']][random] = socket;
 
 
 
@@ -635,12 +692,13 @@ module.exports = function (app) {
             query['lobby'] && query['lobby'] != "undefined"
         ) {
 
-            getCurrentPlayGames(socket, data.insertedId);
+            console.log("A");
+
+            ROOMS.join('lobby', socket);
+            getCurrentPlayGames(socket);
 
 
-            socket.on('create_game', function (data) {
-              //  console.log('create_game');
-              //  console.log(data);
+/*            socket.on('create_game', function (data) {
                 data = JSON.parse(data);
 
                 var game = app.mongoDB.collection("challenges").insertOne({
@@ -651,9 +709,8 @@ module.exports = function (app) {
                     "time_control" : data.amount
                 }, function (err, data) {
                     getCurrentPlayGames(socket, data.insertedId);
-                 //   console.log(data.insertedId);
                 });
-            });
+            });*/
 
             socket.on('cancel_game', function (data) {
                // console.log('cancel_game');
@@ -693,20 +750,7 @@ module.exports = function (app) {
                 });
             });
 
-            socket.on('remove', function (data) {
-                data = JSON.parse(data);
 
-                app.mongoDB.collection("challenges").deleteOne({_id: ObjectId(data.game_id)}, function (err, mongoGame) {
-                    getCurrentPlayGames();
-                });
-            });
-            socket.on('remove_all_challenges', function (data) {
-                data = JSON.parse(data);
-
-                app.mongoDB.collection("challenges").deleteMany({owner: data.user_id}, function (err, mongoGame) {
-                    getCurrentPlayGames();
-                });
-            });
         }
 
 
@@ -715,7 +759,7 @@ module.exports = function (app) {
                 let challenges = [];
                 cursor.forEach(function (game) {
                     challenges.push(game);
-                 //   console.log(message);
+                  //  console.log(game);
                 }, function () {
 
 
@@ -725,6 +769,12 @@ module.exports = function (app) {
                             games.push(game);
                          //   console.log(message);
                         }, function () {
+                            ROOMS.emit('lobby', JSON.stringify({
+                                action : "games_list",
+                                games: JSON.stringify(games),
+                                challenges: JSON.stringify(challenges),
+                                created_id: created_id,
+                            }))
 
                             /*io.to("lobby").emit('games_list',
                                 {
@@ -742,9 +792,15 @@ module.exports = function (app) {
             });
         }
 
-        socket.on('disconnect', function () {
-          //  console.log("disconnect");
-          //  console.log(Object.keys(app.globalPlayers));
+
+        socket.on('close', function() {
+            console.log("DISCONNECTED");
+
+
+            ROOMS.disconnect(socket);
+
+            //  console.log("disconnect");
+            //  console.log(Object.keys(app.globalPlayers));
 
             if (typeof online_players[socket.game_id] !== "undefined"
                 && typeof online_players[socket.game_id][this.p_id] !== "undefined") {
@@ -753,12 +809,12 @@ module.exports = function (app) {
                 if (online_players[socket.game_id][socket.p_id] <= 0) {
                     delete online_players[socket.game_id][socket.p_id];
 
-                  /*  io.to(socket.game_id).emit('eventClient', {
-                        event : "playerOnline",
-                        players : online_players[socket.game_id]
-                    });*/
+                    /*  io.to(socket.game_id).emit('eventClient', {
+                     event : "playerOnline",
+                     players : online_players[socket.game_id]
+                     });*/
 
-                   // io.to(socket.game_id).emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
+                    // io.to(socket.game_id).emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
                     //io.sockets.emit('playerOnline', JSON.stringify(online_players[socket.game_id]));
                 }
 
@@ -774,16 +830,21 @@ module.exports = function (app) {
                 delete app.globalPlayers[socket.p_id];
             }
 
-            if (typeof socket.viewer_id !== "undefined" && typeof socket.t1 !== "undefined"){
-                delete app.viewers[socket.t1][socket.viewer_id];
+            /*if (typeof socket.viewer_id !== "undefined" && typeof socket.t1 !== "undefined"){
+             delete app.viewers[socket.t1][socket.viewer_id];
 
-                if (Object.keys(app.viewers[socket.t1]).length === 0) {
-                    delete app.viewers[socket.t1];
-                }
+             if (Object.keys(app.viewers[socket.t1]).length === 0) {
+             delete app.viewers[socket.t1];
+             }
 
-            }
-
+             }*/
         });
+
+
+        /*socket.on('disconnect', function () {
+
+
+        });*/
 
         socket.on('message', function (data) {
             // data = JSON.parse(data);
@@ -797,11 +858,12 @@ module.exports = function (app) {
         });
     });
 
+
     return socketApi
 };
 
 
- function getRandomId(viewers) {
+ /*function getRandomId(viewers) {
     let random = Math.random()*100000000000000000;
     if (viewers[random]) {
         getRandomId(viewers);
@@ -809,5 +871,5 @@ module.exports = function (app) {
         return random;
     }
 }
-
+*/
 

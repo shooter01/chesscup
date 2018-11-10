@@ -1,7 +1,7 @@
 {
   "apps" : [{
     "script"    : "bin/www",
-    "instances" : "4",
+    "instances" : "1",
     "exec_mode" : "cluster",
     "watch": true,
     "env": {

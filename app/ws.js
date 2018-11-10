@@ -4,9 +4,9 @@
  * @type {{}}
  */
 
-function WS(channelName, callback, serverHost) {
+function WS(callback, serverHost) {
     var self = this;
-    this.channelName = channelName;
+    //this.channelName = channelName;
     this.callback = callback || function () {};
     this.serverHost = serverHost || location.hostname;
     this.connect();
@@ -29,10 +29,12 @@ WS.prototype.startNative = function () {
 
     const str = this.getUrl(Object.assign(ws_params, defObject));
 
+    //говорим, что сокеты инциализированы
+    window.socketInited = true;
     this.ws = new WebSocket("ws://" + self.serverHost + "/?" + str);
 
     this.ws.onopen = function (event) {
-        WS.sockets[self.channelName] = this;
+        //WS.sockets[self.channelName] = this;
     };
 
     // обработчик входящих сообщений

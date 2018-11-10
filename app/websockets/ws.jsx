@@ -3,19 +3,22 @@ import WS from "../ws";
 class Web {
     constructor(){
         //console.log(window.g_ws_params);
-        let ws_params = (typeof window.g_ws_params !== "undefined") ? window.g_ws_params : {};
+       /* let ws_params = (typeof window.g_ws_params !== "undefined") ? window.g_ws_params : {};
         let defObject = (typeof window.u !== "undefined") ? {'h' : u} : {};
 
-        const str = this.getUrl(Object.assign(ws_params, defObject));
+        const str = this.getUrl(Object.assign(ws_params, defObject));*/
+
+        console.log(window.socketInited);
+       if (typeof window.socketInited === "undefined") {
+           this.socket = new WS("test23", handleData, "localhost:7000");
 
 
-        /*window.socket = new WS("test23", handleData, "localhost:7000");
+           function handleData(data) {
+
+           }
+       }
 
 
-        function handleData(data) {
-            console.log(arguments);
-            console.log(data);
-        }*/
 
         /*window.socket = io(window.location.origin, {
             query:  str,

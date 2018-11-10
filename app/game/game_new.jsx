@@ -1360,13 +1360,13 @@ class App {
         }
         //this.socket = io(window.location.origin, {query: url + '&g=' + g});
 
-        window.socket.on('eventClient', function (data) {
-            //data = JSON.parse(data);
+        const socket = new WS(function (data) {
+            data = JSON.parse(data);
 
 
-           // console.log(data);
+            // console.log(data);
 
-            if (data.event === "move") {
+            if (data.action === "move") {
                 self.cg.set({
                     check: false,
                     state: {
@@ -1376,16 +1376,16 @@ class App {
                 self.socketMove(data);
 
             }
-            if (data.event === "cancel_move") {
+            if (data.action === "cancel_move") {
                 self.cancelMove(data);
 
             }
-            else if (data.event === "rating_change") {
+            else if (data.action === "rating_change") {
 
                 self.socketRatingChange(data);
 
             }
-            else if (data.event === "game_over") {
+            else if (data.action === "game_over") {
 
                 self.cg.set({
                     check: false,
@@ -1399,34 +1399,36 @@ class App {
 
 
             }
-            else if (data.event === "game_aborted") {
+            else if (data.action === "game_aborted") {
 
                 self.socketGameAborted(data);
 
             }
-            else if (data.event === "rematch_offer") {
+            else if (data.action === "rematch_offer") {
                 self.socketRematchOffer(data);
 
             }
-            else if (data.event === "playerOnline") {
+            else if (data.action === "playerOnline") {
                 self.socketPlayerOnline(data);
             }
-            else if (data.event === "game_start") {
+            else if (data.action === "game_start") {
                 self.playzoneStartGame(data);
             }
-            else if (data.event === "draw_offer") {
+            else if (data.action === "draw_offer") {
                 self.draw_offer(data);
             }
-            else if (data.event === "decline_draw") {
+            else if (data.action === "decline_draw") {
                 self.decline_draw(data);
             }
-            else if (data.event === "decline_rematch") {
+            else if (data.action === "decline_rematch") {
                 self.decline_rematch(data);
             }
-            else if (data.event === "rematch_cancel") {
+            else if (data.action === "rematch_cancel") {
                 self.rematch_cancel(data);
             }
-        });
+        }, "localhost:7000");
+
+        window.socket.on('eventClient', );
 
         if (this.state.isPlayer === true) {
             let who_online = "white";

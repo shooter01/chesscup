@@ -1,6 +1,6 @@
 import React from 'react';
 import {render} from 'react-dom';
-
+import WS from "../ws";
 
 class PlaySockets extends React.Component {
     constructor(props){
@@ -27,7 +27,25 @@ class PlaySockets extends React.Component {
         }*/
         //this.socket = io(window.location.origin, {query: url + "&lobby=true"});
 
-        window.socket.on('games_list', function (data) {
+        this.socket = new WS(function (data) {
+
+            if (data.action === "games_list") {
+                const games = JSON.parse(data.games);
+                const challenges = JSON.parse(data.challenges);
+
+                self.setState({
+                    games : games,
+                    challenges : challenges,
+                });
+
+            }
+
+            //console.log(challenges);
+            //console.log(games);
+        }, "localhost:7000");
+
+
+       /* window.socket.on('games_list', function (data) {
             const games = JSON.parse(data.games);
             const challenges = JSON.parse(data.challenges);
 
@@ -36,17 +54,17 @@ class PlaySockets extends React.Component {
                 challenges : challenges,
             });
 
-             //console.log(challenges);
-             //console.log(games);
 
-        });
+
+        });*/
 
 
 
         //$(function () {
         $("#create_game").on("click", function () {
 
-            window.socket.emit('create_game', JSON.stringify({
+            self.socket.ws.send(JSON.stringify({
+                "action" : "create_game",
                 "amount" : $("#amount").val(),
                 "user_id" : u,
                 "time_inc" : $("#time_inc").val(),
@@ -59,7 +77,8 @@ class PlaySockets extends React.Component {
 
         window.onbeforeunload = function(e) {
             if (typeof u !== "undefined") {
-                window.socket.emit('remove_all_challenges', JSON.stringify({
+                self.socket.ws.send(JSON.stringify({
+                    "action" : "remove_all_challenges",
                     "user_id" : u,
                 }));
             }
@@ -73,7 +92,8 @@ class PlaySockets extends React.Component {
         var attr = $target.data("game_id");
 
         if (typeof u !== "undefined") {
-            window.socket.emit('accept_game', JSON.stringify({
+            this.socket.ws.send(JSON.stringify({
+                "action" : "accept_game",
                 "user_id": u,
                 "game_id": attr,
                 "user_name": user_name,
@@ -84,12 +104,11 @@ class PlaySockets extends React.Component {
         // console.log(attr);
     }
     remove(event){
-        var $target = $(event.target);
-        var attr = $target.data("game_id");
-
+        var attr = $(event.target).data("game_id");
 
         if (typeof u !== "undefined") {
-            window.socket.emit('remove', JSON.stringify({
+            this.socket.ws.send(JSON.stringify({
+                "action" : "remove",
                 "user_id" : u,
                 "game_id" : attr,
 
