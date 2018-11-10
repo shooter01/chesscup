@@ -75,21 +75,21 @@ module.exports = function (app) {
         app.mongoDB.collection("users").find({ is_over: 0 }, function(err, cursor) {
             cursor.forEach(function (game) {
 
-
+                console.log(Object.keys(app.globalPlayers));
                if (typeof app.globalPlayers[game.p1_id] !== "undefined"){
-                    app.globalPlayers[game.p1_id].emit('eventClient', {
-                        event : "start_game",
+                    app.globalPlayers[game.p1_id].send(JSON.stringify({
+                        action : "start_game",
                         tournament_id: game.tournament_id,
                         game_id : game._id
-                    });
+                    }));
                 }
 
                 if (typeof app.globalPlayers[game.p2_id] !== "undefined") {
-                    app.globalPlayers[game.p2_id].emit('eventClient', {
-                        event : "start_game",
+                    app.globalPlayers[game.p2_id].send(JSON.stringify({
+                        action : "start_game",
                         tournament_id: game.tournament_id,
                         game_id : game._id
-                    });
+                    }));
                 }
 
 

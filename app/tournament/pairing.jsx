@@ -43,7 +43,7 @@ class Pairing extends React.Component {
             owner: window.owner,
         }
         this.saveResult = this.saveResult.bind(this);
-        // this.getActualData = this.getActualData.bind(this);
+        this.getActualData = this.getActualData.bind(this);
     }
     componentDidMount(){
         var self = this;
@@ -349,7 +349,7 @@ class Pairing extends React.Component {
 
 
         if (this.state.pairs == null || this.state.pairs.length === 0) {
-             //this.getActualData();
+             this.getActualData();
         }
 
         if (this.state.tournament.is_online == 1 && typeof tour_choosed === "undefined"){
@@ -357,7 +357,7 @@ class Pairing extends React.Component {
             let ws_params = (typeof window.g_ws_params !== "undefined") ? window.g_ws_params : {};
             let defObject = (typeof window.u !== "undefined") ? {'h' : u} : {};
 
-            const socket = new WS("test23", function (data) {
+            const socket = new WS(function (data) {
                // data = JSON.parse(data);
                 console.log(data);
                 self.handleWSData(data);
@@ -392,7 +392,7 @@ class Pairing extends React.Component {
 
     handleWSData(data){
 
-        if (data.event === "tournament_event") {
+        if (data.action === "tournament_event") {
             this.updateTournament();
         }
 

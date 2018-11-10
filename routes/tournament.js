@@ -513,8 +513,11 @@ module.exports = function(app, passport, pool, i18n) {
                 //console.log(office);
 
                 app.mongoDB.collection("cache").deleteMany({tournament_id: parseInt(office.tournament_id)}, function (err, mongoGame) {
-                    app.io.to('t' + office.tournament_id).emit('tournament_event',
-                        JSON.stringify({}));
+
+                    app.ROOMS.emit('t' + office.tournament_id,
+                        JSON.stringify({
+                            action : "tournament_event"
+                        }));
                 });
 
 
@@ -594,8 +597,12 @@ module.exports = function(app, passport, pool, i18n) {
 
 
                 app.mongoDB.collection("cache").deleteMany({tournament_id: parseInt(office.tournament_id)}, function (err, mongoGame) {
-                    app.io.to('t' + office.tournament_id).emit('tournament_event',
-                        JSON.stringify({}));
+
+                    app.ROOMS.emit('t' + office.tournament_id,
+                        JSON.stringify({
+                            action : "tournament_event"
+                        }));
+
                 });
 
 
@@ -835,8 +842,11 @@ module.exports = function(app, passport, pool, i18n) {
                         'tournament_id, is_active, start_rating) VALUES ?', [participants]);
                 }).then(function (rows) {
                     app.mongoDB.collection("cache").deleteMany({tournament_id: parseInt(office.tournament_id)}, function (err, mongoGame) {
-                        app.io.to('t' + req.body.tournament_id).emit('tournament_event',
-                            JSON.stringify({}));
+
+                        app.ROOMS.emit('t' + req.body.tournament_id,
+                            JSON.stringify({
+                                action : "tournament_event"
+                            }));
                     });
                 }).catch((err) => {
                     console.log(err);

@@ -25,11 +25,7 @@ const save_result_mongo = function (msg, mongoGame, app, caller) {
         const a = {
             event: "game_aborted",
         };
-
-
-        app.io.to(msg.id).emit('eventClient', a);
-
-
+        app.ROOMS.emit(msg.id, JSON.stringify(a));
         return false;
     }
 
@@ -51,16 +47,20 @@ const save_result_mongo = function (msg, mongoGame, app, caller) {
         {
             writeConcern: true
         }, function (err, res) {
-            app.io.to(mongoGame._id).emit('eventClient', {
-                event: "game_over",
-                "p1_time_left" : msg.p1_time_left,
-                "p2_time_left" : msg.p2_time_left,
-                "p1_won" : msg.p1_won,
-                "p2_won" : msg.p2_won,
-                "reason" : msg.reason,
-                "flagged" : msg.flagged, //кто проиграл по времени
-                is_over: 1
-            });
+
+          app.ROOMS.emit(mongoGame._id, JSON.stringify({
+              action: "game_over",
+              "p1_time_left" : msg.p1_time_left,
+              "p2_time_left" : msg.p2_time_left,
+              "p1_won" : msg.p1_won,
+              "p2_won" : msg.p2_won,
+              "reason" : msg.reason,
+              "flagged" : msg.flagged, //кто проиграл по времени
+              is_over: 1
+          }));
+
+
+          //app.io.to(mongoGame._id).emit('eventClient', );
     });
 
 

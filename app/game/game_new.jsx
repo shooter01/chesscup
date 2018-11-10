@@ -1,5 +1,6 @@
 
 import Sounds from "../sounds.jsx";
+import WS from "../ws";
 
 
 
@@ -304,6 +305,7 @@ class App {
         self.setState(newState);
 
         let send_data = {
+            action : "eventServer",
             data: self.game.fen(),
             id: g,
             tourney_id: this.state.tourney_id,
@@ -355,7 +357,7 @@ class App {
             }
         }
 
-        window.socket.emit('eventServer', send_data);
+        self.socket.ws.send(JSON.stringify(send_data));
 
 
     }
@@ -414,17 +416,19 @@ class App {
             $(".offer_sent").replaceWith(this.rematchBtnCache);
             this.rematchSent = false;
             this.$tourney_text = $(".tourney_text");
-            window.socket.emit('rematch_cancel', JSON.stringify({
+            self.socket.ws.send(JSON.stringify({
+                action : "rematch_cancel",
                 game_id : g
             }));
             let item = {
+                action: "message",
                 msg: "отменил реванш",
                 user_id: u,
                 name: user_name,
                 chat_id : this.state.chat_id
             };
 
-            window.socket.emit('message', item);
+            self.socket.ws.send(JSON.stringify(item));
             return false;
         }
 
@@ -436,7 +440,8 @@ class App {
 
         //console.log(element);
 
-        window.socket.emit('rematch_game', JSON.stringify({
+        self.socket.ws.send(JSON.stringify({
+            "action" : "rematch_game",
             "user_id" : u,
             "current_color" : (u == p1) ? "white" : "black",
             "user_name" : user_name,
@@ -446,11 +451,12 @@ class App {
         let item = {
             msg: "предложил реванш",
             user_id: u,
+            action: 'message',
             name: user_name,
             chat_id : this.state.chat_id
         };
 
-        window.socket.emit('message', item);
+        self.socket.ws.send(JSON.stringify(item));
 
     }
 
@@ -573,6 +579,7 @@ class App {
             var send_data = {
                 data: self.game.fen(),
                 id: g,
+                action: "eventServer",
                 is_over: 1,
                 player: (self.state.who_to_move === 'white') ? "p1" : "p2", //кто должен ходить
             };
@@ -583,7 +590,7 @@ class App {
             send_data.p2_id = p2;
             send_data.reason = "resign";
             send_data.tourney_id = self.state.tourney_id;
-            window.socket.emit('eventServer', send_data);
+            self.socket.ws.send(JSON.stringify(send_data));
 
         } else {
             element.closest(".control").addClass("confirm");
@@ -612,9 +619,10 @@ class App {
         if (self.drawCount > 1) {
             self.drawCount = 0;
 
-            window.socket.emit('draw_offer', JSON.stringify({
+            self.socket.ws.send(JSON.stringify({
                 "enemy_id" : (u == p1) ? p2 : p1,
-                "game_id" : g
+                "game_id" : g,
+                "action" : "draw_offer",
             }));
 
             $(".pending").parent().removeClass("hidden");
@@ -628,12 +636,13 @@ class App {
 
             let item = {
                 msg: "предложил ничью",
+                action: "message",
                 user_id: u,
                 name: user_name,
                 chat_id : this.state.chat_id
             };
 
-            window.socket.emit('message', item);
+            self.socket.ws.send(JSON.stringify(item));
 
         } else {
             element.closest(".control").addClass("confirm");
@@ -654,6 +663,7 @@ class App {
     }
 
     tick() {
+        const self = this;
         if (this.state.who_to_move === "white") {
             this.setState({
                 white_time: this.state.white_time - 100
@@ -662,6 +672,7 @@ class App {
                     let send_data = {
                         data: this.game.fen(),
                         id: g,
+                        action: "checkTime1",
                         player: "p1"
                     };
 
@@ -672,8 +683,7 @@ class App {
                     send_data.tourney_id = this.state.tourney_id;
                     //debugger;
 
-
-                    window.socket.emit('checkTime1', JSON.stringify(send_data));
+                    self.socket.ws.send(JSON.stringify(send_data));
 
                 } else {
                     this.setTime();
@@ -683,12 +693,14 @@ class App {
             this.setState({
                 black_time: this.state.black_time - 100
             }, function () {
+
                 //debugger;
                 if (this.state.black_time < 0 && this.state.is_over != 1) {
 
                     let send_data = {
                         data: this.game.fen(),
                         id: g,
+                        action: "checkTime1",
                         player: "p2"
                     };
                     send_data.p1_won = 1;
@@ -696,7 +708,7 @@ class App {
                     send_data.p1_id = p1;
                     send_data.p2_id = p2;
                     send_data.tourney_id = this.state.tourney_id;
-                    window.socket.emit('checkTime1', JSON.stringify(send_data));
+                    self.socket.ws.send(JSON.stringify(send_data));
                 } else {
                     this.setTime();
                 }
@@ -1310,6 +1322,7 @@ class App {
             var send_data = {
                 data: self.game.fen(),
                 id: g,
+                action: "eventServer",
                 is_over: 1,
                 player: (self.state.who_to_move === 'white') ? "p1" : "p2", //кто должен ходить
             };
@@ -1320,33 +1333,36 @@ class App {
             send_data.p2_id = p2;
             send_data.reason = "draw";
             send_data.tourney_id = self.state.tourney_id;
-            window.socket.emit('eventServer', send_data);
+            self.socket.ws.send(JSON.stringify(send_data));
 
 
             let item = {
+                action: "message",
                 msg: "принял ничью",
                 user_id: u,
                 name: user_name,
                 chat_id : self.state.chat_id
             };
 
-            window.socket.emit('message', item);
+            self.socket.ws.send(JSON.stringify(item));
 
         });
 
         $("body").off("click.decline_draw").on("click.decline_draw", ".decline", function () {
-            window.socket.emit('decline_draw', JSON.stringify({
+            self.socket.ws.send(JSON.stringify({
+                action : "decline_draw",
                 game_id : g
             }));
 
             let item = {
                 msg: "отклонил ничью",
                 user_id: u,
+                action: "message",
                 name: user_name,
                 chat_id : self.state.chat_id
             };
 
-            window.socket.emit('message', item);
+            self.socket.ws.send(JSON.stringify(item));
         });
 
     }
@@ -1360,8 +1376,7 @@ class App {
         }
         //this.socket = io(window.location.origin, {query: url + '&g=' + g});
 
-        const socket = new WS(function (data) {
-            data = JSON.parse(data);
+        this.socket = new WS(function (data) {
 
 
             // console.log(data);
@@ -1375,8 +1390,7 @@ class App {
                 });
                 self.socketMove(data);
 
-            }
-            if (data.action === "cancel_move") {
+            } else if (data.action === "cancel_move") {
                 self.cancelMove(data);
 
             }
@@ -1426,17 +1440,20 @@ class App {
             else if (data.action === "rematch_cancel") {
                 self.rematch_cancel(data);
             }
+
+            /*if (self.state.isPlayer === true) {
+                let who_online = "white";
+                if (self.state.orientation === "black") {
+                    who_online = "black";
+                }
+                self.socket.ws.send(JSON.stringify({action : "playerOnOff", online: who_online, p_id: u, game_id: g}))
+            }*/
+
         }, "localhost:7000");
 
-        window.socket.on('eventClient', );
+        //window.socket.on('eventClient', );
 
-        if (this.state.isPlayer === true) {
-            let who_online = "white";
-            if (this.state.orientation === "black") {
-                who_online = "black";
-            }
-            window.socket.emit('playerOnOff', JSON.stringify({online: who_online, p_id: u, game_id: g}))
-        }
+
 
 
 
@@ -1485,7 +1502,8 @@ class App {
 
         $("body").on("click", "#accept_rematch", function () {
             $(this).attr("disabled", "disabled");
-            window.socket.emit('rematch_accepted', JSON.stringify({
+            self.socket.ws.send(JSON.stringify({
+                "action" : "rematch_accepted",
                 "user_id" : u,
                 "current_color" : (u == p1) ? "white" : "black",
                 "user_name" : (u == p1) ? p1_name : p2_name,
@@ -1496,17 +1514,19 @@ class App {
             }));
         });
         $("body").on("click", "#decline_rematch", function () {
-            window.socket.emit('decline_rematch', JSON.stringify({
+            self.socket.ws.send(JSON.stringify({
+                action : "decline_rematch",
                 game_id : g
             }));
             let item = {
+                action : "message",
                 msg: "отклонил реванш",
                 user_id: u,
                 name: user_name,
                 chat_id : self.state.chat_id
             };
 
-            window.socket.emit('message', item);
+            self.socket.ws.send(JSON.stringify(item));
         });
 
         $("#download_pgn_form").on("submit", function () {

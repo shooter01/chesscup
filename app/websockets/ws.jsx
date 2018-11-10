@@ -8,14 +8,8 @@ class Web {
 
         const str = this.getUrl(Object.assign(ws_params, defObject));*/
 
-        console.log(window.socketInited);
        if (typeof window.socketInited === "undefined") {
-           this.socket = new WS("test23", handleData, "localhost:7000");
-
-
-           function handleData(data) {
-
-           }
+           this.socket = new WS(function () {}, "localhost:7000");
        }
 
 

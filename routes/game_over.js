@@ -23,8 +23,8 @@ const game_over = function (msg, app) {
         respond.then(function (data) {
 
 
-            app.io.to(msg.id).emit('eventClient', JSON.stringify({
-                event: "rating_change",
+            app.ROOMS.emit(msg.id, JSON.stringify({
+                action: "rating_change",
                 rating_change_p1: data.rating_change_p1,
                 rating_change_p2: data.rating_change_p2
             }));

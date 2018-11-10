@@ -41,8 +41,8 @@ WS.prototype.startNative = function () {
     this.ws.onmessage = function(result) {
         var data = JSON.parse(result.data);
 
-        if (data.event === "start_game") {
-            console.log(data);
+        if (data.action === "start_game") {
+            //console.log(data);
             if (typeof data.game_id != "undefined" && data.tournament_id){
 
                 if (typeof g === "undefined") {
