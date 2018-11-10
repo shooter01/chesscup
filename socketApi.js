@@ -593,6 +593,30 @@ module.exports = function (app) {
                         game_id : data.game_id,
                     }));
 
+            } else if (data.action === "message") {
+
+
+                    // data = JSON.parse(data);
+                    console.log("AAAA");
+                    // io.to("chat" + data.chat_id).emit('message', data);
+                    //console.log(data);
+                    var game = app.mongoDB.collection("chat").insertOne({
+                        msg : JSON.stringify(data),
+                        chat_id : data.chat_id,
+                    });
+
+
+                    ROOMS.emit(data.game_id, JSON.stringify({
+                        action : "message",
+                        data : data,
+                        game_id : data.game_id,
+                    }));
+
+
+
+                //io.to("chat" + data.chat_id).emit('message', data);
+
+
             }
 
 
@@ -882,16 +906,7 @@ module.exports = function (app) {
 
         });*/
 
-        socket.on('message', function (data) {
-            // data = JSON.parse(data);
-            //console.log(data.chat_id);
-           // io.to("chat" + data.chat_id).emit('message', data);
-            //console.log(data);
-            var game = app.mongoDB.collection("chat").insertOne({
-                msg : JSON.stringify(data),
-                chat_id : data.chat_id,
-            });
-        });
+
     });
 
 

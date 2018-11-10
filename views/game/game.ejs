@@ -275,7 +275,33 @@
                                 </div>
                             </div>
 
-                            <div id="chat"></div>
+                            <div id="chat">
+                                <div class="chat">
+                                    <div class="messages p-1" id="messages">
+
+                                    </div>
+
+
+
+                                    <% if (user && user.user) { %>
+                                        <div class="input-group posAbsolute">
+                                            <input onKeyDown={this.handleKeyPress} onInput={this.checkLength} onPaste={this.checkLength} type="text" class="form-control message-input-text" ref="text" placeholder="Message..."  aria-label="Recipient's username" aria-describedby="basic-addon2" />
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-secondary sendMessage" type="button" onClick={this.sendMessage}>Send</button>
+                                            </div>
+                                        </div>
+                                    <% } else { %>
+
+                                        <div class="input-group posAbsolute d-flex justify-content-center align-items-end"><a href="/login">Login</a>&nbsp; or &nbsp;<a href="/signup">register</a>&nbsp; to&nbsp; chat </div>
+
+
+
+                                    <%  } %>
+
+
+
+                                </div>
+                            </div>
 
                             <form class="row" id="download_pgn_form">
                                 <input class="btn btn-light btn-block"  type="submit" value="Download PGN">

@@ -24,7 +24,7 @@ class Rooms{
                 }
             }
         }
-
+        console.log(Object.keys(this.rooms));
     }
 
     remove (room, socket) {
@@ -36,10 +36,13 @@ class Rooms{
     }
 
     emit (room, data) {
+        console.log(room);
         //пересылка даты конкретной комнате
-
+        console.log(Object.keys(this.rooms));
         if (typeof this.rooms[room] !== "undefined") {
+            console.log(room);
             for (let obj in this.rooms[room]) {
+                console.log(this.rooms[room][obj].id);
                 this.rooms[room][obj].send(data, {}, function (err) {
                     console.log(err);
                 });

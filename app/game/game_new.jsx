@@ -99,7 +99,6 @@ class App {
             promotion: "q",
             who_to_move: null,
             isPlayer: false,
-            chat_id : (typeof window.chat_id != "undefined") ? window.chat_id : null,
             amount: amount,
             time_inc: time_inc,
             white_time: p1_time_left,
@@ -127,7 +126,9 @@ class App {
             up_name: p2_name,
             up_tournaments_rating: p2_tournaments_rating,
             bottom_name: p1_name,
-            bottom_tournaments_rating: p1_tournaments_rating
+            bottom_tournaments_rating: p1_tournaments_rating,
+            chat_id : (typeof window.chat_id != "undefined") ? window.chat_id : null,
+            messages : []
         };
         this.move = this.move.bind(this);
 
@@ -219,6 +220,7 @@ class App {
         this.checkMobile();
         this.setTimer();
         this.setListeners();
+        this.getMessages();
 
         //если ходов нет, очищаем массив
         if (this.state.moves && this.state.moves.length) {
@@ -1022,6 +1024,33 @@ class App {
 
         }
     }
+    getMessages(){
+        var self = this;
+        if (this.state.chat_id) {
+            $.getJSON("/chat/" + this.state.chat_id + "/messages", function (data) {
+                if (data.status == "ok") {
+                    try {
+                        data = JSON.parse(data.messages);
+                        var temp = $("<div>");
+
+                        for (var i = 0; i < data.length; i++) {
+                            var obj = JSON.parse(data[i].msg);
+                            temp.append('<div class="mt-1 mt-2"><b>' + obj.name + '</b>&nbsp;&nbsp;' + obj.msg + '</div>');
+                        }
+                        $(".messages").html(temp);
+
+                        self.scrollToBottomMessages()
+
+
+                        // console.log(temp);
+                    } catch(e) {
+                        console.log(e.message);
+                    }
+                }
+
+            })
+        }
+    }
 
 
     setRunning(){
@@ -1138,6 +1167,12 @@ class App {
             this.objDiv.scrollTop = this.objDiv.scrollHeight;
         }
     }
+    scrollToBottomMessages(){
+        var objDiv = document.querySelector("#messages");
+        if (objDiv) {
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }
+    }
 
     socketRatingChange(data){
         const self = this;
@@ -1161,6 +1196,14 @@ class App {
             },
             turnColor: null
         });
+    }
+    socketAddMessage(data){
+        const self = this;
+
+        $(".messages").append('<div class="mt-1 mt-2"><b>' + data.data.name + '</b>&nbsp;&nbsp;' + data.data.msg + '</div>');
+
+        this.scrollToBottomMessages()
+       // console.log(data);
     }
     socketGamerOver(data){
         const self = this;
@@ -1367,6 +1410,29 @@ class App {
 
     }
 
+    addMessage(){
+        const self = this;
+        var mes = $(".message-input-text").val();
+        if (mes != "") {
+            if (typeof user_name === "undefined") {
+                return false;
+            }
+            let item = {
+                msg: mes,
+                action: "message",
+                user_id: u,
+                name: user_name,
+                game_id: g,
+                chat_id : self.state.chat_id
+            };
+
+            self.socket.ws.send(JSON.stringify(item));
+
+            $(".message-input-text").get(0).value = "";
+            $(".message-input-text").get(0).focus();
+        }
+    }
+
     socketIOConnect(){
         const self = this; let url = "";
         if (typeof u != "undefined") {
@@ -1439,6 +1505,9 @@ class App {
             }
             else if (data.action === "rematch_cancel") {
                 self.rematch_cancel(data);
+            }
+            else if (data.action === "message") {
+                self.socketAddMessage(data);
             }
 
             /*if (self.state.isPlayer === true) {
@@ -1533,6 +1602,18 @@ class App {
             self.downloadPgn();
             return false;
         });
+        $(".sendMessage").on("click", function () {
+            self.addMessage();
+            return false;
+        });
+
+        $(".message-input-text").on("keydown", function (e) {
+            if(e.keyCode == 13 && e.shiftKey == false) {
+                self.addMessage();
+                e.preventDefault();
+            }
+
+        })
 
 
         $(document).keydown(function (e) {

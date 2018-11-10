@@ -40,10 +40,27 @@ class Pairing extends React.Component {
             user_pairs: [],
             tour_id : (typeof tour_id != "undefined") ? tour_id : tournament.current_tour,
             user_id: [],
+            chat_id : (typeof window.chat_id != "undefined") ? window.chat_id : null,
+
             owner: window.owner,
         }
         this.saveResult = this.saveResult.bind(this);
         this.getActualData = this.getActualData.bind(this);
+        this.socketAddMessage = this.socketAddMessage.bind(this);
+    }
+    socketAddMessage(data){
+        const self = this;
+
+        $(".messages").append('<div class="mt-1 mt-2"><b>' + data.data.name + '</b>&nbsp;&nbsp;' + data.data.msg + '</div>');
+
+        this.scrollToBottomMessages()
+        console.log(data);
+    }
+    scrollToBottomMessages(){
+        var objDiv = document.querySelector("#messages");
+        if (objDiv) {
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }
     }
     componentDidMount(){
         var self = this;
@@ -263,6 +280,20 @@ class Pairing extends React.Component {
             }
         });
 
+        $(".sendMessage").on("click", function () {
+            self.addMessage();
+
+            return false;
+        });
+
+        $(".message-input-text").on("keydown", function (e) {
+            if(e.keyCode == 13 && e.shiftKey == false) {
+                self.addMessage();
+                e.preventDefault();
+            }
+
+        })
+
         /*$("#bots_invasion").on("click", function (event) {
             event.preventDefault();
             if (confirm("Are you sure?")) {
@@ -357,7 +388,7 @@ class Pairing extends React.Component {
             let ws_params = (typeof window.g_ws_params !== "undefined") ? window.g_ws_params : {};
             let defObject = (typeof window.u !== "undefined") ? {'h' : u} : {};
 
-            const socket = new WS(function (data) {
+            self.socket = new WS(function (data) {
                // data = JSON.parse(data);
                 console.log(data);
                 self.handleWSData(data);
@@ -375,6 +406,57 @@ class Pairing extends React.Component {
                 // console.log(data);
                 //self.getActualData();
           //  });
+        }
+        this.getMessages();
+    }
+
+    addMessage(){
+        const self = this;
+        var mes = $(".message-input-text").val();
+        if (mes != "") {
+            if (typeof user_name === "undefined") {
+                return false;
+            }
+            let item = {
+                msg: mes,
+                action: "message",
+                user_id: u,
+                name: user_name,
+                game_id: "t" + self.state.tournament_id,
+                chat_id : self.state.chat_id
+            };
+
+            self.socket.ws.send(JSON.stringify(item));
+
+            $(".message-input-text").get(0).value = "";
+            $(".message-input-text").get(0).focus();
+        }
+    }
+    getMessages(){
+        var self = this;
+        if (this.state.chat_id) {
+            $.getJSON("/chat/" + this.state.chat_id + "/messages", function (data) {
+                if (data.status == "ok") {
+                    try {
+                        data = JSON.parse(data.messages);
+                        var temp = $("<div>");
+
+                        for (var i = 0; i < data.length; i++) {
+                            var obj = JSON.parse(data[i].msg);
+                            temp.append('<div class="mt-1 mt-2"><b>' + obj.name + '</b>&nbsp;&nbsp;' + obj.msg + '</div>');
+                        }
+                        $(".messages").html(temp);
+
+                        self.scrollToBottomMessages()
+
+
+                        // console.log(temp);
+                    } catch(e) {
+                        console.log(e.message);
+                    }
+                }
+
+            })
         }
     }
 
@@ -394,6 +476,8 @@ class Pairing extends React.Component {
 
         if (data.action === "tournament_event") {
             this.updateTournament();
+        } else if (data.action === "message") {
+            this.socketAddMessage(data);
         }
 
     }
