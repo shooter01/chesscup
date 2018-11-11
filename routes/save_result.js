@@ -202,10 +202,17 @@ const save_result = function (data) {
                     //console.log(throttle);
                     //запускаем всем свежую информацию
 
-                   app.mongoDB.collection("cache").deleteMany({tournament_id: tourney.id}, function (err, mongoGame) {
+                    app.mongoDB.collection("cache").deleteMany({tournament_id: tourney.id}, function (err, mongoGame) {
+                        app.ROOMS.emit('t' + tournament_id,
+                            JSON.stringify({
+                                "action" : "tournament_event"
+                            }));
+                    });
+
+                   /*app.mongoDB.collection("cache").deleteMany({tournament_id: tourney.id}, function (err, mongoGame) {
                         app.io.to('t' + tournament_id).emit('tournament_event',
                             JSON.stringify({}));
-                    });
+                    });*/
 
 
 
