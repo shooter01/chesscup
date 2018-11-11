@@ -8,7 +8,7 @@ function WS(callback, serverHost) {
     var self = this;
     //this.channelName = channelName;
     this.callback = callback || function () {};
-    this.serverHost = serverHost || location.hostname;
+    this.serverHost = location.hostname;
     this.connect();
 };
 

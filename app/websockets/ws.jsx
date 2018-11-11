@@ -9,7 +9,7 @@ class Web {
         const str = this.getUrl(Object.assign(ws_params, defObject));*/
 
        if (typeof window.socketInited === "undefined") {
-           this.socket = new WS(function () {}, "localhost:7000");
+           this.socket = new WS(function () {}, location.host);
        }
 
 
