@@ -1,10 +1,10 @@
 
-class Rooms{
-    constructor(){
+class Rooms {
+    constructor() {
         this.rooms = {};
     }
 
-    join (room, socket) {
+    join(room, socket) {
         //добавляем в комнату
         if (typeof this.rooms[room] === "undefined") {
             this.rooms[room] = {};
@@ -14,7 +14,7 @@ class Rooms{
         }
     }
 
-    disconnect (socket) {
+    disconnect(socket) {
         //удаляем из всех комнат
 
         for (let room in this.rooms) {
@@ -30,30 +30,39 @@ class Rooms{
         //console.log(Object.keys(this.rooms));
     }
 
-    remove (room, socket) {
+    remove(room, socket) {
         //удаляем из конкретной комнаты
     }
 
-    emitToUser (socket, data) {
+    emitToUser(socket, data) {
 
     }
 
-    emit (room, data) {
-       // console.log(room);
-        //пересылка даты конкретной комнате
-        //console.log(Object.keys(this.rooms));
-        if (typeof this.rooms[room] !== "undefined") {
-            console.log(room);
-            for (let obj in this.rooms[room]) {
-                console.log(this.rooms[room][obj].id);
-                this.rooms[room][obj].send(data, {}, function (err) {
-                    console.log(err);
-                });
+    emit(room, data) {
+        try {
+            // console.log(room);
+            console.log("пересылка даты конкретной комнате");
+            console.log(data);
+            console.log("пересылка даты конкретной комнате");
+            //пересылка даты конкретной комнате
+            //console.log(Object.keys(this.rooms));
+            if (typeof this.rooms[room] !== "undefined") {
+                //console.log(room);
+                for (let obj in this.rooms[room]) {
+                    console.log("id получателя");
+                    console.log(this.rooms[room][obj].id);
+                    console.log("//id получателя");
+                    this.rooms[room][obj].send(data, {}, function (err) {
+                        console.log(err);
+                    });
+                }
             }
+
         }
-
+        catch(e) {
+            console.log(e.message);
+        }
     }
-
 }
 
 
