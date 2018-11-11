@@ -31,7 +31,7 @@ WS.prototype.startNative = function () {
 
     //говорим, что сокеты инциализированы
     window.socketInited = true;
-    this.ws = new WebSocket("ws://" + self.serverHost + "/?" + str);
+    this.ws = new WebSocket("wss://" + self.serverHost + "/?" + str);
 
     //this.ws.onopen = function (event) {
         //WS.sockets[self.channelName] = this;
