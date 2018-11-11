@@ -2,6 +2,7 @@
 var debug = require('debug')('my-application');
 var app = require('../app');
 var WebSocketServer = require('ws');
+var https = require('https');
 
 
 
@@ -13,9 +14,18 @@ app.set('port', process.env.PORT || 7000);
 app.globalPlayers = {};
 app.viewers = {};
 
-var server = app.listen(app.get('port'), function() {
+
+const options = {
+    key: fs.readFileSync('/etc/letsencrypt/live/chessround.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/chessround.com/fullchain.pem')
+}
+
+https.createServer(options, app).listen(app.get('port'));
+
+
+/*var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);
-});
+});*/
 
 const wss = new WebSocketServer.Server({ server });
 app.wss = wss;
