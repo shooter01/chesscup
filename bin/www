@@ -22,7 +22,7 @@ const options = {
     cert: fs.readFileSync('/etc/letsencrypt/live/chessround.com/fullchain.pem')
 }
 
-https.createServer(options, app).listen(app.get('port'));
+var server = https.createServer(options, app).listen(app.get('port'));
 
 
 /*var server = app.listen(app.get('port'), function() {
