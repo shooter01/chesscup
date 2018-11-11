@@ -1,6 +1,8 @@
 #!/usr/bin/nodejs
 var debug = require('debug')('my-application');
 var app = require('../app');
+const fs = require('fs');
+
 var WebSocketServer = require('ws');
 var https = require('https');
 
