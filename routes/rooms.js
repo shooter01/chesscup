@@ -13,7 +13,7 @@ class Rooms {
         }
         this.rooms[room][socket.id] = socket;
 
-        console.log("комната : " + room + " Количество пользователей в ней : " + Object.ke);
+        console.log("комната : " + room + " Количество пользователей в ней : " + Object.keys(this.rooms[room]));
 
 
     }
@@ -56,6 +56,10 @@ class Rooms {
                     console.log("id получателя");
                     console.log(this.rooms[room][obj].id);
                     console.log("//id получателя");
+
+                    console.log("комната : " + room + " Количество пользователей в ней : " + Object.keys(this.rooms[room]));
+
+
                     this.rooms[room][obj].send(data, {}, function (err) {
                         console.log(err);
                     });
