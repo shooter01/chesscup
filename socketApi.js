@@ -218,7 +218,7 @@ module.exports = function (app) {
                             console.log("Данные игры");
                             console.log(mongoGame);
                             socket.send(JSON.stringify({
-                                data: "cancel_move",
+                                action: "cancel_move",
                                 canceled_side : msg.player
                             }));
 

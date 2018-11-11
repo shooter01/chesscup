@@ -13,7 +13,7 @@ class Rooms {
         }
         this.rooms[room][socket.id] = socket;
 
-        console.log("комната : " + room + " Количество пользователей в ней : " + Object.keys(this.rooms[room]));
+        console.log("комната : " + room + " Количество пользователей в ней : " + Object.keys(this.rooms[room]).length);
 
 
     }
@@ -24,6 +24,7 @@ class Rooms {
         for (let room in this.rooms) {
             for (let sock in this.rooms[room]) {
                 if (socket.id == sock) {
+                    console.log("Удален пользователь : " + sock);
                     delete this.rooms[room][sock];
                 }
                 if (Object.keys(this.rooms[room]).length === 0) {
@@ -57,7 +58,7 @@ class Rooms {
                     console.log(this.rooms[room][obj].id);
                     console.log("//id получателя");
 
-                    console.log("комната : " + room + " Количество пользователей в ней : " + Object.keys(this.rooms[room]));
+                    console.log("комната : " + room + " Количество пользователей в ней : " + Object.keys(this.rooms[room]).length);
 
 
                     this.rooms[room][obj].send(data, {}, function (err) {
