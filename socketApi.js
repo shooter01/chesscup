@@ -65,7 +65,11 @@ module.exports = function (app) {
 
         socket.id = getRandomId();
 
-        socket.on('error', function() {});
+        socket.on('error', function(err) {
+            console.log("SOCKET ERROR");
+            console.log(err);
+            console.log("//SOCKET ERROR");
+        });
 
         const query = url.parse(req.url, true).query;
 
@@ -86,9 +90,91 @@ module.exports = function (app) {
 
         if ((query['t1'] && query['t1'] != "undefined" && query['t1'] != "null")) {
             ROOMS.join('t' + query['t1'], socket);
-            ROOMS.join('chatt' + query['t1'], socket);
+           // ROOMS.join('chatt' + query['t1'], socket);
             //socket.join('t' + query['t1']);
            // socket.join('chatt' + query['t1']);
+        }
+
+
+        //события игры
+
+        if (query['g'] && query['g'] != "undefined") {
+
+            socket.game_id = query.g;
+
+            if (query['h'] && query['h'] != "undefined") {
+                online_players[socket.game_id] = online_players[socket.game_id] || {};
+                online_players[socket.game_id][socket.p_id] = online_players[socket.game_id][socket.p_id] || 0;
+                online_players[socket.game_id][socket.p_id] = ++online_players[socket.game_id][socket.p_id];
+            }
+            ROOMS.join(socket.game_id, socket);
+
+
+        } else if (
+            (!query['h'] ||
+            query['h'] == "undefined"
+            || query['h'] == "null")
+            && (query['t1']
+            &&  query['t1'] != "undefined")
+        ) {
+
+            //  var random = getRandomId(app.viewers);
+            //   socket.viewer_id = random;
+            socket.t1 = query['t1'];
+            //  app.viewers[query['t1']] =  app.viewers[query['t1']] || {};
+            //  app.viewers[query['t1']][random] = socket;
+
+
+
+
+            //  console.log(Object.keys(app.viewers));
+            //  console.log(Object.keys(app.viewers[query['t1']]));
+            // console.log(Object.keys(app.globalPlayers));
+            // console.log(query['h']);
+        } else if (
+            query['lobby'] && query['lobby'] != "undefined"
+        ) {
+            ROOMS.join('lobby', socket);
+            getCurrentPlayGames(socket);
+        }
+
+
+        function getCurrentPlayGames(socket, created_id) {
+            app.mongoDB.collection("challenges").find({}, function(err, cursor) {
+                let challenges = [];
+                cursor.forEach(function (game) {
+                    challenges.push(game);
+                    //  console.log(game);
+                }, function () {
+
+
+                    app.mongoDB.collection("users").find({"playzone" : true, "is_over" : 0}, function(err, cursor) {
+                        let games = [];
+                        cursor.forEach(function (game) {
+                            games.push(game);
+                            //   console.log(message);
+                        }, function () {
+                            ROOMS.emit('lobby', JSON.stringify({
+                                action : "games_list",
+                                games: JSON.stringify(games),
+                                challenges: JSON.stringify(challenges),
+                                created_id: created_id,
+                            }))
+
+                            /*io.to("lobby").emit('games_list',
+                             {
+                             games: JSON.stringify(games),
+                             challenges: JSON.stringify(challenges),
+                             created_id: created_id,
+                             }
+                             );*/
+
+                        });
+                    });
+
+
+                });
+            });
         }
 
 
@@ -306,6 +392,52 @@ module.exports = function (app) {
                     })
                 } catch (e) {
                     console.log(e.message);
+                }
+
+
+                function calculateTime(msg, mongoGame, obj) {
+                    var actual_time = new Date().getTime(), lm = 0, spent_time = 0;
+
+                    if (msg.player === "p1") {
+
+
+                        if (mongoGame.is_started === 0) {
+                            obj["p1_time_left"] = mongoGame.p1_time_left;
+                            //если премув - время не отнимается
+                        } else if (msg.premoved) {
+                            obj["p1_time_left"] = mongoGame.p1_time_left + mongoGame.time_inc;
+                        }  else {
+                            lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
+                            spent_time = actual_time - lm;
+                            obj["p1_time_left"] = mongoGame.p1_time_left - spent_time + mongoGame.time_inc;
+                        }
+                        obj["p2_last_move"] = new Date();
+                        obj["p2_time_left"] = mongoGame.p2_time_left;
+
+
+                    } else {
+
+
+                        if (mongoGame.is_started === 0) {
+                            obj["p2_time_left"] = mongoGame.p2_time_left;
+                        } else if (msg.premoved) {
+                            //если премув - время не отнимается
+                            obj["p2_time_left"] = mongoGame.p2_time_left + mongoGame.time_inc;
+                        } else {
+                            lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
+                            spent_time = actual_time - lm;
+                            obj["p2_time_left"] = mongoGame.p2_time_left - spent_time + mongoGame.time_inc;
+                        }
+
+                        obj["p1_last_move"] = new Date();
+                        obj["p1_time_left"] = mongoGame.p1_time_left;
+
+                    }
+
+                    //  console.log(msg.player);
+                    //  console.log(obj);
+
+                    return obj;
                 }
 
 
@@ -664,220 +796,7 @@ module.exports = function (app) {
         })
 
 
-        //события игры
 
-        if (query['g'] && query['g'] != "undefined") {
-
-            socket.game_id = query.g;
-
-            if (query['h'] && query['h'] != "undefined") {
-                online_players[socket.game_id] = online_players[socket.game_id] || {};
-                online_players[socket.game_id][socket.p_id] = online_players[socket.game_id][socket.p_id] || 0;
-                online_players[socket.game_id][socket.p_id] = ++online_players[socket.game_id][socket.p_id];
-            }
-            ROOMS.join(socket.game_id, socket);
-            //ROOMS.join('chatg' + socket.game_id, socket);
-           // socket.join(socket.game_id);
-           // socket.join('chatg' + socket.game_id);
-
-
-
-
-            pool
-                .query('SELECT * FROM tournaments_results WHERE id = ?', query['g'])
-                .then(rows => {
-                    var game = rows[0];
-                    if (game) {
-                        var time = game.created_at;
-                        var a = time.getTime() - new Date().getTime();
-                        var diffDays = Math.ceil(a / (1000 * 3600 ));
-                        var isPlayer = false;
-                        var color = null;
-                        if (game.p1_id == query['h']) {
-                            isPlayer = true;
-                            color = "white";
-                        } else if (game.p2_id == query['h']) {
-                            isPlayer = true;
-                            color = "black";
-                        }
-                    }
-
-
-                });
-
-
-            function calculateTime(msg, mongoGame, obj) {
-                var actual_time = new Date().getTime(), lm = 0, spent_time = 0;
-
-                if (msg.player === "p1") {
-
-
-                    if (mongoGame.is_started === 0) {
-                        obj["p1_time_left"] = mongoGame.p1_time_left;
-                        //если премув - время не отнимается
-                    } else if (msg.premoved) {
-                        obj["p1_time_left"] = mongoGame.p1_time_left + mongoGame.time_inc;
-                    }  else {
-                        lm = (mongoGame.p1_last_move) ? mongoGame.p1_last_move.getTime() : actual_time;
-                        spent_time = actual_time - lm;
-                        obj["p1_time_left"] = mongoGame.p1_time_left - spent_time + mongoGame.time_inc;
-                    }
-                    obj["p2_last_move"] = new Date();
-                    obj["p2_time_left"] = mongoGame.p2_time_left;
-
-
-                } else {
-
-
-                    if (mongoGame.is_started === 0) {
-                        obj["p2_time_left"] = mongoGame.p2_time_left;
-                    } else if (msg.premoved) {
-                        //если премув - время не отнимается
-                        obj["p2_time_left"] = mongoGame.p2_time_left + mongoGame.time_inc;
-                    } else {
-                        lm = (mongoGame.p2_last_move) ? mongoGame.p2_last_move.getTime() : actual_time;
-                        spent_time = actual_time - lm;
-                        obj["p2_time_left"] = mongoGame.p2_time_left - spent_time + mongoGame.time_inc;
-                    }
-
-                    obj["p1_last_move"] = new Date();
-                    obj["p1_time_left"] = mongoGame.p1_time_left;
-
-                }
-
-              //  console.log(msg.player);
-              //  console.log(obj);
-
-                return obj;
-            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-            /*socket.on('rematch_accepted', function (data) {
-                data = JSON.parse(data);
-                //console.log(data);
-                //берем от клиента информацию
-                data['amount'] = data.amount;
-                data['time_inc'] = data.time_inc;
-                data['p1_id'] = (data.current_color !== "white") ? data.user_id : data.enemy_id;
-                data['p2_id'] = (data.current_color === "white") ? data.user_id : data.enemy_id;
-                //data['current_color'] = ;
-                data['p1_name'] = (data.current_color !== "white") ? data.user_name : data.enemy_name;
-                data['p2_name'] = (data.current_color === "white") ? data.user_name : data.enemy_name;
-                data['p1_time_left'] = data.amount * 60000;
-                data['p2_time_left'] = data.amount * 60000;
-                data['tournament_id'] = null;
-
-                create_game_mongo(data, app, function (err, insertedGame) {
-                    invite_user_to_game(data.user_id, {event : "start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
-                    invite_user_to_game(data.enemy_id, {event : "start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
-                });
-            });*/
-        } else if (
-            (!query['h'] ||
-            query['h'] == "undefined"
-            || query['h'] == "null")
-            && (query['t1']
-            &&  query['t1'] != "undefined")
-        ) {
-
-          //  var random = getRandomId(app.viewers);
-         //   socket.viewer_id = random;
-            socket.t1 = query['t1'];
-          //  app.viewers[query['t1']] =  app.viewers[query['t1']] || {};
-          //  app.viewers[query['t1']][random] = socket;
-
-
-
-
-            //  console.log(Object.keys(app.viewers));
-          //  console.log(Object.keys(app.viewers[query['t1']]));
-            // console.log(Object.keys(app.globalPlayers));
-            // console.log(query['h']);
-        } else if (
-            query['lobby'] && query['lobby'] != "undefined"
-        ) {
-
-         //   console.log("A");
-
-            ROOMS.join('lobby', socket);
-            getCurrentPlayGames(socket);
-
-
-/*            socket.on('create_game', function (data) {
-                data = JSON.parse(data);
-
-                var game = app.mongoDB.collection("challenges").insertOne({
-                    "owner" : data.user_id,
-                    "user_name" : data.user_name,
-                    "time_inc" : data.time_inc,
-                    "created_at" : new Date(),
-                    "time_control" : data.amount
-                }, function (err, data) {
-                    getCurrentPlayGames(socket, data.insertedId);
-                });
-            });*/
-
-            //socket.on('cancel_game', function (data) {
-               // console.log('cancel_game');
-               // console.log(data);
-           // });
-
-          /*  socket.on('accept_game', function (data) {
-
-            });*/
-
-
-        }
-
-
-        function getCurrentPlayGames(socket, created_id) {
-            app.mongoDB.collection("challenges").find({}, function(err, cursor) {
-                let challenges = [];
-                cursor.forEach(function (game) {
-                    challenges.push(game);
-                  //  console.log(game);
-                }, function () {
-
-
-                    app.mongoDB.collection("users").find({"playzone" : true, "is_over" : 0}, function(err, cursor) {
-                        let games = [];
-                        cursor.forEach(function (game) {
-                            games.push(game);
-                         //   console.log(message);
-                        }, function () {
-                            ROOMS.emit('lobby', JSON.stringify({
-                                action : "games_list",
-                                games: JSON.stringify(games),
-                                challenges: JSON.stringify(challenges),
-                                created_id: created_id,
-                            }))
-
-                            /*io.to("lobby").emit('games_list',
-                                {
-                                    games: JSON.stringify(games),
-                                    challenges: JSON.stringify(challenges),
-                                    created_id: created_id,
-                                }
-                            );*/
-
-                        });
-                    });
-
-
-                });
-            });
-        }
 
 
         socket.on('close', function() {

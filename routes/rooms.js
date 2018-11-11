@@ -8,10 +8,14 @@ class Rooms {
         //добавляем в комнату
         if (typeof this.rooms[room] === "undefined") {
             this.rooms[room] = {};
-            this.rooms[room][socket.id] = socket;
         } else {
             this.rooms[room][socket.id] = socket;
         }
+        this.rooms[room][socket.id] = socket;
+
+        console.log("комната : " + room + " Количество пользователей в ней : " + Object.ke);
+
+
     }
 
     disconnect(socket) {
