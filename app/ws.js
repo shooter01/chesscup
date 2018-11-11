@@ -8,7 +8,7 @@ function WS(callback, serverHost) {
     var self = this;
     //this.channelName = channelName;
     this.callback = callback || function () {};
-    this.serverHost = location.hostname;
+    this.serverHost = location.host;
     this.connect();
 };
 
@@ -31,17 +31,25 @@ WS.prototype.startNative = function () {
 
     //говорим, что сокеты инциализированы
     window.socketInited = true;
-    this.ws = new WebSocket("wss://" + self.serverHost + "/?" + str);
 
-    //this.ws.onopen = function (event) {
-        //WS.sockets[self.channelName] = this;
-    //};
+    const protocol = (location.protocol === "https:") ? "wss://" : "ws://";
+
+    this.ws = new WebSocket(protocol + self.serverHost + "/?" + str);
+
+    this.ws.onopen = function (event) {
+
+        setInterval(function () {
+            self.ws.send(JSON.stringify({"action" : "ping"}))
+        }, 15000);
+    };
 
     // обработчик входящих сообщений
     this.ws.onmessage = function(result) {
         var data = JSON.parse(result.data);
 
-        if (data.action === "start_game") {
+        if (data.action === "pong") {
+            //проверяем что все ок
+        } else if (data.action === "start_game") {
             //console.log(data);
             if (typeof data.game_id != "undefined" && data.tournament_id){
 
@@ -61,7 +69,6 @@ WS.prototype.startNative = function () {
                     }
                 }
             }
-
         } else {
             //если это не старт партии передаем дальше
             self.onMessage(data, self);
