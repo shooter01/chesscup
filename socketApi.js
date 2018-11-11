@@ -183,7 +183,12 @@ module.exports = function (app) {
           //  console.log("message");
           //  console.log(data);
             data = JSON.parse(data);
-            if (data.action === "eventServer") {
+            if (data.action === "ping") {
+                socket.send("pong", {}, function (err) {
+                    console.log(err);
+                });
+            }
+            else if (data.action === "eventServer") {
                 msg = data;
                 try {
                     //msg = JSON.parse(msg);
@@ -789,11 +794,7 @@ module.exports = function (app) {
 
 
             }
-
-
-
-
-        })
+        });
 
 
 
