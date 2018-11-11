@@ -33,9 +33,9 @@ WS.prototype.startNative = function () {
     window.socketInited = true;
     this.ws = new WebSocket("ws://" + self.serverHost + "/?" + str);
 
-    this.ws.onopen = function (event) {
+    //this.ws.onopen = function (event) {
         //WS.sockets[self.channelName] = this;
-    };
+    //};
 
     // обработчик входящих сообщений
     this.ws.onmessage = function(result) {

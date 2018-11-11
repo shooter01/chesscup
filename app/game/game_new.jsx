@@ -427,6 +427,8 @@ class App {
                 msg: "отменил реванш",
                 user_id: u,
                 name: user_name,
+                game_id: g,
+
                 chat_id : this.state.chat_id
             };
 
@@ -455,6 +457,8 @@ class App {
             user_id: u,
             action: 'message',
             name: user_name,
+            game_id: g,
+
             chat_id : this.state.chat_id
         };
 
@@ -641,6 +645,8 @@ class App {
                 action: "message",
                 user_id: u,
                 name: user_name,
+                game_id: g,
+
                 chat_id : this.state.chat_id
             };
 
@@ -1384,6 +1390,7 @@ class App {
                 msg: "принял ничью",
                 user_id: u,
                 name: user_name,
+                game_id: g,
                 chat_id : self.state.chat_id
             };
 
@@ -1402,6 +1409,8 @@ class App {
                 user_id: u,
                 action: "message",
                 name: user_name,
+                game_id: g,
+
                 chat_id : self.state.chat_id
             };
 
@@ -1485,8 +1494,9 @@ class App {
 
             }
             else if (data.action === "rematch_offer") {
-                self.socketRematchOffer(data);
-
+                if (self.state.isPlayer) {
+                    self.socketRematchOffer(data);
+                }
             }
             else if (data.action === "playerOnline") {
                 self.socketPlayerOnline(data);
@@ -1495,32 +1505,47 @@ class App {
                 self.playzoneStartGame(data);
             }
             else if (data.action === "draw_offer") {
-                self.draw_offer(data);
+                if (self.state.isPlayer) {
+                    self.draw_offer(data);
+                }
             }
             else if (data.action === "decline_draw") {
-                self.decline_draw(data);
+                if (self.state.isPlayer) {
+                    self.decline_draw(data);
+                }
             }
             else if (data.action === "decline_rematch") {
-                self.decline_rematch(data);
+                if (self.state.isPlayer) {
+                    self.decline_rematch(data);
+                }
             }
             else if (data.action === "rematch_cancel") {
-                self.rematch_cancel(data);
+                if (self.state.isPlayer) {
+                    self.rematch_cancel(data);
+                }
             }
             else if (data.action === "message") {
                 self.socketAddMessage(data);
             }
 
-            /*if (self.state.isPlayer === true) {
+
+
+        }, "localhost:7000");
+
+        //window.socket.on('eventClient', );
+
+        this.socket.ws.onopen = function () {
+            if (self.state.isPlayer === true) {
                 let who_online = "white";
                 if (self.state.orientation === "black") {
                     who_online = "black";
                 }
                 self.socket.ws.send(JSON.stringify({action : "playerOnOff", online: who_online, p_id: u, game_id: g}))
-            }*/
+            } else {
+                self.socket.ws.send(JSON.stringify({action : "playerOnOff", game_id: g}))
 
-        }, "localhost:7000");
-
-        //window.socket.on('eventClient', );
+            }
+        }
 
 
 
@@ -1530,6 +1555,8 @@ class App {
     setListeners(){
 
         const self = this;
+
+        const $body = $("body");
 
         $("body").on("click", "move", function () {
             var history = self.game.history();
@@ -1552,51 +1579,60 @@ class App {
                     viewOnly: true
                 });
             } else {
-                self.cg.set({
-                    fen: self.game.fen(),
-                    viewOnly: false
-                });
+
+                if (self.state.isPlayer) {
+                    self.cg.set({
+                        fen: self.game.fen(),
+                        viewOnly: false
+                    });
+                }
+
+
             }
         });
 
-        $("body").on("click", ".resign", function (event) {
+        if (self.state.isPlayer) {
+            $body.on("click", ".resign", function (event) {
 
-            self.resign(this);
-        });
+                self.resign(this);
+            });
 
-        $("body").on("click", ".draw", function () {
+            $body.on("click", ".draw", function () {
 
-            self.draw(this);
-        });
+                self.draw(this);
+            });
 
-        $("body").on("click", "#accept_rematch", function () {
-            $(this).attr("disabled", "disabled");
-            self.socket.ws.send(JSON.stringify({
-                "action" : "rematch_accepted",
-                "user_id" : u,
-                "current_color" : (u == p1) ? "white" : "black",
-                "user_name" : (u == p1) ? p1_name : p2_name,
-                "enemy_name" : (u == p2) ? p1_name : p2_name,
-                "amount" : self.state.amount,
-                "time_inc" : parseInt(self.state.time_inc)/1000,
-                "enemy_id" : (u == p1) ? p2 : p1,
-            }));
-        });
-        $("body").on("click", "#decline_rematch", function () {
-            self.socket.ws.send(JSON.stringify({
-                action : "decline_rematch",
-                game_id : g
-            }));
-            let item = {
-                action : "message",
-                msg: "отклонил реванш",
-                user_id: u,
-                name: user_name,
-                chat_id : self.state.chat_id
-            };
+            $body.on("click", "#accept_rematch", function () {
+                $(this).attr("disabled", "disabled");
+                self.socket.ws.send(JSON.stringify({
+                    "action": "rematch_accepted",
+                    "user_id": u,
+                    "current_color": (u == p1) ? "white" : "black",
+                    "user_name": (u == p1) ? p1_name : p2_name,
+                    "enemy_name": (u == p2) ? p1_name : p2_name,
+                    "amount": self.state.amount,
+                    "time_inc": parseInt(self.state.time_inc) / 1000,
+                    "enemy_id": (u == p1) ? p2 : p1,
+                }));
+            });
+            $body.on("click", "#decline_rematch", function () {
+                self.socket.ws.send(JSON.stringify({
+                    action: "decline_rematch",
+                    game_id: g
+                }));
+                let item = {
+                    action: "message",
+                    msg: "отклонил реванш",
+                    user_id: u,
+                    name: user_name,
+                    game_id: g,
 
-            self.socket.ws.send(JSON.stringify(item));
-        });
+                    chat_id: self.state.chat_id
+                };
+
+                self.socket.ws.send(JSON.stringify(item));
+            });
+        }
 
         $("#download_pgn_form").on("submit", function () {
             self.downloadPgn();

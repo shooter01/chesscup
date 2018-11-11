@@ -132,7 +132,7 @@
 
                                         </div>
 
-
+                                        <% if (user && user.user && (user.user.id == mongoGame.p1_id || user.user.id == mongoGame.p2_id)) { %>
                                         <div>
                                             <div class="control buttons rematch hidden">
                                                 <div class="follow_up">
@@ -169,6 +169,8 @@
                                             </div>
                                         </div>
 
+                                        <% } %>
+
 
                                         <div class="username user_link black offline bottom_player_online" id="bottom_player_online">
                                             <i class="line" title="Joined the game"></i>
@@ -197,45 +199,45 @@
                                 <div class="alert alert-primary mt-1 mb-1 hidden" id="timeleft_black">Время на ход черных: <span class="timeleft"></span></div>
                             </div>
 
+                            <% if (user && user.user && (user.user.id == mongoGame.p1_id || user.user.id == mongoGame.p2_id)) { %>
 
-
-                            <div class="mobile-controls hidden">
-                                <div>
-                                    <div class="control buttons rematch hidden">
-                                        <div class="follow_up">
-                                            <a class="text fbt strong glowed tourney_text tourney_href rematch hidden" data-icon="G"   href=""></a>
+                                <div class="mobile-controls hidden">
+                                    <div>
+                                        <div class="control buttons rematch hidden">
+                                            <div class="follow_up">
+                                                <a class="text fbt strong glowed tourney_text tourney_href rematch hidden" data-icon="G"   href=""></a>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="control buttons hidden">
-                                        <div class="negotiation"><p>Ваш соперник предлагает вам ничью</p>
-                                            <a class="accept" data-icon="E" title="Принять"></a>
-                                            <a class="decline" data-icon="L" title="Отклонить"></a>
+                                        <div class="control buttons hidden">
+                                            <div class="negotiation"><p>Ваш соперник предлагает вам ничью</p>
+                                                <a class="accept" data-icon="E" title="Принять"></a>
+                                                <a class="decline" data-icon="L" title="Отклонить"></a>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="control buttons hidden">
-                                        <div class="pending">
-                                            <p>Предложение ничьей отправлено</p>
+                                        <div class="control buttons hidden">
+                                            <div class="pending">
+                                                <p>Предложение ничьей отправлено</p>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="control icons players-btns hidden">
-                                        <button disabled class="fbt hint--bottom takeback-yes"
-                                                data-hint="Попросить соперника вернуть ход">
-                                            <span data-icon="i"></span>
-                                        </button>
-                                        <button class="fbt hint--bottom draw-yes draw" disabled
-                                                data-hint="Предложить ничью">
-                                            <span data-icon="2"></span>
-                                        </button>
+                                        <div class="control icons players-btns hidden">
+                                            <button disabled class="fbt hint--bottom takeback-yes"
+                                                    data-hint="Попросить соперника вернуть ход">
+                                                <span data-icon="i"></span>
+                                            </button>
+                                            <button class="fbt hint--bottom draw-yes draw" disabled
+                                                    data-hint="Предложить ничью">
+                                                <span data-icon="2"></span>
+                                            </button>
 
-                                        <button class="fbt hint--bottom resign-confirm resign"
-                                                onClick={this.resign} data-hint="Сдаться"><span
-                                                    data-icon="b"></span></button>
+                                            <button class="fbt hint--bottom resign-confirm resign"
+                                                    onClick={this.resign} data-hint="Сдаться"><span
+                                                        data-icon="b"></span></button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
+                            <% } %>
 
 
                             <style>
@@ -285,7 +287,7 @@
 
                                     <% if (user && user.user) { %>
                                         <div class="input-group posAbsolute">
-                                            <input onKeyDown={this.handleKeyPress} onInput={this.checkLength} onPaste={this.checkLength} type="text" class="form-control message-input-text" ref="text" placeholder="Message..."  aria-label="Recipient's username" aria-describedby="basic-addon2" />
+                                            <input type="text" class="form-control message-input-text" ref="text" placeholder="Message..."  aria-label="Recipient's username" aria-describedby="basic-addon2" />
                                             <div class="input-group-append">
                                                 <button class="btn btn-outline-secondary sendMessage" type="button" onClick={this.sendMessage}>Send</button>
                                             </div>

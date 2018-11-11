@@ -53,13 +53,9 @@ module.exports = function (app) {
 
 
     const pool = bluebird.promisifyAll(app.pool);
-    console.log("INCLUDED!");
+ //   console.log("INCLUDED!");
 
 
-    app.wss.on("data", function (data) {
-        console.log("data");
-        console.log(data);
-    })
 
 
     app.wss.on('connection', function (socket, req) {
@@ -73,8 +69,8 @@ module.exports = function (app) {
 
         const query = url.parse(req.url, true).query;
 
-        console.log(query);
-        console.log("CONNECT!");
+        //console.log(query);
+       // console.log("CONNECT!");
 
 
        // var handshakeData = socket.request;
@@ -86,7 +82,7 @@ module.exports = function (app) {
             store[socket.p_id] = socket.id;
         }
 
-        console.log(query);
+       // console.log(query);
 
         if ((query['t1'] && query['t1'] != "undefined")) {
             ROOMS.join('t' + query['t1'], socket);
@@ -98,8 +94,8 @@ module.exports = function (app) {
 
 
         socket.on("message", function (data) {
-            console.log("message");
-            console.log(data);
+          //  console.log("message");
+          //  console.log(data);
             data = JSON.parse(data);
 
             if (data.action === "create_game") {
@@ -157,9 +153,8 @@ module.exports = function (app) {
                 });
             }
             else if (data.action === "rematch_game") {
-                    if (app.globalPlayers[data.enemy_id]) {
-                        console.log(JSON.stringify(store));
 
+                    if (app.globalPlayers[data.enemy_id]) {
                         if ( app.globalPlayers[data.enemy_id]) {
                             app.globalPlayers[data.enemy_id].send(JSON.stringify({
                                 "action" : "rematch_offer"
@@ -563,18 +558,43 @@ module.exports = function (app) {
                     }
             }
             else if (data.action === "draw_offer") {
-
+/*
                 ROOMS.emit(data.game_id, JSON.stringify({
                     action : "draw_offer",
                     game_id : data.game_id,
-                }))
+                }))*/
 
-              /*  if ( app.globalPlayers[data.enemy_id]) {
+
+                console.log(data);
+
+                if ( app.globalPlayers[data.enemy_id]) {
                     app.globalPlayers[data.enemy_id].send(JSON.stringify({
                         action : "draw_offer",
                         game_id : data.game_id
                     }));
-                }*/
+                }
+
+
+            }else if (data.action === "playerOnOff") {
+
+                //socket.on('playerOnOff', function (data) {
+                //    data = JSON.parse(data);
+                    /* io.to(data.game_id).emit('eventClient', {
+                     event : "playerOnline",
+                     players : online_players[data.game_id]
+                     });*/
+              //  });
+                ROOMS.emit(data.game_id, JSON.stringify({
+                    action : "playerOnline",
+                    game_id : data.game_id,
+                    players : online_players[data.game_id],
+                }));
+
+
+                /*io.to(socket.game_id).emit('playerOnline',
+                 JSON.stringify(online_players[handshakeData._query['g']] || {}));*/
+
+
 
 
             }else if (data.action === "decline_rematch") {
@@ -584,6 +604,14 @@ module.exports = function (app) {
                         game_id : data.game_id,
                     }))
 
+
+
+            }else if (data.action === "decline_draw") {
+
+                    ROOMS.emit(data.game_id, JSON.stringify({
+                        action : "decline_draw",
+                        game_id : data.game_id,
+                    }))
 
 
             } else if (data.action === "rematch_cancel") {
@@ -597,9 +625,9 @@ module.exports = function (app) {
 
 
                     // data = JSON.parse(data);
-                    console.log("AAAA");
+                   // console.log("AAAA");
                     // io.to("chat" + data.chat_id).emit('message', data);
-                    //console.log(data);
+                   // console.log(data);
                     var game = app.mongoDB.collection("chat").insertOne({
                         msg : JSON.stringify(data),
                         chat_id : data.chat_id,
@@ -637,12 +665,11 @@ module.exports = function (app) {
                 online_players[socket.game_id][socket.p_id] = ++online_players[socket.game_id][socket.p_id];
             }
             ROOMS.join(socket.game_id, socket);
-            ROOMS.join('chatg' + socket.game_id, socket);
+            //ROOMS.join('chatg' + socket.game_id, socket);
            // socket.join(socket.game_id);
            // socket.join('chatg' + socket.game_id);
 
-            /*io.to(socket.game_id).emit('playerOnline',
-                JSON.stringify(online_players[handshakeData._query['g']] || {}));*/
+
 
 
             pool
@@ -720,23 +747,12 @@ module.exports = function (app) {
 
 
 
-            socket.on('playerOnOff', function (data) {
-                data = JSON.parse(data);
-               /* io.to(data.game_id).emit('eventClient', {
-                    event : "playerOnline",
-                    players : online_players[data.game_id]
-                });*/
-            });
 
 
 
 
 
-
-
-
-
-            socket.on('rematch_accepted', function (data) {
+            /*socket.on('rematch_accepted', function (data) {
                 data = JSON.parse(data);
                 //console.log(data);
                 //берем от клиента информацию
@@ -755,7 +771,7 @@ module.exports = function (app) {
                     invite_user_to_game(data.user_id, {event : "start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
                     invite_user_to_game(data.enemy_id, {event : "start_game", tournament_id: null, game_id : insertedGame.insertedId},app);
                 });
-            });
+            });*/
         } else if (
             (!query['h'] ||
             query['h'] == "undefined"
@@ -781,7 +797,7 @@ module.exports = function (app) {
             query['lobby'] && query['lobby'] != "undefined"
         ) {
 
-            console.log("A");
+         //   console.log("A");
 
             ROOMS.join('lobby', socket);
             getCurrentPlayGames(socket);
@@ -868,6 +884,13 @@ module.exports = function (app) {
 
                 if (online_players[socket.game_id][socket.p_id] <= 0) {
                     delete online_players[socket.game_id][socket.p_id];
+
+
+                    ROOMS.emit(socket.game_id, JSON.stringify({
+                        action : "playerOnline",
+                        game_id : socket.game_id,
+                        players : online_players[socket.game_id],
+                    }));
 
                     /*  io.to(socket.game_id).emit('eventClient', {
                      event : "playerOnline",
