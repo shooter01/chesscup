@@ -102,11 +102,14 @@ module.exports = function (app) {
 
             socket.game_id = query.g;
 
-            if (query['h'] && query['h'] != "undefined") {
+            if (query['h'] && query['h'] != "undefined" && query['h'] != "null") {
                 online_players[socket.game_id] = online_players[socket.game_id] || {};
                 online_players[socket.game_id][socket.p_id] = online_players[socket.game_id][socket.p_id] || 0;
                 online_players[socket.game_id][socket.p_id] = ++online_players[socket.game_id][socket.p_id];
             }
+
+            console.log("Присоединяем СОКЕТ " + socket.id + " к комнате : " + socket.game_id);
+
             ROOMS.join(socket.game_id, socket);
 
 

@@ -24,7 +24,7 @@ class Rooms {
         for (let room in this.rooms) {
             for (let sock in this.rooms[room]) {
                 if (socket.id == sock) {
-                    console.log("Удален пользователь : " + sock);
+                    console.log("Удален пользователь : " + sock + " из комнаты " + room);
                     delete this.rooms[room][sock];
                 }
                 if (Object.keys(this.rooms[room]).length === 0) {
