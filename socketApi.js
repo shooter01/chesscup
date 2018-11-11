@@ -2,7 +2,7 @@
 ////var io = socket_io();
 var socketApi = {};
 const moment = require('moment');
-
+var process = require('process');
 //socketApi.io = io;
 var Elo = require('arpad');
 var uscf = {
@@ -59,6 +59,11 @@ module.exports = function (app) {
 
 
     app.wss.on('connection', function (socket, req) {
+
+
+        if (process.pid) {
+            console.log('This process is your pid ' + process.pid);
+        }
 
         //socket.send(JSON.stringify({event : "start_game", "ha" : "ha"}));
        // socket.send(JSON.stringify({event : "tournament_event"}));
