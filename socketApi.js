@@ -184,7 +184,7 @@ module.exports = function (app) {
           //  console.log(data);
             data = JSON.parse(data);
             if (data.action === "ping") {
-                socket.send("pong", {}, function (err) {
+                socket.send(JSON.stringify({"action": "pong"}), {}, function (err) {
                     console.log(err);
                 });
             }
