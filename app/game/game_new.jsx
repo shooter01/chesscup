@@ -1286,46 +1286,49 @@ class App {
     socketPlayerOnline(data){
         data = data.players;
         const self = this;
-        if (!data[p1]) {
-            if (self.state.orientation === "black") {
-                self.setState({
-                    up_player_online: false
-                }, self.setPlayersOnline);
+        if (typeof data !== "undefined") {
+
+            if (!data[p1]) {
+                if (self.state.orientation === "black") {
+                    self.setState({
+                        up_player_online: false
+                    }, self.setPlayersOnline);
+                } else {
+                    self.setState({
+                        bottom_player_online: false
+                    }, self.setPlayersOnline);
+                }
             } else {
-                self.setState({
-                    bottom_player_online: false
-                }, self.setPlayersOnline);
+                if (self.state.orientation === "black") {
+                    self.setState({
+                        up_player_online: true
+                    }, self.setPlayersOnline);
+                } else {
+                    self.setState({
+                        bottom_player_online: true
+                    }, self.setPlayersOnline);
+                }
             }
-        } else {
-            if (self.state.orientation === "black") {
-                self.setState({
-                    up_player_online: true
-                }, self.setPlayersOnline);
+            if (!data[p2]) {
+                if (self.state.orientation === "black") {
+                    self.setState({
+                        bottom_player_online: false
+                    }, self.setPlayersOnline);
+                } else {
+                    self.setState({
+                        up_player_online: false
+                    }, self.setPlayersOnline);
+                }
             } else {
-                self.setState({
-                    bottom_player_online: true
-                }, self.setPlayersOnline);
-            }
-        }
-        if (!data[p2]) {
-            if (self.state.orientation === "black") {
-                self.setState({
-                    bottom_player_online: false
-                }, self.setPlayersOnline);
-            } else {
-                self.setState({
-                    up_player_online: false
-                }, self.setPlayersOnline);
-            }
-        } else {
-            if (self.state.orientation === "white") {
-                self.setState({
-                    up_player_online: true
-                }, self.setPlayersOnline);
-            } else {
-                self.setState({
-                    bottom_player_online: true
-                }, self.setPlayersOnline);
+                if (self.state.orientation === "white") {
+                    self.setState({
+                        up_player_online: true
+                    }, self.setPlayersOnline);
+                } else {
+                    self.setState({
+                        bottom_player_online: true
+                    }, self.setPlayersOnline);
+                }
             }
         }
     }

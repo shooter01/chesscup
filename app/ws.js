@@ -37,8 +37,10 @@ WS.prototype.startNative = function () {
     this.ws = new WebSocket(protocol + self.serverHost + "/?" + str);
 
     this.ws.onopen = function (event) {
-
-        setInterval(function () {
+        if (self.interval) {
+            clearInterval(self.interval);
+        }
+        self.interval = setInterval(function () {
             self.ws.send(JSON.stringify({"action" : "ping"}))
         }, 15000);
     };
