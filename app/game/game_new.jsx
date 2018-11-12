@@ -676,7 +676,7 @@ class App {
             this.setState({
                 white_time: this.state.white_time - 100
             }, function () {
-                if (this.state.white_time < 0) {
+                if (this.state.white_time < 0 && self.state.is_over !== 1) {
                     let send_data = {
                         data: this.game.fen(),
                         id: g,
@@ -703,7 +703,7 @@ class App {
             }, function () {
 
                 //debugger;
-                if (this.state.black_time < 0 && this.state.is_over != 1) {
+                if (this.state.black_time < 0 && this.state.is_over !== 1) {
 
                     let send_data = {
                         data: this.game.fen(),
