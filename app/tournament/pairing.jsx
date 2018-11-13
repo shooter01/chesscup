@@ -623,7 +623,7 @@ class Pairing extends React.Component {
                             <td data-id={item.p1_id} className="participant">{item.p1_id} {item.p1_name} <span className="badge badge-dark">{item.is_over ? item.p1_rating_for_history : item.p1_rating}</span> {(item.rating_change_p1 > 0) ? <span className="badge badge-success">+{item.rating_change_p1}</span> : <span className="badge badge-danger">{item.rating_change_p1}</span>} </td>
                             <td className="text-center ">{item.p1_scores}</td>
                             <td className="text-center">
-                                <Link tournament_id={this.state.tournament_id} p1_id={item.p1_id} p2_id={item.p2_id} id={item.id}/>
+                                {this.state.tournament.is_online === 1 ? <Link tournament_id={this.state.tournament_id} p1_id={item.p1_id} p2_id={item.p2_id} id={item.id}/> : null}
 
                                 {(typeof tour_id != "undefined" && tour_id != "null" && tour_id == current_tour && typeof this.state.owner !== "undefined") ?
                                 <select name="" className="custom-select form-control-sm" id="" defaultValue={JSON.stringify({

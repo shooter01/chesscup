@@ -62,7 +62,16 @@ const make_draw = function (data) {
 
                 var g = DRAW.makeResultsForSwissSystem(tournament_results, participants, tourney, bye_participants);
 
-                const pairs = g.swiss;
+                const pairs = DRAW.sortSwiss(g.swiss, participants_object);
+
+                for (var i = 0; i < pairs.length; i++) {
+                    var obj = pairs[i];
+                    console.log(participants_object[obj.home] + participants_object[obj.away]);
+                    console.log(obj.home + "==" + obj.away);
+                }
+
+
+                //throw new Error("STOPPED");
                 const berger_object = g.berger_object;
                 const colors = g.colors;
 
@@ -104,9 +113,9 @@ const make_draw = function (data) {
             return  pool.query("SELECT * FROM tournaments_results WHERE tournament_id = ? AND tour = ?", [tourney.id, tourney.current_tour + 1]);
         }).then(function(data){
 
-                var newDateObj = moment(new Date()).add(30, 'm').toDate();
-                var startTime = moment(new Date()).add(1, 'm').toDate();
+
                 if (data && data.length && tourney.is_online == 1) {
+                    var newDateObj = moment(new Date()).add(30, 'm').toDate();
                     var addition = [];
                     const startTime = moment(new Date()).add(1, 'm').toDate();
 

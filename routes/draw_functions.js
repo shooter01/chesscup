@@ -162,10 +162,39 @@ const DRAW = {
 
 
         var d = swisspairing().getMatchups(tourney.current_tour + 1, newParticipants, newArr);
+
+
+
         return {swiss : d, berger_object : berger_object, colors : colors};
     },
 
 
+    sortSwiss : function (pairs, participants_object) {
+
+
+
+        pairs.sort(compare);
+
+        function compare(a,b) {
+            if ((participants_object[a.home] + participants_object[a.away]) > (participants_object[b.home] + participants_object[b.away]))
+                return -1;
+            if ((participants_object[a.home] + participants_object[a.away]) < (participants_object[b.home] + participants_object[b.away]))
+                return 1;
+            return 1;
+        }
+
+        for (let i = 0; i < pairs.length; i++) {
+            let obj = pairs[i];
+            console.log(obj.home == null);
+            console.log(obj.away == null);
+            if (obj.home == null || obj.away == null) {
+                pairs.push(pairs.splice(i, 1)[0]);
+                break;
+            }
+        }
+
+        return pairs
+    },
     filterResults : function (results) {
         var filtered = {}, ratings = {}, bye_participants = {};
         for (var i = 0; i < results.length; i++) {
@@ -247,7 +276,7 @@ const DRAW = {
 
 
 
-        for_addition = DRAW.sortAdditonObject(for_addition);
+        //for_addition = DRAW.sortAdditonObject(for_addition);
 
         return for_addition;
     },
