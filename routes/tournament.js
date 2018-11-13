@@ -1,10 +1,16 @@
 var express = require('express');
 var router = express.Router();
+const bluebird = require('bluebird');
+
 const {isLoggedIn} = require('./middlewares');
 const { check, validationResult } = require('express-validator/check');
 const moment = require('moment');
 const countries = require('./countries');
 const DRAW = require('./draw_functions');
+
+DRAW.defaultSwiss = bluebird.promisifyAll(DRAW.defaultSwiss)
+
+
 const save_result = require('./save_result');
 const make_draw = require('./make_draw');
 const save_result_mongo = require('./save_result_mongo');
@@ -24,7 +30,6 @@ var min_score = 100;
 var max_score = 10000;
 
 var elo = new Elo(uscf, min_score, max_score);
-const bluebird = require('bluebird');
 
 
 
@@ -1032,13 +1037,13 @@ module.exports = function(app, passport, pool, i18n) {
         } else {
             let tournament_id = req.body.tournament_id;
             tournament_id = parseInt(tournament_id);
-            make_draw({
-                tournament_id : tournament_id,
-                pool : pool,
-                app : app,
-                req : req,
-                res : res,
-            })
+                make_draw({
+                    tournament_id : tournament_id,
+                    pool : pool,
+                    app : app,
+                    req : req,
+                    res : res,
+                });
 
 
         }
@@ -1291,7 +1296,7 @@ module.exports = function(app, passport, pool, i18n) {
             tournament_id = parseInt(tournament_id);
             if (!isNaN(tournament_id)) {
 
-                pool
+                return pool
                     .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
                     .then(rows => {
                         const tournament = rows[0];
@@ -1300,106 +1305,61 @@ module.exports = function(app, passport, pool, i18n) {
 
 
                         app.mongoDB.collection("cache").findOne({tournament_id : parseInt(tournament.id), tour : parseInt(tournament.current_tour)}, function (err, mongoTournament) {
-                            if (!mongoTournament) {
-                                console.log("NOT FOUND");
-
-                                pool
-                                    .query('SELECT tr.*, u1.name AS p1_name,u1.tournaments_rating AS p1_rating, u2.name AS p2_name, u2.tournaments_rating AS p2_rating FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN  users u2 ON tr.p2_id = u2.id WHERE tr.tournament_id = ? AND tr.tour = ?', [tournament_id, tour_id])
-                                    .then(rows => {
-                                        pairing = rows;
-
-                                        mongoinsert.pairing = pairing;
-
-                                      /*  for (var i = 0; i < rows.length; i++) {
-                                            var obj = rows[i];
-                                            var p1_name = obj["p1_name"];
-                                            var p2_name = obj["p2_name"];
-                                            arrr.push(
-                                                {
-                                                    scores: obj["p1_scores"],
-                                                    name: obj["p1_name"],
-                                                },
-                                                {
-                                                    scores: obj["p2_scores"],
-                                                    name: obj["p2_name"],
-                                                },
-                                            );
-                                        }
-                                        arrr.sort(sortByScores);
-*/
-                                       /* function sortByScores(a,b) {
-                                            return a.scores < b.scores;
-                                        }*/
-
-                                       return true;
-
-                                    }).then(rows => {
-
-                                    let sql = 'SELECT tp.user_id,tp.is_active, ts.scores, u.name, u.tournaments_rating, ts.rating,ts.rating_change,ts.bh,ts.berger FROM tournaments_participants tp LEFT JOIN tournaments_scores ts ON ts.user_id = tp.user_id LEFT JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? AND ts.tournament_id = ?';
-                                    if (tournament.is_active == 0) {
-                                        sql = 'SELECT tp.user_id,tp.is_active, u.name FROM tournaments_participants tp LEFT JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ?';
-                                    }
-
-                                    return pool
-                                        .query(sql, [tournament_id, tournament_id])
-                                }).then(rows => {
-                                    var a = [];
-                                    // console.log(rows);
-                                    for (var i = 0; i < rows.length; i++) {
-                                        var obj = rows[i];
-
-                                        scores_object[obj.user_id] = obj.scores;
-                                        a.push({
-                                            user_id: obj.user_id,
-                                            scores: obj.scores,
-                                            bh: obj.bh,
-                                            berger: obj.berger,
-                                            name: obj.name,
-                                            // crosstable: crosstable,
-                                            is_active: obj.is_active,
-                                            tournaments_rating: obj.tournaments_rating,
-                                        });
-                                    }
-                                    participants = DRAW.sortArr(a);
+                          //  if (!mongoTournament) {
+                            if (true) {
+                                DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app).then(function(swiss) {
 
 
-                                    mongoinsert.participants = participants;
-                                    mongoinsert.scores_object = scores_object;
+                                    mongoinsert.participants = swiss.participants;
+                                    mongoinsert.pairing = swiss.pairing;
                                     mongoinsert.tournament_id = tournament.id;
                                     mongoinsert.tour = tournament.current_tour;
 
+                                    return app.mongoDB.collection("cache").insertOne({
 
-                                }).then(rows => {
-                                    return pool
-                                        .query('SELECT * FROM tournaments_results tr WHERE tr.tournament_id = ?', tournament_id)
-                                }).then(rows => {
-                                    // crosstable = DRAW.makeCrossatable(rows, participants);
-
-                                    app.mongoDB.collection("cache").insertOne({
-
-                                                "participants": mongoinsert.participants,
-                                                "scores_object": mongoinsert.scores_object,
-                                                "pairing": mongoinsert.pairing,
-                                                "tour": parseInt(tournament.current_tour),
-                                                "tournament_id": parseInt(tournament.id),
-                                            }
-                                        , function () {
-                                            res.json({
-                                                tournament  : tournament,
-                                                pairing  : JSON.stringify(pairing),
-                                                participants : participants,
-                                                tour_id : tour_id,
-                                                scores_object :  JSON.stringify(scores_object),
-                                                // arrr : arrr,
-                                            });
+                                        "participants": mongoinsert.participants,
+                                        "scores_object": mongoinsert.scores_object,
+                                        "pairing": mongoinsert.pairing,
+                                        "tour": parseInt(tournament.current_tour),
+                                        "tournament_id": parseInt(tournament.id),
+                                    }, function () {
+                                        return res.json({
+                                            tournament  : tournament,
+                                            pairing  : JSON.stringify(mongoinsert.pairing),
+                                            participants : mongoinsert.participants,
+                                            tour_id : tour_id,
+                                        });
                                     });
 
-
-                                    // console.log(tournament);
-
-                                }).catch(function (err) {
-                                    console.log(err);
+                                }).catch(function(e) {
+                                    console.log(e);
                                 });
+
+
+                               /* console.log(swiss);
+                                mongoinsert.participants = swiss.participants;
+                                mongoinsert.scores_object = swiss.scores_object;
+                                mongoinsert.tournament_id = tournament.id;
+                                mongoinsert.tour = tournament.current_tour;
+
+
+                                app.mongoDB.collection("cache").insertOne({
+
+                                            "participants": mongoinsert.participants,
+                                            "scores_object": mongoinsert.scores_object,
+                                            "pairing": mongoinsert.pairing,
+                                            "tour": parseInt(tournament.current_tour),
+                                            "tournament_id": parseInt(tournament.id),
+                                        }, function () {
+                                                res.json({
+                                                    tournament  : tournament,
+                                                    pairing  : JSON.stringify(pairing),
+                                                    participants : participants,
+                                                    tour_id : tour_id,
+                                                    scores_object :  JSON.stringify(scores_object),
+                                                });
+                                });*/
+
                             } else {
                                 res.json({
                                     tournament  : tournament,
@@ -1443,11 +1403,19 @@ module.exports = function(app, passport, pool, i18n) {
                 .then(rows => {
                     const tournament = rows[0];
                     if (typeof tournament != "undefined") {
-                        if (tournament.type > 10) {
-                            DRAW.teamSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app);
-                        } else {
-                            DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app);
-                        }
+                        DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app).then(function(swiss) {
+                            return res.render('tournament/pairing', {
+                                tournament  : tournament,
+                                pairing  : JSON.stringify(swiss.pairing),
+                                tournamentJSON  : JSON.stringify(tournament),
+                                participants : swiss.participants,
+                                participantsJSON : JSON.stringify(swiss.participants),
+                                tour_id : tour_id,
+                            });
+                        }).catch(function(e) {
+                            console.log(e);
+                        });
+
                     } else {
                         res.render('error', {
                             message  : req.i18n.__("TourneyNotFound"),
@@ -1505,59 +1473,29 @@ module.exports = function(app, passport, pool, i18n) {
         function (req, res, next) {
         let tournament_id = req.params.tournament_id;
         tournament_id = parseInt(tournament_id);
-        let tournament, participants, pairing = [], arrr = [], teams = null, participants_boards = {};
+        let tournament, participants, participants_object = {}, pairing = [], arrr = [], teams = null, participants_boards = {};
         if (!isNaN(tournament_id)) {
             pool
                 .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
                .then(rows => {
                    tournament = rows[0];
-                return pool
-                    .query('SELECT tp.user_id,tp.is_active,tp.team_board, ts.scores, ts.rating,ts.rating_change,ts.bh,ts.berger, u.name FROM tournaments_participants tp LEFT JOIN tournaments_scores ts ON ts.user_id = tp.user_id LEFT JOIN users u ON u.id = tp.user_id  WHERE tp.tournament_id = ?  AND ts.tournament_id = ?', [tournament_id, tournament_id])
-            }).then(rows => {
 
-                var a = [];
+                   if (typeof tournament != "undefined") {
+                       DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tournament.current_tour, app).then(function(swiss) {
+                           return res.render('tournament/final', {
+                               tournament  : tournament,
+                               participants : swiss.participants,
+                               teams : null
+                           });
+                       }).catch(function(e) {
+                           console.log(e);
+                       });
 
-                var scores_object = {};
-                for (var i = 0; i < rows.length; i++) {
-                    var obj = rows[i];
-
-                    scores_object[obj.user_id] = obj.scores;
-                    a.push({
-                        user_id: obj.user_id,
-                        scores: obj.scores,
-                        bh: obj.bh,
-                        is_active: obj.is_active,
-                        rating: obj.rating,
-                        rating_change: obj.rating_change,
-                        berger: obj.berger,
-                        team_board: obj.team_board,
-                        name: obj.name
-                    });
-                }
-                participants = DRAW.sortArr(a);
-
-                if (tournament.type > 10) {
-                    participants_boards = DRAW.sortBoards(a);
-                }
-            }).then(rows => {
-                if (tournament.type > 10) {
-                    return pool
-                        .query('SELECT tt.*,ts.* FROM tournaments_teams tt LEFT JOIN tournaments_teams_scores ts ON ts.team_id = tt.id WHERE tt.tournament_id = ?  AND ts.tournament_id = ?', [tournament_id, tournament_id])
-                }
-
-            }).then(rows => {
-
-                if (tournament.type > 10) {
-                    teams = DRAW_TEAM.sortArr(rows);
-                }
-
-
-                res.render('tournament/final', {
-                    tournament  : tournament,
-                    participants :  participants,
-                    participants_boards :  participants_boards,
-                    teams :  teams,
-                });
+                   } else {
+                       res.render('error', {
+                           message  : req.i18n.__("TourneyNotFound"),
+                       });
+                   }
 
             }).catch(function (err) {
                 console.log(err);

@@ -34,7 +34,6 @@ class Pairing extends React.Component {
             participants: participants,
             tournament: tournament,
             participants_scores: [],
-            scores_object: (typeof scores_object != "undefined") ? scores_object : null,
             tournament_id: tournament.id,
             current_tour: tournament.current_tour,
             user_pairs: [],
@@ -88,9 +87,9 @@ class Pairing extends React.Component {
             }).done(function (data) {
                 if (data.status === "ok") {
                     if (data.updated_tour == null){
-                        //location.href = "/tournament/" + self.state.tournament_id + "/final";
+                        location.href = "/tournament/" + self.state.tournament_id + "/final";
                     } else {
-                       // location.href = "/tournament/" + self.state.tournament_id + "/tour/" + data.updated_tour;
+                        location.href = "/tournament/" + self.state.tournament_id + "/tour/" + data.updated_tour;
                     }
                 } else {
                     alert(data.msg);
@@ -498,7 +497,7 @@ class Pairing extends React.Component {
                 self.setState({
                     pairs: JSON.parse(data.pairing) || [],
                     tournament: data.tournament || {},
-                    participants: data.participants || [],
+                    participants: data.participants.length ? data.participants : self.state.participants,
                 });
             }
         });
@@ -598,7 +597,7 @@ class Pairing extends React.Component {
                             <div className="badge badge-success">Турнир активен</div>
                             <div><div className="badge badge-info">Текущий тур: {this.state.tournament.current_tour}</div></div>
                         </div> : null}
-                    {(!this.state.tournament.is_closed && !this.state.tournament.is_active) ? <div className="badge badge-secondary starting">Турнир стартует через : <Timer timeleft={timeleft} /></div> : null}
+                    {(this.state.tournament.is_online && !this.state.tournament.is_closed && !this.state.tournament.is_active) ? <div className="badge badge-secondary starting">Турнир стартует через : <Timer timeleft={timeleft} /></div> : null}
                 </div>
 
                 { (this.state.pairs != null && this.state.pairs.length) ?
@@ -621,7 +620,7 @@ class Pairing extends React.Component {
                     {this.state.pairs.map((item, index) => (
                         <tr key={index}>
                             <td className="text-center">{index+1}</td>
-                            <td data-id={item.p1_id} className="participant">{item.p1_name} <span className="badge badge-dark">{}{item.is_over ? item.p1_rating_for_history : item.p1_rating}</span> {(item.rating_change_p1 > 0) ? <span className="badge badge-success">+{item.rating_change_p1}</span> : <span className="badge badge-danger">{item.rating_change_p1}</span>} </td>
+                            <td data-id={item.p1_id} className="participant">{item.p1_id} {item.p1_name} <span className="badge badge-dark">{item.is_over ? item.p1_rating_for_history : item.p1_rating}</span> {(item.rating_change_p1 > 0) ? <span className="badge badge-success">+{item.rating_change_p1}</span> : <span className="badge badge-danger">{item.rating_change_p1}</span>} </td>
                             <td className="text-center ">{item.p1_scores}</td>
                             <td className="text-center">
                                 <Link tournament_id={this.state.tournament_id} p1_id={item.p1_id} p2_id={item.p2_id} id={item.id}/>
@@ -667,7 +666,7 @@ class Pairing extends React.Component {
 
                                 <span className="badge"></span></td>
                             <td className="text-center ">{item.p2_scores}</td>
-                            <td data-id={item.p2_id} className="participant">{item.p2_name} <span className="badge badge-dark">{(item.is_over) ? item.p2_rating_for_history : item.p2_rating}</span> {(item.rating_change_p2 > 0) ? <span className="badge badge-success">+{item.rating_change_p2}</span> : <span className="badge badge-danger">{item.rating_change_p2}</span>} </td>
+                            <td data-id={item.p2_id} className="participant">{item.p2_id} {item.p2_name} <span className="badge badge-dark">{(item.is_over) ? item.p2_rating_for_history : item.p2_rating}</span> {(item.rating_change_p2 > 0) ? <span className="badge badge-success">+{item.rating_change_p2}</span> : <span className="badge badge-danger">{item.rating_change_p2}</span>} </td>
                         </tr>
                     ))}
                     </tbody>
@@ -675,7 +674,7 @@ class Pairing extends React.Component {
                     : null}
 
 
-                {(this.state.tournament.is_online == 1 && typeof (tour_choosed) === "undefined") ? <div>
+                {(typeof (tour_choosed) === "undefined") ? <div>
 
                         <Tours tournament={this.state.tournament} />
                         {this.state.tournament.is_closed ? <h5 className="mt-2 ">Итоговое положение</h5> : <h5 className="mt-2 ">Текущее положение</h5>}

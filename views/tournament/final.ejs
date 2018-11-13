@@ -160,7 +160,7 @@
                     <td><%= participants[i].scores %></td>
                     <td><%= participants[i].bh %></td>
                     <td><%= participants[i].berger %></td>
-                    <td><%= (participants[i].rating != null) ? participants[i].rating : "" %></td>
+                    <td><%= (participants[i].tournaments_rating != null) ? participants[i].tournaments_rating : "" %></td>
                     <td>
                         <%-
                             (participants[i].rating_change > 0) ? "<span class='green'>+" + participants[i].rating_change + "</span>" : "<span class='red'>" + ((participants[i].rating != null) ? participants[i].rating_change : "") + "</span>"

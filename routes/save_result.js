@@ -215,8 +215,6 @@ const save_result = function (data) {
                     });*/
 
 
-
-
                     setTimeout(function () {
                         delete throttle[tourney.id + "" + tourney.current_tour];
                     }, 10000)

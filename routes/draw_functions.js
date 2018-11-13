@@ -6,24 +6,16 @@ const DRAW = {
         var flag = false;
         var i = 0;
         for (var i = 0; i < results.length; i++) {
-            if (tourney.type == 20) {
-                if (!results[i].team_1_won && !results[i].team_2_won) {
-                    flag = true;
-                    break;
-                }
-            } else {
-                if (!results[i].p1_won && !results[i].p2_won) {
-                    flag = true;
-                    break;
-                }
+            if (!results[i].p1_won && !results[i].p2_won) {
+                flag = true;
+                break;
             }
-
         }
         return flag;
     },
 
 
-    sumBergerObject : function (berger, after_tour_results_sum) {
+    sumBergerObject : function (berger, participants_object) {
         var flag = {};
 
         var berger_sum = {};
@@ -33,12 +25,12 @@ const DRAW = {
                 berger_sum[obj] = berger_sum[obj] || 0;
                 for (var obj1 in berger[obj]['wins']) {
                     if (obj != 'null' && obj1 != 'null') {
-                        berger_sum[obj]+=after_tour_results_sum[obj1];
+                        berger_sum[obj]+=participants_object[obj1];
                     }
                 }
                 for (var obj3 in berger[obj]['draw']) {
                     if (obj != 'null' && obj3 != 'null') {
-                        berger_sum[obj]+=(after_tour_results_sum[obj3]/2);
+                        berger_sum[obj]+=(participants_object[obj3]/2);
                     }
                 }
             }
@@ -51,6 +43,45 @@ const DRAW = {
     },
 
 
+    getBuhgolz : function (tournament_results, participants_object) {
+        let buhgolz = {};
+        for (let i = 0; i < tournament_results.length; i++) {
+            let obj = tournament_results[i];
+            //исключаем пары, в которых есть Null
+            if (obj["p1_id"] != null && obj["p2_id"] != null) {
+                buhgolz[obj["p1_id"]] = buhgolz[obj["p1_id"]] || 0;
+                buhgolz[obj["p2_id"]] = buhgolz[obj["p2_id"]] || 0;
+
+                if (typeof participants_object[obj["p2_id"]] != "undefined") {
+                    buhgolz[obj["p1_id"]]+= participants_object[obj["p2_id"]];
+                }
+
+                if (typeof participants_object[obj["p1_id"]] != "undefined") {
+                    buhgolz[obj["p2_id"]]+= participants_object[obj["p1_id"]];
+                }
+            }
+        }
+        return  buhgolz;
+    },
+    makeScoresArray : function (participants_object, berger_object, buhgolz, tourney) {
+        let scores_array = [];
+
+        for (let obj in participants_object) {
+
+            scores_array.push([
+                obj,
+                tourney.id,
+                tourney.current_tour,
+                participants_object[obj],
+                buhgolz[obj],
+                0,
+                0,
+                berger_object[obj],
+            ]);
+        }
+
+        return scores_array;
+    },
     makeSum : function (tour, overall, tourney) {
         var for_addition = [];
         for (var obj in overall) {
@@ -306,25 +337,33 @@ const DRAW = {
     },
 
 
-    makeObject : function (arrr) {
-        var gObj = {}, end_ratings = {}, change_rating = {}, bye_participants = {};
-        for (var i = 0; i < arrr.length; i++) {
-            var obj1 = arrr[i];
-            gObj[arrr[i].user_id] = arrr[i].scores || 0;
+    makeObject : function (tournament_results) {
+        var gObj = {};
+        for (var i = 0; i < tournament_results.length; i++) {
+            var obj1 = tournament_results[i];
 
-            if (arrr[i].is_active === 0) {
-                bye_participants[arrr[i].user_id] = true;
+
+            if (obj1.p1_id){
+                //если пользователь присутствует (не null), добавляем его в объект
+                //если он там есть, то прибавляем заработанные очки
+                if (!gObj[obj1.p1_id]) {
+                    gObj[obj1.p1_id] = 0;
+                }
+                gObj[obj1.p1_id] = gObj[obj1.p1_id] + obj1.p1_won;
             }
 
-            //end_ratings[arrr[i].user_id] = arrr[i].end_ratings || 1200;
-            //change_rating[arrr[i].user_id] = end_ratings[arrr[i].user_id] - arrr[i].start_rating;
+            if (obj1.p2_id){
+                //если пользователь присутствует (не null), добавляем его в объект
+                //если он там есть, то прибавляем заработанные очки
+                if (!gObj[obj1.p2_id]) {
+                    gObj[obj1.p2_id] = 0;
+                }
+                gObj[obj1.p2_id] = gObj[obj1.p2_id] + obj1.p2_won;
+            }
+
+
         }
-        //console.log(bye_participants);
-        return {
-            bye_participants : bye_participants,
-            scores_object : gObj,
-            // change_rating : change_rating
-        };
+        return gObj;
 
     },
 
@@ -399,73 +438,37 @@ const DRAW = {
     },
 
     defaultSwiss : function (req, res, next, pool, tournament, tournament_id, tour_id, app) {
-        let participants, pairing = [], arrr = [], crosstable, scores_object = {}, current_games = {};
+        let participants, participants_object = {}, pairing = [];
 
-
-                    pool
-                        .query('SELECT tr.*, u1.name AS p1_name,u1.tournaments_rating AS p1_rating, u2.name AS p2_name, u2.tournaments_rating AS p2_rating FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN  users u2 ON tr.p2_id = u2.id WHERE tr.tournament_id = ? AND tr.tour = ?', [tournament_id, tour_id])
-                .then(rows => {
+            return pool
+                    .query('SELECT tr.*, u1.name AS p1_name,u1.tournaments_rating AS p1_rating, u2.name AS p2_name, u2.tournaments_rating AS p2_rating FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN  users u2 ON tr.p2_id = u2.id WHERE tr.tournament_id = ? AND tr.tour = ?', [tournament_id, tour_id])
+            .then(rows => {
                 pairing = rows;
-
-                for (var i = 0; i < rows.length; i++) {
-                    var obj = rows[i];
-                    var p1_name = obj["p1_name"];
-                    var p2_name = obj["p2_name"];
-                    arrr.push(
-                        {
-                            scores: obj["p1_scores"],
-                            name: obj["p1_name"],
-                        },
-                        {
-                            scores: obj["p2_scores"],
-                            name: obj["p2_name"],
-                        },
-                    );
-                }
-                arrr.sort(sortByScores);
-
-                function sortByScores(a,b) {
-                    return a.scores < b.scores;
-                }
-
             }).then(rows => {
                 return pool
-                    .query('SELECT tp.user_id,tp.is_active, ts.scores, u.name, u.tournaments_rating FROM tournaments_participants tp LEFT JOIN tournaments_scores ts ON ts.user_id = tp.user_id LEFT JOIN users u ON u.id = tp.user_id WHERE tp.tournament_id = ? AND ts.tournament_id = ?', [tournament_id, tournament_id])
+                    .query('SELECT * FROM tournaments_participants tp WHERE tp.tournament_id = ?', [tournament_id])
             }).then(rows => {
-                        var a = [];
+                    participants = rows;
+                    for (let i = 0; i < rows.length; i++) {
+                        let obj = rows[i];
+                        participants_object[obj.id] = obj.is_active;
+                    }
 
-                        for (var i = 0; i < rows.length; i++) {
-                            var obj = rows[i];
+                return pool
+                    .query('SELECT ts.*, u.name, u.tournaments_rating FROM tournaments_scores ts LEFT JOIN users u ON u.id = ts.user_id WHERE ts.tournament_id = ? AND ts.tour = ?', [tournament_id, tour_id - 1 ])
+            }).then(rows => {
 
-                            scores_object[obj.user_id] = obj.scores;
-                            a.push({
-                                user_id: obj.user_id,
-                                scores: obj.scores,
-                                name: obj.name,
-                                crosstable: crosstable,
-                                is_active: obj.is_active,
-                                tournaments_rating: obj.tournaments_rating,
-                            });
-                        }
-                        participants = DRAW.sortArr(a);
+                        participants = DRAW.sortArr(rows);
+
 
                     }).then(rows => {
-                            return pool
-                                .query('SELECT * FROM tournaments_results tr WHERE tr.tournament_id = ?', tournament_id)
-                        }).then(rows => {
-                        crosstable = DRAW.makeCrossatable(rows, participants);
-                       // console.log(tournament);
-                        res.render('tournament/pairing', {
-                            tournament  : tournament,
-                            pairing  : JSON.stringify(pairing),
-                            tournamentJSON  : JSON.stringify(tournament),
 
+                        return {
+                            tournament  : tournament,
+                            pairing  : pairing,
                             participants : participants,
-                            participantsJSON : JSON.stringify(participants),
-                            tour_id : tour_id,
-                            scores_object :  JSON.stringify(scores_object),
-                            arrr : arrr,
-                        });
+                        };
+
             }).catch(function (err) {
                 console.log(err);
             });

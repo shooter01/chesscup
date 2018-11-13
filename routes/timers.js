@@ -11,7 +11,7 @@ module.exports = function (app) {
 
     setInterval(function () {
         pool
-            .query('SELECT * FROM tournaments WHERE is_active = 0 AND start_time < ?', new Date())
+            .query('SELECT * FROM tournaments WHERE is_online = 1 AND is_active = 0 AND start_time < ?', new Date())
             .then(games => {
                 if (games.length > 0) {
 
@@ -29,6 +29,7 @@ module.exports = function (app) {
                     }
                 }
         }).catch(function (err) {
+            console.log("ERROR");
             console.log(err);
         });
 
