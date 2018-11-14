@@ -252,11 +252,12 @@ class App {
         this.game.header('Black', p2_name);
         this.game.header('Site', 'chessround.com');
 
+        self.checkSynced();
     }
 
     downloadPgn(){
 
-        const filename = "chessround.com_" + g + ".pgn";
+        const filename = "chesscup.org_" + g + ".pgn";
         const pgn = this.game.pgn();
         let element = document.createElement('a');
         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.game.pgn()));
@@ -361,6 +362,28 @@ class App {
 
         self.socket.ws.send(JSON.stringify(send_data));
 
+    }
+
+    //проверяем текущую позицию с позицией на сервере
+    checkSynced(){
+        const self = this;
+        if (self.state.is_started === 0) {
+            console.log(self.game.history().length);
+            self.sync_timer = setInterval(function () {
+
+                if (self.state.is_started === 1 || self.state.is_over == 1) {
+                    clearInterval(self.sync_timer);
+                } else {
+                    self.socket.ws.send(JSON.stringify({
+                        action : "check_sync",
+                        game_id : g,
+                        moves_length : self.game.history().length
+                    }));
+                }
+
+            }, 1000);
+
+        }
 
     }
 
@@ -1422,9 +1445,17 @@ class App {
 
     }
 
+    socketSyncRekt(data){
+        const self = this;
+        //alert();
+        console.log("REKT");
+        location.reload();
+    }
+
     addMessage(){
         const self = this;
-        var mes = $(".message-input-text").val();
+        const $messageInput = $(".message-input-text");
+        const mes = $messageInput.val();
         if (mes != "") {
             if (typeof user_name === "undefined") {
                 return false;
@@ -1440,8 +1471,8 @@ class App {
 
             self.socket.ws.send(JSON.stringify(item));
 
-            $(".message-input-text").get(0).value = "";
-            $(".message-input-text").get(0).focus();
+            $messageInput.get(0).value = "";
+            $messageInput.get(0).focus();
         }
     }
 
@@ -1489,6 +1520,11 @@ class App {
                 self.socketGamerOver(data);
 
 
+
+            }
+            else if (data.action === "sync_rekt") {
+
+                self.socketSyncRekt(data);
 
             }
             else if (data.action === "game_aborted") {

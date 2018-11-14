@@ -11,6 +11,11 @@ var uscf = {
     2400: 10
 };
 
+//хранилище колва ходов для проверки синхронизации
+let sync_store = {
+
+};
+
 
 var min_score = 100;
 var max_score = 10000;
@@ -43,9 +48,6 @@ function getRandomId() {
 }
 
 var elo = new Elo(uscf, min_score, max_score);
-
-
-
 
 
 module.exports = function (app) {
@@ -126,19 +128,8 @@ module.exports = function (app) {
             &&  query['t1'] != "undefined")
         ) {
 
-            //  var random = getRandomId(app.viewers);
-            //   socket.viewer_id = random;
             socket.t1 = query['t1'];
-            //  app.viewers[query['t1']] =  app.viewers[query['t1']] || {};
-            //  app.viewers[query['t1']][random] = socket;
 
-
-
-
-            //  console.log(Object.keys(app.viewers));
-            //  console.log(Object.keys(app.viewers[query['t1']]));
-            // console.log(Object.keys(app.globalPlayers));
-            // console.log(query['h']);
         } else if (
             query['lobby'] && query['lobby'] != "undefined"
         ) {
@@ -191,12 +182,7 @@ module.exports = function (app) {
           //  console.log("message");
           //  console.log(data);
             data = JSON.parse(data);
-            if (data.action === "ping") {
-                socket.send(JSON.stringify({"action": "pong"}), {}, function (err) {
-                    console.log(err);
-                });
-            }
-            else if (data.action === "eventServer") {
+            if (data.action === "eventServer") {
                 msg = data;
                 try {
                     //msg = JSON.parse(msg);
@@ -234,6 +220,17 @@ module.exports = function (app) {
                                 action: "cancel_move",
                                 canceled_side : msg.player
                             }));
+
+                            socket.send(JSON.stringify({
+                                action: "game_over",
+                                "p1_time_left" : mongoGame.p1_time_left,
+                                "p2_time_left" : mongoGame.p2_time_left,
+                                "p1_won" : mongoGame.p1_won,
+                                "p2_won" : mongoGame.p2_won,
+                                "reason" : mongoGame.reason,
+                                is_over: 1
+                            }));
+
 
                             console.log("cancel_move");
 
@@ -390,6 +387,9 @@ module.exports = function (app) {
                                 ).catch(function () {
                                     console.log(arguments);
                                 });
+
+                                sync_store[mongoGame._id] = mongoGame.moves.length + 1;
+
 
                                 if (msg.is_over == 1) {
                                     obj.reason = msg.reason;
@@ -620,6 +620,19 @@ module.exports = function (app) {
                 } else {
                     console.log("id not defined");
                 }
+            }
+            else if (data.action === "check_sync") {
+                console.log(sync_store);
+                if (typeof sync_store[data.game_id] !== "undefined" && sync_store[data.game_id] !== data.moves_length) {
+                    socket.send(JSON.stringify({
+                        action: "sync_rekt",
+                    }));
+                }
+            }
+            else if (data.action === "ping") {
+                socket.send(JSON.stringify({"action": "pong"}), {}, function (err) {
+                    console.log(err);
+                });
             }
             else if (data.action === "remove") {
                 app.mongoDB.collection("challenges").deleteOne({_id: ObjectId(data.game_id)}, function (err, mongoGame) {

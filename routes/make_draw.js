@@ -76,20 +76,11 @@ const make_draw = function (data) {
                // throw new Error("STOPPED");
                 const berger_object = g.berger_object;
                 const colors = g.colors;
-
-
-
-                console.log(colors);
-                var for_addition = DRAW.makeInsertObject(pairs, participants_object, tourney, {}, colors);
+                const for_addition = DRAW.makeInsertObject(pairs, participants_object, tourney, {}, colors);
                 const berger = DRAW.sumBergerObject(berger_object, participants_object);
-                console.log(berger_object);
-                console.log(berger);
 
-                console.log("=======");
-
-                var buhgolz = DRAW.getBuhgolz(tournament_results, participants_object);
+                const buhgolz = DRAW.getBuhgolz(tournament_results, participants_object);
                 scores_array = DRAW.makeScoresArray(participants_object, berger, buhgolz, tourney);
-                console.log(for_addition)
                // throw new Error("STOPPED");
 
                 if (let_insert && ((tourney.current_tour + 1) <= tourney.tours_count)) {
@@ -196,119 +187,7 @@ const make_draw = function (data) {
                     });
                 }
 
-            })
-                //фильтруем результаты тура
-                //отдает объект в виде - название id команды - количество очков за тур
-                //var temp = DRAW.filterResults(current_tour_results);
-
-                //var current_tour_results_filtered = temp.filtered;
-                //change_rating = temp.ratings;
-                //bye_participants = temp.bye_participants;
-
-                //отдает объект с суммой всех очков участников
-                //for_addition - массив готовый к вставке в базу
-                //overall - объект с ключами - id юзера, значение - сколько очков набрал
-                //after_tour_results_sum = DRAW.makeSum(current_tour_results_filtered, participants_object, tourney);
-
-            //})
-
-          //  .then(rows => {
-                //делаем пары и создаем бергер объект
-                //пары вида массив с { home: 178, away: 184 }
-                //бергер объект '178': { wins: [Object], draw: {} }
-
-               // pairs = g.swiss;
-               // berger_object = g.berger_object;
-              //  colors = g.colors;
-
-                //считаем бергер объект
-              //  berger_object = DRAW.sumBergerObject(berger_object, after_tour_results_sum.overall);
-
-           //     return pool
-            //        .query('SELECT tr.p1_id,tr.p2_id FROM tournaments_results tr WHERE tr.tournament_id = ?', [tournament_id])
-
-            // .then(rows => {
-                //считаем сумму очков противников для бухгольца
-           //     played_arrays = DRAW.makePlayedArray(rows, after_tour_results_sum.overall);
-            //    return  pool.query("SELECT * FROM tournaments_scores WHERE tournament_id = ? AND tour = ?", [tourney.id, tourney.scores]);
-            //})
-          //  .then(rows => {
-
-                //создает массив для вставки в tournament_results
-                //если противника нет ставит 1 : 0
-                //сортирует по очкам
-
-
-                // console.log(for_addition);
-
-
-
-              //  if (let_insert && tourney.type < 10 && ((tourney.current_tour + 1) <= tourney.tours_count)) {
-              //      return pool.query('INSERT INTO tournaments_results (p1_id, p2_id, p1_won, p2_won,p1_scores,p2_scores, tournament_id,created_at,tour,board, rating_change_p1, rating_change_p2, p1_rating_for_history, p2_rating_for_history) VALUES ?', [for_addition]);
-            //    }
-         //   })
-            .then(function(data){
-
-
-             //   if (data && data.insertId){
-
-             //       return  pool.query("SELECT * FROM tournaments_results WHERE tournament_id = ? AND tour = ?", [tourney.id, tourney.current_tour + 1]);
-             //   }
-
-
-            })
-            .then(function(){
-
-              /*  if (let_insert || let_tournament_insert) {
-                    if (tourney.current_tour < tourney.tours_count) {
-                        return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
-                            current_tour : tourney.current_tour + 1,
-                            is_active : 1,
-                        },tourney.id]);
-                    } else {
-                        return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
-                            current_tour : tourney.current_tour + 1,
-                            is_active : 1,
-                            is_closed : 1
-                        }, tourney.id]);
-
-                    }
-                }*/
-            })
-            .then(rows => {
-                /*if (let_insert) {
-                    return pool
-                        .query('DELETE FROM tournaments_scores WHERE tournament_id = ?', tournament_id);
-                }*/
-            }).then(rows => {
-
-                /*for (var i = 0; i < after_tour_results_sum.for_addition.length; i++) {
-                    var obj = after_tour_results_sum.for_addition[i];
-                    //добавляем бухгольц
-                    after_tour_results_sum.for_addition[i].push(played_arrays[obj[0]]);
-
-                    //добавляем рейтинг и изменение
-                    var tcurrent = (typeof change_rating[obj[0]] != "undefined") ? change_rating[obj[0]].current : null;
-                    var tchange = (typeof change_rating[obj[0]] != "undefined") ? change_rating[obj[0]].change : null;
-                    after_tour_results_sum.for_addition[i].push(tcurrent);
-                    after_tour_results_sum.for_addition[i].push(tchange);
-
-                    //добавляем бергер
-                    after_tour_results_sum.for_addition[i].push(berger_object[obj[0]]);
-
-                }
-
-                if (after_tour_results_sum.for_addition.length > 0) {
-                    if (let_insert) {
-                        return pool.query('INSERT INTO tournaments_scores (user_id, tournament_id, scores, bh, rating, rating_change, berger) VALUES ?', [after_tour_results_sum.for_addition]).catch(function (err) {
-                            console.log(err);
-                        });
-                    }
-                } else {
-                    return [0, false];
-                }*/
-        })
-            .catch(function (err) {
+            }).catch(function (err) {
                 console.log(err);
                 if (typeof res != "undefined") {
                     res.json({
