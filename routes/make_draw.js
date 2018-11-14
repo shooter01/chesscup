@@ -20,7 +20,7 @@ const make_draw = function (data) {
     let tourney,
         participants = [],
         participants_object = {}, //объект участников,
-        bye_participants = [], //кто покинул турнир
+        bye_participants = {}, //кто покинул турнир
         scores_array = [], //массив для добавления в tournament_scores
         tournament_results = [];
 
@@ -51,7 +51,9 @@ const make_draw = function (data) {
 
                 //создает объект участников - ключ - id участника - значение - сколько набрал очков
                 participants_object = DRAW.makeObject(tournament_results);
-                console.log(participants_object);
+
+                bye_participants = DRAW.getByePlayers(participants);
+                console.log(bye_participants);
 
                 if (tourney.current_tour !== 0) {
                     //проверяем пустые результаты
@@ -69,15 +71,15 @@ const make_draw = function (data) {
                     console.log(participants_object[obj.home] + participants_object[obj.away]);
                     console.log(obj.home + "==" + obj.away);
                 }
+                console.log(bye_participants);
 
-
-                //throw new Error("STOPPED");
+               // throw new Error("STOPPED");
                 const berger_object = g.berger_object;
                 const colors = g.colors;
 
 
 
-                //console.log(colors);
+                console.log(colors);
                 var for_addition = DRAW.makeInsertObject(pairs, participants_object, tourney, {}, colors);
                 const berger = DRAW.sumBergerObject(berger_object, participants_object);
                 console.log(berger_object);
@@ -87,8 +89,8 @@ const make_draw = function (data) {
 
                 var buhgolz = DRAW.getBuhgolz(tournament_results, participants_object);
                 scores_array = DRAW.makeScoresArray(participants_object, berger, buhgolz, tourney);
-                console.log(scores_array)
-
+                console.log(for_addition)
+               // throw new Error("STOPPED");
 
                 if (let_insert && ((tourney.current_tour + 1) <= tourney.tours_count)) {
                       return pool.query('INSERT INTO tournaments_results (' +

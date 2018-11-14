@@ -1227,14 +1227,46 @@ module.exports = function(app, passport, pool, i18n) {
             pool
                 .query('SELECT tournaments.*, users.name FROM tournaments LEFT JOIN users ON users.id = tournaments.creator_id WHERE tournaments.id = ?', tournament_id)
 
+
                .then(rows => {
-                   tourney = rows;
-                   var sql = 'SELECT users.* FROM tournaments_participants LEFT JOIN users ON users.id = tournaments_participants.user_id WHERE tournaments_participants.tournament_id = ?  ORDER BY id DESC';
-                   return pool.query(sql, tournament_id);
-               })
-               .then(rows => {
-                   participants = rows;
-                   if (req.isAuthenticated()) {
+                   //participants = rows;
+                   tourney = rows[0];
+
+                       DRAW.defaultSwiss(req, res, next, pool, tourney, tournament_id, tourney.current_tour, app).then(function(swiss) {
+
+                           tourney.start_date = moment(tourney.start_date).format("DD-MM-YYYY");
+                           tourney.end_date = moment(tourney.end_date).format("DD-MM-YYYY");
+                           tourney.created_at = moment(tourney.created_at).format("DD-MM-YYYY");
+                           const timeleft = (tourney.start_time) ? tourney.start_time.getTime() - new Date().getTime() : 0;
+
+                           if (req.isAuthenticated()) {
+                               for (var i = 0; i < swiss.participants.length; i++) {
+                                   var obj = swiss.participants[i];
+                                   if (req.session.passport.user.id == obj.id) {
+                                       is_in = true;
+                                       break;
+                                   }
+                               }
+                           }
+                           return res.render('tournament/show', {
+                               tournament  : tourney,
+                               pairing  : JSON.stringify(swiss.pairing),
+                               tournamentJSON  : JSON.stringify(tourney),
+                               participants : swiss.participants,
+                               timeleft : timeleft,
+                               is_in : is_in,
+                               participantsJSON : JSON.stringify(swiss.participants),
+                               tour_id : tourney.current_tour,
+                           });
+                       }).catch(function(e) {
+                           console.log(e);
+                       });
+
+
+
+
+
+             /*      if (req.isAuthenticated()) {
                        for (var i = 0; i < participants.length; i++) {
                            var obj = participants[i];
                            if (req.session.passport.user.id == obj.id){
@@ -1242,12 +1274,12 @@ module.exports = function(app, passport, pool, i18n) {
                                break;
                            }
                        }
-                   }
+                   }*/
                   //  console.log(is_in);
 
             //}).then(rows => {
 
-                if (tourney.length > 0) {
+            /*    if (tourney.length > 0) {
                     tourney[0].start_date = moment(tourney[0].start_date).format("DD-MM-YYYY");
                     tourney[0].end_date = moment(tourney[0].end_date).format("DD-MM-YYYY");
                     tourney[0].created_at = moment(tourney[0].created_at).format("DD-MM-YYYY");
@@ -1262,13 +1294,13 @@ module.exports = function(app, passport, pool, i18n) {
                         is_in : is_in,
                         participants : JSON.stringify(participants)
 
-                    });
-                } else {
+                    });*/
+                /*} else {
                     res.render('error', {
                         message  : req.i18n.__("TourneyNotFound"),
                         error  : req.i18n.__("TourneyNotFound"),
                     });
-                }
+                }*/
 
 
 

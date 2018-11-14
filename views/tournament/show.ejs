@@ -61,8 +61,9 @@
 <% } %>
 
 <script>
-    var participants = JSON.parse('<%- participants %>');
+    var participants = JSON.parse('<%- participantsJSON %>');
     var tournament = JSON.parse('<%- tournamentJSON %>');
+    var pairs = JSON.parse('<%- pairing %>');
     var is_in = <%- is_in %>;
 </script>
 <% if (user && user.user) { %>

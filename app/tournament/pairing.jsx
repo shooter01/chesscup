@@ -677,7 +677,10 @@ class Pairing extends React.Component {
                 {(typeof (tour_choosed) === "undefined") ? <div>
 
                         <Tours tournament={this.state.tournament} />
-                        {this.state.tournament.is_closed ? <h5 className="mt-2 ">Итоговое положение</h5> : <h5 className="mt-2 ">Текущее положение</h5>}
+                        {this.state.tournament.is_closed ? <h5 className="mt-2 ">Итоговое положение</h5> :
+                            (this.state.tournament.is_active) ? <h5 className="mt-2 ">Положение до текущего тура</h5> : <h5 className="mt-2 ">Участники</h5>
+
+                        }
                         <ResultsTable participants={this.state.participants} tournament={this.state.tournament}/>
 
                     </div> : null}

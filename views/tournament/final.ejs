@@ -75,7 +75,7 @@
                         <% for (var i = 0; i < teams.length; i++) { %>
                         <tr>
                             <td><%= i + 1 %></td>
-                            <td><%= teams[i].team_name %> <%- (teams[i].is_active === 0) ? "<span class='badge badge-danger'>выбыл</span>" : "" %></td>
+                            <td><%= teams[i].team_name %> <%- (teams[i].is_active === 0) ? "<span class='badge badge-danger'>bye</span>" : "" %></td>
                             <td><%= teams[i].scores %></td>
                             <td><%= teams[i].team_scores %></td>
                             <td><%= teams[i].bh %></td>
@@ -114,7 +114,7 @@
                 <% for (var i = 0; i < participants_boards[obj].length; i++) { %>
                 <tr>
                     <td><%= i + 1 %></td>
-                    <td><a target="_blank" href="/users/stat/<%= participants_boards[obj][i].user_id %>"><%= participants_boards[obj][i].name %></a> <%- (participants_boards[obj][i].is_active === 0) ? "<span class='badge badge-danger'>выбыл</span>" : "" %></td>
+                    <td><a target="_blank" href="/users/stat/<%= participants_boards[obj][i].user_id %>"><%= participants_boards[obj][i].name %></a> <%- (participants_boards[obj][i].is_active === 0) ? "<span class='badge badge-danger'>bye</span>" : "" %></td>
                     <td><%= participants_boards[obj][i].scores %></td>
                     <td><%= participants_boards[obj][i].bh %></td>
                     <td><%= participants_boards[obj][i].berger %></td>
@@ -156,7 +156,7 @@
                 <% for (var i = 0; i < participants.length; i++) { %>
                 <tr>
                     <td><%= i + 1 %></td>
-                    <td><a target="_blank" href="/users/stat/<%= participants[i].user_id %>"><%= participants[i].name %></a> <%- (participants[i].is_active === 0) ? "<span class='badge badge-danger'>выбыл</span>" : "" %></td>
+                    <td><a target="_blank" href="/users/stat/<%= participants[i].user_id %>"><%= participants[i].name %></a> <%- (participants[i].is_active === 0) ? "<span class='badge badge-danger'>bye</span>" : "" %></td>
                     <td><%= participants[i].scores %></td>
                     <td><%= participants[i].bh %></td>
                     <td><%= participants[i].berger %></td>

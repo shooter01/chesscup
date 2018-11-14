@@ -396,6 +396,19 @@ const DRAW = {
 
     },
 
+    getByePlayers : function (participants) {
+        let bye_participants = {};
+        for (let i = 0; i < participants.length; i++) {
+            let obj = participants[i];
+            if (obj.is_active === 0) {
+                bye_participants[obj.user_id] = true;
+            }
+
+        }
+        return bye_participants;
+
+    },
+
 
     sortArr : function (arrr) {
 
@@ -414,7 +427,7 @@ const DRAW = {
                 return -1;
             if (a.berger < b.berger)
                 return 1;
-            return 0;
+            return 1;
         }
         return arrr;
 
@@ -467,30 +480,28 @@ const DRAW = {
     },
 
     defaultSwiss : function (req, res, next, pool, tournament, tournament_id, tour_id, app) {
-        let participants, participants_object = {}, pairing = [];
+        let participants, scores_object = {}, pairing = [];
 
             return pool
                     .query('SELECT tr.*, u1.name AS p1_name,u1.tournaments_rating AS p1_rating, u2.name AS p2_name, u2.tournaments_rating AS p2_rating FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN  users u2 ON tr.p2_id = u2.id WHERE tr.tournament_id = ? AND tr.tour = ?', [tournament_id, tour_id])
             .then(rows => {
                 pairing = rows;
             }).then(rows => {
+                let sql = "SELECT ts.*, u.name, u.tournaments_rating, tp.is_active FROM tournaments_scores ts LEFT JOIN users u ON u.id = ts.user_id LEFT JOIN tournaments_participants tp ON tp.user_id = ts.user_id WHERE ts.tournament_id = ? AND ts.tour = ?";
+                if (!tournament.is_active || tour_id - 1 == 0) {
+                    sql = 'SELECT tp.*, u.name, u.tournaments_rating FROM tournaments_participants tp LEFT JOIN users u ON u.id = tp.user_id  WHERE tp.tournament_id = ?'
+                }
                 return pool
-                    .query('SELECT * FROM tournaments_participants tp WHERE tp.tournament_id = ?', [tournament_id])
+                    .query(sql, [tournament_id, tour_id - 1 ])
             }).then(rows => {
-                    participants = rows;
-                    for (let i = 0; i < rows.length; i++) {
-                        let obj = rows[i];
-                        participants_object[obj.id] = obj.is_active;
+
+                    if (!tournament.is_active  || tour_id - 1 == 0) {
+                        participants = rows;
+                    } else {
+                        participants = DRAW.sortArr(rows);
                     }
 
-                return pool
-                    .query('SELECT ts.*, u.name, u.tournaments_rating FROM tournaments_scores ts LEFT JOIN users u ON u.id = ts.user_id WHERE ts.tournament_id = ? AND ts.tour = ?', [tournament_id, tour_id - 1 ])
-            }).then(rows => {
-
-                        participants = DRAW.sortArr(rows);
-
-
-                    }).then(rows => {
+                }).then(rows => {
 
                         return {
                             tournament  : tournament,
