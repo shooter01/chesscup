@@ -81,6 +81,42 @@
 </div>
 
 <footer class="my-5 pt-5 text-muted text-center text-small">
+
+    <style>
+        .black-block {
+            color: #fff;
+        }
+        .showMessage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 3000;
+            background-color: #B90008;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            box-shadow: 0 6px 12px 0 #000;
+            border: 1px solid #fff;
+            /* display: none; */
+        }
+        .showMessageAdBlock .closeMessageAdBlock {
+            right: 0;
+            top: 3px;
+            cursor: pointer;
+        }
+        .close-window {
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .close-window:hover {
+            opacity: 0.8;
+        }
+    </style>
+
+    <div class="showMessage black-block hidden" id="showMessage">
+        <div class="caps h2">Соединение прервано! Ожидайте синхронизации...</div>
+    </div>
+
 </footer>
     <script src="/js/bootstrap/js/popboot.js"></script>
     <link async href="/stylesheets/fontawesome/web-fonts-with-css/css/fontawesome-all.min.css" rel="stylesheet">

@@ -9,6 +9,7 @@ function WS(callback, serverHost) {
     //this.channelName = channelName;
     this.callback = callback || function () {};
     this.serverHost = location.host;
+    this.errored = false;
     this.connect();
 };
 
@@ -24,6 +25,7 @@ WS.prototype.connect = function () {
 WS.prototype.startNative = function () {
     var self = this;
 
+
     let ws_params = (typeof window.g_ws_params !== "undefined") ? window.g_ws_params : {};
     let defObject = (typeof window.u !== "undefined") ? {'h' : u} : {};
 
@@ -37,6 +39,14 @@ WS.prototype.startNative = function () {
     this.ws = new WebSocket(protocol + self.serverHost + "/?" + str);
 
     this.ws.onopen = function (event) {
+
+
+
+        if (self.errored) {
+            $("#showMessage").addClass("hidden");
+            location.reload();
+        }
+
         if (self.interval) {
             clearInterval(self.interval);
         }
@@ -81,11 +91,12 @@ WS.prototype.startNative = function () {
     this.ws.onclose = function(isforced){
         //try to reconnect in 5 seconds
         self.stop();
-
         console.log("WS CLOSED. RECONNECT IN 1 SECS");
         setTimeout(function(){self.startNative()}, 1000);
     };
     this.ws.onerror = function(){
+        $("#showMessage").removeClass("hidden");
+        self.errored = true;
         console.error("Не могу подключиться к нативным вебсокетам");
     };
 }
