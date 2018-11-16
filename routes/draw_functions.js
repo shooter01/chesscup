@@ -503,6 +503,12 @@ const DRAW = {
 
                 }).then(rows => {
 
+                    console.log({
+                        tournament  : tournament,
+                        pairing  : pairing,
+                        participants : participants,
+                    });
+
                         return {
                             tournament  : tournament,
                             pairing  : pairing,
