@@ -487,7 +487,7 @@ const DRAW = {
             .then(rows => {
                 pairing = rows;
             }).then(rows => {
-                let sql = "SELECT ts.*, u.name, u.tournaments_rating, tp.is_active FROM tournaments_scores ts LEFT JOIN users u ON u.id = ts.user_id LEFT JOIN tournaments_participants tp ON tp.user_id = ts.user_id WHERE ts.tournament_id = ? AND ts.tour = ?";
+                let sql = "SELECT ts.*, u.name, u.tournaments_rating FROM tournaments_scores ts LEFT JOIN users u ON u.id = ts.user_id  WHERE ts.tournament_id = ? AND ts.tour = ?";
                 console.log(tour_id);
                 if (!tournament.is_active || tour_id - 1 == 0) {
                     console.log("tournament.is_active " + tournament.is_active);
