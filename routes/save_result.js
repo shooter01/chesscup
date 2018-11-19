@@ -35,7 +35,7 @@ const save_result = function (data) {
             p2_won: result.p2_won,
         };
         var tourney, participants, teams_points, p1_new_rating = 1200, p2_new_rating = 1200;
-       // console.log(tournament_id);
+    console.log("save_result SAVE RESULT");
         return pool
             .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
             .then(rows => {
@@ -123,27 +123,27 @@ const save_result = function (data) {
 
         }).then(function (results) {
 
-            if (tourney.type > 10){
+          /*  if (tourney.type > 10){
                 return pool.query('SELECT tt.id AS team_id,tt.team_name, tp.user_id, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC', tourney.id);
             } else {
                 return true;
-            }
-
+            }*/
+                return true;
         }).then(function (results) {
 
-            participants = results;
+          //  participants = results;
 
 
 
-            if (tourney.type > 10){
+          /*  if (tourney.type > 10){
                 return pool.query('SELECT tr.* FROM tournaments_results tr WHERE tr.tournament_id = ? AND tr.tour = ?', [tourney.id, tourney.current_tour]);
             } else {
                 return true;
-            }
-
+            }*/
+                return true;
         }).then(function (results) {
 
-            if (tourney.type > 10){
+            /*if (tourney.type > 10){
 
                 teams_points = DRAW_TEAM.makeTeamResults(results, participants);
 
@@ -173,26 +173,27 @@ const save_result = function (data) {
 
             } else {
                 return true;
-            }
+            }*/
+                return true;
         }).then(function (results) {
 
                 return pool.query('SELECT COUNT(*) as count FROM tournaments_results tr WHERE (tr.p1_won IS NULL AND tr.p2_won IS NULL) AND tr.tournament_id = ? AND tr.tour = ?', [tourney.id, tourney.current_tour]);
 
             }).then(function (results) {
-                //console.log(">>>");
-                //console.log(results[0].count == 0);
-                //console.log(throttle[tourney.id + "" + tourney.current_tour]);
+                console.log(">>>");
+                console.log(results[0].count == 0);
+               // console.log(throttle[tourney.id + "" + tourney.current_tour]);
                 if (results[0].count == 0 && tourney.is_online == 1 && !throttle[tourney.id + "" + tourney.current_tour]) {
                     throttle[tourney.id + "" + tourney.current_tour] = true;
                     make_draw({
                         tournament_id : tournament_id,
                         pool : pool,
                         app : app,
-                        req : req,
-                        res : res,
+                        // req : req,
+                        // res : res,
                     });
                     //console.log(throttle);
-                    //console.log("OVER");
+                    console.log("OVER");
 
                     setTimeout(function () {
                         delete throttle[tourney.id + "" + tourney.current_tour];
@@ -228,7 +229,7 @@ const save_result = function (data) {
                 rating_change_p2 : office["rating_change_p2"],
                 teams_points : (typeof teams_points != "undefined") ? teams_points.teams : null,
             });*/
-            return{
+            return {
                 status : "ok",
                 tourney_id : tournament_id,
                 rating_change_p1 : office["rating_change_p1"],

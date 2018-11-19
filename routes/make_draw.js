@@ -24,6 +24,7 @@ const make_draw = function (data) {
         scores_array = [], //массив для добавления в tournament_scores
         tournament_results = [];
 
+    console.log(tournament_id);
 
     if (!isNaN(tournament_id)) {
 
@@ -46,14 +47,30 @@ const make_draw = function (data) {
                 return  pool.query("SELECT * FROM tournaments_results WHERE tournament_id = ?", tourney.id);
             })
             .then(rows => {
-                tournament_results = rows;
 
+                if (participants.length < 2) {
+                    pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
+                        current_tour : 0,
+                        is_active : 1,
+                        is_closed : 1,
+                        is_canceled : 1,
+                    }, tourney.id]).then(function () {
+                        app.ROOMS.emit('t' + tournament_id,
+                            JSON.stringify({
+                                "action" : "tournament_event"
+                            }));
+                    });
+                    throw new Error("Too small quantity of participants");
+                }
+
+
+                tournament_results = rows;
 
                 //создает объект участников - ключ - id участника - значение - сколько набрал очков
                 participants_object = DRAW.makeObject(tournament_results);
 
                 bye_participants = DRAW.getByePlayers(participants);
-                console.log(bye_participants);
+               // console.log(bye_participants);
 
                 if (tourney.current_tour !== 0) {
                     //проверяем пустые результаты
@@ -62,18 +79,22 @@ const make_draw = function (data) {
                     }
                 }
 
+              //  var g = DRAW.makeResultsForRoundRobinSystem(tournament_results, participants, tourney);
                 var g = DRAW.makeResultsForSwissSystem(tournament_results, participants, tourney, bye_participants);
+                console.log(g);
+
+            //    throw new Error("STOPPED");
+
 
                 const pairs = DRAW.sortSwiss(g.swiss, participants_object);
 
-                for (var i = 0; i < pairs.length; i++) {
-                    var obj = pairs[i];
-                    console.log(participants_object[obj.home] + participants_object[obj.away]);
-                    console.log(obj.home + "==" + obj.away);
-                }
-                console.log(bye_participants);
+              //  for (var i = 0; i < pairs.length; i++) {
+             //       var obj = pairs[i];
+                    //console.log(participants_object[obj.home] + participants_object[obj.away]);
+                   // console.log(obj.home + "==" + obj.away);
+              //  }
+               // console.log(pairs);
 
-               // throw new Error("STOPPED");
                 const berger_object = g.berger_object;
                 const colors = g.colors;
                 const for_addition = DRAW.makeInsertObject(pairs, participants_object, tourney, {}, colors);
@@ -96,7 +117,11 @@ const make_draw = function (data) {
 
 
 
-        }).then(rows => {
+        }).then((rows, error) => {
+
+            console.log("PROCCESS");
+            console.log(arguments);
+
             if (tourney.current_tour != 0) {
                 return pool.query('INSERT INTO tournaments_scores (user_id, tournament_id, tour, scores, bh, rating, rating_change, berger) VALUES ?', [scores_array])
             }
@@ -154,17 +179,23 @@ const make_draw = function (data) {
                 }
             }).then(function(){
 
+                const tours_count = DRAW.getToursCount(tourney, participants);
+
+
             if (let_insert || let_tournament_insert) {
+                console.log("PROCCESS2");
+                console.log(arguments);
                 if (tourney.current_tour < tourney.tours_count) {
                     return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
                         current_tour : tourney.current_tour + 1,
                         is_active : 1,
+                        tours_count : tours_count
                     },tourney.id]);
                 } else {
                     return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
                         current_tour : tourney.current_tour + 1,
                         is_active : 1,
-                        is_closed : 1
+                        is_closed : 1,
                     }, tourney.id]);
 
                 }

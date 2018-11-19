@@ -13,7 +13,7 @@ class Rooms {
         }
         this.rooms[room][socket.id] = socket;
 
-        console.log("комната : " + room + " Количество пользователей в ней : " + Object.keys(this.rooms[room]).length);
+      //  console.log("комната : " + room + " Количество пользователей в ней : " + Object.keys(this.rooms[room]).length);
 
 
     }
@@ -46,19 +46,19 @@ class Rooms {
     emit(room, data) {
         try {
             // console.log(room);
-            console.log("пересылка даты конкретной комнате");
-            console.log(data);
-            console.log("пересылка даты конкретной комнате");
+          //  console.log("пересылка даты конкретной комнате");
+          //  console.log(data);
+         //   console.log("пересылка даты конкретной комнате");
             //пересылка даты конкретной комнате
             //console.log(Object.keys(this.rooms));
             if (typeof this.rooms[room] !== "undefined") {
                 //console.log(room);
                 for (let obj in this.rooms[room]) {
-                    console.log("id получателя");
-                    console.log(this.rooms[room][obj].id);
-                    console.log("//id получателя");
+                   // console.log("id получателя");
+                   // console.log(this.rooms[room][obj].id);
+                  //  console.log("//id получателя");
 
-                    console.log("комната : " + room + " Количество пользователей в ней : " + Object.keys(this.rooms[room]).length);
+                  //  console.log("комната : " + room + " Количество пользователей в ней : " + Object.keys(this.rooms[room]).length);
 
 
                     this.rooms[room][obj].send(data, {}, function (err) {

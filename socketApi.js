@@ -622,7 +622,7 @@ module.exports = function (app) {
                 }
             }
             else if (data.action === "check_sync") {
-                console.log(sync_store);
+                //console.log(sync_store);
                 if (typeof sync_store[data.game_id] !== "undefined" && sync_store[data.game_id] !== data.moves_length) {
                     socket.send(JSON.stringify({
                         action: "sync_rekt",
@@ -630,9 +630,7 @@ module.exports = function (app) {
                 }
             }
             else if (data.action === "ping") {
-                socket.send(JSON.stringify({"action": "pong"}), {}, function (err) {
-                    console.log(err);
-                });
+                socket.send(JSON.stringify({"action": "pong"}), {}, function (err) {});
             }
             else if (data.action === "remove") {
                 app.mongoDB.collection("challenges").deleteOne({_id: ObjectId(data.game_id)}, function (err, mongoGame) {

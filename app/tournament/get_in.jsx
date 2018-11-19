@@ -139,12 +139,12 @@ class GetInButton extends React.Component {
 
         }).fail(function ( jqXHR, textStatus ) {
            // alert( "Request failed: " + textStatus );
-            /*var error = "";
+            var error = "";
             for (var obj in jqXHR.responseJSON.errors) {
                 error = jqXHR.responseJSON.errors[obj].msg;
             }
-
-            that.setState({
+            alert(error);
+           /* that.setState({
                 status : error,
                 alert_status: "danger"
             });

@@ -739,6 +739,7 @@ module.exports = function(app, passport, pool, i18n) {
                         current_tour : 0,
                         is_closed : 0,
                         is_active : 0,
+                        is_canceled : 0,
                         start_time : newDateObj
                     }, office.tournament_id]);
 
@@ -1242,12 +1243,13 @@ module.exports = function(app, passport, pool, i18n) {
                            if (req.isAuthenticated()) {
                                for (var i = 0; i < swiss.participants.length; i++) {
                                    var obj = swiss.participants[i];
-                                   if (req.session.passport.user.id == obj.id) {
+                                   if (req.session.passport.user.id == obj.user_id) {
                                        is_in = true;
                                        break;
                                    }
                                }
                            }
+                           console.log(swiss.participants);
                            return res.render('tournament/show', {
                                tournament  : tourney,
                                pairing  : JSON.stringify(swiss.pairing),

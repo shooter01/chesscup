@@ -1,11 +1,11 @@
 const ObjectId = require('mongodb').ObjectId;
 
 const save_result_mongo = function (msg, mongoGame, app, caller) {
-    //console.log("save_result_mongo");
-    //console.log(caller);
-    //console.log(msg);
-   // console.log(mongoGame);
-   // console.log("==================================================");
+    console.log("save_result_mongo");
+    console.log(caller);
+    console.log(msg);
+    console.log(mongoGame);
+    console.log("==================================================");
 
     let obj1 = {
         "is_over": 1,

@@ -1,5 +1,6 @@
 const swisspairing = require('swiss-pairing');
 const DRAW_TEAM = require('./draw_team_functions');
+const roundrobin = require('./systems/roundrobin');
 
 const DRAW = {
     checkEmptyResults : function (results, tourney) {
@@ -94,7 +95,7 @@ const DRAW = {
     },
 
     makeResultsForSwissSystem : function (results, participants, tourney, bye_participants) {
-        var res = [], berger_object = {}, global, colors = {};
+        var res = [], berger_object = {}, global, colors = {}, already_played = {}, d;
 
         var newParticipants = [];
         for (var i = 0; i < participants.length; i++) {
@@ -133,6 +134,8 @@ const DRAW = {
                 }
             };
 
+            already_played[obj.p1_id + "-" + obj.p2_id] = true;
+
             if (obj['p1_id'] != null) colors[obj.p1_id].push("w");
             if (obj['p2_id'] != null) colors[obj.p2_id].push("b");
 
@@ -160,12 +163,48 @@ const DRAW = {
 
         delete berger_object['null'];
 
+        //если круговой
+        if (tourney.type === 2) {
+            d = roundrobin(results, participants, tourney, bye_participants);
+        //если щвейцарка
+        } else if (tourney.type == 1) {
+            d = swisspairing().getMatchups(tourney.current_tour + 1, newParticipants, newArr);
+        }
 
-        var d = swisspairing().getMatchups(tourney.current_tour + 1, newParticipants, newArr);
+     //   var
 
-
+       // console.log(d);
 
         return {swiss : d, berger_object : berger_object, colors : colors};
+    },
+
+    //определяем количество туров
+    getToursCount : function (tourney, participants) {
+        let tours_count = tourney.tours_count;
+
+        //если это круговой индивидуальный турнир
+        if (tourney.type === 2) {
+            //количество участников нечетное?
+            const isOdd = participants.length % 2 === 1;
+            tours_count = (isOdd) ? participants.length : participants.length - 1;
+        }
+
+        //если это швейцарка индивидуальный турнир
+       /* if (tourney.type === 1) {
+            //количество участников нечетное?
+            const isOdd = participants.length % 2 === 1;
+            tours_count = (isOdd) ? participants.length : participants.length - 1;
+        }*/
+
+
+
+        return tours_count;
+    },
+    makeResultsForRoundRobinSystem : function (results, participants, tourney, bye_participants) {
+
+        var d = roundrobin(results, participants, tourney, bye_participants);
+
+        return {robin : d};
     },
 
 
@@ -185,8 +224,8 @@ const DRAW = {
 
         for (let i = 0; i < pairs.length; i++) {
             let obj = pairs[i];
-            console.log(obj.home == null);
-            console.log(obj.away == null);
+            //console.log(obj.home == null);
+            //console.log(obj.away == null);
             if (obj.home == null || obj.away == null) {
                 pairs.push(pairs.splice(i, 1)[0]);
                 break;
@@ -432,6 +471,23 @@ const DRAW = {
         return arrr;
 
     },
+    sortArrRoundRobin : function (arrr) {
+        arrr.sort(sortByScores);
+
+        function sortByScores(a,b) {
+            if (a.scores > b.scores)
+                return -1;
+            if (a.scores < b.scores)
+                return 1;
+            if (a.berger > b.berger)
+                return -1;
+            if (a.berger < b.berger)
+                return 1;
+            return 1;
+        }
+        return arrr;
+
+    },
 
     sortBoards : function (arrr) {
         var boards = {};
@@ -488,9 +544,9 @@ const DRAW = {
                 pairing = rows;
             }).then(rows => {
                 let sql = "SELECT ts.*, u.name, u.tournaments_rating FROM tournaments_scores ts LEFT JOIN users u ON u.id = ts.user_id  WHERE ts.tournament_id = ? AND ts.tour = ?";
-                console.log(tour_id);
+              //  console.log(tour_id);
                 if (!tournament.is_active || tour_id - 1 == 0) {
-                    console.log("tournament.is_active " + tournament.is_active);
+                   // console.log("tournament.is_active " + tournament.is_active);
                     sql = 'SELECT tp.*, u.name, u.tournaments_rating FROM tournaments_participants tp LEFT JOIN users u ON u.id = tp.user_id  WHERE tp.tournament_id = ?'
                 }
                 return pool
@@ -500,16 +556,22 @@ const DRAW = {
                     if (!tournament.is_active  || tour_id - 1 == 0) {
                         participants = rows;
                     } else {
-                        participants = DRAW.sortArr(rows);
+                        //если швейцарка то учитываем бухгольц
+                        if (tournament.type == 1) {
+                            participants = DRAW.sortArr(rows);
+                        } else if (tournament.type == 2)  {
+                            participants = DRAW.sortArrRoundRobin(rows);
+                        }
+
                     }
 
                 }).then(rows => {
 
-                    console.log({
+                  /*  console.log({
                         tournament  : tournament,
                         pairing  : pairing,
                         participants : participants,
-                    });
+                    });*/
 
                         return {
                             tournament  : tournament,

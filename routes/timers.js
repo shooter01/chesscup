@@ -14,18 +14,18 @@ module.exports = function (app) {
             .query('SELECT * FROM tournaments WHERE is_online = 1 AND is_active = 0 AND start_time < ?', new Date())
             .then(games => {
                 if (games.length > 0) {
-
+                   // console.log(games);
                     for (var i = 0; i < games.length; i++) {
                         var obj = games[i];
-                        pool
-                            .query('UPDATE tournaments SET is_active = 1  WHERE is_active = 0 AND start_time < ?', new Date()).then(rows => {
+                        //pool
+                        //    .query('UPDATE tournaments SET is_active = 1  WHERE is_active = 0 AND start_time < ?', new Date()).then(rows => {
 
                                 make_draw({
                                     tournament_id : obj.id,
                                     pool : app.pool,
                                     app : app,
                                 });
-                            })
+                           // })
                     }
                 }
         }).catch(function (err) {
@@ -62,8 +62,11 @@ module.exports = function (app) {
 
                 //сохраняем завершение партии в монго
                 save_result_mongo(send_data, game, app, "startTime: { $lte: new Date() }, is_started : 0, is_over : 0");
+                console.log("TIMERS SAVE RESULT1");
+                console.log(game);
 
                 if (game.tournament_id) {
+                    console.log("TIMERS SAVE RESULT2");
                     game_over(send_data, app);
                 }
 

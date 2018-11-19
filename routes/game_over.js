@@ -11,6 +11,7 @@ const game_over = function (msg, app) {
         p2_won: msg.p2_won
     };
 
+    console.log("game_over SAVE RESULT");
 
     var respond = save_result({
         tournament_id: parseInt(tournament_id),

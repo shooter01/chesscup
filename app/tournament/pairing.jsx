@@ -192,6 +192,19 @@ class Pairing extends React.Component {
             }
         });
 
+        $("#random_results").on("click", function (event) {
+            event.preventDefault();
+            if (confirm("Вы уверены?")) {
+                $("select.custom-select.form-control-sm").each(function (index, element) {
+                    var random = Math.floor(Math.random()*(3-1+1)+1);
+                    $(element).find("option").eq(random).attr("selected", "selected");
+                    self.saveResult(element);
+
+                    //$(element).find("option").eq(random).trigger("change");
+                });
+            }
+        });
+
 
         $("#delete_tournament").on("click", function (event) {
             event.preventDefault();
@@ -505,8 +518,14 @@ class Pairing extends React.Component {
     saveResult(event){
 
         var that = this;
-        var $target = $(event.target);
-        var value = event.target.value;
+        if (event.target) {
+            var $target = $(event.target);
+            var value = event.target.value;
+        } else {
+            var $target = $(event);
+            var value = $target.val();
+        }
+
 
         var val = JSON.parse(value);
         $.ajax({
@@ -592,7 +611,8 @@ class Pairing extends React.Component {
             <div className="position-relative mt-2">
 
                 <div>
-                    {(this.state.tournament.is_closed == 1) ? <div className="badge badge-danger">Турнир завершен</div> : null}
+                    {(this.state.tournament.is_closed == 1) ? <h4><div className="badge badge-danger starting">Турнир завершен</div></h4> : null}
+                    {(this.state.tournament.is_canceled == 1) ? <h4><div className="badge badge-info starting">Турнир отменен</div></h4> : null}
                     {(!this.state.tournament.is_closed && this.state.tournament.is_active == 1) ? <div>
                             <div className="badge badge-success">Турнир активен</div>
                             <div><div className="badge badge-info">Текущий тур: {this.state.tournament.current_tour}</div></div>
