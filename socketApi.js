@@ -350,14 +350,10 @@ module.exports = function (app) {
                         app.mongoDB.collection("users").updateOne(temp,
                             {
                                 $set: obj,
-                                $setOnInsert: {
-                                    "moves": [],
-                                },
                                 $push: {"moves": msg.move}
                             },
 
                             {
-                                upsert: true,
                                 writeConcern: true
                             },
                             function (err, data) {
