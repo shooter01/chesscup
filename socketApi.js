@@ -352,8 +352,8 @@ module.exports = function (app) {
                                 $set: obj,
                                 $setOnInsert: {
                                     "moves": [],
-                                    "is_over": 0,
-                                }
+                                },
+                                $push: {"moves": msg.move}
                             },
 
                             {
@@ -381,12 +381,12 @@ module.exports = function (app) {
 
                                 // io.to(msg.id).emit('eventClient',a);
 
-                                app.mongoDB.collection("users").updateOne(temp,
+                                /*app.mongoDB.collection("users").updateOne(temp,
                                     {$push: {"moves": msg.move}},
                                     { writeConcern: true }
                                 ).catch(function () {
                                     console.log(arguments);
-                                });
+                                });*/
 
                                 sync_store[mongoGame._id] = mongoGame.moves.length + 1;
 
