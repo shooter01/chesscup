@@ -17,9 +17,18 @@
             <h4><%= tournaments[i].title %></h4>
             <div>
                 <%  if (tournaments[i].is_online) { %>
-                    <span class="badge badge-light">Online</span>
+                    <span class="badge badge-danger">Online</span>
                 <% } %>
 
+                <%  if (tournaments[i].type === 1) { %>
+                <span class="badge badge-info">Швейцарская</span>
+                <% } %>
+
+                <%  if (tournaments[i].type === 2) { %>
+                <span class="badge badge-info">Круговой</span>
+                <% } %>
+
+                <span class="badge badge-light"><%= tournaments[i].amount %> + <%= tournaments[i].time_inc %></span>
 
             </div>
         </div>

@@ -27,7 +27,9 @@ app.engine('ejs', engine);
 
 let db_pass = "3345";
 let db_name = "chess";
-
+if (process.env.NODE_ENV === "dev-linux") {
+    db_pass = "ubuntu34";
+}
 
 
 var pool = new Database({
