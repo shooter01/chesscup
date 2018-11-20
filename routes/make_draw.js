@@ -48,6 +48,8 @@ const make_draw = function (data) {
             })
             .then(rows => {
 
+                console.log("==============");
+                console.log(participants.length);
                 if (participants.length < 2) {
                     pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
                         current_tour : 0,
@@ -55,6 +57,10 @@ const make_draw = function (data) {
                         is_closed : 1,
                         is_canceled : 1,
                     }, tourney.id]).then(function () {
+
+                        console.log("CANCELED");
+
+
                         app.ROOMS.emit('t' + tournament_id,
                             JSON.stringify({
                                 "action" : "tournament_event"
