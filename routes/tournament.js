@@ -1233,6 +1233,9 @@ module.exports = function(app, passport, pool, i18n) {
                    //participants = rows;
                    tourney = rows[0];
 
+                   if (rows.length) {
+
+
                        DRAW.defaultSwiss(req, res, next, pool, tourney, tournament_id, tourney.current_tour, app).then(function(swiss) {
 
                            tourney.start_date = moment(tourney.start_date).format("DD-MM-YYYY");
@@ -1264,7 +1267,12 @@ module.exports = function(app, passport, pool, i18n) {
                            console.log(e);
                        });
 
-
+                   } else {
+                       res.render('error', {
+                           message  : req.i18n.__("TourneyNotFound"),
+                           error  : req.i18n.__("TourneyNotFound"),
+                       });
+                   }
 
 
 
