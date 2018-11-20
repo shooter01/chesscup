@@ -12,9 +12,7 @@ var uscf = {
 };
 
 //хранилище колва ходов для проверки синхронизации
-let sync_store = {
-
-};
+let sync_store = {};
 
 
 var min_score = 100;

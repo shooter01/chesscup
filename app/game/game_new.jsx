@@ -137,6 +137,7 @@ class App {
         this.temp_move = this.state.moves.length - 2;
         self.resignCount = 0;
         self.drawCount = 0;
+        self.rekt_count = 0;
         self.lowTimePlayed = false;
 
         //флаг премува
@@ -1449,7 +1450,10 @@ class App {
         const self = this;
         //alert();
         console.log("REKT");
-        location.reload();
+        if (self.rekt_count > 1) {
+            location.reload();
+        }
+        self.rekt_count++;
     }
 
     addMessage(){
