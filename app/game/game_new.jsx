@@ -250,7 +250,7 @@ class App {
 
         this.game.header('White', p1_name);
         this.game.header('Black', p2_name);
-        this.game.header('Site', 'chessround.com');
+        this.game.header('Site', 'chesscup.org');
 
         self.checkSynced();
     }

@@ -536,36 +536,55 @@ const DRAW = {
     },
 
     defaultSwiss : function (req, res, next, pool, tournament, tournament_id, tour_id, app) {
-        let participants, scores_object = {}, pairing = [];
+        let participants, participants_array = [], scores_object = {}, pairing = [];
 
             return pool
                     .query('SELECT tr.*, u1.name AS p1_name,u1.tournaments_rating AS p1_rating, u2.name AS p2_name, u2.tournaments_rating AS p2_rating FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN  users u2 ON tr.p2_id = u2.id WHERE tr.tournament_id = ? AND tr.tour = ?', [tournament_id, tour_id])
             .then(rows => {
                 pairing = rows;
             }).then(rows => {
-                let sql = "SELECT ts.*, u.name, u.tournaments_rating FROM tournaments_scores ts LEFT JOIN users u ON u.id = ts.user_id  WHERE ts.tournament_id = ? AND ts.tour = ?";
-              //  console.log(tour_id);
-                if (!tournament.is_active || tour_id - 1 == 0) {
-                   // console.log("tournament.is_active " + tournament.is_active);
-                    sql = 'SELECT tp.*, u.name, u.tournaments_rating FROM tournaments_participants tp LEFT JOIN users u ON u.id = tp.user_id  WHERE tp.tournament_id = ?'
+                    let sql = "SELECT ts.* FROM tournaments_scores ts WHERE ts.tournament_id = ? AND ts.tour = ?";
+                    return pool
+                        .query(sql, [tournament_id, tour_id - 1 ])
+            }).then(rows => {
+
+                for (var i = 0; i < rows.length; i++) {
+                    scores_object[rows[i].user_id] = {};
+                    scores_object[rows[i].user_id].bh = rows[i].bh;
+                    scores_object[rows[i].user_id].scores = rows[i].scores;
+                    scores_object[rows[i].user_id].berger = rows[i].berger;
                 }
+
+                let sql = "SELECT tp.*, u.name, u.tournaments_rating FROM tournaments_participants tp LEFT JOIN users u ON u.id = tp.user_id  WHERE tp.tournament_id = ?";
+
                 return pool
                     .query(sql, [tournament_id, tour_id - 1 ])
             }).then(rows => {
 
+                    for (var i = 0; i < rows.length; i++) {
+                        participants_array.push(Object.assign(rows[i], scores_object[rows[i].user_id]));
+
+                    }
+                    console.log(participants_array);
+
                     if (!tournament.is_active  || tour_id - 1 == 0) {
-                        participants = rows;
+                        participants = participants_array;
                     } else {
                         //если швейцарка то учитываем бухгольц
                         if (tournament.type == 1) {
-                            participants = DRAW.sortArr(rows);
+                            participants = DRAW.sortArr(participants_array);
+                        //если круговик то сортируем по бергеру
                         } else if (tournament.type == 2)  {
-                            participants = DRAW.sortArrRoundRobin(rows);
+                            participants = DRAW.sortArrRoundRobin(participants_array);
                         }
-
                     }
 
+
                 }).then(rows => {
+
+
+                    console.log(scores_object);
+                    //console.log(rows);
 
                   /*  console.log({
                         tournament  : tournament,

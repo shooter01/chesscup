@@ -48,8 +48,6 @@ const make_draw = function (data) {
             })
             .then(rows => {
 
-                console.log("==============");
-                console.log(participants.length);
                 if (participants.length < 2) {
                     pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
                         current_tour : 0,
