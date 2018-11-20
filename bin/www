@@ -17,11 +17,11 @@ app.globalPlayers = {};
 app.viewers = {};
 let server;
 
-if (process.env.NODE_ENV === "dev-linux") {
+//if (process.env.NODE_ENV === "dev-linux") {
     server = app.listen(app.get('port'), function() {
         debug('Express server listening on port ' + server.address().port);
     });
-} else {
+/*} else {
     const options = {
         key: fs.readFileSync('/etc/letsencrypt/live/chesscup.org/privkey.pem'),
         cert: fs.readFileSync('/etc/letsencrypt/live/chesscup.org/fullchain.pem')
@@ -29,7 +29,7 @@ if (process.env.NODE_ENV === "dev-linux") {
     server = https.createServer(options, app).listen(app.get('port'), function() {
         debug('Express server listening on port ' + server.address().port);
     });
-}
+}*/
 
 
 
