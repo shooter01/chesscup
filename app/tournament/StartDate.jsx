@@ -97,7 +97,7 @@ class StartDate extends React.Component {
 
                                     {this.state.times.map((item, index) => (
 
-                                        <option key={index} value={item}>{item} minute</option>
+                                        (parseInt(item) < 2) ? <option key={index} value={item}>{item} minute</option>  : <option key={index} value={item}>{item} minutes</option>
 
                                     ))}
                                 </select>

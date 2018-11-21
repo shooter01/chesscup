@@ -185,9 +185,9 @@ module.exports = function (app) {
                 try {
                     //msg = JSON.parse(msg);
 
-                    console.log("===MOVE===");
-                    console.log(msg);
-                    console.log("===/MOVE===");
+                   // console.log("===MOVE===");
+                   // console.log(msg);
+                  //  console.log("===/MOVE===");
                     let temp, is_over = false, send_data = {};
                     if (msg.tourney_id) {
                         msg.id = parseInt(msg.id);
@@ -593,8 +593,8 @@ module.exports = function (app) {
 
                         if (is_over && !throttle[mongoGame._id]) {
                             throttle[mongoGame._id] = true;
-                            console.log(throttle);
-                            console.log("ADDED");
+                           // console.log(throttle);
+                           // console.log("ADDED");
                             save_result_mongo(send_data, mongoGame, app, "checkTime1");
                             //если это турнирная партия сохранияем в mysql
                             if (msg.tourney_id != null) {

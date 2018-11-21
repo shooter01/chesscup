@@ -190,7 +190,7 @@ module.exports = function(app, passport, pool, i18n) {
         isLoggedIn,
         check('title', 'The title field is required').exists().isLength({ min: 1 }),
         check('city', 'The city field is required').exists().isLength({ min: 1 }),
-        check('tours_count', 'The tours count field is required').exists().isLength({ min: 1 }),
+        check('tours_count', 'The tours count field is required and must be between 1 and 13').exists().isInt({ min: 1, max: 13 }).isLength({ min: 1 }),
         check('type', 'The tournament field is required').exists().isLength({ min: 1 }),
         check('country', 'The country field is required').exists().isLength({ min: 1 }),
         check('time_inc', 'time increment field is required').exists().isLength({ min: 1 }),
@@ -270,7 +270,7 @@ module.exports = function(app, passport, pool, i18n) {
         isLoggedIn,
             check('title', 'The title field is required').exists().isLength({ min: 1 }),
             check('city', 'The city field is required').exists().isLength({ min: 1 }),
-            check('tours_count', 'The tours count field is required').exists().isLength({ min: 1 }).custom((value, { req }) => {
+            check('tours_count', 'The tours count field is required and must be between 1 and 13').exists().isInt({ min: 1, max: 13 }).isLength({ min: 1 }).custom((value, { req }) => {
 
             return new Promise((resolve, reject) => {
 

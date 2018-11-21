@@ -10,7 +10,6 @@ module.exports = function (app) {
     const pool = app.pool;
 
     setInterval(function () {
-        console.log("AA");
         pool
             .query('SELECT * FROM tournaments WHERE is_online = 1 AND is_active = 0 AND start_time < ?', new Date())
             .then(games => {

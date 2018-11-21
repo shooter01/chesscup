@@ -12,7 +12,7 @@
   "CreateType": "Тип турнира",
   "CreateToursCount": "Количество туров",
   "CreateCity": "Город проведения",
-  "CreateCountry": "Страна проведения",
+  "CreateCountry": "Шахматная федерация",
   "CreateDateStart": "Дата начала",
   "CreateDateEnd": "Дата окончания",
   "CreateBoardsCount": "Количество досок в команде",
