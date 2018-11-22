@@ -59,8 +59,31 @@ class Timer extends React.Component {
 
     tick(){
         //console.log(this.state.timeleft);
-        var minutes = Math.floor((this.state.timeleft) / 60);
-        var secs = Math.floor((this.state.timeleft) % 60 % 60);
+
+
+        const secondsInAMinute = 60;
+        const secondsInAnHour  = 60 * secondsInAMinute;
+        const secondsInADay    = 24 * secondsInAnHour;
+
+        // дни
+        const days = Math.floor(this.state.timeleft / secondsInADay);
+
+        // часы
+        const hourSeconds = this.state.timeleft % secondsInADay;
+        const hours = Math.floor(hourSeconds / secondsInAnHour);
+
+        // минуты
+        const minuteSeconds = hourSeconds % secondsInAnHour;
+        const minutes = Math.floor(minuteSeconds / secondsInAMinute);
+
+        // оставшиеся секунды
+        const remainingSeconds = minuteSeconds % secondsInAMinute;
+        const seconds = Math.ceil(remainingSeconds);
+
+
+
+       // var minutes = Math.floor((this.state.timeleft) / 60);
+       // var secs = Math.floor((this.state.timeleft) % 60 % 60);
 
 
         var a = 4;
@@ -81,10 +104,11 @@ class Timer extends React.Component {
 
 
 
-
         this.setState({
-            minutes_left : (minutes < 10) ? "0" + minutes : minutes,
-            secs_left : (secs < 10) ? "0" + secs : secs,
+            days_left : days,
+            hours_left : hours,
+            minutes_left : minutes,
+            secs_left : (seconds < 10) ? "0" + seconds : seconds,
         });
 
     }
@@ -93,7 +117,11 @@ class Timer extends React.Component {
         return (
             <span>
                 {this._isMounted ? <span>
-                                        {this.state.timeleft > 0 ? <span>{this.state.minutes_left}:{this.state.secs_left}</span> : <span>00:00</span>}
+                                        {this.state.timeleft > 0 ? <span>
+                                                {(this.state.days_left) ? this.state.days_left + "d " : null}
+                                                {(this.state.hours_left) ? this.state.hours_left + "h " : null}
+                                                {(this.state.secs_left) ? this.state.minutes_left + ":" + this.state.secs_left + " " : null}
+                                                </span> : <span>0:00</span>}
 
                     </span> : null}
             </span>

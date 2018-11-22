@@ -209,10 +209,19 @@
                 </style>
                 <div class="alert alert-light mt-2" role="alert" style="padding-top: 0">
                     <div class="alert alert-success" role="alert">
-                        <div><%- __("CreateToursCount") %> : <%= tournament.tours_count %></div>
                         <!--<div><%- __("CreateCity") %> : <%= tournament.city %> </div>-->
-                        <div><%- __("CreateDateStart") %> : <%= tournament.start_date %></div>
+                        <% if (tournament.is_online !==  1) { %>
+                            <div><%- __("CreateDateStart") %> : <%= tournament.start_date %></div>
+                        <% } %>
                         <div>Контроль времени : <%= tournament.amount %> + <%= tournament.time_inc %></div>
+                        <% if (tournament.type ==  1) { %>
+                            <div>Система : Швейцарская</div>
+                            <div><%- __("CreateToursCount") %> : <%= tournament.tours_count %></div>
+
+                        <% } %>
+                        <% if (tournament.type ==  2) { %>
+                        <div>Система : Круговая</div>
+                        <% } %>
                         <!--<div><%- __("CreateDateEnd") %> : <%= tournament.end_date %></div>-->
                         <!--<div><%- __("Created") %> : <%= tournament.created_at %></div>-->
                         <div><%- __("Creator") %> : <%= tournament.name %></div>
