@@ -124,18 +124,21 @@
 
 
 
-            <% if (tournament.is_active !==  1 && tournament.is_online ==  1) { %>
-                    <% if (user && user.user) { %>
-                        <span id="get_in"></span>
-                        <script src="/js/get_in.min.js"></script>
-                    <% } else { %>
+        <% if (tournament.is_active !==  1 && tournament.is_online ==  1) { %>
+                <% if (user && user.user) { %>
+                    <span id="get_in"></span>
+                    <script src="/js/get_in.min.js"></script>
+                <% } else { %>
 
-                    <a class="btn btn-primary float-right" href="/login">Войдите для участия</a>
-                    <% } %>
-            <% } %>
+                <a class="btn btn-primary float-right" href="/login">Войдите для участия</a>
+                <% } %>
+        <% } %>
 
-
-        <h3 class="" style="margin-bottom: 0"><%= tournament.title %> </h3>
+        <% if (user && user.user && user.user.id === tournament.creator_id) { %>
+            <h3 class="mt-3 mb-0"><%= tournament.title %> </h3>
+        <% } else { %>
+            <h3 class="mb-0"><%= tournament.title %> </h3>
+        <% }  %>
         <!--<div class="badge badge-warning">Количество туров : <%= tournament.tours_count %></div>
         <div class="badge badge-light"><%= (tournament.is_online) ? "online" : "offline" %></div>-->
 

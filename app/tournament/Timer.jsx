@@ -91,15 +91,15 @@ class Timer extends React.Component {
         function playTournamentStart(secs) {
             setTimeout(function () {
                 if (a >= 0 && $("[id^='tournament']").length > 0){
-                    $("#tournament" + secs).get(0).play();
+                    $("#tournament" + seconds).get(0).play();
                 }
             }, 1000)
         }
 
 
 
-        if (minutes == 0 && secs < 4 && secs >= 0) {
-            playTournamentStart(secs);
+        if (minutes == 0 && seconds < 4 && seconds >= 0) {
+            playTournamentStart(seconds);
         }
 
 

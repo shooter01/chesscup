@@ -7,25 +7,20 @@ class ResultsTable extends React.Component {
         this.state = {
             participants : this.props.participants || [],
         }
-
     }
 
     componentWillReceiveProps(nextProps){
-
         if(nextProps.value !== this.state.participants){
             this.setState({participants:nextProps.participants});
         }
-
     }
 
 
     render() {
 
-
         var width = {
             width : 7 + "%"
         }
-
         return (
             <div className="table-responsive">
 
@@ -38,13 +33,13 @@ class ResultsTable extends React.Component {
                         <th>
                             Имя
                         </th>
-                        <th>
+                        <th className="text-center">
                             Points
                         </th>
-                        <th>
+                        <th className="text-center">
                             Buhgolz
                         </th>
-                        <th>
+                        <th className="text-center">
                             Berger
                         </th>
                         <th>
@@ -57,9 +52,9 @@ class ResultsTable extends React.Component {
                     <tr key={index}>
                         <td>{index + 1}</td>
                         <td> {item.name}  {item.is_active === 0 ? <span className="badge badge-danger">bye</span> : null}</td>
-                        <td>{item.scores}</td>
-                        <td>{item.bh}</td>
-                        <td>{item.berger}</td>
+                        <td className="text-center">{item.scores}</td>
+                        <td className="text-center">{item.bh}</td>
+                        <td className="text-center">{item.berger}</td>
                         <td style={width}>
                             <a href=""  data-id={item.user_id}  className="participant fa fa-eye"></a>
                             &nbsp;
