@@ -1,6 +1,20 @@
 import React from 'react';
 import {render} from 'react-dom';
 
+
+const TITLES = {
+  "1" : "CM",
+  "2" : "NM",
+  "3" : "FM",
+  "4" : "IM",
+  "5" : "GM",
+  "10" : "WCM",
+  "20" : "WNM",
+  "30" : "WFM",
+  "40" : "WIM",
+  "50" : "WGM",
+};
+
 class ResultsTable extends React.Component {
     constructor(props) {
         super(props);
@@ -51,7 +65,7 @@ class ResultsTable extends React.Component {
                 {this.state.participants.map((item, index) => (
                     <tr key={index}>
                         <td>{index + 1}</td>
-                        <td> {item.name}  {item.is_active === 0 ? <span className="badge badge-danger">bye</span> : null}</td>
+                        <td> {item.title ? <span className="badge badge-danger">{TITLES[item.title]}</span>  : null} {item.name}  {item.is_active === 0 ? <span className="badge badge-danger">bye</span> : null}</td>
                         <td className="text-center">{item.scores}</td>
                         <td className="text-center">{item.bh}</td>
                         <td className="text-center">{item.berger}</td>

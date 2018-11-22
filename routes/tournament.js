@@ -1,7 +1,18 @@
 var express = require('express');
 var router = express.Router();
 const bluebird = require('bluebird');
-
+const TITLES = {
+    "1" : "CM",
+    "2" : "NM",
+    "3" : "FM",
+    "4" : "IM",
+    "5" : "GM",
+    "10" : "WCM",
+    "20" : "WNM",
+    "30" : "WFM",
+    "40" : "WIM",
+    "50" : "WGM",
+};
 const {isLoggedIn} = require('./middlewares');
 const { check, validationResult } = require('express-validator/check');
 const moment = require('moment');
@@ -1527,7 +1538,8 @@ module.exports = function(app, passport, pool, i18n) {
                            return res.render('tournament/final', {
                                tournament  : tournament,
                                participants : swiss.participants,
-                               teams : null
+                               teams : null,
+                               titles : TITLES
                            });
                        }).catch(function(e) {
                            console.log(e);

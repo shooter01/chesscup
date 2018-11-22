@@ -539,7 +539,7 @@ const DRAW = {
         let participants, participants_array = [], scores_object = {}, pairing = [];
 
             return pool
-                    .query('SELECT tr.*, u1.name AS p1_name,u1.tournaments_rating AS p1_rating, u2.name AS p2_name, u2.tournaments_rating AS p2_rating FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN  users u2 ON tr.p2_id = u2.id WHERE tr.tournament_id = ? AND tr.tour = ?', [tournament_id, tour_id])
+                    .query('SELECT tr.*, u1.name AS p1_name, u1.title AS p1_title, u2.title AS p2_title, u1.tournaments_rating AS p1_rating, u2.name AS p2_name, u2.tournaments_rating AS p2_rating FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN  users u2 ON tr.p2_id = u2.id WHERE tr.tournament_id = ? AND tr.tour = ?', [tournament_id, tour_id])
             .then(rows => {
                 pairing = rows;
             }).then(rows => {
@@ -555,7 +555,7 @@ const DRAW = {
                     scores_object[rows[i].user_id].berger = rows[i].berger;
                 }
 
-                let sql = "SELECT tp.*, u.name, u.tournaments_rating FROM tournaments_participants tp LEFT JOIN users u ON u.id = tp.user_id  WHERE tp.tournament_id = ?";
+                let sql = "SELECT tp.*, u.name, u.tournaments_rating, u.title FROM tournaments_participants tp LEFT JOIN users u ON u.id = tp.user_id  WHERE tp.tournament_id = ?";
 
                 return pool
                     .query(sql, [tournament_id, tour_id - 1 ])
