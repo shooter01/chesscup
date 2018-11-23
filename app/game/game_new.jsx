@@ -124,9 +124,11 @@ class App {
             is_started: parseInt(is_started),
             orientation: "white",
             up_name: p2_name,
-            up_tournaments_rating: p2_tournaments_rating,
+            p1_tournaments_rating: p1_tournaments_rating,
+            p1_rating_change: (typeof p1_rating_change !== "undefined") ? p1_rating_change : null,
             bottom_name: p1_name,
-            bottom_tournaments_rating: p1_tournaments_rating,
+            p2_tournaments_rating: p2_tournaments_rating,
+            p2_rating_change: (typeof p2_rating_change !== "undefined") ? p2_rating_change : null,
             chat_id : (typeof window.chat_id != "undefined") ? window.chat_id : null,
             messages : []
         };
@@ -216,6 +218,7 @@ class App {
         });
         this.socketIOConnect();
         this.setNames();
+        this.setRatings();
         this.setTime();
         this.setIsOver("init");
         this.checkMobile();
@@ -369,7 +372,6 @@ class App {
     checkSynced(){
         const self = this;
         if (self.state.is_started === 0) {
-            console.log(self.game.history().length);
             self.sync_timer = setInterval(function () {
 
                 if (self.state.is_started === 1 || self.state.is_over == 1) {
@@ -424,6 +426,7 @@ class App {
         if (this.state.orientation === "white") {
             $(".bottom_name").html(this.state.p1_name);
             $(".up_name").html(this.state.p2_name);
+
         } else {
             $(".up_name").html(this.state.p1_name);
             $(".bottom_name").html(this.state.p2_name);
@@ -433,6 +436,49 @@ class App {
         $(".p1_name").html(this.state.p1_name);
         $(".p2_name").html(this.state.p2_name);
     }
+
+    setRatings(){
+
+        var $up_rating_change = $(".up_rating_change");
+        var $bottom_rating_change = $(".bottom_rating_change");
+
+        if (this.state.orientation === "white") {
+
+            $(".up_tournaments_rating").html(this.state.p2_tournaments_rating);
+            $(".bottom_tournaments_rating").html(this.state.p1_tournaments_rating);
+
+            if (this.state.is_over === 1 && this.state.p2_rating_change && this.state.p2_rating_change != "null" && this.state.p1_rating_change != "null") {
+                $up_rating_change.html((this.state.p2_rating_change > 0) ? "+" + this.state.p2_rating_change : this.state.p2_rating_change);
+                $bottom_rating_change.html((this.state.p1_rating_change > 0) ? "+" + this.state.p1_rating_change : this.state.p1_rating_change);
+
+                if (this.state.p2_rating_change > 0) {
+                    $up_rating_change.addClass("up");
+                    $bottom_rating_change.addClass("down");
+                } else {
+                    $up_rating_change.addClass("down");
+                    $bottom_rating_change.addClass("up");
+                }
+            }
+        } else {
+
+            $(".up_tournaments_rating").html(this.state.p1_tournaments_rating);
+            $(".bottom_tournaments_rating").html(this.state.p2_tournaments_rating);
+
+            if (this.state.is_over === 1 && this.state.p2_rating_change && this.state.p2_rating_change != "null" && this.state.p1_rating_change != "null") {
+                $up_rating_change.html((this.state.p1_rating_change > 0) ? "+" + this.state.p1_rating_change : this.state.p1_rating_change);
+                $bottom_rating_change.html((this.state.p2_rating_change > 0) ? "+" + this.state.p2_rating_change : this.state.p2_rating_change);
+
+                if (this.state.p1_rating_change > 0) {
+                    $up_rating_change.addClass("up");
+                    $bottom_rating_change.addClass("down");
+                } else {
+                    $up_rating_change.addClass("down");
+                    $bottom_rating_change.addClass("up");
+                }
+            }
+        }
+    }
+
 
     rematchClick(){
         const self = this;
@@ -522,10 +568,6 @@ class App {
                 }
             }
 
-            self.setState({
-                bottom_rating_change: (typeof rating_change_p1 != "undefined") ? rating_change_p1 : 0,
-                up_rating_change: (typeof rating_change_p2 != "undefined") ? rating_change_p2 : 0,
-            });
 
             self.cg.set({
                 movable: {
@@ -1207,17 +1249,14 @@ class App {
     socketRatingChange(data){
         const self = this;
 
-        if (self.state.orientation === "white" && self.state.is_over === 1) {
+        if (self.state.is_over === 1) {
             self.setState({
-                bottom_rating_change: data.rating_change_p1,
-                up_rating_change: data.rating_change_p2
-            });
-        } else if (self.state.orientation === "black" && self.state.is_over === 1) {
-            self.setState({
-                bottom_rating_change: data.rating_change_p2,
-                up_rating_change: data.rating_change_p1
+                p1_rating_change: data.rating_change_p1,
+                p2_rating_change: data.rating_change_p2
             });
         }
+
+        self.setRatings();
 
         self.cg.set({
             viewOnly : true,

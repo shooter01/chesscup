@@ -59,10 +59,10 @@
                     <div class="clock_top">
                         <div id="up_player_online" class="username user_link black offline pt-2 pb-2 player_bar up_player_online">
                             <i class="line" title="Joined the game"></i>
-                            <a class="text ulpt name up_name" data-pt-pos="s" href="" target="_self">
-                                <span class="rating up_tournaments_rating">
-                                    <span class="rp down up_rating_change"></span>
-                                </span>
+                            <a class="text ulpt name" data-pt-pos="s" href="" target="_self">
+                                <span class="up_name"></span>
+                                <span class="rating up_tournaments_rating elo"></span>
+                                <span class="rp up_rating_change"></span>
                             </a>
 
                             <span class="time aclock clock_top_time"></span>
@@ -79,11 +79,14 @@
                     <div class="clock_bottom">
                         <div id="bottom_player_online" class="username user_link black offline pt-2 pb-2 player_bar bottom_player_online">
                             <i class="line" title="Joined the game"></i>
-                            <a class="text ulpt name bottom_name" data-pt-pos="s" href="" target="_self">
-                            <span class="rating bottom_tournaments_rating">
-                                <span class="rp down bottom_rating_change"></span>
-                            </span>
+                            <a class="text ulpt name " data-pt-pos="s" href="" target="_self">
+                                <span class="bottom_name"></span>
+                                <span class="rating bottom_tournaments_rating elo">
+                                </span>
+                                <span class="rp bottom_rating_change"></span>
                             </a>
+
+
 
                             <span class="time aclock clock_bottom_time"></span>
                         </div>
@@ -111,8 +114,8 @@
                                             <i class="line" title="Joined the game"></i>
                                             <a class="text ulpt up_name" data-pt-pos="s" href="" target="_self"></a>
                                             <span class="rating up_tournaments_rating">
-                                        <span class="rp down up_rating_change"></span>
-                                    </span>
+                                            </span>
+                                            <span class="rp up_rating_change"></span>
                                         </div>
 
 
@@ -175,8 +178,10 @@
                                         <div class="username user_link black offline bottom_player_online" id="bottom_player_online">
                                             <i class="line" title="Joined the game"></i>
                                             <a class="text ulpt bottom_name" data-pt-pos="s" href="" target="_self"></a>
+
                                             <span class="rating bottom_tournaments_rating"></span>
-                                            <span class="rp down bottom_rating_change"></span>
+                                            <span class="rp bottom_rating_change"></span>
+
                                         </div>
                                     </div>
                                 </div>
@@ -371,8 +376,8 @@
 
     var p1_rating_for_history = '<%= game.p1_rating_for_history %>';
     var p2_rating_for_history = '<%= game.p2_rating_for_history %>';
-    var rating_change_p1 = '<%= game.rating_change_p1 %>' || null;
-    var rating_change_p2 = '<%= game.rating_change_p2 %>' || null;
+    var p1_rating_change = '<%= game.rating_change_p1 %>' || null;
+    var p2_rating_change = '<%= game.rating_change_p2 %>' || null;
 
     var p1_name = '<%= game.p1_name %>';
     var p2_name = '<%= game.p2_name %>';
@@ -396,7 +401,7 @@
 
 <script src="/js/cg/dist/c.min.js?01"></script>
 
-<script src="/js/game_new.min.js"></script>
+<script src="/js/game_new.min.js?01"></script>
 <!--<script src="/js/chat.min.js"></script>-->
 
 
