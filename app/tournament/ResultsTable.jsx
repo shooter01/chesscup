@@ -65,7 +65,7 @@ class ResultsTable extends React.Component {
                 {this.state.participants.map((item, index) => (
                     <tr key={index}>
                         <td>{index + 1}</td>
-                        <td> {item.title ? <span className="badge badge-danger">{TITLES[item.title]}</span>  : null} {item.name}  {item.is_active === 0 ? <span className="badge badge-danger">bye</span> : null}</td>
+                        <td> {item.title ? <span className="badge badge-danger">{TITLES[item.title]}</span>  : null} {item.name} <span className="badge badge-dark">{item.tournaments_rating}</span> {item.is_active === 0 ? <span className="badge badge-danger">bye</span> : null}</td>
                         <td className="text-center">{item.scores}</td>
                         <td className="text-center">{item.bh}</td>
                         <td className="text-center">{item.berger}</td>

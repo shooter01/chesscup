@@ -583,7 +583,7 @@ const DRAW = {
                 }).then(rows => {
 
 
-                    console.log(scores_object);
+                    console.log(participants);
                     //console.log(rows);
 
                   /*  console.log({
