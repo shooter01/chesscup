@@ -1736,8 +1736,7 @@ class App {
                 self.addMessage();
                 e.preventDefault();
             }
-
-        })
+        });
 
 
         $(document).keydown(function (e) {
