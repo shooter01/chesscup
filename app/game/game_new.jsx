@@ -226,6 +226,7 @@ class App {
         this.setListeners();
         this.getMessages();
 
+
         //если ходов нет, очищаем массив
         if (this.state.moves && this.state.moves.length) {
 
@@ -1716,6 +1717,11 @@ class App {
             });
         }
 
+        $("#copy_pgn").on("click", function () {
+            $("#pgn_copy").val(self.game.pgn());
+            $("#pgnModal").modal("show");
+            return false;
+        });
         $("#download_pgn_form").on("submit", function () {
             self.downloadPgn();
             return false;

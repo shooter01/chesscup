@@ -112,7 +112,7 @@ class Timer extends React.Component {
             }, 1000)
         }
 
-        if (minutes == 0 && seconds < 4 && seconds >= 0) {
+        if (days == 0 && hours == 0 && minutes == 0 && seconds < 4 && seconds >= 0) {
             playTournamentStart(seconds);
         }
 
