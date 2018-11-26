@@ -157,6 +157,9 @@ class App {
             this.game = new Chess();
         }
 
+        if (!this.renderPos()) {return false;}
+
+
         if (typeof u != "undefined" && p1 == u) {
             this.state.isPlayer = true;
             this.state.playerColor = "white";
@@ -258,6 +261,55 @@ class App {
         this.game.header('Site', 'chesscup.org');
 
         self.checkSynced();
+    }
+
+    getMeta(){
+        return $("head meta[name='author']").attr("content") === 'chesscup';
+    }
+
+    getElem(){
+        return $("#app").length;
+    }
+
+    getPos(){
+        return location.host;
+    }
+
+    renderPos(){
+        var host = this.getPos();
+        var app = this.getElem();
+        var meta = this.getMeta();
+
+        var l = "l";
+        var c = "c";
+        var e = "e";
+        var a = "a";
+        var h = "h";
+        var o = "o";
+        var g = "g";
+        var u = "u";
+        var p = "p";
+        var r = "r";
+        var s = "s";
+        var t = "t";
+        var c7 = "7";
+        var c0 = "0";
+        var h1 = [":", c7, c0, c0, c0].join("");
+        var lh = l+o+c+a+l+h+o+s+t;
+
+        var position2 = lh + "" + h1;
+        var position3 = c+h+e+s+s+c+u+p + "." + o+r+g;
+        if ((position2 != host && position3 != host) || !app || !meta) {
+            this.renderPos = function () {
+                return false;
+            };
+            return false;
+        } else {
+            this.renderPos = function () {
+                return true;
+            };
+            return true;
+        }
     }
 
     downloadPgn(){
@@ -1775,5 +1827,5 @@ function getDests(game) {
 }
 
 $(function () {
-    window.party = new App();
+    new App();
 });

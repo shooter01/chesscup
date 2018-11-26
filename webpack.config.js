@@ -12,7 +12,7 @@ var config = {
     entry: {
         users : './app/users/users.jsx',
         participants : './app/tournament/participant.jsx',
-        pairing : './app/tournament/pairing.jsx',
+        p : './app/tournament/pairing.jsx',
         current_games : './app/tournament/current_games.jsx',
         chat : './app/tournament/Chat.jsx',
         get_in : './app/tournament/get_in.jsx',
@@ -23,7 +23,7 @@ var config = {
         timer : './app/tournament/Timer.jsx',
         start_date : './app/tournament/StartDate.jsx',
         game : './app/game/game.jsx',
-        game_new : './app/game/game_new.jsx',
+        g : './app/game/game_new.jsx',
         play : './app/play/play.jsx',
         team_pairing : './app/tournament/team_pairing.jsx',
         ws : './app/websockets/ws.jsx',

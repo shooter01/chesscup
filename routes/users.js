@@ -27,7 +27,10 @@ module.exports = function(app, passport, pool) {
 
   /* GET users listing. */
     router.get('/', function (req, res) {
-        res.send('respond with a resource');
+        res.render('user/users', {
+
+
+        });
     });
 
 
@@ -153,6 +156,79 @@ module.exports = function(app, passport, pool) {
         }).catch(function (err) {
             console.log(err);
         });
+    });
+
+
+
+
+    router.get('/:user_id', function (req, res, next) {
+        let ratings, student, tournament_ratings = [], teacher_info = {};
+        let user_id = req.params.user_id;
+        user_id = parseInt(user_id);
+        if (!isNaN(user_id)) {
+            pool
+                .query('SELECT * FROM users WHERE id = ?', user_id)
+                .then(rows => {
+
+                    if (rows.length > 0) {
+
+                        res.render('user/profile', {
+                            profile  : rows[0],
+
+                        });
+                    } else {
+                        res.render('error', {
+                            message  : req.i18n.__("TourneyNotFound"),
+                            error  : req.i18n.__("TourneyNotFound"),
+                        });
+                    }
+
+                }).catch(function (err) {
+                    console.log(err);
+                });
+        } else {
+            res.render('error', {
+                message  : req.i18n.__("TourneyNotFound"),
+            });
+        }
+
+
+
+
+    });
+
+    router.post('/update', [
+            check('secret', 'The secret field is required').exists().isLength({ min: 1 }),
+        ],
+        function (req, res, next) {
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+
+                let office = {
+                    secret: req.body.secret.trim(),
+                };
+
+                pool.query('UPDATE users SET ? ' +
+                    'WHERE ' +
+                    'users.id = ?',
+                    [
+                        office,
+                        req.session.passport.user.id,
+
+                    ]).then(function (results) {
+                            res.json({
+                                status : "ok",
+                            });
+                }).catch(function (err) {
+                    console.log(err);
+                });
+            }
     });
 
 
