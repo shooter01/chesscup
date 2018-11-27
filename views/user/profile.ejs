@@ -32,7 +32,9 @@
                 <tr>
                     <th scope="row">Federation</th>
                     <td>
-                        <%= countries[profile.country] %> <img src="/images/blank.png" class="float-right flag flag-<%= profile.country.toLocaleLowerCase() %>" title="<%= countries[profile.country] %>" alt="<%= countries[profile.country] %>">
+                        <% if (profile.country) {%>
+                            <%= countries[profile.country] %> <img src="/images/blank.png" class="float-right flag flag-<%= profile.country.toLocaleLowerCase() %>" title="<%= countries[profile.country] %>" alt="<%= countries[profile.country] %>">
+                        <%}%>
                     </td>
                 </tr>
                 <tr>
