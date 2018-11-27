@@ -129,13 +129,14 @@
                         $(".secret_errors").append(data.errors[obj].msg);
                     }
                 } else {
-                    $(".secret_success").html("Обновлено!").removeClass("hidden").slideDown();
+                    location.href = "/users/" + "<%= profile.id %>";
+                    /*$(".secret_success").html("Обновлено!").removeClass("hidden").slideDown();
                     setTimeout(function () {
                         $(".secret_success").slideUp(function () {
                             $(this).addClass("hidden")
                         });
 
-                    }, 3000);
+                    }, 3000);*/
                 }
             }).fail(function (data, jqXHR, textStatus) {
                 $(".errors").removeClass("hidden");
