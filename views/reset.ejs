@@ -1,0 +1,120 @@
+
+<% layout('boilerplate') -%>
+
+<style>
+    .form-signin {
+        max-width: 430px;
+        padding: 15px;
+        margin: 0 auto;
+    }
+    .form-signin .form-signin-heading,
+    .form-signin .checkbox {
+        margin-bottom: 10px;
+    }
+    .form-signin .checkbox {
+        font-weight: normal;
+    }
+    .form-signin .form-control {
+        position: relative;
+        height: auto;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        padding: 10px;
+        font-size: 16px;
+    }
+    .form-signin .form-control:focus {
+        z-index: 2;
+    }
+    .form-signin input[type="email"] {
+        margin-bottom: -1px;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .form-signin input[type="password"] {
+        margin-bottom: 10px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+</style>
+
+
+    <div class="row mt-5">
+        <div class="col-md-8 offset-md-2">
+            <div class="card card-default">
+                <div class="card-header">Reset Password</div>
+                <div class="card-body ">
+
+
+
+                    <form class="form-horizontal" role="form" method="POST" id="form" action="/password/email">
+                        <div class="errors hidden alert alert-danger"></div>
+                        <div class="success hidden alert alert-success"></div>
+                        <div class="form-group row">
+                            <label for="email" class="col-md-4 control-label">E-Mail Address</label>
+
+                            <div class="col-md-6">
+                                <input id="email" type="email" class="form-control" name="email" value="" required="">
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-6 offset-md-4">
+                                <button type="submit" id="submit" class="btn btn-primary">
+                                    Send Password Reset Link
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+    $("#form").on("submit", function () {
+        $(".errors").addClass("hidden").empty();
+        $(".success").addClass("hidden").empty();
+        $("#submit").attr("disabled", "disabled");
+
+        $.post("/password/email"  , {
+            email : $("#email").val(),
+        }).done(function (data) {
+            if (data.status != "ok") {
+                $(".errors").removeClass("hidden");
+                if (data.errors) {
+                    for (var obj in data.errors) {
+                        $(".errors").append(data.errors[obj].msg);
+                    }
+                } else {
+                    $(".errors").html(data.msg);
+                }
+
+            } else {
+                $(".success").html("Обновлено!").removeClass("hidden").slideDown();
+                 setTimeout(function () {
+                 $(".success").slideUp(function () {
+                 $(this).addClass("hidden")
+                 });
+
+                 }, 3000);
+            }
+        }).fail(function (data, jqXHR, textStatus) {
+            $(".errors").removeClass("hidden");
+            if (data) {
+                $(".errors").removeClass("hidden");
+
+                for (var obj in data.responseJSON.errors) {
+                    $(".errors").append(data.responseJSON.errors[obj].msg + "<br/>");
+
+                }
+            } else {
+                alert("Ошибка сохранения");
+            }
+        }).always(function () {
+            $("#submit").removeAttr("disabled");
+        });
+        return false;
+    });
+</script>

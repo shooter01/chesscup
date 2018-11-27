@@ -5,7 +5,9 @@ const moment = require('moment');
 const { check, validationResult } = require('express-validator/check');
 const { matchedData, sanitize } = require('express-validator/filter');
 const countries = require('./countries');
-
+var api_key = 'key-b8979f45de416021750386d336a5e8de';
+var domain = 'englando.com';
+var mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
 var Elo = require('arpad');
 
 var uscf = {
@@ -205,6 +207,63 @@ module.exports = function (app, passport, pool) {
         }
 
         res.render('login', {message : req.flash("error")[0], showTest : showTest});
+    });
+
+    router.get('/password/reset', function (req, res) {
+        res.render('reset');
+    });
+
+    router.post('/password/email', [
+        check('email')
+            .isEmail().withMessage('The email field is required')
+            .trim()
+            .normalizeEmail()
+    ],function (req, res) {
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({
+                errors: errors.mapped()
+            });
+        } else {
+            pool.query("SELECT * FROM users WHERE email = ? LIMIT 1", req.body.email.trim())
+                .then(rows => {
+                    console.log(rows);
+                    if (rows.length > 0) {
+                        var data = {
+                            from: 'chesscup.org <no-reply@chesscup.org>',
+                            to: rows[0].email,
+                            subject: 'Password recovery',
+                            text: 'Password : ' + rows[0].password
+                        };
+
+                        mailgun.messages().send(data, function (error, body) {
+                            console.log(error);
+                            res.json({
+                                status : "ok",
+                            });
+                        });
+
+
+                    } else {
+                        res.json({
+                            status : "error",
+                            msg: "Email not found"
+                        });
+                    }
+
+                }).catch((err) => {
+                console.log(err);
+                res.json({
+                    status : "error",
+                    msg : err
+                });
+            });
+        }
+
+
+
+
     });
 
     router.get('/signup', function (req, res) {

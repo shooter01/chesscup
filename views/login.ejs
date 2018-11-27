@@ -61,21 +61,11 @@
 
     <button class="btn btn-lg btn-primary btn-block" type="submit"><%- __("LoginLogin") %></button>
 
+
     <a href="/signup" class="btn btn-light btn-block mt-3"><%- __("LoginRegister") %></a>
 
 
-    <% if (showTest != null) { %>
-    <div class="alert alert-info m-1 mt-5">
-        <h4>Тестовые данные для входа:</h4>
+    <a class="float-right mt-2" href="/password/reset">Забыли пароль?</a>
 
-        <h5>Учитель:</h5>
-        login : coach@mail.ru <br>
-        pass : 1131 <br>
-
-        <h5 class="mt-3">Ученик:</h5>
-        login : student@mail.ru <br>
-        pass : 1131 <br>
-    </div>
-    <% } %>
 </form>
 
