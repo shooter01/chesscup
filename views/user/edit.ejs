@@ -1,0 +1,184 @@
+
+<% layout('boilerplate') -%>
+
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/users">Пользователи</a></li>
+                <li class="breadcrumb-item"><a href="/users/<%= profile.id %>"><%= profile.name %></a></li>
+                <li class="breadcrumb-item active" aria-current="page">Редактирование профиля</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+
+<div class="row">
+    <form action="" method="post" id="secret_form">
+
+<div class="col-md-12 mt-2">
+
+
+    <div class="secret_errors alert alert-danger hidden"></div>
+    <div class="secret_success alert alert-success hidden"></div>
+
+    <!--<div class="row">
+        <div class="col-sm-3">
+            Photo
+        </div>
+
+        <div class="col-sm-9">
+            <div class="row">
+                <div class="col-sm-6">
+                    <img src="/images/user.png" alt="Profile photo" class="img-thumbnail rounded">
+
+                    <div class="form-group">
+                        <label for="exampleFormControlFile1">Изменить</label>
+                        <input type="file" class="form-control-file" id="exampleFormControlFile1">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>-->
+    <div class="row">
+        <div class="col-sm-3">
+            Name
+        </div>
+        <div class="col-sm-9">
+            <h4 class="mt-0">
+                <input class="form-control" name="name" id="name" value="<%= profile.name %>" type="text" placeholder=".form-control-lg">
+            </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            Email
+        </div>
+        <div class="col-sm-9">
+            <h4 class="mt-0">
+                <input class="form-control " name="email" id="email" value="<%= profile.email %>" type="text" placeholder=".form-control-lg">
+            </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            Шахматная Федерация
+        </div>
+        <div class="col-sm-9">
+
+            <select name="country" class="simple-select2" id="country">
+                <% for (var i in countries) { %>
+
+                    <option value="<%= i %>" <%= (typeof profile !== "undefined" && i === profile.country) ? "selected" : "" %>><%= countries[i] %></option>
+
+
+
+                <% } %>
+            </select>
+
+        </div>
+    </div>
+
+    <% if (user && user.user && (user.user.id === 1 || user.user.id == profile.id)) { %>
+
+
+
+        <div class="row mt-3">
+            <div class="col-sm-12">
+                <div class="alert alert-info" role="alert">
+                    <h4 class="alert-heading">Закрытый раздел</h4>
+
+
+                    <p>Видно только работникам сайта для выплаты призовых</p>
+                    <hr>
+                    <div class="form-group">
+
+                            <label for="exampleFormControlTextarea1">Укажите удобные для вас способы выплаты призовых</label>
+                            <textarea class="form-control" id="secret" rows="4"><%= (typeof profile !== "undefined") ? profile.secret : "" %></textarea>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <% } %>
+
+    <link rel="stylesheet" href="/stylesheets/select2.css" />
+
+    <link rel="stylesheet" href="/js/select2/dist/select2-bootstrap4.min.css">
+    <link rel="stylesheet" href="/stylesheets/flags.css">
+    <script src="/js/select2.js"></script>
+
+    <script>
+        $("#secret_form").on("submit", function () {
+            $(".secret_errors").addClass("hidden").empty();
+            $(".secret_success").addClass("hidden").empty();
+
+            $.post("/users/update"  , {
+                secret : $("#secret").val(),
+                name : $("#name").val(),
+                email : $("#email").val(),
+                country : $("#country").val(),
+            }).done(function (data) {
+                if (data.status != "ok") {
+                    $(".secret_errors").removeClass("hidden");
+                    for (var obj in data.errors) {
+                        $(".secret_errors").append(data.errors[obj].msg);
+                    }
+                } else {
+                    $(".secret_success").html("Обновлено!").removeClass("hidden").slideDown();
+                    setTimeout(function () {
+                        $(".secret_success").slideUp(function () {
+                            $(this).addClass("hidden")
+                        });
+
+                    }, 3000);
+                }
+            }).fail(function (data, jqXHR, textStatus) {
+                $(".errors").removeClass("hidden");
+                if (data) {
+                    $(".secret_errors").removeClass("hidden");
+
+                    for (var obj in data.responseJSON.errors) {
+                        $(".secret_errors").append(data.responseJSON.errors[obj].msg + "<br/>");
+
+                    }
+                } else {
+                    alert("Ошибка сохранения");
+                }
+            });
+            return false;
+        });
+
+        $('.simple-select2').select2({
+            theme: 'bootstrap4',
+            placeholder: "Select an option",
+            allowClear: true,
+            templateResult: formatCountry,
+
+        });
+
+
+
+        function formatCountry (country) {
+            if (!country.id) { return country.text; }
+            return $country = $(
+                '<img src="/img/blank.png" class="flag flag-' + country.id.toLowerCase() + '" alt="" />' +
+                ' <span>' + country.text + '</span>'
+            );
+        };
+    </script>
+
+    <div class="mt-2 text-right">
+        <button class="btn btn-primary btn-lg" type="submit">Save</button>
+    </div>
+</div>
+</form>
+
+
+
+
+</div>

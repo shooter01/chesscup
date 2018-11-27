@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const {isLoggedIn} = require('./middlewares');
 const { check, validationResult } = require('express-validator/check');
+const countries = require('./countries');
 
 function generatePassword() {
     var length = 6,
@@ -174,6 +175,7 @@ module.exports = function(app, passport, pool) {
 
                         res.render('user/profile', {
                             profile  : rows[0],
+                            countries : countries
 
                         });
                     } else {
@@ -191,14 +193,87 @@ module.exports = function(app, passport, pool) {
                 message  : req.i18n.__("TourneyNotFound"),
             });
         }
+    });
+
+
+    router.get('/:user_id/edit',
+        [
+            isLoggedIn,
+            check('user_id', 'Вы не указали юзера.').exists().isLength({ min: 1 }).custom((value, { req }) => {
+                return new Promise((resolve, reject) => {
+
+
+                    if(value != req.session.passport.user.id) {
+                        return reject("Ошибка доступа");
+                    } else {
+                        return resolve();
+                    }
+
+                });
+            })
+        ]
+        ,function (req, res, next) {
+
+
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+
+                var error = "";
+                for (var obj in errors.mapped()) {
+                    error = errors.mapped()[obj].msg;
+                }
+
+                // console.log(errors.mapped());
 
 
 
+                res.render('error', {
+                    message  : error
+                });
+                /*return res.status(422).json({
+                 errors: errors.mapped()
+                 });*/
+            } else {
+                let ratings, student, tournament_ratings = [], teacher_info = {};
+                let user_id = req.params.user_id;
+                user_id = parseInt(user_id);
+                if (!isNaN(user_id)) {
+                    pool
+                        .query('SELECT * FROM users WHERE id = ?', user_id)
+                        .then(rows => {
+
+                            if (rows.length > 0) {
+
+                                res.render('user/edit', {
+                                    profile  : rows[0],
+                                    countries : countries
+
+                                });
+                            } else {
+                                res.render('error', {
+                                    message  : req.i18n.__("TourneyNotFound"),
+                                    error  : req.i18n.__("TourneyNotFound"),
+                                });
+                            }
+
+                        }).catch(function (err) {
+                        console.log(err);
+                    });
+                } else {
+                    res.render('error', {
+                        message  : req.i18n.__("TourneyNotFound"),
+                    });
+                }
+
+            }
 
     });
 
     router.post('/update', [
             check('secret', 'The secret field is required').exists().isLength({ min: 1 }),
+            check('name', 'The name field is required').exists().isLength({ min: 1 }),
+            check('email', 'The email field is required').exists().isLength({ min: 1 }).isEmail(),
         ],
         function (req, res, next) {
             const errors = validationResult(req);
@@ -212,6 +287,9 @@ module.exports = function(app, passport, pool) {
 
                 let office = {
                     secret: req.body.secret.trim(),
+                    name: req.body.name.trim(),
+                    email: req.body.email.trim(),
+                    country: req.body.country.trim(),
                 };
 
                 pool.query('UPDATE users SET ? ' +
