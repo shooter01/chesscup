@@ -1,0 +1,40 @@
+<div class="errors alert alert-danger hidden"></div>
+
+<label for="title">Название команды</label>
+<input type="text" id="title" name="title" class="form-control"
+       value="<%= (typeof tournament !== "undefined") ? tournament.title : "" %>">
+
+
+
+<div class="row">
+    <div class="col-sm-12">
+        <label for="country" class="mt-3"><%- __("CreateCountry") %></label>
+        <br>
+        <select name="country" class="simple-select2" id="country">
+            <% for (var i in countries) { %>
+            <option value="<%= i %>" <%= (typeof tournament !== "undefined" && i === tournament.country) ? "selected" : "" %>><%= countries[i] %></option>
+            <% } %>
+        </select>
+    </div>
+</div>
+
+
+
+
+<input type="submit" class="btn btn-primary mt-3" value="<%- __("Save") %>">
+
+
+
+<script>
+
+
+    $( function() {
+        var defValue = '<%=  (typeof tournament !== "undefined") ? tournament.amount : "3" %>';
+        var defInc = '<%=  (typeof tournament !== "undefined") ? tournament.time_inc : "0" %>';
+
+    });
+
+
+
+
+</script>

@@ -1,0 +1,93 @@
+
+<% layout('boilerplate') -%>
+
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/users">Пользователи</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= profile.name %></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+
+<div class="row">
+
+<div class="col-md-8 mt-2">
+    <div class="row">
+
+        <div class="col-sm-3">
+
+            <img src="/images/user.png" alt="Profile photo" class="img-thumbnail rounded">
+
+        </div>
+
+        <div class="col-sm-9">
+            <h4 class="mt-0"><%= profile.name %></h4>
+            <table class="table table-sm table-light">
+
+                <tbody>
+                <tr>
+                    <th scope="row">Federation</th>
+                    <td>
+                        <% if (profile.country) {%>
+                            <%= countries[profile.country] %>
+                        <%}%>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">FIDE title</th>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th scope="row">Rating</th>
+                    <td><%= profile.tournaments_rating %></td>
+                </tr>
+                <tr>
+                    <th scope="row">Online Rating</th>
+                    <td><%= profile.tournaments_rating %></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <% if (user && user.user && (user.user.id === 1 || user.user.id == profile.id)) { %>
+
+
+
+        <div class="row mt-3">
+            <div class="col-sm-12">
+                <div class="alert alert-info" role="alert">
+                    <h4 class="alert-heading">Закрытый раздел</h4>
+
+
+                    <p>Видно только работникам сайта для выплаты призовых</p>
+                    <hr>
+                    <div class="form-group">
+                        <%= (typeof profile !== "undefined") ? profile.secret : "" %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <% } %>
+
+
+
+
+    </div>
+
+    <div class="col-md-4 mt-2">
+        <% if (user && user.user && (user.user.id === 1 || user.user.id == profile.id)) { %>
+            <a href="/users/<%= profile.id %>/edit " class="btn btn-danger btn-block btn-lg pull-left">Edit</a>
+        <% } %>
+
+
+    </div>
+
+
+</div>
+

@@ -1,0 +1,78 @@
+
+<% layout('boilerplate') -%>
+
+<style>
+    .team__title {
+        display: flex;
+        align-items: flex-start;
+        justify-content: left;
+    }
+</style>
+
+<h3 class="d-flex justify-content-between mt-5 mb-5">
+    Команды <a href="/teams/create" class="btn btn-lg btn-success">Создать команду</a>
+</h3>
+
+
+<% for (var i = 0; i < teams.length; i++) { %>
+    <div class="row">
+
+        <div class="col-md-2">
+            <a href="/teams/<%= teams[i].id %>" >
+                <img class="img-thumbnail rounded-circle" src="<%= teams[i].image %>" alt="">
+            </a>
+        </div>
+
+        <div class="col-md-10">
+
+            <a href="/teams/<%= teams[i].id %>" class="btn btn-info float-right">View Team</a>
+
+            <h2 class="mt-0 team__title"><a href="/teams/<%= teams[i].id %>"><%= teams[i].name %></a>
+                <img src="/images/blank.png" style="margin-left: 30px" class="flag flag-<%= teams[i].country.toLocaleLowerCase() %>" title="Russian Federation" alt="Russian Federation">
+            </h2>
+            <div>
+               Участников: <%= teams[i].participants_count %>
+            </div>
+        </div>
+    </div>
+<hr>
+
+<% } %>
+
+
+
+<style>
+    .mp {
+        display: flex;justify-content: center;
+
+    }
+</style>
+
+
+
+
+
+<% if (user && user.user && user.user.id === 1) { %>
+
+<script>
+    $("body").on("click", ".hide", function () {
+        $.post("/users/hide"  , {
+            user_id : $(this).attr("data-id"),
+        }).done(function (data) {
+            if (data.status != "ok") {
+                for (var obj in data.errors) {
+                    alert(data.errors[obj].msg);
+                }
+            } else {
+                location.reload();
+
+            }
+        }).fail(function (data, jqXHR, textStatus) {
+            console.log("error");
+        });
+    })
+</script>
+
+<% } %>
+
+<link rel="stylesheet" href="/stylesheets/flags.css">
