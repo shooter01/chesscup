@@ -28,10 +28,47 @@ module.exports = function(app, passport, pool) {
 
   /* GET users listing. */
     router.get('/', function (req, res) {
-        res.render('user/users', {
 
 
+        var page = req.query.page || null;
+        var limit_start = 0, limit = 20;
+        page = parseInt(page, 10);
+        if (typeof page === "undefined" || !Number.isInteger(page)) {
+            page = 1;
+        }
+        limit_start = page * limit - limit;
+
+
+        pool.query("SELECT COUNT(*) as count FROM users WHERE is_hidden = 0", function (err, result, fields) {
+            var sql1 = "SELECT users.* FROM users WHERE is_hidden = 0 ORDER BY tournaments_rating DESC LIMIT ?,?";
+
+            pool
+                .query(sql1, [limit_start, limit])
+                .then(rows => {
+
+                    var total = result[0].count,
+                        pageSize = limit,
+                        pageCount = total / pageSize;
+
+                    res.render('user/users', {
+                        users : rows,
+                        countries : countries,
+                        count: result[0].count,
+                        online : app.globalPlayers,
+                        total: total,
+                        pageSize: pageSize,
+                        currentPage: page,
+                        pageCount: pageCount,
+
+                    });
+                }).catch(function (err) {
+                console.log(err);
+            });
         });
+
+
+
+
     });
 
 
@@ -104,6 +141,45 @@ module.exports = function(app, passport, pool) {
                 "user_id": insertId,
                 "rating": theme.rating,
                 "tournaments_rating": theme.tournaments_rating,
+            });
+        }).catch(function (err) {
+            console.log(err);
+        });
+
+    });
+
+
+    router.post('/hide', [
+        isLoggedIn,
+        check('user_id', 'Вы не указали пользователя').exists().isLength({min: 1}),
+
+    ], function (req, res, next) {
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            //return res.status(422).json({ errors: errors.mapped() });
+            return res.status(422).json({
+                "status": "error",
+                errors: errors.mapped(),
+            });
+        }
+
+        let insertId;
+
+        let office = {
+          is_hidden : 1
+        };
+
+        pool.query('UPDATE users SET ? ' +
+            'WHERE ' +
+            'users.id = ?',
+            [
+                office,
+                req.body.user_id,
+
+            ]).then(function (results) {
+            res.json({
+                status : "ok",
             });
         }).catch(function (err) {
             console.log(err);

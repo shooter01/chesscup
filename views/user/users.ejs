@@ -5,27 +5,94 @@
     <div class="col-lg-12">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item active">Пользователи</li>
+                <li class="breadcrumb-item active"><a href="/users">Пользователи</a></li>
             </ol>
         </nav>
     </div>
 </div>
 
 
-<div class="row">
+<table class="table table-sm">
+    <thead>
+    <tr>
+        <th scope="col">Имя</th>
+        <th scope="col">Рейтинг</th>
+        <th scope="col">Страна</th>
+        <% if (user && user.user && user.user.id === 1) { %>
+            <th>Control</th>
+        <% } %>
 
-<div class="col-md-8 margintop20">
-    <div class="row">
+    </tr>
+    </thead>
+    <tbody>
+
+    <% for (var i = 0; i < users.length; i++) { %>
+
+        <tr>
+
+            <td>
+                <div  class="user_link <%= (online[users[i].id]) ? "online" : "" %>">
+                    <i class="line" title="<%= (online[users[i].id]) ? "В сети" : "Не в сети" %>"></i>
+                    <a href="/users/<%= users[i].id %>"><%= users[i].name %></a>
+                </div>
+            </td>
+            <td><%= users[i].tournaments_rating %></td>
+            <td><%= (users[i].country) ? countries[users[i].country] : "" %></td>
+            <% if (user && user.user && user.user.id === 1) { %>
+                <td><span class="btn btn-danger btn-sm hide" data-id="<%= users[i].id %>">Скрыть</span></td>
+            <% } %>
+        </tr>
+    <% } %>
+
+    <link rel="stylesheet" href="/stylesheets/game.css">
 
 
-    </div>
 
 
+    </tbody>
+</table>
 
+<style>
+    .mp {
+        display: flex;justify-content: center;
 
+    }
+</style>
 
-
-    </div>
-
-
+<div class="mp text-center">
+    <nav>
+        <ul class="pagination">
+            <% if (currentPage > 1) { %>
+            <li class="page-item"><a class="page-link" href="/users/?page=<%= +currentPage - 1 %>">Prev</a></li>
+            <% } %>
+            <% if (currentPage != pageCount) { %>
+            <li class="page-item"><a class="page-link" href="/users/?page=<%= +currentPage + 1 %>">Next</a></li>
+            <% } %>
+        </ul>
+    </nav>
 </div>
+
+
+
+<% if (user && user.user && user.user.id === 1) { %>
+
+<script>
+    $("body").on("click", ".hide", function () {
+        $.post("/users/hide"  , {
+            user_id : $(this).attr("data-id"),
+        }).done(function (data) {
+            if (data.status != "ok") {
+                for (var obj in data.errors) {
+                    alert(data.errors[obj].msg);
+                }
+            } else {
+                location.reload();
+
+            }
+        }).fail(function (data, jqXHR, textStatus) {
+            console.log("error");
+        });
+    })
+</script>
+
+<% } %>
