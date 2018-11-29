@@ -62,6 +62,9 @@ module.exports = function(app, passport, pool) {
 
                 }).catch(function (err) {
                 console.log(err);
+                res.json({
+                    status : "error",
+                });
             });
         });
     });
@@ -159,6 +162,9 @@ module.exports = function(app, passport, pool) {
 
                     }).catch(function (err) {
                     console.log(err);
+                    res.json({
+                        status : "error",
+                    });
                 });
             }
         });
@@ -249,6 +255,46 @@ module.exports = function(app, passport, pool) {
 
 
 
+    router.post('/leave', [
+            isLoggedIn,
+            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
+        ],
+        function (req, res, next) {
+            const errors = validationResult(req);
+            console.log(errors);
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+
+                let office = {
+                    team_id: req.body.team_id.trim(),
+                    user_id: req.session.passport.user.id,
+                };
+
+
+                var sql1 = "DELETE FROM teams_participants WHERE user_id = ? AND team_id = ?";
+
+                pool
+                    .query(sql1, [office.user_id, office.team_id])
+                    .then(rows => {
+
+                            res.json({
+                                status : "ok",
+                            });
+
+                    }).catch(function (err) {
+                    console.log(err);
+                    res.json({
+                        status : "error",
+                    });
+                });
+            }
+        });
+
+
+
 
 
 
@@ -283,7 +329,16 @@ module.exports = function(app, passport, pool) {
 
                 participants = rows;
 
-                is_participant = !!rows.length;
+                if (req.isAuthenticated()) {
+
+                    for (var i = 0; i < participants.length; i++) {
+                        var obj = participants[i];
+                        if (obj.user_id === req.session.passport.user.id) {
+                            is_participant = true;
+                            break;
+                        }
+                    }
+                }
 
                 if (req.isAuthenticated() && is_participant) {
                     return true;
@@ -336,6 +391,9 @@ module.exports = function(app, passport, pool) {
 
             }).catch(function (err) {
             console.log(err);
+                    res.json({
+                        status : "error",
+                    });
         });
             } else {
                 res.render('error', {

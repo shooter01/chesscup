@@ -75,4 +75,28 @@ $(function () {
         });
         return false;
     });
+
+    $("#leave").on("click", function () {
+        var button = $(this);
+        button.attr("disabled", "disabled");
+        var user_id = button.attr("data-id");
+        $.post("/teams/leave"  , {
+            team_id : team_id,
+        }).done(function (data) {
+
+            if (data.status != "ok") {
+                for (var obj in data.errors) {
+                    alert(data.errors[obj].msg);
+                }
+            } else {
+                location.reload();
+            }
+
+        }).fail(function (data, jqXHR, textStatus) {
+            console.log("error");
+        }).always(function () {
+            button.removeAttr("disabled");
+        });
+        return false;
+    });
 })
