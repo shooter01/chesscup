@@ -117,6 +117,137 @@ module.exports = function(app, passport, pool) {
         });
 
 
+    router.post('/apply', [
+            isLoggedIn,
+            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
+        ],
+        function (req, res, next) {
+            const errors = validationResult(req);
+            console.log(errors);
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+                var newDateObj;
+
+                let office = {
+                    team_id: req.body.team_id.trim(),
+                    user_id: req.session.passport.user.id,
+                    name: req.session.passport.user.name,
+                };
+
+
+                var sql1 = "SELECT * FROM teams_applies WHERE user_id = ? AND team_id = ?";
+
+                pool
+                    .query(sql1, [office.user_id, office.team_id])
+                    .then(rows => {
+
+                        if (rows.length == 0) {
+                            return pool.query('INSERT INTO teams_applies SET ?', office);
+                        } else {
+                            return true;
+
+                        }
+
+                    }).then(results => {
+
+                            res.json({
+                                status : "ok",
+                            });
+
+                    }).catch(function (err) {
+                    console.log(err);
+                });
+            }
+        });
+
+
+
+    router.post('/approve', [
+            isLoggedIn,
+            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
+        ],
+        function (req, res, next) {
+            const errors = validationResult(req);
+            console.log(errors);
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+                var newDateObj;
+
+                let office = {
+                    team_id: req.body.team_id.trim(),
+                    user_id: req.body.user_id.trim(),
+                };
+
+
+                var sql1 = "DELETE FROM teams_applies WHERE user_id = ? AND team_id = ?";
+
+                pool
+                    .query(sql1, [office.user_id, office.team_id])
+                    .then(rows => {
+
+                        return pool.query('INSERT INTO teams_participants SET ?', office);
+
+                    }).then(rows => {
+
+                        res.json({
+                            status : "ok",
+                        });
+
+                    }).catch(function (err) {
+                    console.log(err);
+                    res.json({
+                        status : "error",
+                    });
+                });
+            }
+        });
+
+    router.post('/dis_apply', [
+            isLoggedIn,
+            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
+        ],
+        function (req, res, next) {
+            const errors = validationResult(req);
+            console.log(errors);
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+                var newDateObj;
+
+                let office = {
+                    team_id: req.body.team_id.trim(),
+                    user_id: req.session.passport.user.id,
+                };
+
+
+                var sql1 = "DELETE FROM teams_applies WHERE user_id = ? AND team_id = ?";
+
+                pool
+                    .query(sql1, [office.user_id, office.team_id])
+                    .then(rows => {
+
+                            res.json({
+                                status : "ok",
+                            });
+
+                    }).catch(function (err) {
+                    console.log(err);
+                    res.json({
+                        status : "error",
+                    });
+                });
+            }
+        });
+
+
 
 
 
@@ -125,31 +256,87 @@ module.exports = function(app, passport, pool) {
         function (req, res, next) {
             let team_id = req.params.team_id;
             team_id = parseInt(team_id);
-            var team, participants, is_in = false;
+            let team, participants, is_participant = false, is_applied = false , applies = [];
             if (!isNaN(team_id)) {
+
+                /**
+                 * получаем иформацию о команде
+                 */
+
                 pool
                     .query('SELECT teams.*, users.name AS creator_name FROM teams LEFT JOIN users ON users.id = teams.creator_id WHERE teams.id = ?', team_id)
+            .then(rows => {
+                team = rows[0];
+               // if (req.isAuthenticated()) {
+
+                    /**
+                     * если авторизован - проверяем участник ли
+                     */
+
+                    return pool
+                        .query("SELECT ta.*, u.name, u.tournaments_rating FROM teams_participants ta LEFT JOIN users u ON u.id = ta.user_id WHERE team_id = ?", [team_id])
+              //  } else {
+                //    return false;
+              //  }
+
+            }).then(rows => {
+
+                participants = rows;
+
+                is_participant = !!rows.length;
+
+                if (req.isAuthenticated() && is_participant) {
+                    return true;
+                } else if (req.isAuthenticated() && !is_participant) {
+
+                    /**
+                     * если авторизован и не участник - проверяем подавал ли заявку
+                     */
+
+                    return pool
+                        .query("SELECT * FROM teams_applies WHERE user_id = ? AND team_id = ?", [req.session.passport.user.id, team_id])
+                } else {
+                    return true;
+                }
+
+            }).then(rows => {
+
+                if (req.isAuthenticated() && !is_participant) {
+                    is_applied = !!rows.length;
+                }
+
+                if (req.isAuthenticated() && team.creator_id === req.session.passport.user.id) {
+
+                    /**
+                     * если авторизован и участник и владелец - проверяем есть ли заявки
+                     */
+
+                    return pool
+                        .query("SELECT * FROM teams_applies WHERE team_id = ?", team_id)
+                } else {
+                    return true;
+                }
 
 
-                    .then(rows => {
-                        team = rows[0];
+            }).then(rows => {
 
-                        if (rows.length) {
+                if (req.isAuthenticated() && team.creator_id == req.session.passport.user.id && rows.length) {
+                    console.log(applies);
 
-                            return res.render('teams/show', {
-                                team : team
-                            });
-
-
-                        } else {
-                            res.render('error', {
-                                message  : req.i18n.__("TourneyNotFound"),
-                                error  : req.i18n.__("TourneyNotFound"),
-                            });
-                        }
-                    }).catch(function (err) {
-                    console.log(err);
+                    applies = rows;
+                }
+                console.log(participants);
+                return res.render('teams/show', {
+                    team : team,
+                    participants : participants,
+                    is_applied : is_applied,
+                    is_participant : is_participant,
+                    applies : applies
                 });
+
+            }).catch(function (err) {
+            console.log(err);
+        });
             } else {
                 res.render('error', {
                     message  : "Турнир не найден",

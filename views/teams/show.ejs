@@ -24,20 +24,36 @@
 
                 <div class="col-lg-10">
                     <h3><%= team.name %>
-                        <a href="" class="btn btn-success btn-sm">Редактировать</a></h3>
 
+
+                        <% if (user && user.user && (team.creator_id === user.user.id)) { %>
+                            <a href="" class="btn btn-success btn-sm">Редактировать</a></h3>
+                        <% } %>
                 </div>
 
 
                 <div class="col-lg-2">
 
-                    <a href="" class="btn btn-primary float-right">Подать заявку</a>
+                    <% if (is_participant)  { %>
+                    <span href="" class="btn btn-danger float-right" id="leave">Покинуть</span>
+
+                    <% } else if (is_applied) { %>
+                        <span href="" class="btn btn-warning float-right" id="dis_apply">Отменить заявку</span>
+
+
+                    <% } else { %>
+                        <span href="" class="btn btn-primary float-right" id="apply">Подать заявку</span>
+
+                    <% } %>
+
 
                 </div>
 
 
             </div>
         </div>
+
+        <hr>
 
         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
             <li class="nav-item">
@@ -46,49 +62,89 @@
             <li class="nav-item">
                 <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Описание</a>
             </li>
+            <% if (user && user.user && (team.creator_id === user.user.id)) { %>
+
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="pill" href="#applies" role="tab" aria-controls="pills-profile" aria-selected="false">Заявки (<%= applies.length %>)</a>
+                </li>
+
+
+            <% } %>
 
         </ul>
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
 
                 <table class="table table-sm">
-                    <thead>
+                    <thead class="thead-dark">
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">First</th>
-                        <th scope="col">Last</th>
-                        <th scope="col">Handle</th>
+                        <th scope="col">Имя</th>
+                        <th scope="col">Звание</th>
+                        <th scope="col">Рейтинг</th>
                     </tr>
                     </thead>
                     <tbody>
+
+                    <% for (var i = 0; i < participants.length; i++) { %>
+
                     <tr>
                         <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
+                        <td><%= participants[i].name %></td>
+                        <td></td>
+                        <td><%= participants[i].tournaments_rating %></td>
                     </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td colspan="2">Larry the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
+
+                    <% } %>
+
                     </tbody>
                 </table>
 
 
             </div>
             <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">...</div>
+            <% if (user && user.user && (team.creator_id === user.user.id)) { %>
+                <div class="tab-pane fade" id="applies" role="tabpanel" aria-labelledby="pills-profile-tab">
+
+
+                    <table class="table table-sm">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Имя</th>
+                            <th scope="col">Control</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                    <% for (var i = 0; i < applies.length; i++) { %>
+
+                        <tr>
+                            <th scope="row">1</th>
+                            <td><a href="/users/<%= applies[i].user_id %>" target="_blank"><%= applies[i].name %></a></td>
+                            <td>
+                                <span class="btn btn-sm btn-success approve" data-id="<%= applies[i].user_id %>">Одобрить</span>
+                                <span class="btn btn-sm btn-danger decline">Отклонить</span>
+                            </td>
+                        </tr>
+
+                    <% } %>
+
+
+                        </tbody>
+                    </table>
+
+                </div>
+            <% } %>
+
         </div>
     </div>
     <div class="col-lg-3">
 
-        Chat
+        <img src="/images/logo.png" class="img-thumbnail" alt="">
+
+
+        <div class="m-2">Основатель : <%= team.creator_name %></div>
 
     </div>
 </div>
@@ -127,9 +183,12 @@
     var _AreYouSure = '<%- __("ParticipantAreYouSure") %>';
 </script>
 
+<% if (user && user.user) { %>
+<script>
+    var user_id = '<%= user.user.id %>';
+    var team_id = '<%= team.id %>';
+</script>
 
-
-
-
-
+<script src="/js/teams/team.js"></script>
+<% } %>
 
