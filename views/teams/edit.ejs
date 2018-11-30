@@ -83,67 +83,9 @@
 </script>
 
 
+<script src="/js/team.min.js"></script>
 <script>
-    $( function() {
-
-
-        var fileuploader = new Html5Upload({
-            input: "#exampleFormControlFile1",
-            filenameAttr : "name",
-            statusContainer: "#container",
-            upload_url : "/teams/upload",
-            callbacks: {
-                before_send: function(xhr, fd, file){
-                    fd.append("team_id", team_id);
-                },
-                complete: function (response, xhr, responseText) {
-                    if (response.status == "ok") {
-                        $("#image").attr("src", response.image);
-                    } else {
-                        alert("Error. Check the file.");
-                    }
-                    console.log(response);
-                }
-
-        }});
-        fileuploader.setHandler();
-
-
-
-
-        $("#edit_tournament").on("submit", function () {
-            $(".errors").addClass("hidden").empty();
-
-            $.post("/teams/update", {
-                team_id : team_id,
-                name : $("#title").val(),
-                description : $.trim($("#description").val()),
-                country : $("#country").val(),
-            }).done(function (data) {
-                if (data.status != "ok") {
-                    $(".errors").removeClass("hidden");
-                    for (var obj in data.errors) {
-                        $(".errors").append(data.errors[obj].msg);
-                    }
-                } else {
-                    if (data.insertId) {
-                        location.href = "/teams/" + data.insertId;
-                    }
-                }
-            }).fail(function (data, jqXHR, textStatus) {
-                $(".errors").removeClass("hidden");
-                if (data) {
-                    for (var obj in data.responseJSON.errors) {
-                        $(".errors").append(data.responseJSON.errors[obj].msg + "<br/>");
-
-                    }
-                } else {
-                    alert("Ошибка сохранения");
-                }
-            });
-            return false;
-        });
-
+    $(function () {
         $('.simple-select2').select2({
             theme: 'bootstrap4',
             placeholder: "Select an option",
@@ -151,8 +93,6 @@
             templateResult: formatCountry,
 
         });
-
-
 
         function formatCountry (country) {
             if (!country.id) { return country.text; }
@@ -162,7 +102,7 @@
             );
         };
 
-    } );
+    })
 </script>
 
 

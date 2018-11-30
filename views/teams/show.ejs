@@ -97,9 +97,9 @@
 
                     <% for (var i = 0; i < participants.length; i++) { %>
                     <% if (participants[i].user_id === team.creator_id) { %>
-                        <tr class="table-primary">
+                        <tr class="table-danger">
                     <% } else if (participants[i].user_id === team.vice_captain_id) { %>
-                        <tr class="table-secondary">
+                        <tr class="table-primary">
                     <% } else { %>
                         <tr>
                     <%  } %>
@@ -237,6 +237,6 @@
     var team_id = '<%= team.id %>';
 </script>
 
-<script src="/js/teams/team.js"></script>
+<script src="/js/team.min.js"></script>
 <% } %>
 

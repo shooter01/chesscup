@@ -38,7 +38,8 @@
 
         $("#create_tournament").on("submit", function () {
             $(".errors").addClass("hidden").empty();
-
+            var button = $(this).find("[type='submit']");
+            button.attr("disabled", "disabled");
             $.post("/teams/create", {
                 title : $("#title").val(),
                 country : $("#country").val(),
@@ -63,6 +64,8 @@
                 } else {
                     alert("Ошибка сохранения");
                 }
+            }).always(function () {
+                button.removeAttr("disabled");
             });
             return false;
         });

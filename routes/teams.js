@@ -135,7 +135,7 @@ module.exports = function(app, passport, pool) {
                     errors: errors.mapped()
                 });
             } else {
-                let team_id;
+                let team_id, inserted;
 
                 let office = {
                     name: req.body.title.trim(),
@@ -159,7 +159,17 @@ module.exports = function(app, passport, pool) {
                         return pool.query('INSERT INTO teams_participants SET ?', office);
 
                     }).then(function (results) {
-                        if (results.insertId > 0) {
+                        inserted = results.insertId;
+                            return pool.query('UPDATE users SET ? ' +
+                                'WHERE ' +
+                                'users.id = ?',
+                                [
+                                    {is_team_owner : 1},
+                                    req.session.passport.user.id,
+
+                                ])
+                    }).then(function (results) {
+                        if (inserted > 0) {
                             res.json({
                                 status : "ok",
                                 insertId : team_id
@@ -189,7 +199,7 @@ module.exports = function(app, passport, pool) {
                     });
                 }
                 sharp(req.file.path)
-                    .resize(200)
+                    .resize(200, 200)
                     .toFile("public/uploads/" + req.file.filename, (err, info) => {
 
                         pool.query('UPDATE teams SET ? ' +
