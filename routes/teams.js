@@ -129,7 +129,7 @@ module.exports = function(app, passport, pool) {
         ],
         function (req, res, next) {
             const errors = validationResult(req);
-            console.log(errors);
+            //console.log(errors);
             if (!errors.isEmpty()) {
                 return res.status(422).json({
                     errors: errors.mapped()
@@ -177,7 +177,7 @@ module.exports = function(app, passport, pool) {
         ],
         function (req, res, next) {
                         const errors = validationResult(req);
-                        console.log(arguments);
+                      //  console.log(arguments);
 
 
             upload.single("lol")(req,res,function(err) {
@@ -223,7 +223,6 @@ module.exports = function(app, passport, pool) {
         ],
         function (req, res, next) {
             const errors = validationResult(req);
-            console.log(errors);
             if (!errors.isEmpty()) {
                 return res.status(422).json({
                     errors: errors.mapped()
@@ -274,7 +273,7 @@ module.exports = function(app, passport, pool) {
         ],
         function (req, res, next) {
             const errors = validationResult(req);
-            console.log(errors);
+            //console.log(errors);
             if (!errors.isEmpty()) {
                 return res.status(422).json({
                     errors: errors.mapped()
@@ -306,7 +305,7 @@ module.exports = function(app, passport, pool) {
                             ])
                     })
                     .then(rows => {
-                        console.log(rows);
+                       // console.log(rows);
                         return pool.query('UPDATE teams SET ? ' +
                             'WHERE ' +
                             'teams.id = ?',
@@ -337,7 +336,7 @@ module.exports = function(app, passport, pool) {
         ],
         function (req, res, next) {
             const errors = validationResult(req);
-            console.log(errors);
+            //console.log(errors);
             if (!errors.isEmpty()) {
                 return res.status(422).json({
                     errors: errors.mapped()
@@ -378,7 +377,7 @@ module.exports = function(app, passport, pool) {
         ],
         function (req, res, next) {
             const errors = validationResult(req);
-            console.log(errors);
+           // console.log(errors);
             if (!errors.isEmpty()) {
                 return res.status(422).json({
                     errors: errors.mapped()
@@ -411,7 +410,7 @@ module.exports = function(app, passport, pool) {
                         ])
                 })
                     .then(rows => {
-                        console.log(rows);
+                      //  console.log(rows);
                         return pool.query('UPDATE teams SET ? ' +
                             'WHERE ' +
                             'teams.id = ?',
@@ -438,7 +437,7 @@ module.exports = function(app, passport, pool) {
         ],
         function (req, res, next) {
             const errors = validationResult(req);
-            console.log(errors);
+           // console.log(errors);
             if (!errors.isEmpty()) {
                 return res.status(422).json({
                     errors: errors.mapped()
@@ -465,7 +464,7 @@ module.exports = function(app, passport, pool) {
                                 ])
                         })
                     .then(rows => {
-                        console.log(rows);
+                       // console.log(rows);
                             return pool.query('UPDATE teams SET ? ' +
                                 'WHERE ' +
                                 'teams.id = ?',
@@ -555,7 +554,7 @@ module.exports = function(app, passport, pool) {
 
                             ])
                     }).then(rows => {
-                    console.log(rows);
+                 //   console.log(rows);
 
                             res.json({
                                 status : "ok",
@@ -600,7 +599,7 @@ module.exports = function(app, passport, pool) {
                         req.body.team_id.trim(),
 
                     ]).then(rows => {
-                    console.log(rows);
+                  //  console.log(rows);
 
                             res.json({
                                 status : "ok",
@@ -678,7 +677,7 @@ module.exports = function(app, passport, pool) {
 
                             ])
                     }).then(rows => {
-                    console.log(rows);
+                 //   console.log(rows);
 
                             res.json({
                                 status : "ok",
@@ -728,7 +727,7 @@ module.exports = function(app, passport, pool) {
             }).then(rows => {
 
                 participants = rows;
-                console.log(participants);
+               // console.log(participants);
                 if (req.isAuthenticated()) {
 
                     for (var i = 0; i < participants.length; i++) {
@@ -776,11 +775,11 @@ module.exports = function(app, passport, pool) {
             }).then(rows => {
 
                 if (req.isAuthenticated() && (team.creator_id === req.session.passport.user.id || team.vice_captain_id === req.session.passport.user.id) && rows.length) {
-                    console.log(applies);
+               //     console.log(applies);
 
                     applies = rows;
                 }
-                console.log(participants);
+               // console.log(participants);
                 return res.render('teams/show', {
                     team : team,
                     participants : participants,
