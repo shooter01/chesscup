@@ -92,7 +92,7 @@ module.exports = function(app, passport, pool) {
 
 
                 }).catch(function (err) {
-                console.log(err);
+                // console.log(err);
                 res.json({
                     status : "error",
                 });
@@ -166,7 +166,7 @@ module.exports = function(app, passport, pool) {
                             });
                         }
                     }).catch(function (err) {
-                        console.log(err);
+                        // console.log(err);
                     });
             }
         });
@@ -205,7 +205,7 @@ module.exports = function(app, passport, pool) {
                                 status : "ok",
                             });
                         }).catch(function (err) {
-                            console.log(err);
+                            // console.log(err);
                             res.json({
                                 status : "error",
                             });
@@ -257,7 +257,7 @@ module.exports = function(app, passport, pool) {
                             });
 
                     }).catch(function (err) {
-                    console.log(err);
+                    // console.log(err);
                     res.json({
                         status : "error",
                     });
@@ -322,7 +322,7 @@ module.exports = function(app, passport, pool) {
                         });
 
                     }).catch(function (err) {
-                    console.log(err);
+                    // console.log(err);
                     res.json({
                         status : "error",
                     });
@@ -361,7 +361,7 @@ module.exports = function(app, passport, pool) {
                             });
 
                     }).catch(function (err) {
-                    console.log(err);
+                    // console.log(err);
                     res.json({
                         status : "error",
                     });
@@ -421,7 +421,7 @@ module.exports = function(app, passport, pool) {
                             ])
 
                     }).catch(function (err) {
-                    console.log(err);
+                    // console.log(err);
                     res.json({
                         status : "error",
                     });
@@ -481,7 +481,7 @@ module.exports = function(app, passport, pool) {
                             });
 
                     }).catch(function (err) {
-                    console.log(err);
+                    // console.log(err);
                     res.json({
                         status : "error",
                     });
@@ -561,7 +561,7 @@ module.exports = function(app, passport, pool) {
                             });
 
                     }).catch(function (err) {
-                        console.log(err);
+                        // console.log(err);
                         res.json({
                             status : "error",
                         });
@@ -607,7 +607,7 @@ module.exports = function(app, passport, pool) {
                             });
 
                     }).catch(function (err) {
-                        console.log(err);
+                        // console.log(err);
                         res.json({
                             status : "error",
                         });
@@ -684,7 +684,7 @@ module.exports = function(app, passport, pool) {
                             });
 
                     }).catch(function (err) {
-                        console.log(err);
+                        // console.log(err);
                         res.json({
                             status : "error",
                         });
@@ -789,7 +789,7 @@ module.exports = function(app, passport, pool) {
                 });
 
             }).catch(function (err) {
-            console.log(err);
+            // console.log(err);
                     res.render('error', {
                         message  : "Команда не найдена",
                     });
@@ -843,7 +843,7 @@ module.exports = function(app, passport, pool) {
                 });
 
             }).catch(function (err) {
-            console.log(err);
+            // console.log(err);
                     res.render('error', {
                         message  : "Команда не найдена",
                     });
