@@ -68,7 +68,7 @@ module.exports = function(app, passport, pool) {
 
 
         pool.query("SELECT COUNT(*) as count FROM teams WHERE is_hidden = 0", function (err, result, fields) {
-            var sql1 = "SELECT teams.* FROM teams WHERE is_hidden = 0 ORDER BY id DESC LIMIT ?,?";
+            var sql1 = "SELECT teams.* FROM teams WHERE is_hidden = 0 ORDER BY participants_count DESC LIMIT ?,?";
 
             pool
                 .query(sql1, [limit_start, limit])
