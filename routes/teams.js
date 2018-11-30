@@ -607,7 +607,7 @@ module.exports = function(app, passport, pool) {
                             });
 
                     }).catch(function (err) {
-                        // console.log(err);
+                         console.log(err);
                         res.json({
                             status : "error",
                         });
