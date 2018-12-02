@@ -146,8 +146,8 @@ class Pairing extends React.Component {
             for (var y = 0; y < state.length; y++) {
                 var obj1 = state[y];
                 if (typeof obj1.users != "undefined") {
-                    for (var i = 0; i < obj1.users.length; i++) {
-                        var obj = obj1.users[i];
+                    for (var i = 0; i < obj1.users[0].length; i++) {
+                        var obj = obj1.users[0][i];
                         if (obj.p1_id === val.p1_id && obj.p2_id === val.p2_id) {
                             obj.rating_change_p1 = data.rating_change_p1;
                             obj.rating_change_p2 = data.rating_change_p2;
@@ -208,7 +208,7 @@ class Pairing extends React.Component {
                                 <thead className="thead-light">
                                     <tr>
                                         <td  scope="col" className="text-center pairing-team-thead" style={w5}> </td>
-                                        <td  scope="col" className="text-center pairing-team-thead"  style={w30}>{this.state.tournaments_teams[item.team_1_id].name} </td>
+                                        <td  scope="col" className="text-center pairing-team-thead"  style={w30}>{item.team_1_id} {this.state.tournaments_teams[item.team_1_id].name} </td>
                                         <td  scope="col" className="text-center pairing-team-thead" style={w5}>{item.team_1_scores}</td>
 
 
@@ -261,14 +261,14 @@ class Pairing extends React.Component {
 
 
                                         <td  scope="col" className="text-center pairing-team-thead" style={w5}>{item.team_2_scores}</td>
-                                        <td  scope="col" className="text-center pairing-team-thead" style={w30}>{(this.state.tournaments_teams[item.team_2_id] ? this.state.tournaments_teams[item.team_2_id].name : null)} </td>
+                                        <td  scope="col" className="text-center pairing-team-thead" style={w30}>{item.team_1_id} {(this.state.tournaments_teams[item.team_2_id] ? this.state.tournaments_teams[item.team_2_id].name : null)} </td>
                                     </tr>
 
                                 </thead>
 
 
                                 <tbody>
-                                {item.users.map((pair, index)=>(
+                                {item.users[0].map((pair, index)=>(
                                         <tr key={index}>
                                             <td className="text-center">{pair.board}</td>
                                             <td>
@@ -281,6 +281,7 @@ class Pairing extends React.Component {
                                                     </td>
                                             <td className="text-center">{pair.p1_scores}</td>
                                             <td className="text-center">
+                                                {/*{JSON.stringify(item)}*/}
                                                 {(tour_id != "null" && tour_id == current_tour && typeof this.state.owner !== "undefined") ?
                                                     <select name="" className="custom-select form-control-sm" id="" defaultValue={JSON.stringify({
                                                         p1_id:pair.p1_id,
@@ -313,7 +314,7 @@ class Pairing extends React.Component {
                                                             p2_won:0.5
                                                         })}>½:½</option>
                                                     </select>
-                                                    : <div>{item.p1_won} - {item.p2_won}</div>}
+                                                    : <div>{pair.p1_won} - {pair.p2_won}</div>}
                                             </td>
                                             <td className="text-center">{pair.p2_scores}</td>
                                             <td>{pair.p2_name}

@@ -611,23 +611,150 @@ const DRAW = {
             teams_results,
             teams_participants,
             teams_scores,
-            participants,
-            team_tour_points,
+            participants = {},
+            team_tour_points = {},
             pairs,
-            tournament_results,
-            teams_array = [],
-            arrr = []
+            tournament_results = {}
             ;
 
+        return pool
+            .query("SELECT tp.*, u.name, u.tournaments_rating, u.title FROM tournaments_participants tp LEFT JOIN users u ON u.id = tp.user_id  WHERE tp.tournament_id = ?", [tournament_id])
+
+            .then(function (results) {
+
+                teams_participants = results;
+
+                for (let i = 0; i < results.length; i++) {
+                    let obj = results[i];
+                    participants[obj.user_id] = obj;
+                }
+
+            }).then(function (results) {
+
+                return pool.query('SELECT tt.id AS team_id,tt.team_name FROM tournaments_teams tt WHERE tt.tournament_id = ?', tournament_id)
+
+            }).then(function (results) {
+
+                //var res = DRAW_TEAM.makeTeams(results, tournament_results);
+                var teams_names = {};
+
+                for (let i = 0; i < results.length; i++) {
+                    teams_names[results[i].team_id] = results[i].team_name;
+                }
+                console.log(results);
+                console.log(teams_names);
+
+                var teams = {};
+                for (var i = 0; i < teams_participants.length; i++) {
+                    var obj = teams_participants[i];
+
+                    teams[obj.team_id] = teams[obj.team_id] || {};
+                    teams[obj.team_id].team_id = obj.team_id;
+                    teams[obj.team_id].users = teams[obj.team_id].users || [];
+
+                    var user = {
+                        user_id : obj.user_id,
+                        name : obj.name,
+                        email : obj.email,
+                    };
+
+                    teams[obj.team_id].name = teams_names[obj.team_id];
+
+                    if (user.user_id) {
+                        teams[obj.team_id].users.push(user);
+                    }
+                }
+
+                tournaments_teams = teams;
+
+            return pool
+                .query('SELECT * FROM tournaments_teams_scores WHERE tournament_id = ?', tournament_id)
+
+            }).then(function (results) {
+
+                teams_scores = DRAW_TEAM.makeScores(results);
+
+                return pool.query('SELECT tr.* FROM tournaments_results tr WHERE tr.tournament_id = ? AND tr.tour = ?',
+                [tournament_id, tour_id])
+            }).then(function (results) {
+
+                for (let i = 0, len = results.length; i < len; i++) {
+                    let obj = results[i];
+
+                    obj.p1_name = participants[obj.p1_id].name;
+                    obj.p2_name = participants[obj.p2_id].name;
+
+                    const team_id = participants[obj.p1_id].team_id;
+                    tournament_results[team_id] = tournament_results[team_id] || [];
+                    tournament_results[team_id].push(obj);
+
+                    //поскольку идет перебор результатов тура, то по пути считаем количество очков команды
+                    const team_id_2 = participants[obj.p2_id].team_id;
+                    team_tour_points[team_id] = team_tour_points[team_id] || 0;
+                    team_tour_points[team_id_2] = team_tour_points[team_id_2] || 0;
+                    team_tour_points[team_id]+= obj.p1_won;
+                    team_tour_points[team_id_2]+= obj.p2_won;
+
+                }
 
 
-            pool.query('SELECT tr.* FROM tournaments_results tr WHERE tr.tournament_id = ? AND tr.tour = ?', [tournament_id, tour_id])
+            return pool
+                .query('SELECT ttr.* FROM tournaments_teams_results ttr WHERE ttr.tournament_id = ? AND ttr.tour = ?', [tournament_id, tour_id])
+
+            }).then(function (results) {
+                const teams_results = results;
+                let pairs = [];
+
+                for (let i = 0; i < teams_results.length; i++) {
+                    let obj = teams_results[i];
+                    obj.users = [];
+
+                    if (typeof tournament_results[obj.team_1_id] !== "undefined") {
+                        obj.users.push(tournament_results[obj.team_1_id]);
+                        pairs.push(obj);
+                    }
+                }
+
+            /*res.render('tournament/teams/pairing', {
+                tournament: tournament,
+                tour_id: tour_id,
+                pairs: JSON.stringify(pairs),
+                team_tour_points: JSON.stringify(team_tour_points),
+                teams_scores: JSON.stringify(teams_scores),
+                tournaments_teams: JSON.stringify(tournaments_teams)
+            });*/
+
+            return {
+                tournament: tournament,
+                tour_id: tour_id,
+                tournaments_teams : tournaments_teams,
+                team_tour_points: team_tour_points,
+                teams_scores: teams_scores,
+                pairs : pairs
+            };
+
+            /*res.json({
+                    status: "ok",
+                    tournament: tournament,
+                    tour_id: tour_id,
+                    team_tour_points: team_tour_points,
+                    teams_scores: teams_scores,
+                    pairs : pairs
+                });*/
+
+            });
+
+
+            /*pool.query('SELECT tr.* FROM tournaments_results tr WHERE tr.tournament_id = ? AND tr.tour = ?', [tournament_id, tour_id])
                 .then(function (results) {
+                //получаем турнирные результаты
                 tournament_results = results;
                 return pool.query('SELECT tt.id AS team_id,tt.team_name, tp.user_id, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC', tournament_id)
             }).then(function (results) {
+                console.log(results.length);
+
+                //console.log(results);
                 var res = DRAW_TEAM.makeTeams(results, tournament_results);
-                // console.log(res);
                 tournaments_teams = res.teams;
                 participants = res.participants;
                 team_tour_points = res.team_tour_points;
@@ -649,10 +776,11 @@ const DRAW = {
                     .query('SELECT tr.*, u1.name AS p1_name,u1.tournaments_rating AS p1_rating, u2.name AS p2_name, u2.tournaments_rating AS p2_rating FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN  users u2 ON tr.p2_id = u2.id WHERE tr.tournament_id = ? AND tr.tour = ?', [tournament_id, tour_id])
             }).then(function (rows) {
                 pairs = DRAW_TEAM.makePairs(rows, teams_results, tournaments_teams, participants);
+                console.log(pairs);
+
             }).then(function (rows) {
 
                 res.render('tournament/teams/pairing', {
-                    pairing: JSON.stringify(teams_results),
                     tournament: tournament,
                     tour_id: tour_id,
                     pairs: JSON.stringify(pairs),
@@ -660,9 +788,10 @@ const DRAW = {
                     teams_scores: JSON.stringify(teams_scores),
                     tournaments_teams: JSON.stringify(tournaments_teams)
                 });
+
             }).catch(function (err) {
                 console.log(err);
-            });
+            });*/
     }
 };
 

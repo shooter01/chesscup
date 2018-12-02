@@ -20,6 +20,7 @@ const countries = require('./countries');
 const DRAW = require('./draw_functions');
 
 DRAW.defaultSwiss = bluebird.promisifyAll(DRAW.defaultSwiss)
+DRAW.teamSwiss = bluebird.promisifyAll(DRAW.teamSwiss)
 
 
 const save_result = require('./save_result');
@@ -1263,7 +1264,7 @@ module.exports = function(app, passport, pool, i18n) {
                                    }
                                }
                            }
-                           console.log(swiss.participants);
+                           //console.log(swiss.participants);
                            return res.render('tournament/show', {
                                tournament  : tourney,
                                pairing  : JSON.stringify(swiss.pairing),
@@ -1456,18 +1457,41 @@ module.exports = function(app, passport, pool, i18n) {
                 .then(rows => {
                     const tournament = rows[0];
                     if (typeof tournament != "undefined") {
-                        DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app).then(function(swiss) {
-                            return res.render('tournament/pairing', {
-                                tournament  : tournament,
-                                pairing  : JSON.stringify(swiss.pairing),
-                                tournamentJSON  : JSON.stringify(tournament),
-                                participants : swiss.participants,
-                                participantsJSON : JSON.stringify(swiss.participants),
-                                tour_id : tour_id,
+
+                        //если турнир командный
+                        if (tournament.type > 10) {
+                            DRAW.teamSwiss(req, res, next, pool, tournament, tournament_id, tour_id).then(function(swiss) {
+                                console.log(swiss.pairs);
+                                res.render('tournament/teams/pairing', {
+                                    tournament: tournament,
+                                    tour_id: tour_id,
+                                    pairs: JSON.stringify(swiss.pairs),
+                                    team_tour_points: JSON.stringify(swiss.team_tour_points),
+                                    teams_scores: JSON.stringify(swiss.teams_scores),
+                                    tournaments_teams: JSON.stringify(swiss.tournaments_teams)
+                                });
+                            }).catch(function(e) {
+                                console.log(e);
                             });
-                        }).catch(function(e) {
-                            console.log(e);
-                        });
+
+                        //если турнир индивидуальный
+                        } else if (tournament.type < 10){
+                            DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app).then(function(swiss) {
+                                return res.render('tournament/pairing', {
+                                    tournament  : tournament,
+                                    pairing  : JSON.stringify(swiss.pairing),
+                                    tournamentJSON  : JSON.stringify(tournament),
+                                    participants : swiss.participants,
+                                    participantsJSON : JSON.stringify(swiss.participants),
+                                    tour_id : tour_id,
+                                });
+                            }).catch(function(e) {
+                                console.log(e);
+                            });
+                        }
+
+
+
 
                     } else {
                         res.render('error', {
