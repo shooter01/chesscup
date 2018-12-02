@@ -78,7 +78,7 @@ class ParticipantsListTable extends React.Component {
                             <td>
                                 <small>{index + 1}</small>
                             </td>
-                            <td>{item.name} ({item.id})</td>
+                            <td>{item.name} <span className="badge badge-dark">{item.tournaments_rating}</span></td>
 
                             <td className="text-center">
                                 {(!tournament.is_online) ? <span className="btn btn-danger font-weight-bold"

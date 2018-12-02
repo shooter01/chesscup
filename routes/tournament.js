@@ -496,7 +496,7 @@ module.exports = function(app, passport, pool, i18n) {
                 tournament_id: req.body.tournament_id,
                 user_id: req.body.user_id,
                 start_rating: req.body.rating,
-                team_id: req.body.team_id,
+                team_id: (req.body.team_id) ? req.body.team_id : 0,
             };
 
             let user_type = req.body.user_type;
@@ -1766,11 +1766,11 @@ module.exports = function(app, passport, pool, i18n) {
                     if (rows.length > 0) {
                         tourney = rows[0];
                          pool
-                                  .query('SELECT users.* FROM users where school_id = ?', req.session.passport.user.school_id)
+                                  .query('SELECT id,name,email,role,tournaments_rating FROM users where school_id = ?', req.session.passport.user.id)
                             .then(rows => {
                                 all_students = rows;
 
-                                var sql = 'SELECT users.* FROM tournaments_participants LEFT JOIN users ON users.id = tournaments_participants.user_id WHERE tournaments_participants.tournament_id = ?  ORDER BY id DESC';
+                                var sql = 'SELECT users.id,users.name,users.email,users.role,users.tournaments_rating FROM tournaments_participants LEFT JOIN users ON users.id = tournaments_participants.user_id WHERE tournaments_participants.tournament_id = ?  ORDER BY id DESC';
 
                                 if (tourney.type > 10) {
                                     sql = 'SELECT tt.id AS team_id,tt.team_name, tp.user_id,tp.team_board, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC, tp.team_board ASC';
@@ -1781,9 +1781,12 @@ module.exports = function(app, passport, pool, i18n) {
                              if (tourney.type > 10) {
                                  teams = makeTeams(participants);
                              }
-                                return pool.query('SELECT * FROM users WHERE role > 99 AND school_id = ?', req.session.passport.user.school_id)
+                                return pool.query('SELECT id,name,email,role,tournaments_rating FROM users WHERE role > 99 AND school_id = ?', req.session.passport.user.school_id)
                             }).then(rows => {
                                 teachers = rows;
+
+                                console.log(participants);
+
                                 res.render('tournament/participants', {
                                     tournament  : tourney,
                                     tournamentJSON  : JSON.stringify(tourney),

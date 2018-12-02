@@ -18,6 +18,7 @@
 	"CreateBoardsCount": "Количество досок в команде",
 	"CreateIndividSwiss": "Индивидуальный (швейцарская система)",
 	"CreateRoundRobin": "Индивидуальный (круговая система)",
+	"CreateTeamRoundRobinWithPlayers": "Командный (круговая система)",
 	"CreateTeamSwissWithPlayers": "Командный (швейцарская с добавлением игроков)",
 	"CreateTeamSwissWithoutPlayers": "Командный (швейцарская без добавления игроков)",
 	"LoginPassword": "Пароль",
