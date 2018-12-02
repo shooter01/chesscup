@@ -24,7 +24,7 @@ const make_draw = function (data) {
         scores_array = [], //массив для добавления в tournament_scores
         tournament_results = [];
 
-    console.log(tournament_id);
+    //console.log(tournament_id);
 
     if (!isNaN(tournament_id)) {
 
@@ -85,7 +85,7 @@ const make_draw = function (data) {
 
               //  var g = DRAW.makeResultsForRoundRobinSystem(tournament_results, participants, tourney);
                 var g = DRAW.makeResultsForSwissSystem(tournament_results, participants, tourney, bye_participants);
-                console.log(g);
+               // console.log(g);
 
             //    throw new Error("STOPPED");
 
@@ -123,8 +123,8 @@ const make_draw = function (data) {
 
         }).then((rows, error) => {
 
-            console.log("PROCCESS");
-            console.log(arguments);
+            //console.log("PROCCESS");
+            //console.log(arguments);
 
             if (tourney.current_tour != 0) {
                 return pool.query('INSERT INTO tournaments_scores (user_id, tournament_id, tour, scores, bh, rating, rating_change, berger) VALUES ?', [scores_array])
@@ -177,7 +177,7 @@ const make_draw = function (data) {
                     }
 
 
-                    console.log(addition);
+                   // console.log(addition);
 
                     app.mongoDB.collection("users").insertMany(addition);
                 }
@@ -187,8 +187,8 @@ const make_draw = function (data) {
 
 
             if (let_insert || let_tournament_insert) {
-                console.log("PROCCESS2");
-                console.log(arguments);
+              //  console.log("PROCCESS2");
+              //  console.log(arguments);
                 if (tourney.current_tour < tourney.tours_count) {
                     return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
                         current_tour : tourney.current_tour + 1,

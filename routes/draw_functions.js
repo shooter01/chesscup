@@ -565,7 +565,7 @@ const DRAW = {
                         participants_array.push(Object.assign(rows[i], scores_object[rows[i].user_id]));
 
                     }
-                    console.log(participants_array);
+                  //  console.log(participants_array);
 
                     if (!tournament.is_active  || tour_id - 1 == 0) {
                         participants = participants_array;
@@ -583,7 +583,7 @@ const DRAW = {
                 }).then(rows => {
 
 
-                    console.log(participants);
+                   // console.log(participants);
                     //console.log(rows);
 
                   /*  console.log({
