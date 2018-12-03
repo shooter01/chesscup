@@ -1246,38 +1246,62 @@ module.exports = function(app, passport, pool, i18n) {
                    tourney = rows[0];
 
                    if (rows.length) {
+                       const timeleft = (tourney.start_time) ? tourney.start_time.getTime() - new Date().getTime() : 0;
 
+                       if (tourney.type > 10) {
+                           DRAW.teamSwiss(req, res, next, pool, tourney, tournament_id, tourney.current_tour).then(function(swiss) {
+                               console.log(swiss.pairs);
+                               res.render('tournament/show', {
+                                   tournament: tourney,
+                                   tournamentJSON  : JSON.stringify(tourney),
 
-                       DRAW.defaultSwiss(req, res, next, pool, tourney, tournament_id, tourney.current_tour, app).then(function(swiss) {
+                                   tour_id: tourney.current_tour,
+                                   pairs: JSON.stringify(swiss.pairs),
+                                   timeleft : timeleft,
+                                   team_tour_points: JSON.stringify(swiss.team_tour_points),
+                                   participants_boards: JSON.stringify(swiss.participants_boards),
+                                   participants_array: JSON.stringify(swiss.participants_array),
+                                   teams_scores: JSON.stringify(swiss.teams_scores),
+                                   results_table: JSON.stringify(swiss.results_table),
+                                   tournaments_teams: JSON.stringify(swiss.tournaments_teams)
+                               });
+                           }).catch(function(e) {
+                               console.log(e);
+                           });
+                       } else {
+                           DRAW.defaultSwiss(req, res, next, pool, tourney, tournament_id, tourney.current_tour, app).then(function(swiss) {
 
-                           tourney.start_date = moment(tourney.start_date).format("DD-MM-YYYY");
-                           tourney.end_date = moment(tourney.end_date).format("DD-MM-YYYY");
-                           tourney.created_at = moment(tourney.created_at).format("DD-MM-YYYY");
-                           const timeleft = (tourney.start_time) ? tourney.start_time.getTime() - new Date().getTime() : 0;
+                               tourney.start_date = moment(tourney.start_date).format("DD-MM-YYYY");
+                               tourney.end_date = moment(tourney.end_date).format("DD-MM-YYYY");
+                               tourney.created_at = moment(tourney.created_at).format("DD-MM-YYYY");
 
-                           if (req.isAuthenticated()) {
-                               for (var i = 0; i < swiss.participants.length; i++) {
-                                   var obj = swiss.participants[i];
-                                   if (req.session.passport.user.id == obj.user_id) {
-                                       is_in = true;
-                                       break;
+                               if (req.isAuthenticated()) {
+                                   for (var i = 0; i < swiss.participants.length; i++) {
+                                       var obj = swiss.participants[i];
+                                       if (req.session.passport.user.id == obj.user_id) {
+                                           is_in = true;
+                                           break;
+                                       }
                                    }
                                }
-                           }
-                           //console.log(swiss.participants);
-                           return res.render('tournament/show', {
-                               tournament  : tourney,
-                               pairing  : JSON.stringify(swiss.pairing),
-                               tournamentJSON  : JSON.stringify(tourney),
-                               participants : swiss.participants,
-                               timeleft : timeleft,
-                               is_in : is_in,
-                               participantsJSON : JSON.stringify(swiss.participants),
-                               tour_id : tourney.current_tour,
+                               //console.log(swiss.participants);
+                               return res.render('tournament/show', {
+                                   tournament  : tourney,
+                                   pairing  : JSON.stringify(swiss.pairing),
+                                   tournamentJSON  : JSON.stringify(tourney),
+                                   participants : swiss.participants,
+                                   timeleft : timeleft,
+                                   is_in : is_in,
+                                   participantsJSON : JSON.stringify(swiss.participants),
+                                   tour_id : tourney.current_tour,
+                               });
+                           }).catch(function(e) {
+                               console.log(e);
                            });
-                       }).catch(function(e) {
-                           console.log(e);
-                       });
+                       }
+
+
+
 
                    } else {
                        res.render('error', {

@@ -161,14 +161,17 @@ const DRAW_TEAM = {
 
         return pairs;
     },
-
+    //считаем очки команды и дополнительные коэффициенты
     makeScores : function (results) {
-        let arr = {};
+        let teams_scores = {}, additional_coef = {};
         for (var i = 0; i < results.length; i++) {
             var obj = results[i];
-            arr[obj.team_id] = obj.scores;
+            teams_scores[obj.team_id] = obj.scores;
+            additional_coef[obj.team_id] = {};
+            additional_coef[obj.team_id].bh = obj.bh;
+            additional_coef[obj.team_id].berger = obj.berger;
         }
-        return arr;
+        return {teams_scores : teams_scores, additional_coef : additional_coef};
     },
 
     sortArr : function (arrr) {

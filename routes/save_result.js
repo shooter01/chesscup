@@ -34,7 +34,7 @@ const save_result = function (data) {
             p1_won: result.p1_won,
             p2_won: result.p2_won,
         };
-        var tourney, participants, teams_points, p1_new_rating = 1200, p2_new_rating = 1200;
+        var tourney, participants = {}, teams_points = {}, p1_new_rating = 1200, p2_new_rating = 1200;
     console.log("save_result SAVE RESULT");
         return pool
             .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
@@ -123,45 +123,64 @@ const save_result = function (data) {
 
         }).then(function (results) {
 
-          /*  if (tourney.type > 10){
-                return pool.query('SELECT tt.id AS team_id,tt.team_name, tp.user_id, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC', tourney.id);
+            if (tourney.type > 10){
+                return pool
+                    .query("SELECT tp.* FROM tournaments_participants tp WHERE tp.tournament_id = ?", [tournament_id])
             } else {
                 return true;
-            }*/
-                return true;
+            }
+               // return true;
         }).then(function (results) {
+            console.log(results);
+                //переводим участников в объект
+                for (let i = 0; i < results.length; i++) {
+                    let obj = results[i];
+                    participants[obj.user_id] = obj;
+                }
 
-          //  participants = results;
 
 
-
-          /*  if (tourney.type > 10){
+            if (tourney.type > 10){
                 return pool.query('SELECT tr.* FROM tournaments_results tr WHERE tr.tournament_id = ? AND tr.tour = ?', [tourney.id, tourney.current_tour]);
             } else {
                 return true;
-            }*/
-                return true;
+            }
+               // return true;
         }).then(function (results) {
 
-            /*if (tourney.type > 10){
+            if (tourney.type > 10){
 
-                teams_points = DRAW_TEAM.makeTeamResults(results, participants);
-
-                var team_1, team_2, office = {};
-
-                var team_2_id = teams_points.participants_obj[result.p2_id];
-                var team_1_id = teams_points.participants_obj[result.p1_id];
-
-                office["team_1_won"] = teams_points.teams[team_1_id];
-                office["team_2_won"] = teams_points.teams[team_2_id];
+                //teams_points = DRAW_TEAM.makeTeamResults(results, participants);
 
 
-                var request_string1 = "= ?";
-                var request_string2 = "= ?";
+                for (let i = 0, len = results.length; i < len; i++) {
+                    let obj = results[i];
+
+                    obj.p1_name = participants[obj.p1_id].name;
+                    obj.p2_name = participants[obj.p2_id].name;
+
+                    const team_id = participants[obj.p1_id].team_id;
+
+                    //поскольку идет перебор результатов тура, то по пути считаем количество очков команды
+                    const team_id_2 = participants[obj.p2_id].team_id;
+                    teams_points[team_id] = teams_points[team_id] || 0;
+                    teams_points[team_id_2] = teams_points[team_id_2] || 0;
+                    teams_points[team_id]+= obj.p1_won;
+                    teams_points[team_id_2]+= obj.p2_won;
+
+                }
+
+                let team_1, team_2, office = {};
+
+                let team_2_id = participants[result.p2_id].team_id;
+                let team_1_id = participants[result.p1_id].team_id;
+
+                office["team_1_won"] = teams_points[team_1_id];
+                office["team_2_won"] = teams_points[team_2_id];
 
                 return pool.query('UPDATE tournaments_teams_results SET ? ' +
                     'WHERE ' +
-                    'tournaments_teams_results.tournament_id = ? AND tour = ? AND team_1_id ' + request_string1 + ' AND team_2_id ' + request_string2,
+                    'tournaments_teams_results.tournament_id = ? AND tour = ? AND team_1_id = ? AND team_2_id = ?',
                     [
                         office,
                         tourney.id,
@@ -173,8 +192,8 @@ const save_result = function (data) {
 
             } else {
                 return true;
-            }*/
-                return true;
+            }
+               // return true;
         }).then(function (results) {
 
                 return pool.query('SELECT COUNT(*) as count FROM tournaments_results tr WHERE (tr.p1_won IS NULL AND tr.p2_won IS NULL) AND tr.tournament_id = ? AND tr.tour = ?', [tourney.id, tourney.current_tour]);
@@ -189,8 +208,6 @@ const save_result = function (data) {
                         tournament_id : tournament_id,
                         pool : pool,
                         app : app,
-                        // req : req,
-                        // res : res,
                     });
                     //console.log(throttle);
                     console.log("OVER");
@@ -234,7 +251,7 @@ const save_result = function (data) {
                 tourney_id : tournament_id,
                 rating_change_p1 : office["rating_change_p1"],
                 rating_change_p2 : office["rating_change_p2"],
-                teams_points : (typeof teams_points != "undefined") ? teams_points.teams : null,
+                teams_points : (typeof teams_points != "undefined") ? teams_points : null,
             };
 
         }).catch(function (err) {

@@ -60,12 +60,7 @@
 
 <% } %>
 
-<script>
-    var participants = JSON.parse('<%- participantsJSON %>');
-    var tournament = JSON.parse('<%- tournamentJSON %>');
-    var pairs = JSON.parse('<%- pairing %>');
-    var is_in = <%- is_in %>;
-</script>
+
 <% if (user && user.user) { %>
 <script>
     var u = '<%= user.user.id %>';
@@ -156,6 +151,7 @@
             <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">-->
 
                 <div id="pairing"></div>
+        <div id="team_tables"></div>
 
                 <!--<div id="participants"></div>-->
 
@@ -239,6 +235,12 @@
 
 
 <script>
+    var tournament = JSON.parse('<%- tournamentJSON %>');
+
+</script>
+
+
+<script>
     window.g_ws_params = {
         t1 : tournament.id,
 
@@ -247,5 +249,32 @@
 
 </script>
 
+<% if (tournament.type > 10) { %>
+<script>
+    var tournaments_teams = JSON.parse('<%- tournaments_teams %>');
+    var pairs = JSON.parse('<%- pairs %>');
+    var team_tour_points = JSON.parse('<%- team_tour_points %>');
+    var results_table = JSON.parse('<%- results_table %>');
+    var participants_array = JSON.parse('<%- participants_array %>');
+    var participants_boards = JSON.parse('<%- participants_boards %>');
+    var teams_scores = JSON.parse('<%- teams_scores %>');
+    var tournament_id = '<%= tournament.id %>';
+    var type = '<%= tournament.type %>';
+    var team_boards = '<%= tournament.team_boards %>';
+    var current_tour = '<%= tournament.current_tour %>';
+    var tour_id = '<%= (typeof tour_id != "undefined") ? tour_id : null %>';
 
+</script>
+
+
+<script src="/js/team_pairing.min.js"></script>
+<script src="/js/teams_tables.min.js"></script>
+<% } else { %>
+<script>
+    var participants = JSON.parse('<%- participantsJSON %>');
+    var pairs = JSON.parse('<%- pairing %>');
+    var is_in = <%- is_in %>;
+</script>
 <script src="/js/p.min.js"></script>
+
+<% }  %>

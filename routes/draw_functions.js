@@ -489,15 +489,18 @@ const DRAW = {
 
     },
 
-    sortBoards : function (arrr) {
+    sortBoards : function (arrr, participants_scores) {
         var boards = {};
 
         for (var i = 0; i < arrr.length; i++) {
             var obj = arrr[i];
+            obj.bh = (participants_scores[obj.user_id]) ? participants_scores[obj.user_id].bh : null;
+            obj.scores = (participants_scores[obj.user_id]) ? participants_scores[obj.user_id].scores : null;
+            obj.berger = (participants_scores[obj.user_id]) ? participants_scores[obj.user_id].berger : null;
             boards[obj.team_board] = boards[obj.team_board] || [];
             boards[obj.team_board].push(obj);
         }
-
+        console.log(participants_scores);
         for (var obj1 in boards) {
             boards[obj1] = DRAW.sortArr(boards[obj1]);
         }
@@ -565,7 +568,7 @@ const DRAW = {
                         participants_array.push(Object.assign(rows[i], scores_object[rows[i].user_id]));
 
                     }
-                  //  console.log(participants_array);
+
 
                     if (!tournament.is_active  || tour_id - 1 == 0) {
                         participants = participants_array;
@@ -610,9 +613,14 @@ const DRAW = {
         let tournaments_teams,
             teams_results,
             teams_participants,
+            participants_array = [],
             teams_scores,
+            additional_coef,
             participants = {},
+            participants_boards = {},
+            participants_scores = [],
             team_tour_points = {},
+            results_table = [],
             pairs,
             tournament_results = {}
             ;
@@ -629,21 +637,66 @@ const DRAW = {
                     participants[obj.user_id] = obj;
                 }
 
+                return pool
+                    .query("SELECT ts.* FROM tournaments_scores ts WHERE ts.tournament_id = ?", [tournament_id])
+
+            }).then(function (rows) {
+
+
+                for (let i = 0; i < rows.length; i++) {
+                    participants_scores[rows[i].user_id] = {};
+                    participants_scores[rows[i].user_id].bh = rows[i].bh;
+                    participants_scores[rows[i].user_id].name = participants[rows[i].user_id].name;
+                    participants_scores[rows[i].user_id].scores = rows[i].scores;
+                    participants_scores[rows[i].user_id].berger = rows[i].berger;
+                }
+
+                for (var i = 0; i < rows.length; i++) {
+                    participants_array.push(Object.assign(rows[i], participants_scores[rows[i].user_id]));
+
+                }
+                console.log("==");
+                console.log(teams_participants);
+
+                if (!tournament.is_active  || tour_id - 1 == 0) {
+                    participants_array = teams_participants;
+                } else {
+                    participants_array = DRAW.sortArr(participants_array);
+                }
+
+
+
+
+                return pool
+                    .query('SELECT * FROM tournaments_teams_scores WHERE tournament_id = ?', tournament_id)
+
             }).then(function (results) {
+
+                let result = DRAW_TEAM.makeScores(results);
+                teams_scores = result.teams_scores;
+                additional_coef = result.additional_coef;
 
                 return pool.query('SELECT tt.id AS team_id,tt.team_name FROM tournaments_teams tt WHERE tt.tournament_id = ?', tournament_id)
 
             }).then(function (results) {
 
-                //var res = DRAW_TEAM.makeTeams(results, tournament_results);
-                var teams_names = {};
+                let teams_names = {};
 
                 for (let i = 0; i < results.length; i++) {
                     teams_names[results[i].team_id] = results[i].team_name;
+                    results_table.push({
+                        id : results[i].team_id,
+                        team_name : results[i].team_name,
+                        scores : teams_scores[results[i].team_id],
+                        bh : (additional_coef[results[i].team_id]) ? additional_coef[results[i].team_id].bh : null,
+                        berger : (additional_coef[results[i].team_id]) ? additional_coef[results[i].team_id].berger : null,
+                    });
                 }
-                console.log(results);
-                console.log(teams_names);
 
+                results_table = DRAW.sortArr(results_table);
+                participants_boards = DRAW.sortBoards(teams_participants, participants_scores);
+               // console.log("======<<<");
+               // console.log(participants_scores);
                 var teams = {};
                 for (var i = 0; i < teams_participants.length; i++) {
                     var obj = teams_participants[i];
@@ -665,14 +718,10 @@ const DRAW = {
                     }
                 }
 
+               // console.log("=====");
+              //  console.log(results_table);
+
                 tournaments_teams = teams;
-
-            return pool
-                .query('SELECT * FROM tournaments_teams_scores WHERE tournament_id = ?', tournament_id)
-
-            }).then(function (results) {
-
-                teams_scores = DRAW_TEAM.makeScores(results);
 
                 return pool.query('SELECT tr.* FROM tournaments_results tr WHERE tr.tournament_id = ? AND tr.tour = ?',
                 [tournament_id, tour_id])
@@ -702,7 +751,7 @@ const DRAW = {
                 .query('SELECT ttr.* FROM tournaments_teams_results ttr WHERE ttr.tournament_id = ? AND ttr.tour = ?', [tournament_id, tour_id])
 
             }).then(function (results) {
-                const teams_results = results;
+                teams_results = results;
                 let pairs = [];
 
                 for (let i = 0; i < teams_results.length; i++) {
@@ -714,6 +763,9 @@ const DRAW = {
                         pairs.push(obj);
                     }
                 }
+
+
+
 
             /*res.render('tournament/teams/pairing', {
                 tournament: tournament,
@@ -729,6 +781,9 @@ const DRAW = {
                 tour_id: tour_id,
                 tournaments_teams : tournaments_teams,
                 team_tour_points: team_tour_points,
+                participants_boards: participants_boards,
+                participants_array: participants_array,
+                results_table: results_table,
                 teams_scores: teams_scores,
                 pairs : pairs
             };

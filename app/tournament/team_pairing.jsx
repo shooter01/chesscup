@@ -207,14 +207,14 @@ class Pairing extends React.Component {
                             <table className="table table-hover table-bordered table-sm mb-0 ">
                                 <thead className="thead-light">
                                     <tr>
-                                        <td  scope="col" className="text-center pairing-team-thead" style={w5}> </td>
-                                        <td  scope="col" className="text-center pairing-team-thead"  style={w30}>{item.team_1_id} {this.state.tournaments_teams[item.team_1_id].name} </td>
-                                        <td  scope="col" className="text-center pairing-team-thead" style={w5}>{item.team_1_scores}</td>
+                                        <th  scope="col" className="text-center pairing-team-thead" style={w5}> </th>
+                                        <th  scope="col" className="text-center pairing-team-thead"  style={w30}>{item.team_1_id} {this.state.tournaments_teams[item.team_1_id].name} </th>
+                                        <th  scope="col" className="text-center pairing-team-thead" style={w5}>{item.team_1_scores}</th>
 
 
                                         {(this.state.type == 20 && (tour_id != "null" && tour_id == current_tour && typeof this.state.owner !== "undefined")) ?
 
-                                        <td  scope="col" className="text-center pairing-team-thead" style={w12}> <select name="" className="custom-select form-control-sm" id="" defaultValue={JSON.stringify({
+                                        <th  scope="col" className="text-center pairing-team-thead" style={w12}> <select name="" className="custom-select form-control-sm" id="" defaultValue={JSON.stringify({
                                             p1_id:item.team_1_id,
                                             p2_id:item.team_2_id,
                                             p1_won:item.team_1_won,
@@ -255,13 +255,13 @@ class Pairing extends React.Component {
                                             })}>{(this.state.team_boards.length/2)}:{this.state.team_boards.length/2}</option>
 
 
-                                        </select> <span className="badge"></span></td> :
-                                            <td  scope="col" className="text-center pairing-team-thead" style={w12}> {this.state.team_tour_points[item.team_1_id] || 0} : {this.state.team_tour_points[item.team_2_id] || 0} </td>
+                                        </select> <span className="badge"></span></th> :
+                                            <th  scope="col" className="text-center pairing-team-thead" style={w12}> {this.state.team_tour_points[item.team_1_id] || 0} : {this.state.team_tour_points[item.team_2_id] || 0} </th>
                                         }
 
 
-                                        <td  scope="col" className="text-center pairing-team-thead" style={w5}>{item.team_2_scores}</td>
-                                        <td  scope="col" className="text-center pairing-team-thead" style={w30}>{item.team_1_id} {(this.state.tournaments_teams[item.team_2_id] ? this.state.tournaments_teams[item.team_2_id].name : null)} </td>
+                                        <th  scope="col" className="text-center pairing-team-thead" style={w5}>{item.team_2_scores}</th>
+                                        <th  scope="col" className="text-center pairing-team-thead" style={w30}>{item.team_2_id} {(this.state.tournaments_teams[item.team_2_id] ? this.state.tournaments_teams[item.team_2_id].name : null)} </th>
                                     </tr>
 
                                 </thead>
@@ -283,37 +283,41 @@ class Pairing extends React.Component {
                                             <td className="text-center">
                                                 {/*{JSON.stringify(item)}*/}
                                                 {(tour_id != "null" && tour_id == current_tour && typeof this.state.owner !== "undefined") ?
-                                                    <select name="" className="custom-select form-control-sm" id="" defaultValue={JSON.stringify({
-                                                        p1_id:pair.p1_id,
-                                                        p2_id:pair.p2_id,
-                                                        p1_won:pair.p1_won,
-                                                        p2_won:pair.p2_won
-                                                    })} {...(!pair.p2_id || !pair.p1_id) ? disabled : ""} onChange={this.saveResult}>
-                                                        <option value={JSON.stringify({
+
+                                                    <span>
+                                                        <select name="" className="custom-select form-control-sm" id="" defaultValue={JSON.stringify({
                                                             p1_id:pair.p1_id,
                                                             p2_id:pair.p2_id,
-                                                            p1_won:0,
-                                                            p2_won:0
-                                                        })}> </option>
-                                                        <option value={JSON.stringify({
-                                                            p1_id:pair.p1_id,
-                                                            p2_id:pair.p2_id,
-                                                            p1_won:1,
-                                                            p2_won:0
-                                                        })}>1:0</option>
-                                                        <option value={JSON.stringify({
-                                                            p1_id:pair.p1_id,
-                                                            p2_id:pair.p2_id,
-                                                            p1_won:0,
-                                                            p2_won:1
-                                                        })}>0:1</option>
-                                                        <option value={JSON.stringify({
-                                                            p1_id:pair.p1_id,
-                                                            p2_id:pair.p2_id,
-                                                            p1_won:0.5,
-                                                            p2_won:0.5
-                                                        })}>½:½</option>
-                                                    </select>
+                                                            p1_won:pair.p1_won,
+                                                            p2_won:pair.p2_won
+                                                        })} {...(!pair.p2_id || !pair.p1_id) ? disabled : ""} onChange={this.saveResult}>
+                                                            <option value={JSON.stringify({
+                                                                p1_id:pair.p1_id,
+                                                                p2_id:pair.p2_id,
+                                                                p1_won:0,
+                                                                p2_won:0
+                                                            })}> </option>
+                                                            <option value={JSON.stringify({
+                                                                p1_id:pair.p1_id,
+                                                                p2_id:pair.p2_id,
+                                                                p1_won:1,
+                                                                p2_won:0
+                                                            })}>1:0</option>
+                                                            <option value={JSON.stringify({
+                                                                p1_id:pair.p1_id,
+                                                                p2_id:pair.p2_id,
+                                                                p1_won:0,
+                                                                p2_won:1
+                                                            })}>0:1</option>
+                                                            <option value={JSON.stringify({
+                                                                p1_id:pair.p1_id,
+                                                                p2_id:pair.p2_id,
+                                                                p1_won:0.5,
+                                                                p2_won:0.5
+                                                            })}>½:½</option>
+                                                        </select>
+                                                        <span className="badge"></span>
+                                                    </span>
                                                     : <div>{pair.p1_won} - {pair.p2_won}</div>}
                                             </td>
                                             <td className="text-center">{pair.p2_scores}</td>

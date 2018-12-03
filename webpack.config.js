@@ -16,6 +16,7 @@ var config = {
         current_games : './app/tournament/current_games.jsx',
         chat : './app/tournament/Chat.jsx',
         get_in : './app/tournament/get_in.jsx',
+        teams_tables : './app/tournament/teams_tables.jsx',
         tournament_events : './app/tournament/tournament_events.jsx',
         player : './app/tournament/player.jsx',
         online_participants : './app/tournament/online_participants.jsx',
