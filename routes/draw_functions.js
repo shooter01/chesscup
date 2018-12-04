@@ -779,8 +779,8 @@ const DRAW = {
                         pairs.push(obj);
                     }
                 }
-                console.log("=====");
-                console.log(tournament_results);
+                //console.log("=====");
+               // console.log(tournament_results);
               //  console.log(tournament_results);
 
 

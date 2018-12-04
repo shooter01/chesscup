@@ -42,14 +42,15 @@ const teampairing = function (results, participants, tourney, bye_participants, 
             }
           //  console.log(pairs);
             return pool
-                .query('SELECT * FROM tournaments_teams_scores WHERE tournament_id = ?', tourney.id);
+                .query('SELECT * FROM tournaments_teams_scores WHERE tournament_id = ? AND tour = ?', [tourney.id, tourney.current_tour]);
 
         })
         .then(rows => {
-            let result = DRAW_TEAM.makeScores(results);
+            let result = DRAW_TEAM.makeScores(rows);
             teams_scores = result.teams_scores;
             additional_coef = result.additional_coef;
-
+            console.log(">>>><<<<<<");
+            console.log(teams_scores);
             var for_addition_teams = [];
             for (var i = 0; i < insert_object.length; i++) {
                 var obj = insert_object[i], p1_won = null, p2_won = null;
