@@ -2,6 +2,9 @@ const DRAW = require('./draw_functions');
 const moment = require('moment');
 const invite_user_to_game = require('./invite_user_to_game');
 const create_game_mongo = require('./create_game_mongo');
+const bluebird = require('bluebird');
+
+DRAW.makeResultsForSwissSystem = bluebird.promisifyAll(DRAW.makeResultsForSwissSystem)
 
 const make_draw = function (data) {
     const tournament_id = data.tournament_id;
@@ -84,38 +87,40 @@ const make_draw = function (data) {
                 }
 
               //  var g = DRAW.makeResultsForRoundRobinSystem(tournament_results, participants, tourney);
-                var g = DRAW.makeResultsForSwissSystem(tournament_results, participants, tourney, bye_participants, pool);
-                //console.log(g);
+                return DRAW.makeResultsForSwissSystem(tournament_results, participants, tourney, bye_participants, pool).then(function (g) {
 
-                //throw new Error("STOPPED");
+                    console.log("ggg");
+                    console.log(g);
 
 
-                const pairs = DRAW.sortSwiss(g.swiss, participants_object);
+                    const pairs = DRAW.sortSwiss(g.swiss, participants_object);
 
-              //  for (var i = 0; i < pairs.length; i++) {
-             //       var obj = pairs[i];
-                    //console.log(participants_object[obj.home] + participants_object[obj.away]);
-                   // console.log(obj.home + "==" + obj.away);
-              //  }
-               // console.log(pairs);
 
-                const berger_object = g.berger_object;
-                const colors = g.colors;
-                const for_addition = DRAW.makeInsertObject(pairs, participants_object, tourney, {}, colors);
-                const berger = DRAW.sumBergerObject(berger_object, participants_object);
 
-                const buhgolz = DRAW.getBuhgolz(tournament_results, participants_object);
-                scores_array = DRAW.makeScoresArray(participants_object, berger, buhgolz, tourney);
+                    const berger_object = g.berger_object;
+                    const colors = g.colors;
+                    const for_addition = DRAW.makeInsertObject(pairs, participants_object, tourney, {}, colors);
+                    const berger = DRAW.sumBergerObject(berger_object, participants_object);
+
+                    const buhgolz = DRAW.getBuhgolz(tournament_results, participants_object);
+                    scores_array = DRAW.makeScoresArray(participants_object, berger, buhgolz, tourney);
+
+                    if (let_insert && ((tourney.current_tour + 1) <= tourney.tours_count)) {
+                        return pool.query('INSERT INTO tournaments_results (' +
+                            'p1_id, p2_id, p1_won, p2_won,p1_scores,p2_scores, tournament_id,created_at,tour,board, ' +
+                            'rating_change_p1, rating_change_p2, p1_rating_for_history, p2_rating_for_history) VALUES ?',
+                            [for_addition]);
+                    } else {
+                        return true;
+                    }
+
+                });
+
+
                // throw new Error("STOPPED");
 
-                if (let_insert && ((tourney.current_tour + 1) <= tourney.tours_count)) {
-                      return pool.query('INSERT INTO tournaments_results (' +
-                          'p1_id, p2_id, p1_won, p2_won,p1_scores,p2_scores, tournament_id,created_at,tour,board, ' +
-                          'rating_change_p1, rating_change_p2, p1_rating_for_history, p2_rating_for_history) VALUES ?',
-                          [for_addition]);
-                } else {
-                    return true;
-                }
+
+
 
 
 

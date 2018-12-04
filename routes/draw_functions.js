@@ -1,14 +1,17 @@
 const swisspairing = require('swiss-pairing');
+const bluebird = require('bluebird');
+
 const DRAW_TEAM = require('./draw_team_functions');
 const roundrobin = require('./systems/roundrobin');
-const teampairing = require('./systems/teampairing');
+let teampairing = require('./systems/teampairing');
+teampairing = bluebird.promisifyAll(teampairing)
 
 const DRAW = {
     checkEmptyResults : function (results, tourney) {
         var flag = false;
         var i = 0;
         for (var i = 0; i < results.length; i++) {
-            console.log(results[i].id, !Number.isInteger(results[i].p1_won) && !Number.isInteger(results[i].p2_won));
+            //console.log(results[i].id, !Number.isInteger(results[i].p1_won) && !Number.isInteger(results[i].p2_won));
             if (!Number.isFinite(results[i].p1_won) && !Number.isFinite(results[i].p2_won)) {
                 flag = true;
                 break;
@@ -174,14 +177,18 @@ const DRAW = {
 
         //если командный круговой
         } else if (tourney.type == 11) {
-            d = teampairing(results, participants, tourney, bye_participants, pool);
+            return teampairing(results, participants, tourney, bye_participants, pool).then(function (a) {
+                console.log("aaaa");
+                console.log(a);
+                return {swiss : a, berger_object : berger_object, colors : colors};
+            });
         }
 
      //   var
 
        // console.log(d);
 
-        return {swiss : d, berger_object : berger_object, colors : colors};
+
     },
 
     //определяем количество туров
@@ -506,7 +513,7 @@ const DRAW = {
             boards[obj.team_board] = boards[obj.team_board] || [];
             boards[obj.team_board].push(obj);
         }
-        console.log(participants_scores);
+       // console.log(participants_scores);
         for (var obj1 in boards) {
             boards[obj1] = DRAW.sortArr(boards[obj1]);
         }
@@ -644,10 +651,11 @@ const DRAW = {
                 }
 
                 return pool
-                    .query("SELECT ts.* FROM tournaments_scores ts WHERE ts.tournament_id = ?", [tournament_id])
+                    .query("SELECT ts.* FROM tournaments_scores ts WHERE ts.tournament_id = ? AND ts.tour = ?", [tournament_id, tour_id - 1])
 
             }).then(function (rows) {
-
+              //  console.log("======<<<");
+                //console.log(rows);
 
                 for (let i = 0; i < rows.length; i++) {
                     participants_scores[rows[i].user_id] = {};
@@ -661,8 +669,8 @@ const DRAW = {
                     participants_array.push(Object.assign(rows[i], participants_scores[rows[i].user_id]));
 
                 }
-                console.log("==");
-                console.log(teams_participants);
+                //console.log("==");
+               // console.log(teams_participants);
 
                 if (!tournament.is_active  || tour_id - 1 == 0) {
                     participants_array = teams_participants;
@@ -674,7 +682,7 @@ const DRAW = {
 
 
                 return pool
-                    .query('SELECT * FROM tournaments_teams_scores WHERE tournament_id = ?', tournament_id)
+                    .query('SELECT * FROM tournaments_teams_scores WHERE tournament_id = ? AND tour = ?', [tournament_id, tour_id - 1])
 
             }).then(function (results) {
 
@@ -701,8 +709,7 @@ const DRAW = {
 
                 results_table = DRAW.sortArr(results_table);
                 participants_boards = DRAW.sortBoards(teams_participants, participants_scores);
-               // console.log("======<<<");
-               // console.log(participants_scores);
+
                 var teams = {};
                 for (var i = 0; i < teams_participants.length; i++) {
                     var obj = teams_participants[i];
@@ -725,7 +732,7 @@ const DRAW = {
                 }
 
                // console.log("=====");
-              //  console.log(results_table);
+               // console.log(tour_id);
 
                 tournaments_teams = teams;
 
@@ -767,9 +774,14 @@ const DRAW = {
                     if (typeof tournament_results[obj.team_1_id] !== "undefined") {
                         obj.users.push(tournament_results[obj.team_1_id]);
                         pairs.push(obj);
+                    } else if (typeof tournament_results[obj.team_2_id] !== "undefined") {
+                        obj.users.push(tournament_results[obj.team_2_id]);
+                        pairs.push(obj);
                     }
                 }
-
+                console.log("=====");
+                console.log(tournament_results);
+              //  console.log(tournament_results);
 
 
 

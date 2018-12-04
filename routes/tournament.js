@@ -1250,7 +1250,8 @@ module.exports = function(app, passport, pool, i18n) {
 
                        if (tourney.type > 10) {
                            DRAW.teamSwiss(req, res, next, pool, tourney, tournament_id, tourney.current_tour).then(function(swiss) {
-                               console.log(swiss.pairs);
+                               //console.log("===");
+                               //console.log(swiss.pairs);
                                res.render('tournament/show', {
                                    tournament: tourney,
                                    tournamentJSON  : JSON.stringify(tourney),
@@ -1485,7 +1486,7 @@ module.exports = function(app, passport, pool, i18n) {
                         //если турнир командный
                         if (tournament.type > 10) {
                             DRAW.teamSwiss(req, res, next, pool, tournament, tournament_id, tour_id).then(function(swiss) {
-                                console.log(swiss.pairs);
+                                //console.log(swiss.pairs);
                                 res.render('tournament/teams/pairing', {
                                     tournament: tournament,
                                     tour_id: tour_id,
