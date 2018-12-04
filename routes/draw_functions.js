@@ -1,13 +1,15 @@
 const swisspairing = require('swiss-pairing');
 const DRAW_TEAM = require('./draw_team_functions');
 const roundrobin = require('./systems/roundrobin');
+const teampairing = require('./systems/teampairing');
 
 const DRAW = {
     checkEmptyResults : function (results, tourney) {
         var flag = false;
         var i = 0;
         for (var i = 0; i < results.length; i++) {
-            if (!results[i].p1_won && !results[i].p2_won) {
+            console.log(results[i].id, !Number.isInteger(results[i].p1_won) && !Number.isInteger(results[i].p2_won));
+            if (!Number.isFinite(results[i].p1_won) && !Number.isFinite(results[i].p2_won)) {
                 flag = true;
                 break;
             }
@@ -94,7 +96,7 @@ const DRAW = {
         return  { for_addition : for_addition, overall : overall };
     },
 
-    makeResultsForSwissSystem : function (results, participants, tourney, bye_participants) {
+    makeResultsForSwissSystem : function (results, participants, tourney, bye_participants, pool) {
         var res = [], berger_object = {}, global, colors = {}, already_played = {}, d;
 
         var newParticipants = [];
@@ -169,6 +171,10 @@ const DRAW = {
         //если щвейцарка
         } else if (tourney.type == 1) {
             d = swisspairing().getMatchups(tourney.current_tour + 1, newParticipants, newArr);
+
+        //если командный круговой
+        } else if (tourney.type == 11) {
+            d = teampairing(results, participants, tourney, bye_participants, pool);
         }
 
      //   var

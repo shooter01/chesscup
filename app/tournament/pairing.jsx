@@ -667,8 +667,8 @@ class Pairing extends React.Component {
                                     <option value={JSON.stringify({
                                         p1_id:item.p1_id,
                                         p2_id:item.p2_id,
-                                        p1_won:0,
-                                        p2_won:0,
+                                        p1_won:null,
+                                        p2_won:null,
                                         game_id : item.id
                                     })}> </option>
                                     <option value={JSON.stringify({
@@ -692,6 +692,13 @@ class Pairing extends React.Component {
                                         p2_won:0.5,
                                         game_id : item.id
                                     })}>½:½</option>
+                                    <option value={JSON.stringify({
+                                        p1_id:item.p1_id,
+                                        p2_id:item.p2_id,
+                                        p1_won:0,
+                                        p2_won:0,
+                                        game_id : item.id
+                                    })}>0:0</option>
                                 </select>
                                 : <div>{item.p1_won} - {item.p2_won}</div>}
 

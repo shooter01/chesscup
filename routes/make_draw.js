@@ -74,7 +74,7 @@ const make_draw = function (data) {
                 participants_object = DRAW.makeObject(tournament_results);
 
                 bye_participants = DRAW.getByePlayers(participants);
-               // console.log(bye_participants);
+
 
                 if (tourney.current_tour !== 0) {
                     //проверяем пустые результаты
@@ -84,10 +84,10 @@ const make_draw = function (data) {
                 }
 
               //  var g = DRAW.makeResultsForRoundRobinSystem(tournament_results, participants, tourney);
-                var g = DRAW.makeResultsForSwissSystem(tournament_results, participants, tourney, bye_participants);
-               // console.log(g);
+                var g = DRAW.makeResultsForSwissSystem(tournament_results, participants, tourney, bye_participants, pool);
+                //console.log(g);
 
-            //    throw new Error("STOPPED");
+                //throw new Error("STOPPED");
 
 
                 const pairs = DRAW.sortSwiss(g.swiss, participants_object);
