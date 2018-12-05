@@ -6,6 +6,7 @@ import Link from "./Link.jsx";
 import ResultsTable from "./ResultsTable.jsx";
 import Timer from "./Timer.jsx";
 import Tours from "./Tours.jsx";
+import TournamentStatus from "./TournamentStatus.jsx";
 
 import WS from "../ws";
 
@@ -621,15 +622,7 @@ class Pairing extends React.Component {
         return (
             <div className="position-relative mt-2">
 
-                <div>
-                    {(this.state.tournament.is_closed == 1) ? <h4><div className="badge badge-danger starting">Турнир завершен</div></h4> : null}
-                    {(this.state.tournament.is_canceled == 1) ? <h4><div className="badge badge-info starting">Турнир отменен</div></h4> : null}
-                    {(!this.state.tournament.is_closed && this.state.tournament.is_active == 1) ? <div>
-                            <div className="badge badge-success">Турнир активен</div>
-                            <div><div className="badge badge-info">Текущий тур: {this.state.tournament.current_tour}</div></div>
-                        </div> : null}
-                    {(this.state.tournament.is_online && !this.state.tournament.is_closed && !this.state.tournament.is_active) ? <div className="badge badge-secondary starting">Турнир стартует через : <Timer timeleft={timeleft} /></div> : null}
-                </div>
+                <TournamentStatus tournament={this.state.tournament} />
 
                 { (this.state.pairs != null && this.state.pairs.length) ?
                 <table className="table table-hover table-bordered table-sm mt-2">

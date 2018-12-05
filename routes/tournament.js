@@ -1245,6 +1245,7 @@ module.exports = function(app, passport, pool, i18n) {
                    //participants = rows;
                    tourney = rows[0];
 
+
                    if (rows.length) {
                        const timeleft = (tourney.start_time) ? tourney.start_time.getTime() - new Date().getTime() : 0;
 

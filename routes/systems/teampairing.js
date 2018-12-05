@@ -1,8 +1,19 @@
 const pairsCalc = require('robin-js'); // CJS
 const DRAW_TEAM = require('../draw_team_functions');
+const DRAW = require('../draw_functions');
 
 const teampairing = function (results, participants, tourney, bye_participants, pool) {
-    let pairs = [], insert_object = [], already_played = {}, test = [], team_participants = [], team_results = [], teams_scores, additional_coef, participants_insert_array = [];
+    let pairs = [],
+        insert_object = [],
+        already_played = {},
+        test = [],
+        team_participants = [],
+        team_results = [],
+        teams_scores,
+        additional_coef,
+        team_points = {},//командные очки (id команды как ключ)
+        teams_scores_object = [],//объект для вставки в tournaments_teams_scores
+        participants_insert_array = [];
 
     console.log("roundrobin");
 
@@ -16,11 +27,15 @@ const teampairing = function (results, participants, tourney, bye_participants, 
         .then(rows => {
             team_participants = rows;
             //собираем результаты
-            return  pool.query("SELECT * FROM tournaments_teams_results WHERE tournament_id = ?", tourney.id);
+            return  pool.query("SELECT * FROM tournaments_teams_results WHERE tournament_id = ?", [tourney.id]);
         })
         .then(rows => {
             team_results = rows;
 
+            //командные очки за все время
+            team_points = getTeamPoints(rows);
+           // console.log(">>>><<<<<<");
+          //  console.log(team_points);
             for (let i = 0; i < team_participants.length; i++) {
                 test.push(team_participants[i].id);
             }
@@ -49,8 +64,8 @@ const teampairing = function (results, participants, tourney, bye_participants, 
             let result = DRAW_TEAM.makeScores(rows);
             teams_scores = result.teams_scores;
             additional_coef = result.additional_coef;
-            console.log(">>>><<<<<<");
-            console.log(teams_scores);
+
+
             var for_addition_teams = [];
             for (var i = 0; i < insert_object.length; i++) {
                 var obj = insert_object[i], p1_won = null, p2_won = null;
@@ -62,8 +77,8 @@ const teampairing = function (results, participants, tourney, bye_participants, 
                         obj.away,
                         p1_won,
                         p2_won,
-                        teams_scores[obj.home] || 0,
-                        teams_scores[obj.away] || 0,
+                        team_points[obj.home] || 0,
+                        team_points[obj.away] || 0,
                         tourney.id,
                         new Date(),
                         tourney.current_tour + 1,
@@ -85,9 +100,11 @@ const teampairing = function (results, participants, tourney, bye_participants, 
                     });
                 }
             }
-            console.log(teams);
-            console.log(insert_object);
-            console.log(participants_insert_array);
+
+           // console.log(insert_object);
+           // console.log(team_points);
+          //  console.log(insert_object);
+          //  console.log(for_addition_teams);
 
 
             if (((tourney.current_tour + 1) <= tourney.tours_count)) {
@@ -107,7 +124,38 @@ const teampairing = function (results, participants, tourney, bye_participants, 
                 return true
             }
         })
-            .then(rows => {
+        .then(rows => {
+            let scores = [];
+            //teams_scores_object = getTeamsScores();
+
+            //получаем бергер объект
+            const berger = getBerger(team_results);
+            //считаем бергер на основе полученного бергер объекта
+            const berger_object = sumBergerObject(berger, team_points);
+            //считаем бухгольц
+            const buhgolz = getBuhgolz(team_results, team_points);
+            const boardPoints = getBoardPoints(team_results);
+
+            console.log(boardPoints);
+
+            for (let i = 0; i < team_participants.length; i++) {
+                let obj = team_participants[i];
+                scores.push([
+                    obj.id,
+                    tourney.id,
+                    tourney.current_tour,
+                    team_points[obj.id],
+                    boardPoints[obj.id],
+                    buhgolz[obj.id],
+                    berger_object[obj.id],
+                ]);
+            }
+
+
+             return pool.query('INSERT INTO tournaments_teams_scores (team_id, tournament_id, tour, scores, team_scores, bh, berger) VALUES ?', [scores])
+
+        })
+        .then(rows => {
 
             return participants_insert_array;
 
@@ -115,11 +163,158 @@ const teampairing = function (results, participants, tourney, bye_participants, 
             console.log(err);
 
         });
-
-
-
-
 };
+
+
+
+function getBuhgolz(tournament_results, participants_object) {
+    let buhgolz = {};
+
+    for (let i = 0; i < tournament_results.length; i++) {
+        let obj = tournament_results[i];
+        //исключаем пары, в которых есть Null
+        if (obj["team_1_id"] != null && obj["team_2_id"] != null) {
+            buhgolz[obj["team_1_id"]] = buhgolz[obj["team_1_id"]] || 0;
+            buhgolz[obj["team_2_id"]] = buhgolz[obj["team_2_id"]] || 0;
+
+            if (typeof participants_object[obj["team_2_id"]] != "undefined") {
+                buhgolz[obj["team_1_id"]]+= participants_object[obj["team_2_id"]];
+            }
+
+            if (typeof participants_object[obj["team_1_id"]] != "undefined") {
+                buhgolz[obj["team_2_id"]]+= participants_object[obj["team_1_id"]];
+            }
+        }
+    }
+    return  buhgolz;
+}
+
+
+function sumBergerObject(berger, participants_object) {
+    var flag = {};
+
+    var berger_sum = {};
+
+    for (var obj in berger) {
+        if (obj != null) {
+            berger_sum[obj] = berger_sum[obj] || 0;
+            for (var obj1 in berger[obj]['wins']) {
+                if (obj != 'null' && obj1 != 'null') {
+                    berger_sum[obj]+=participants_object[obj1];
+                }
+            }
+            for (var obj3 in berger[obj]['draw']) {
+                if (obj != 'null' && obj3 != 'null') {
+                    berger_sum[obj]+=(participants_object[obj3]/2);
+                }
+            }
+        }
+    }
+
+    delete berger_sum['null'];
+    //console.log(berger_sum);
+
+    return berger_sum;
+}
+
+
+function getBerger(results) {
+    var berger_object = {};
+    var newArr = [];
+
+    for (var i = 0; i < results.length; i++) {
+        var obj = results[i];
+
+        berger_object[obj["team_1_id"]] = berger_object[obj["team_1_id"]] || {wins : {}, draw : {}};
+        berger_object[obj["team_2_id"]] = berger_object[obj["team_2_id"]] || {wins : {}, draw : {}};
+
+        if (obj['team_1_id'] != null && obj['team_2_id'] != null){
+            if (obj['team_1_won'] > obj['team_2_won']) {
+                berger_object[obj["team_1_id"]]["wins"][obj["team_2_id"]] = true;
+            } else if (obj['team_2_won'] > obj['team_1_won']){
+                berger_object[obj["team_2_id"]]["wins"][obj["team_1_id"]] = true;
+            }
+
+            if (obj['team_1_won'] === obj['team_2_won'] && Number.isFinite(obj['team_1_won']) && Number.isFinite(obj['team_2_won'])) {
+                berger_object[obj["team_1_id"]]["draw"][obj["team_2_id"]] = true;
+                berger_object[obj["team_2_id"]]["draw"][obj["team_1_id"]] = true;
+            }
+        }
+    }
+
+    return berger_object;
+}
+function getTeamsScores() {
+
+
+    /*for (var obj in after_tour_team_results_sum) {
+        after_tour_team_results_sum_array.push([
+            obj,
+            tournament_id,
+            after_tour_team_results_sum[obj].scores || 0,
+            after_tour_team_results_sum[obj].team_scores || 0,
+            played_arrays[obj] || 0,
+            team_berger[obj] || 0,
+        ]);
+    }*/
+}
+
+
+//фнукция создает команды в качестве ключе и кто сколько набрал
+//за победу - 2 очка, поражение 0, ничья - 1
+function getTeamPoints(rows) {
+    var temp = {};
+    var win_lose = {};
+
+    for (let i = 0; i < rows.length; i++) {
+        let obj1 = rows[i];
+        temp[obj1.team_1_id] = obj1.team_1_won || 0;
+        temp[obj1.team_2_id] = obj1.team_2_won || 0;
+
+        win_lose[obj1.team_1_id] = win_lose[obj1.team_1_id] || 0;
+        win_lose[obj1.team_2_id] = win_lose[obj1.team_2_id] || 0;
+
+        //console.log(obj1);
+        if (temp[obj1.team_1_id] > temp[obj1.team_2_id]) {
+            win_lose[obj1.team_1_id]+=  2;
+            win_lose[obj1.team_2_id]+=  0;
+        } else if (temp[obj1.team_2_id] > temp[obj1.team_1_id]) {
+            win_lose[obj1.team_1_id]+=  0;
+            win_lose[obj1.team_2_id]+=  2;
+        } else if (temp[obj1.team_2_id] == temp[obj1.team_1_id]) {
+            win_lose[obj1.team_1_id]+=  1;
+            win_lose[obj1.team_2_id]+=  1;
+        }
+    }
+
+    //console.log(temp);
+
+    delete temp['null'];
+
+    return win_lose;
+}
+
+function getBoardPoints(rows) {
+    var temp = {};
+
+    for (let i = 0; i < rows.length; i++) {
+        let obj1 = rows[i];
+        temp[obj1.team_1_id] = temp[obj1.team_1_id] || 0;
+        temp[obj1.team_2_id] = temp[obj1.team_2_id] || 0;
+        if (obj1['team_1_won'] && Number.isFinite(obj1['team_1_won'])) {
+            temp[obj1.team_1_id]+=obj1['team_1_won'];
+        }
+        if (obj1['team_2_won'] && Number.isFinite(obj1['team_2_won'])) {
+            temp[obj1.team_2_id]+=obj1['team_2_won'];
+        }
+    }
+
+    //console.log(temp);
+
+    delete temp['null'];
+
+    return temp;
+}
 
 
 //функция создает объект команды, с объектом ключей -

@@ -131,7 +131,7 @@ const save_result = function (data) {
             }
                // return true;
         }).then(function (results) {
-            console.log(results);
+            //console.log(results);
                 //переводим участников в объект
                 for (let i = 0; i < results.length; i++) {
                     let obj = results[i];
@@ -177,6 +177,10 @@ const save_result = function (data) {
 
                 office["team_1_won"] = teams_points[team_1_id];
                 office["team_2_won"] = teams_points[team_2_id];
+                console.log(">>>");
+                console.log(participants);
+                // console.log(team_1_id);
+                // console.log(team_2_id);
 
                 return pool.query('UPDATE tournaments_teams_results SET ? ' +
                     'WHERE ' +

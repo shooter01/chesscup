@@ -169,6 +169,7 @@ const DRAW_TEAM = {
             teams_scores[obj.team_id] = obj.scores;
             additional_coef[obj.team_id] = {};
             additional_coef[obj.team_id].bh = obj.bh;
+            additional_coef[obj.team_id].team_scores = obj.team_scores;
             additional_coef[obj.team_id].berger = obj.berger;
         }
         return {teams_scores : teams_scores, additional_coef : additional_coef};

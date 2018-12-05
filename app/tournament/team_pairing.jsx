@@ -1,5 +1,6 @@
 import React from 'react';
 import {render} from 'react-dom';
+import TournamentStatus from "./TournamentStatus.jsx";
 
 
 class Pairing extends React.Component {
@@ -8,6 +9,7 @@ class Pairing extends React.Component {
         this.state = {
             pairs: pairs,
             tournament_id: tournament_id,
+            tournament: tournament,
             current_tour: current_tour,
             teams_scores: teams_scores,
             tournaments_teams: tournaments_teams,
@@ -198,8 +200,13 @@ class Pairing extends React.Component {
         return (
             <div className="position-relative">
 
+                <TournamentStatus tournament={this.state.tournament} />
+
+
                     {this.state.pairs.map((item, index) => (
-                        <div className="mt-5 mb-5" key={index}>
+                        <div className="mt-2 mb-5" key={index}>
+
+
 
                             {typeof item.users != "undefined" ?
 
@@ -272,7 +279,7 @@ class Pairing extends React.Component {
                                         <tr key={index}>
                                             <td className="text-center">{pair.board}</td>
                                             <td>
-                                                {pair.p1_name}
+                                                {pair.p1_id} {pair.p1_name}
                                             <span className="badge badge-dark">{pair.p1_rating_for_history}</span>
                                                 {(pair.rating_change_p1 > 0) ?
                                                     <span className="badge badge-success">+{pair.rating_change_p1}</span> :
@@ -321,7 +328,7 @@ class Pairing extends React.Component {
                                                     : <div>{pair.p1_won} - {pair.p2_won}</div>}
                                             </td>
                                             <td className="text-center">{pair.p2_scores}</td>
-                                            <td>{pair.p2_name}
+                                            <td>{pair.p2_id} {pair.p2_name}
                                                 <span className="badge badge-dark">{pair.p2_rating_for_history}</span>
                                                 {(pair.rating_change_p2 > 0) ?
                                                     <span className="badge badge-success">+{pair.rating_change_p2}</span> :
@@ -346,7 +353,9 @@ class Pairing extends React.Component {
 
     }
 }
+$(function () {
+    render(
+        <Pairing/>
+        , document.getElementById('pairing'));
+})
 
-render(
-    <Pairing/>
-    , document.getElementById('pairing'));

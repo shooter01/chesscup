@@ -1,6 +1,7 @@
 import React from 'react';
 import {render} from 'react-dom';
 import ResultsTable from "./ResultsTable.jsx";
+import Tours from "./Tours.jsx";
 
 
 class TeamsTables extends React.Component {
@@ -57,7 +58,6 @@ class TeamsTables extends React.Component {
                         <th>Бх</th>
                         <th>SB</th>
                         <th>Rate</th>
-                        <th>+/-</th>
                         <th></th>
                     </tr>
                     </thead>
@@ -72,7 +72,6 @@ class TeamsTables extends React.Component {
                             <td>{item.bh}</td>
                             <td>{item.berger}</td>
                             <td>{item.tournaments_rating}</td>
-                            <td>{item.tournaments_rating - item.start_rating}</td>
                             <td>
                                 <a href="" data-id="74" className="participant fa fa-eye"></a>
                                 <a target="_blank" href="/users/stat/74" className="fa fa-chart-line"></a>
@@ -86,7 +85,11 @@ class TeamsTables extends React.Component {
         });
 
         return (
-            <div className="position-relative mt-5">
+            <div className="position-relative mt-2">
+
+                <Tours tournament={this.state.tournament} />
+
+
                 <ul className="nav nav-tabs" id="teams_tables_nav" role="tablist">
                     <li className="nav-item">
                         <a className="nav-link active" data-toggle="tab" href="#teams_participants" role="tab" aria-controls="home" aria-selected="true">Команды</a>
@@ -107,10 +110,10 @@ class TeamsTables extends React.Component {
                             <tr>
                                 <th></th>
                                 <th>Имя</th>
-                                <th>Очки</th>
-                                <th>Командные очки</th>
-                                <th>Бх</th>
-                                <th>SB</th>
+                                <th className="text-center">Очки</th>
+                                <th className="text-center">Командные очки</th>
+                                <th className="text-center">Бх</th>
+                                <th className="text-center">SB</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -119,10 +122,10 @@ class TeamsTables extends React.Component {
                                         <tr key={index}>
                                             <td>{index + 1}</td>
                                             <td>{item.team_name}</td>
-                                            <td>{item.scores}</td>
-                                            <td>{item.scores}</td>
-                                            <td>{item.bh}</td>
-                                            <td>{item.berger}</td>
+                                            <td className="text-center">{item.scores}</td>
+                                            <td className="text-center">{item.team_scores}</td>
+                                            <td className="text-center">{item.bh}</td>
+                                            <td className="text-center">{item.berger}</td>
                                         </tr>
                                 ))}
 

@@ -302,8 +302,11 @@ const DRAW = {
                 p1_rating_change = 0;
             }
 
+            //если командник - цвета не меняем
+            if (tourney.type < 10) {
+                obj = DRAW.makePairByPrevColors(obj, colors);
+            }
 
-            obj = DRAW.makePairByPrevColors(obj, colors);
 
             for_addition.push(
                 [
@@ -470,6 +473,33 @@ const DRAW = {
             if (a.scores > b.scores)
                 return -1;
             if (a.scores < b.scores)
+                return 1;
+            if (a.bh > b.bh)
+                return -1;
+            if (a.bh < b.bh)
+                return 1;
+            if (a.berger > b.berger)
+                return -1;
+            if (a.berger < b.berger)
+                return 1;
+            return 1;
+        }
+        return arrr;
+
+    },
+
+    teamSortArr : function (arrr) {
+
+        arrr.sort(sortByScores);
+
+        function sortByScores(a,b) {
+            if (a.scores > b.scores)
+                return -1;
+            if (a.scores < b.scores)
+                return 1;
+            if (a.team_scores > b.team_scores)
+                return -1;
+            if (a.team_scores < b.team_scores)
                 return 1;
             if (a.bh > b.bh)
                 return -1;
@@ -662,6 +692,7 @@ const DRAW = {
                     participants_scores[rows[i].user_id].bh = rows[i].bh;
                     participants_scores[rows[i].user_id].name = participants[rows[i].user_id].name;
                     participants_scores[rows[i].user_id].scores = rows[i].scores;
+                    participants_scores[rows[i].user_id].team_scores = rows[i].team_scores;
                     participants_scores[rows[i].user_id].berger = rows[i].berger;
                 }
 
@@ -702,12 +733,13 @@ const DRAW = {
                         id : results[i].team_id,
                         team_name : results[i].team_name,
                         scores : teams_scores[results[i].team_id],
+                        team_scores : (additional_coef[results[i].team_id]) ? additional_coef[results[i].team_id].team_scores : null,
                         bh : (additional_coef[results[i].team_id]) ? additional_coef[results[i].team_id].bh : null,
                         berger : (additional_coef[results[i].team_id]) ? additional_coef[results[i].team_id].berger : null,
                     });
                 }
 
-                results_table = DRAW.sortArr(results_table);
+                results_table = DRAW.teamSortArr(results_table);
                 participants_boards = DRAW.sortBoards(teams_participants, participants_scores);
 
                 var teams = {};
@@ -766,7 +798,7 @@ const DRAW = {
             }).then(function (results) {
                 teams_results = results;
                 let pairs = [];
-
+                teams_results.reverse();
                 for (let i = 0; i < teams_results.length; i++) {
                     let obj = teams_results[i];
                     obj.users = [];
@@ -779,9 +811,9 @@ const DRAW = {
                         pairs.push(obj);
                     }
                 }
-                //console.log("=====");
-               // console.log(tournament_results);
-              //  console.log(tournament_results);
+               // console.log("=====");
+                //console.log(pairs);
+                //console.log(tournament_results);
 
 
 

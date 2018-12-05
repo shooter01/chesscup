@@ -89,9 +89,9 @@ const make_draw = function (data) {
               //  var g = DRAW.makeResultsForRoundRobinSystem(tournament_results, participants, tourney);
                 return DRAW.makeResultsForSwissSystem(tournament_results, participants, tourney, bye_participants, pool).then(function (g) {
 
-                    console.log("ggg");
-                    console.log(g);
-
+                    //console.log("ggg");
+                   // console.log(g);
+                   // throw new Error("STOPPED");
 
                     const pairs = DRAW.sortSwiss(g.swiss, participants_object);
 
