@@ -37,8 +37,15 @@ const roundrobin = function (results, participants, tourney, bye_participants) {
    // console.log(pairs[tourney.current_tour]);
    // console.log(insert_object);
 
+    var promise = new Promise(function(resolve, reject) {
+        resolve();
+    }).then(function () {
+        return insert_object;
+    });
 
-    return insert_object;
+    return promise;
+
+
 };
 
 

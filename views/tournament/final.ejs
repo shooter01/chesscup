@@ -106,7 +106,6 @@
                     <th>Бх</th>
                     <th>SB</th>
                     <th>Rate</th>
-                    <th>+/-</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -119,11 +118,7 @@
                     <td><%= participants_boards[obj][i].bh %></td>
                     <td><%= participants_boards[obj][i].berger %></td>
                     <td><%= (participants_boards[obj][i].rating != null) ? participants_boards[obj][i].rating : "" %></td>
-                    <td>
-                        <%-
-                            (participants_boards[obj][i].rating_change > 0) ? "<span class='green'>+" + participants_boards[obj][i].rating_change + "</span>" : "<span class='red'>" + ((participants_boards[obj][i].rating != null) ? participants_boards[obj][i].rating_change : "") + "</span>"
-                        %>
-                    </td>
+
                     <td className="text-center">
                         <a href=""  data-id="<%= participants_boards[obj][i].user_id %>"  class="participant fa fa-eye"></a>
                         <a target="_blank" href="/users/stat/<%= participants_boards[obj][i].user_id %>" class="fa fa-chart-line" ></a>
@@ -148,7 +143,6 @@
                     <th><%- __("TableBH") %></th>
                     <th>SB</th>
                     <th>Rate</th>
-                    <th>+/-</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -169,11 +163,7 @@
                     <td><%= participants[i].bh %></td>
                     <td><%= participants[i].berger %></td>
                     <td><%= (participants[i].tournaments_rating != null) ? participants[i].tournaments_rating : "" %></td>
-                    <td>
-                        <%-
-                            (participants[i].rating_change > 0) ? "<span class='green'>+" + participants[i].rating_change + "</span>" : "<span class='red'>" + ((participants[i].rating != null) ? participants[i].rating_change : "") + "</span>"
-                        %>
-                    </td>
+
                     <td className="text-center">
                         <a href="" class="fa fa-eye participant" data-id="<%= participants[i].user_id %>"></a>
                         <a target="_blank" class="fa fa-chart-line" href="/users/stat/<%= participants[i].user_id %>" ></a>

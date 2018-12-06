@@ -49,8 +49,8 @@ const make_draw = function (data) {
                 participants = rows;
 
                 participants_info = DRAW.makeParticipantsObj(rows);
-                console.log("AAAA");
-                console.log(participants);
+                //console.log("AAAA");
+                //console.log(participants);
                 //собираем результаты
                 return  pool.query("SELECT * FROM tournaments_results WHERE tournament_id = ?", tourney.id);
             })

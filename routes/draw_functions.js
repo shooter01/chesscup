@@ -1,10 +1,12 @@
-const swisspairing = require('swiss-pairing');
 const bluebird = require('bluebird');
 
 const DRAW_TEAM = require('./draw_team_functions');
-const roundrobin = require('./systems/roundrobin');
+let roundrobin = require('./systems/roundrobin');
 let teampairing = require('./systems/teampairing');
-teampairing = bluebird.promisifyAll(teampairing)
+let swiss = require('./systems/swiss');
+teampairing = bluebird.promisifyAll(teampairing);
+roundrobin = bluebird.promisifyAll(roundrobin);
+swiss = bluebird.promisifyAll(swiss);
 
 const DRAW = {
     checkEmptyResults : function (results, tourney) {
@@ -167,19 +169,27 @@ const DRAW = {
         }
 
         delete berger_object['null'];
-
+console.log("<>");
+console.log(roundrobin);
         //если круговой
         if (tourney.type === 2) {
-            d = roundrobin(results, participants, tourney, bye_participants);
+            return roundrobin(results, participants, tourney, bye_participants).then(function (a) {
+                return {swiss : a, berger_object : berger_object, colors : colors};
+            });
+            // return {swiss : d, berger_object : berger_object, colors : colors};
+
         //если щвейцарка
-        } else if (tourney.type == 1) {
-            d = swisspairing().getMatchups(tourney.current_tour + 1, newParticipants, newArr);
+        } else if (tourney.type === 1) {
+
+            return swiss(tourney, newParticipants, newArr, berger_object, colors).then(function (a) {
+                return {swiss : a, berger_object : berger_object, colors : colors};
+            });
+
+
 
         //если командный круговой
-        } else if (tourney.type == 11) {
+        } else if (tourney.type === 11) {
             return teampairing(results, participants, tourney, bye_participants, pool).then(function (a) {
-                console.log("aaaa");
-                console.log(a);
                 return {swiss : a, berger_object : berger_object, colors : colors};
             });
         }

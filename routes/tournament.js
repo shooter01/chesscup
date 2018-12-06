@@ -1580,33 +1580,64 @@ module.exports = function(app, passport, pool, i18n) {
         if (!isNaN(tournament_id)) {
             pool
                 .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
-               .then(rows => {
-                   tournament = rows[0];
+                .then(rows => {
+                    tournament = rows[0];
 
-                   if (typeof tournament != "undefined") {
-                       DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tournament.current_tour, app).then(function(swiss) {
-                           return res.render('tournament/final', {
-                               tournament  : tournament,
-                               participants : swiss.participants,
-                               teams : null,
-                               titles : TITLES
-                           });
-                       }).catch(function(e) {
-                           console.log(e);
-                       });
+                    if (typeof tournament != "undefined") {
 
-                   } else {
-                       res.render('error', {
-                           message  : req.i18n.__("TourneyNotFound"),
-                       });
-                   }
 
-            }).catch(function (err) {
-                console.log(err);
-            });
+                        if (rows.length) {
+                            const timeleft = (tournament.start_time) ? tournament.start_time.getTime() - new Date().getTime() : 0;
+
+                            if (tournament.type > 10) {
+                                DRAW.teamSwiss(req, res, next, app.pool, tournament, tournament_id, tournament.current_tour).then(function (swiss) {
+                                    res.render('tournament/show', {
+                                        tournament: tournament,
+                                        tournamentJSON: JSON.stringify(tournament),
+
+                                        tour_id: tournament.current_tour,
+                                        pairs: JSON.stringify(swiss.pairs),
+                                        timeleft: timeleft,
+                                        team_tour_points: JSON.stringify(swiss.team_tour_points),
+                                        participants_boards: JSON.stringify(swiss.participants_boards),
+                                        participants_array: JSON.stringify(swiss.participants_array),
+                                        teams_scores: JSON.stringify(swiss.teams_scores),
+                                        results_table: JSON.stringify(swiss.results_table),
+                                        tournaments_teams: JSON.stringify(swiss.tournaments_teams)
+                                    });
+                                }).catch(function (e) {
+                                    console.log(e);
+                                });
+                            } else {
+                                DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tournament.current_tour, app).then(function (swiss) {
+                                    return res.render('tournament/final', {
+                                        tournament: tournament,
+                                        participants: swiss.participants,
+                                        teams: null,
+                                        titles: TITLES
+                                    });
+                                }).catch(function (e) {
+                                    console.log(e);
+                                });
+
+                            }
+
+                        } else {
+                            res.render('error', {
+                                message: req.i18n.__("TourneyNotFound"),
+                            });
+                        }
+
+
+                    } else {
+                        res.render('error', {
+                            message: req.i18n.__("TourneyNotFound"),
+                        });
+                    }
+                });
         } else {
             res.render('error', {
-                message  : req.i18n.__("TourneyNotFound"),
+                message: req.i18n.__("TourneyNotFound"),
             });
         }
     });
