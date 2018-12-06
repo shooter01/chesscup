@@ -22,6 +22,7 @@ const make_draw = function (data) {
 
     let tourney,
         participants = [],
+        participants_info = {},//информация по участнику с ключом user_id
         participants_object = {}, //объект участников,
         bye_participants = {}, //кто покинул турнир
         scores_array = [], //массив для добавления в tournament_scores
@@ -46,6 +47,10 @@ const make_draw = function (data) {
             })
             .then(rows => {
                 participants = rows;
+
+                participants_info = DRAW.makeParticipantsObj(rows);
+                console.log("AAAA");
+                console.log(participants);
                 //собираем результаты
                 return  pool.query("SELECT * FROM tournaments_results WHERE tournament_id = ?", tourney.id);
             })
@@ -99,7 +104,7 @@ const make_draw = function (data) {
 
                     const berger_object = g.berger_object;
                     const colors = g.colors;
-                    const for_addition = DRAW.makeInsertObject(pairs, participants_object, tourney, {}, colors);
+                    const for_addition = DRAW.makeInsertObject(pairs, participants_object, tourney, {}, colors, participants_info);
                     const berger = DRAW.sumBergerObject(berger_object, participants_object);
 
                     const buhgolz = DRAW.getBuhgolz(tournament_results, participants_object);

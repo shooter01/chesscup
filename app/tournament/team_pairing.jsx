@@ -277,7 +277,7 @@ class Pairing extends React.Component {
                                 <tbody>
                                 {item.users[0].map((pair, index)=>(
                                         <tr key={index}>
-                                            <td className="text-center">{pair.board}</td>
+                                            <td className="text-center">{index + 1}</td>
                                             <td>
                                                 {pair.p1_id} {pair.p1_name}
                                             <span className="badge badge-dark">{pair.p1_rating_for_history}</span>

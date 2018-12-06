@@ -156,8 +156,8 @@ const save_result = function (data) {
                 for (let i = 0, len = results.length; i < len; i++) {
                     let obj = results[i];
 
-                    obj.p1_name = participants[obj.p1_id].name;
-                    obj.p2_name = participants[obj.p2_id].name;
+                    /*obj.p1_name = (participants[obj.p1_id]) ? participants[obj.p1_id].name : null;
+                    obj.p2_name = (participants[obj.p1_id]) ? participants[obj.p2_id].name : null;
 
                     const team_id = participants[obj.p1_id].team_id;
 
@@ -166,7 +166,29 @@ const save_result = function (data) {
                     teams_points[team_id] = teams_points[team_id] || 0;
                     teams_points[team_id_2] = teams_points[team_id_2] || 0;
                     teams_points[team_id]+= obj.p1_won;
+                    teams_points[team_id_2]+= obj.p2_won;*/
+
+
+                    obj.p1_name = (participants[obj.p1_id]) ? participants[obj.p1_id].name : null;
+                    obj.p2_name = (participants[obj.p2_id]) ? participants[obj.p2_id].name : null;
+
+                    const team_id = (participants[obj.p1_id]) ? participants[obj.p1_id].team_id : participants[obj.p2_id].team_id;
+                    teams_points[team_id] = teams_points[team_id] || 0;
+                    teams_points[team_id]+= obj.p1_won;
+
+
+
+
+                    // else if  (typeof participants[obj.p2_id] != "undefined") {
+                    //obj.p2_name = participants[obj.p2_id].name;
+                    //поскольку идет перебор результатов тура, то по пути считаем количество очков команды
+                    const team_id_2 = (participants[obj.p2_id]) ? participants[obj.p2_id].team_id : null;
+                    teams_points[team_id_2] = teams_points[team_id_2] || 0;
                     teams_points[team_id_2]+= obj.p2_won;
+
+
+
+
 
                 }
 

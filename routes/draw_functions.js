@@ -219,6 +219,20 @@ const DRAW = {
 
         return {robin : d};
     },
+    //делаем объект с информацией участников с ключом user_id
+    makeParticipantsObj : function (participants_arr) {
+        let participants_obj = {};
+
+        for (let i = 0; i < participants_arr.length; i++) {
+            let obj = participants_arr[i];
+            if (obj && obj.user_id) {
+                participants_obj[obj.user_id] = obj;
+            }
+
+        }
+
+        return participants_obj;
+    },
 
 
     sortSwiss : function (pairs, participants_object) {
@@ -277,7 +291,7 @@ const DRAW = {
     },
 
 
-    makeInsertObject : function (pairs, participants_object, tourney, end_ratings, colors) {
+    makeInsertObject : function (pairs, participants_object, tourney, end_ratings, colors, participants_info) {
         var for_addition = [], board = 0;
 
         for (var i = 0; i < pairs.length; i++) {
@@ -307,6 +321,18 @@ const DRAW = {
                 obj = DRAW.makePairByPrevColors(obj, colors);
             }
 
+            //смотрим в команднике на доски в команде
+            if (tourney.type < 10) {
+                ++board
+            } else {
+                if (typeof participants_info[obj.home] != "undefined"){
+                    board = participants_info[obj.home].team_board;
+                }
+                if (typeof participants_info[obj.away] != "undefined"){
+                    board = participants_info[obj.away].team_board;
+                }
+            }
+
 
             for_addition.push(
                 [
@@ -319,7 +345,7 @@ const DRAW = {
                     tourney.id,
                     new Date(),
                     tourney.current_tour + 1,
-                    ++board,
+                    board,
                     p1_rating_change,
                     p2_rating_change,
                     p1_rating,
@@ -754,6 +780,7 @@ const DRAW = {
                         user_id : obj.user_id,
                         name : obj.name,
                         email : obj.email,
+                        team_board : obj.team_board,
                     };
 
                     teams[obj.team_id].name = teams_names[obj.team_id];
@@ -763,8 +790,7 @@ const DRAW = {
                     }
                 }
 
-               // console.log("=====");
-               // console.log(tour_id);
+
 
                 tournaments_teams = teams;
 
@@ -775,20 +801,37 @@ const DRAW = {
                 for (let i = 0, len = results.length; i < len; i++) {
                     let obj = results[i];
 
-                    obj.p1_name = participants[obj.p1_id].name;
-                    obj.p2_name = participants[obj.p2_id].name;
+                   // if (typeof participants[obj.p1_id] != "undefined") {
+                        obj.p1_name = (participants[obj.p1_id]) ? participants[obj.p1_id].name : null;
+                        obj.p2_name = (participants[obj.p2_id]) ? participants[obj.p2_id].name : null;
 
-                    const team_id = participants[obj.p1_id].team_id;
-                    tournament_results[team_id] = tournament_results[team_id] || [];
-                    tournament_results[team_id].push(obj);
+                        const team_id = (participants[obj.p1_id]) ? participants[obj.p1_id].team_id : null;
+                        team_tour_points[team_id] = team_tour_points[team_id] || 0;
+                        team_tour_points[team_id]+= obj.p1_won;
 
-                    //поскольку идет перебор результатов тура, то по пути считаем количество очков команды
-                    const team_id_2 = participants[obj.p2_id].team_id;
-                    team_tour_points[team_id] = team_tour_points[team_id] || 0;
-                    team_tour_points[team_id_2] = team_tour_points[team_id_2] || 0;
-                    team_tour_points[team_id]+= obj.p1_won;
-                    team_tour_points[team_id_2]+= obj.p2_won;
 
+
+
+                    // else if  (typeof participants[obj.p2_id] != "undefined") {
+                       // obj.p2_name = participants[obj.p2_id].name;
+                        //поскольку идет перебор результатов тура, то по пути считаем количество очков команды
+                        const team_id_2 = (participants[obj.p2_id]) ? participants[obj.p2_id].team_id : null;
+                        team_tour_points[team_id_2] = team_tour_points[team_id_2] || 0;
+                        team_tour_points[team_id_2]+= obj.p2_won;
+
+
+                        if (typeof participants[obj.p1_id] == "undefined") {
+                            tournament_results[team_id_2] = tournament_results[team_id_2] || [];
+                            tournament_results[team_id_2].push(obj);
+                        } else {
+                            tournament_results[team_id] = tournament_results[team_id] || [];
+                            tournament_results[team_id].push(obj);
+
+                        }
+
+
+
+                 //   }
                 }
 
 
@@ -798,19 +841,37 @@ const DRAW = {
             }).then(function (results) {
                 teams_results = results;
                 let pairs = [];
-                teams_results.reverse();
+
+                console.log(tournament_results);
                 for (let i = 0; i < teams_results.length; i++) {
                     let obj = teams_results[i];
                     obj.users = [];
-
+                    // console.log(tournament_results[obj.team_1_id], typeof tournament_results[obj.team_1_id] !== "undefined");
+                    // console.log(tournament_results[obj.team_2_id], typeof tournament_results[obj.team_2_id] !== "undefined");
                     if (typeof tournament_results[obj.team_1_id] !== "undefined") {
                         obj.users.push(tournament_results[obj.team_1_id]);
-                        pairs.push(obj);
-                    } else if (typeof tournament_results[obj.team_2_id] !== "undefined") {
-                        obj.users.push(tournament_results[obj.team_2_id]);
-                        pairs.push(obj);
+
                     }
+                    if (typeof tournament_results[obj.team_2_id] !== "undefined") {
+                        if (obj.users.length > 0) {
+                            obj.users[0].push(tournament_results[obj.team_2_id][0]);
+                        }
+
+                    }
+
+                    pairs.push(obj);
+
                 }
+
+                //сортируем по доскам
+                pairs = DRAW.sortByTeamBoard(pairs);
+
+
+
+
+               // console.log(pairs);
+
+
                // console.log("=====");
                 //console.log(pairs);
                 //console.log(tournament_results);
@@ -897,6 +958,23 @@ const DRAW = {
             }).catch(function (err) {
                 console.log(err);
             });*/
+    },
+
+    sortByTeamBoard : function (pairs) {
+        for (let obj1 in pairs) {
+            pairs[obj1].users[0] = pairs[obj1].users[0].sort(sortByScores);
+        }
+
+        function sortByScores(a,b) {
+
+            if (a.board < b.board)
+                return -1;
+            if (a.board > b.board)
+                return 1;
+            return 1;
+        }
+
+        return pairs;
     }
 };
 

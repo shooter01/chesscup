@@ -107,7 +107,7 @@ class TeamsList extends React.Component {
                     <div className="mt-1" key={index}>
                         <div className={(this.props.current_team == this.state.teams[item].team_id ? "p-1 mb-2 d-flex justify-content-between team-title participant selected bg-primary text-white" : "p-1 mb-2 bg-light text-dark d-flex justify-content-between team-title participant ")} data-id={item} onClick={this.selectTeam}>
                             <div>
-                               <b>{this.state.teams[item].name} </b>
+                               <b>{this.state.teams[item].team_id} {this.state.teams[item].name} </b>
                             </div>
                             <span>
                                 {(this.props.current_team == this.state.teams[item].team_id ? null : <span data-id={item} onClick={this.selectTeam} className="select-team-btn mr-3">{_ChooseTeam}</span>)}
@@ -134,7 +134,7 @@ class TeamsList extends React.Component {
                                             <span className="far fa-caret-square-up caret" data-action="up" data-team-id={this.state.teams[item].team_id} onClick={this.changeOrder} data-board={user.team_board} data-user-id={user.user_id}></span>
                                             <span className="far fa-caret-square-down caret ml-1" data-action="down" onClick={this.changeOrder} data-team-id={this.state.teams[item].team_id} data-board={user.team_board} data-user-id={user.user_id}></span>
                                         </td>
-                                        <td><a href="" className="fa fa-trash float-right" data-id={user.user_id} title="Удаление участника" onClick={this.removeParticipant} ></a></td>
+                                        <td><a href="" className="fa fa-trash float-right" data-id={user.user_id} title="Удаление участника" onClick={this.removeParticipant} data-team_id={this.state.teams[item].team_id}></a></td>
                                     </tr>))}
                                 </tbody>
                             </table>

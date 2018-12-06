@@ -246,6 +246,7 @@ class Participants extends React.Component {
         const that = this;
         let target = event.target;
         const id = $(target).attr("data-id");
+        const team_id = $(target).attr("data-team_id");
         clearTimeout(that.state.timeout);
         that.setState({
             status : "Отправлен запрос",
@@ -307,6 +308,58 @@ class Participants extends React.Component {
                 that.setState({
                     request_sent : false
                 });
+                console.log(that.state);
+                if (that.state.tournament.type > 10) {
+                    var state = that.state.teams;
+                    var team_users = state[team_id].users;
+                    var iter = {};
+
+                    $.each(team_users, function (index, element) {
+                        if (typeof element !== "undefined") {
+                            iter[element.user_id] = index;
+                        }
+                    });
+
+                    $.ajax({
+                        url: "/tournament/set_order",
+                        method: "post",
+                        timeout : 3000,
+                        beforeSend : function () {
+                            that.setState({
+                                request_sent : true,
+                            });
+                        },
+                        data : {
+                            order : JSON.stringify(iter),
+                            tournament_id : that.state.tournament.id,
+                            team_id : team_id,
+                        },
+                        statusCode: {
+                            404: function() {
+                                alert( "page not found" );
+                            }
+                        }
+                    }).done(function (data) {
+
+                        that.setState({
+                            teams : data.teams,
+                            status : "Порядок сменен",
+                            alert_status: "success"
+                        });
+
+                        that.state.timeout = setTimeout(function () {
+                            that.setDefaultState();
+                        }, 2000);
+
+
+                    }).fail(function ( jqXHR, textStatus ) {
+                        alert( "Request failed: " + textStatus );
+                    }).always(function () {
+                        that.setState({
+                            request_sent : false
+                        });
+                    });
+                }
 
         });
     }
