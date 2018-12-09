@@ -13,6 +13,9 @@
     </div>
 </div>
 
+
+
+
 <script>
     var u = null;
 
@@ -149,8 +152,64 @@
         </ul>
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">-->
+        <% if (tournament.is_active !==  1) { %>
 
-                <div id="pairing"></div>
+
+        <style>
+            .trash-team {
+                color: white;
+
+            }
+
+            .first-row {
+                border-top : 0
+            }
+
+            .borderless td, .borderless th {
+                border: none;
+            }
+            .team-title {
+                cursor: pointer;
+                font-size: 20px;
+            }
+            .team-label {
+                width: 100%;
+            }
+            .caret {
+                font-size: 25px;
+                cursor: pointer;
+            }
+            .caret:hover {
+                color: white;
+                background: black;
+            }
+            .select-team-btn {
+                font-size: 14px;
+                border-bottom: 1px dashed black;
+            }
+            .school-participants {
+                overflow : auto;
+            }
+            .tournament-participants {
+                overflow : auto;
+            }
+            .applier {
+                /*background: red;*/
+            }
+            .applier .bg-light {
+                background-color: inherit!important;
+            }
+            .border-radius-1 {
+                border-radius: 10px;
+            }
+        </style>
+
+            <div id="myteam"></div>
+            <script src="/js/myteam.min.js"></script>
+        <% }  %>
+
+
+        <div id="pairing"></div>
         <div id="team_tables"></div>
 
                 <!--<div id="participants"></div>-->

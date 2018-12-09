@@ -757,17 +757,20 @@ console.log(roundrobin);
                 teams_scores = result.teams_scores;
                 additional_coef = result.additional_coef;
 
-                return pool.query('SELECT tt.id AS team_id,tt.team_name FROM tournaments_teams tt WHERE tt.tournament_id = ?', tournament_id)
+                return pool.query('SELECT tt.id AS team_id,tt.team_name, tt.applier_id FROM tournaments_teams tt WHERE tt.tournament_id = ?', tournament_id)
 
             }).then(function (results) {
 
                 let teams_names = {};
 
                 for (let i = 0; i < results.length; i++) {
-                    teams_names[results[i].team_id] = results[i].team_name;
+                    teams_names[results[i].team_id] = {};
+                    teams_names[results[i].team_id].name = results[i].team_name; //имя команды
+                    teams_names[results[i].team_id].applier_id = results[i].applier_id; //кто заявил
                     results_table.push({
                         id : results[i].team_id,
                         team_name : results[i].team_name,
+                        applier_id : results[i].applier_id,
                         scores : teams_scores[results[i].team_id],
                         team_scores : (additional_coef[results[i].team_id]) ? additional_coef[results[i].team_id].team_scores : null,
                         bh : (additional_coef[results[i].team_id]) ? additional_coef[results[i].team_id].bh : null,
@@ -784,6 +787,7 @@ console.log(roundrobin);
 
                     teams[obj.team_id] = teams[obj.team_id] || {};
                     teams[obj.team_id].team_id = obj.team_id;
+                    teams[obj.team_id].applier_id = teams[obj.team_id].applier_id;
                     teams[obj.team_id].users = teams[obj.team_id].users || [];
 
                     var user = {
@@ -793,7 +797,8 @@ console.log(roundrobin);
                         team_board : obj.team_board,
                     };
 
-                    teams[obj.team_id].name = teams_names[obj.team_id];
+                    teams[obj.team_id].name = teams_names[obj.team_id].name;
+                    teams[obj.team_id].applier_id = teams_names[obj.team_id].applier_id;
 
                     if (user.user_id) {
                         teams[obj.team_id].users.push(user);

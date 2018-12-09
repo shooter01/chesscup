@@ -100,20 +100,22 @@ class TeamsList extends React.Component {
             style : ""
         };
         var cname = "customRadio";
-//console.log(this.state.teams);
+console.log(this.state.tournament);
         return (
-            <div className="position-relative mt-5">
+            <div className={this.state.tournament.is_online === 0 ? "position-relative mt-0" : "position-relative mt-5"}>
                 {Object.keys(this.state.teams).map((item, index) => (
-                    <div className="mt-1" key={index}>
+                    <div className={this.state.teams[item].applier_id == u ? "mt-1 applier alert alert-success" : "mt-1"} key={index}>
                         <div className={(this.props.current_team == this.state.teams[item].team_id ? "p-1 mb-2 d-flex justify-content-between team-title participant selected bg-primary text-white" : "p-1 mb-2 bg-light text-dark d-flex justify-content-between team-title participant ")} data-id={item} onClick={this.selectTeam}>
                             <div>
                                <b>{this.state.teams[item].team_id} {this.state.teams[item].name} </b>
                             </div>
+                            {this.state.tournament.is_online === 1 ?
                             <span>
                                 {(this.props.current_team == this.state.teams[item].team_id ? null : <span data-id={item} onClick={this.selectTeam} className="select-team-btn mr-3">{_ChooseTeam}</span>)}
 
                                 <a href="" className="fa fa-trash trash-team text-dark mr-1 mt-1" data-id={item} title="Удаление команды" onClick={this.removeTeam} ></a>
                             </span>
+                                :null }
                         </div>
 
                         {(this.state.teams[item].users.length > 0) ?
@@ -126,15 +128,22 @@ class TeamsList extends React.Component {
                                     <th></th>
                                 </tr>
                                 </thead>
-                                <tbody>{this.state.teams[item].users.map((user, index1) => (
+                                <tbody>
+                                {this.state.teams[item].users.map((user, index1) => (
                                     <tr key={index1} className="first-row" data-id={this.state.teams[item].team_id} data-user-id={user.user_id}>
                                         <th scope="row">{index1 + 1}</th>
                                         <td>{user.name} {user.user_id} Доска : {user.team_board}</td>
                                         <td>
-                                            <span className="far fa-caret-square-up caret" data-action="up" data-team-id={this.state.teams[item].team_id} onClick={this.changeOrder} data-board={user.team_board} data-user-id={user.user_id}></span>
-                                            <span className="far fa-caret-square-down caret ml-1" data-action="down" onClick={this.changeOrder} data-team-id={this.state.teams[item].team_id} data-board={user.team_board} data-user-id={user.user_id}></span>
+                                            {this.state.teams[item].applier_id == u ?
+                                            <div>
+                                                <span className="far fa-caret-square-up caret" data-action="up" data-team-id={this.state.teams[item].team_id} onClick={this.changeOrder} data-board={user.team_board} data-user-id={user.user_id}></span>
+                                                <span className="far fa-caret-square-down caret ml-1" data-action="down" onClick={this.changeOrder} data-team-id={this.state.teams[item].team_id} data-board={user.team_board} data-user-id={user.user_id}></span>
+                                                <a href="" className="fa fa-trash float-right" data-id={user.user_id} title="Удаление участника" onClick={this.removeParticipant} data-team_id={this.state.teams[item].team_id}></a>
+                                            </div>
+                                                : null}
+
                                         </td>
-                                        <td><a href="" className="fa fa-trash float-right" data-id={user.user_id} title="Удаление участника" onClick={this.removeParticipant} data-team_id={this.state.teams[item].team_id}></a></td>
+                                        <td></td>
                                     </tr>))}
                                 </tbody>
                             </table>

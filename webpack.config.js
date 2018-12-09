@@ -25,6 +25,7 @@ var config = {
         start_date : './app/tournament/StartDate.jsx',
         game : './app/game/game.jsx',
         team : './app/team/team.jsx',
+        myteam : './app/team/myteam.jsx',
         g : './app/game/game_new.jsx',
         play : './app/play/play.jsx',
         team_pairing : './app/tournament/team_pairing.jsx',
