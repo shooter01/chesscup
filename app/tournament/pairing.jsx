@@ -4,7 +4,6 @@ import UserResults from "./table.jsx";
 
 import Link from "./Link.jsx";
 import ResultsTable from "./ResultsTable.jsx";
-import Timer from "./Timer.jsx";
 import Tours from "./Tours.jsx";
 import TournamentStatus from "./TournamentStatus.jsx";
 

@@ -184,6 +184,10 @@ class GetInButton extends React.Component {
     }
 }
 
-render(
-    <GetInButton/>
-    , document.getElementById('get_in'));
+
+$(function () {
+    render(
+        <GetInButton/>
+        , document.getElementById('get_in'));
+})
+
