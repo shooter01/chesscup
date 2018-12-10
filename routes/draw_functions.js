@@ -8,6 +8,7 @@ teampairing = bluebird.promisifyAll(teampairing);
 roundrobin = bluebird.promisifyAll(roundrobin);
 swiss = bluebird.promisifyAll(swiss);
 
+
 const DRAW = {
     checkEmptyResults : function (results, tourney) {
         var flag = false;
