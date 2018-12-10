@@ -239,34 +239,61 @@ module.exports = function(app, passport, pool) {
 
 
     router.get('/:user_id', function (req, res, next) {
-        let ratings, student, tournament_ratings = [], teacher_info = {};
+        let games = [], tournaments = [], profile;
         let user_id = req.params.user_id;
         user_id = parseInt(user_id);
         if (!isNaN(user_id)) {
             pool
                 .query('SELECT * FROM users WHERE id = ?', user_id)
                 .then(rows => {
+                    profile = rows[0];
 
                     if (rows.length > 0) {
+                        return pool
+                            .query('SELECT tr.*, u1.name AS p1_name,u1.tournaments_rating AS p1_rating, u2.name AS p2_name, u2.tournaments_rating AS p2_rating FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN  users u2 ON tr.p2_id = u2.id WHERE (tr.p2_id = ? OR tr.p1_id = ?) LIMIT 5', [user_id, user_id]).then(rows => {
+                                games = rows;
 
-                        res.render('user/profile', {
-                            profile  : rows[0],
-                            countries : countries
+                                return pool
+                                    .query('SELECT tp.*, t.title, t.id AS t_id FROM tournaments_participants tp RIGHT JOIN tournaments t ON t.id = tp.tournament_id WHERE tp.user_id = ? LIMIT 5', user_id)
+                            }).then(rows => {
+                                tournaments = rows;
 
-                        });
+                                return app.mongoDB.collection("visits").findOne({user_id: user_id})
+                            }).then(rows => {
+                                profile.visited_at = (rows) ? rows.visit_at.getTime() : null;
+                                profile.current = new Date().getTime();
+
+                                res.render('user/profile', {
+                                    profile  : profile,
+                                    games  : games,
+                                    tournaments  : tournaments,
+                                    countries : countries
+                                });
+
+
+                            })
+
+
+
                     } else {
                         res.render('error', {
-                            message  : req.i18n.__("TourneyNotFound"),
-                            error  : req.i18n.__("TourneyNotFound"),
+                            message  : "Пользователь не найден",
+                            error  : "Пользователь не найден",
                         });
                     }
+
+
+                })
+                .then(rows => {
+
+
 
                 }).catch(function (err) {
                     console.log(err);
                 });
         } else {
             res.render('error', {
-                message  : req.i18n.__("TourneyNotFound"),
+                message  : "Пользователь не найден",
             });
         }
     });

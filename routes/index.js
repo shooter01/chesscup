@@ -286,6 +286,24 @@ module.exports = function (app, passport, pool) {
         res.redirect('/login');
     });
 
+    router.get('/visit', function (req, res) {
+        app.mongoDB.collection("visits").updateOne({
+            user_id : req.session.passport.user.id
+        },
+        {
+            $set: {
+                visit_at : new Date()
+            },
+
+
+        },
+        { upsert: true }, function () {
+                res.json({
+                    status : "ok",
+                });
+            })
+    });
+
     router.post('/login',
         passport.authenticate('local-login', {
             successRedirect: '/',

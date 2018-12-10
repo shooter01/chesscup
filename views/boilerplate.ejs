@@ -12,7 +12,11 @@
 
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <script src="/js/jquery/dist/jquery.min.js"></script>
-
+    <style>
+        a.black {
+            color : black
+        }
+    </style>
 
 </head>
 <body id="app" class="base preload base  Rosewood Staunton online light">
@@ -217,5 +221,11 @@
     <!-- /Yandex.Metrika counter -->
 
     <script src="/js/ws.min.js"></script>
+    <% if (user && user.user) { %>
+        <script>
+            $.get("/visit");
+        </script>
+
+    <% }  %>
 </body>
 </html>

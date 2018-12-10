@@ -166,6 +166,8 @@ const make_draw = function (data) {
                                 "is_over": 0,
                                 "p1_id": obj.p1_id,
                                 "p2_id": obj.p2_id,
+                                "p1_name": obj.p1_name,
+                                "p2_name": obj.p2_name,
                                 "p1_won": 0,
                                 "p2_won": 0,
                                 "tournament_id": tournament_id,
