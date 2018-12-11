@@ -285,6 +285,9 @@ module.exports = function (app, passport, pool) {
         req.logout();
         res.redirect('/login');
     });
+    router.get('/errorfound', function (req, res) {
+        res.render('errorfound');
+    });
 
     router.get('/visit', function (req, res) {
         if (req.isAuthenticated()) {
