@@ -90,13 +90,16 @@
 
 
     <h3>Аккаунты на других сайтах</h3>
-
-    <p>
-        Lichess.org <a target="_blank" href="https://lichess.org/@/<%= profile.lichess %>">https://lichess.org/@/<%= profile.lichess %></a>
-    </p>
-    <p>
-        Chess.com <a target="_blank" href="https://www.chess.com/member/<%= profile.chesscom %>">https://www.chess.com/member/<%= profile.chesscom %></a>
-    </p>
+    <% if (profile.lichess) { %>
+        <p>
+            Lichess.org <a target="_blank" href="https://lichess.org/@/<%= profile.lichess %>">https://lichess.org/@/<%= profile.lichess %></a>
+        </p>
+    <% } %>
+    <% if (profile.chesscom) { %>
+        <p>
+            Chess.com <a target="_blank" href="https://www.chess.com/member/<%= profile.chesscom %>">https://www.chess.com/member/<%= profile.chesscom %></a>
+        </p>
+    <% } %>
 
     <h3>Последние партии</h3>
 
