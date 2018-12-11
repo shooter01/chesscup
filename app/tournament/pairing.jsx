@@ -696,7 +696,7 @@ class Pairing extends React.Component {
 
                                 <span className="badge"></span></td>
                             <td className="text-center ">{item.p2_scores}</td>
-                            <td data-id={item.p2_id} className="text-center">{item.p2_title ? <span className="badge badge-danger">{TITLES[item.p2_title]}</span>  : null} <a href={"/users/" + item.p2_id} className="black" target="_blank">{item.p2_name}</a> <span className="badge badge-dark">{(item.is_over) ? item.p2_rating_for_history : item.p2_rating}</span> {(item.rating_change_p2 > 0) ? <span className="badge badge-success">+{item.rating_change_p2}</span> : <span className="badge badge-danger">{item.rating_change_p2}</span>} </td>
+                            <td data-id={item.p2_id} className="text-center">{item.p2_title ? <span className="badge badge-danger">{TITLES[item.p2_title]}</span>  : null} <a href={"/users/" + item.p2_id} className="black" target="_blank">{item.p2_name}</a> <span className="badge badge-light">{(item.is_over) ? item.p2_rating_for_history : item.p2_rating}</span> {(item.rating_change_p2 > 0) ? <span className="badge badge-success">+{item.rating_change_p2}</span> : <span className="badge badge-danger">{item.rating_change_p2}</span>} </td>
                         </tr>
                     ))}
                     </tbody>
