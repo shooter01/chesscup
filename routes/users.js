@@ -392,6 +392,8 @@ module.exports = function(app, passport, pool) {
                     secret: req.body.secret.trim(),
                     name: req.body.name.trim(),
                     email: req.body.email.trim(),
+                    lichess: req.body.lichess.trim(),
+                    chesscom: req.body.chesscom.trim(),
                     country: req.body.country.trim(),
                 };
 

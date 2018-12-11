@@ -63,6 +63,26 @@
     </div>
     <div class="row">
         <div class="col-sm-3">
+            Lichess.org аккаунт
+        </div>
+        <div class="col-sm-9">
+            <h4 class="mt-0">
+                <input class="form-control " name="lichess" id="lichess" value="<%= (profile.lichess) ? profile.lichess : "" %>" type="text" placeholder="lichess.org account">
+            </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            Chess.com аккаунт
+        </div>
+        <div class="col-sm-9">
+            <h4 class="mt-0">
+                <input class="form-control " name="chesscom" id="chesscom" value="<%= (profile.chesscom) ? profile.chesscom  : "" %>" type="text" placeholder="chess.com account">
+            </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
             Шахматная Федерация
         </div>
         <div class="col-sm-9">
@@ -120,6 +140,8 @@
             $.post("/users/update"  , {
                 secret : $("#secret").val(),
                 name : $("#name").val(),
+                lichess : $("#lichess").val(),
+                chesscom : $("#chesscom").val(),
                 email : $("#email").val(),
                 country : $("#country").val(),
             }).done(function (data) {

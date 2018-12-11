@@ -287,21 +287,28 @@ module.exports = function (app, passport, pool) {
     });
 
     router.get('/visit', function (req, res) {
-        app.mongoDB.collection("visits").updateOne({
-            user_id : req.session.passport.user.id
-        },
-        {
-            $set: {
-                visit_at : new Date()
-            },
+        if (req.isAuthenticated()) {
+            app.mongoDB.collection("visits").updateOne({
+                    user_id : req.session.passport.user.id
+                },
+                {
+                    $set: {
+                        visit_at : new Date()
+                    },
 
 
-        },
-        { upsert: true }, function () {
-                res.json({
-                    status : "ok",
-                });
-            })
+                },
+                { upsert: true }, function () {
+                    res.json({
+                        status : "ok",
+                    });
+                })
+        } else {
+            res.json({
+                status : "ok",
+            });
+        }
+
     });
 
     router.post('/login',

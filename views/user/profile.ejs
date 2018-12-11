@@ -31,7 +31,7 @@
 
         </div>
 
-        <div class="col-sm-9">
+        <div class="col-sm-9 mt-3">
             <h4 class="mt-0"><%= profile.name %> <span class="text-light-gray"></span></h4>
             <table class="table table-sm table-light">
 
@@ -61,11 +61,15 @@
         </div>
     </div>
 
+
+
+
+
     <% if (user && user.user && (user.user.id === 1 || user.user.id == profile.id)) { %>
 
 
 
-        <div class="row mt-3">
+<!--        <div class="row mt-3">
             <div class="col-sm-12">
                 <div class="alert alert-info" role="alert">
                     <h4 class="alert-heading">Закрытый раздел</h4>
@@ -78,11 +82,22 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
 
     <% } %>
 
     <h3>Награды</h3>
+
+
+    <h3>Аккаунты на других сайтах</h3>
+
+    <p>
+        Lichess.org <a target="_blank" href="https://lichess.org/@/<%= profile.lichess %>">https://lichess.org/@/<%= profile.lichess %></a>
+    </p>
+    <p>
+        Chess.com <a target="_blank" href="https://www.chess.com/member/<%= profile.chesscom %>">https://www.chess.com/member/<%= profile.chesscom %></a>
+    </p>
+
     <h3>Последние партии</h3>
 
     <table class="table table-sm">
