@@ -1263,6 +1263,8 @@ module.exports = function(app, passport, pool, i18n) {
                                    team_tour_points: JSON.stringify(swiss.team_tour_points),
                                    participants_boards: JSON.stringify(swiss.participants_boards),
                                    participants_array: JSON.stringify(swiss.participants_array),
+                                   participants: JSON.stringify(swiss.participants),
+
                                    teams_scores: JSON.stringify(swiss.teams_scores),
                                    results_table: JSON.stringify(swiss.results_table),
                                    tournaments_teams: JSON.stringify(swiss.tournaments_teams)
@@ -1576,7 +1578,7 @@ module.exports = function(app, passport, pool, i18n) {
         function (req, res, next) {
         let tournament_id = req.params.tournament_id;
         tournament_id = parseInt(tournament_id);
-        let tournament, participants, participants_object = {}, pairing = [], arrr = [], teams = null, participants_boards = {};
+        let tournament;
         if (!isNaN(tournament_id)) {
             pool
                 .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
@@ -1591,6 +1593,8 @@ module.exports = function(app, passport, pool, i18n) {
 
                             if (tournament.type > 10) {
                                 DRAW.teamSwiss(req, res, next, app.pool, tournament, tournament_id, tournament.current_tour).then(function (swiss) {
+                                    console.log(swiss.participants);
+
                                     res.render('tournament/show', {
                                         tournament: tournament,
                                         tournamentJSON: JSON.stringify(tournament),
@@ -1601,6 +1605,8 @@ module.exports = function(app, passport, pool, i18n) {
                                         team_tour_points: JSON.stringify(swiss.team_tour_points),
                                         participants_boards: JSON.stringify(swiss.participants_boards),
                                         participants_array: JSON.stringify(swiss.participants_array),
+                                        participants: JSON.stringify(swiss.participants),
+
                                         teams_scores: JSON.stringify(swiss.teams_scores),
                                         results_table: JSON.stringify(swiss.results_table),
                                         tournaments_teams: JSON.stringify(swiss.tournaments_teams)

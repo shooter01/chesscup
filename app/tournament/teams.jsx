@@ -15,6 +15,7 @@ class TeamsList extends React.Component {
         this.removeTeam = this.removeTeam.bind(this);
         this.removeParticipant = this.removeParticipant.bind(this);
         this.changeOrder = this.changeOrder.bind(this);
+        this.setApplies = this.setApplies.bind(this);
 
     }
     componentDidMount(){
@@ -23,6 +24,12 @@ class TeamsList extends React.Component {
     changeOrder(event){
         var that = this;
         this.props.changeOrder(event);
+    }
+    setApplies(applies){
+        const self = this;
+        this.setState({
+            apliers : applies
+        });
     }
 
     selectTeam(event){
@@ -106,7 +113,7 @@ console.log(this.state.tournament);
             <div className={this.state.tournament.is_online === 0 ? "position-relative mt-0 row" : "position-relative mt-5 row"}>
                 <div className="col-sm-9">
                 {Object.keys(this.state.teams).map((item, index) => (
-                    <div className={this.state.teams[item].applier_id == u ? "mt-1 applier alert alert-success" : "mt-1"} key={index}>
+                    <div className={typeof u !== "undefined" && this.state.teams[item].applier_id == u ? "mt-1 applier alert alert-success" : "mt-1"} key={index}>
                         <div className={(this.props.current_team == this.state.teams[item].team_id ? "p-1 mb-2 d-flex justify-content-between team-title participant selected bg-primary text-white" : "p-1 mb-2 bg-light text-dark d-flex justify-content-between team-title participant ")} data-id={item} onClick={this.selectTeam}>
                             <div>
                                <b>{this.state.teams[item].team_id} {this.state.teams[item].name} </b>
@@ -136,7 +143,7 @@ console.log(this.state.tournament);
                                         <th scope="row">{index1 + 1}</th>
                                         <td>{user.name} {user.user_id} Доска : {user.team_board}</td>
                                         <td>
-                                            {this.state.teams[item].applier_id == u ?
+                                            {typeof u !== "undefined" && this.state.teams[item].applier_id == u ?
                                             <div>
                                                 <span className="far fa-caret-square-up caret" data-action="up" data-team-id={this.state.teams[item].team_id} onClick={this.changeOrder} data-board={user.team_board} data-user-id={user.user_id}></span>
                                                 <span className="far fa-caret-square-down caret ml-1" data-action="down" onClick={this.changeOrder} data-team-id={this.state.teams[item].team_id} data-board={user.team_board} data-user-id={user.user_id}></span>
@@ -157,6 +164,9 @@ console.log(this.state.tournament);
 
                 </div>
                 <div className="col-sm-3">
+
+                    <ApplyButton setApplies={this.setApplies}/>
+
                     <table className="table table-sm">
                         <thead className="thead-dark">
                             <tr>
@@ -165,8 +175,13 @@ console.log(this.state.tournament);
                         </thead>
                         <tbody>
                         {this.state.apliers.map((user, index1) => (
-                            <tr>
-                                <td></td>
+                            <tr key={index1}>
+                                <td>
+                                    <div>{user.name}</div>
+
+                                <i className="fa fa-check btn btn-success btn-sm" aria-hidden="true"></i>
+                                <i className="fa fa-times btn btn-danger btn-sm" aria-hidden="true"></i>
+</td>
                             </tr>
                         ))}
                         </tbody>

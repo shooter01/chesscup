@@ -886,14 +886,18 @@ module.exports = function(app, passport, pool) {
             } else {
 
 
+                app.mongoDB.collection("ttapplies").insertOne({
 
-
-                res.json({
-                    status : "ok",
+                    "user_id": req.session.passport.user.id,
+                    "team_id": parseInt(team_id),
+                    "name": req.session.passport.user.name,
+                    "tournament_id": parseInt(tournament_id),
+                }, function () {
+                    res.json({
+                        status : "ok",
+                    });
                 });
             }
-
-
         });
 
 
@@ -946,8 +950,126 @@ module.exports = function(app, passport, pool) {
                     });
                 }
             }
+        });
 
 
+
+        router.get('/api/get_ttapplies/:tournament_id/:team_id',
+        [
+            isLoggedIn,
+            check('tournament_id', 'The tournament field is required').exists().isLength({ min: 1 }),
+            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
+
+        ],
+        function (req, res, next) {
+
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+                let tournament_id = req.params.tournament_id;
+                tournament_id = parseInt(tournament_id);
+                let team_id = req.params.team_id;
+                team_id = parseInt(team_id);
+
+                console.log(req.params.tournament_id);
+                console.log(team_id);
+
+                if (!isNaN(tournament_id)) {
+
+
+                    /**
+                     * получаем иформацию о команде
+                     */
+                    console.log( app.mongoDB);
+                    return app.mongoDB.collection("ttapplies")
+                        .find(
+                            {
+                                tournament_id : tournament_id,
+                                team_id : team_id,
+                            }, function (err, cursor) {
+                                let ttapplies = [];
+                                cursor.forEach(function (game) {
+                                    ttapplies.push(game);
+                                    //  console.log(game);
+                                }, function () {
+                                    res.json({
+                                        status : "ok",
+                                        ttapplies : ttapplies
+                                    });
+                                });
+
+                    })
+
+                } else {
+                    res.json({
+                        status : "error",
+                        message  : "Данные не найдены",
+                    });
+                }
+            }
+        });
+
+
+        router.get('/api/get_ttapplies/:tournament_id',
+        [
+            isLoggedIn,
+            check('tournament_id', 'The tournament field is required').exists().isLength({ min: 1 }),
+
+        ],
+        function (req, res, next) {
+
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+                let tournament_id = req.params.tournament_id;
+                tournament_id = parseInt(tournament_id);
+
+                console.log(req.params.tournament_id);
+
+                if (!isNaN(tournament_id)) {
+
+
+                    /**
+                     * получаем иформацию о команде
+                     */
+
+                     app.mongoDB.collection("ttapplies")
+                            .find(
+                                {
+                                    tournament_id : tournament_id,
+                                    user_id : parseInt(req.session.passport.user.id),
+                                }, function (err, cursor) {
+                                    let ttapplies = [];
+                                    cursor.forEach(function (game) {
+                                        ttapplies.push(game);
+                                        //  console.log(game);
+                                    }, function () {
+                                        res.json({
+                                            status : "ok",
+                                            ttapplies : ttapplies
+                                        });
+                                    });
+
+                                })
+
+
+
+
+                } else {
+                    res.json({
+                        status : "error",
+                        message  : "Данные не найдены",
+                    });
+                }
+            }
         });
 
 

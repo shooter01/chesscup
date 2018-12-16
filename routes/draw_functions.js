@@ -788,7 +788,6 @@ console.log(roundrobin);
 
                     teams[obj.team_id] = teams[obj.team_id] || {};
                     teams[obj.team_id].team_id = obj.team_id;
-                    teams[obj.team_id].applier_id = teams[obj.team_id].applier_id;
                     teams[obj.team_id].users = teams[obj.team_id].users || [];
 
                     var user = {
@@ -910,6 +909,7 @@ console.log(roundrobin);
                 team_tour_points: team_tour_points,
                 participants_boards: participants_boards,
                 participants_array: participants_array,
+                participants: participants,
                 results_table: results_table,
                 teams_scores: teams_scores,
                 pairs : pairs

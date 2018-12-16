@@ -7,9 +7,10 @@ class ApplyButton extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            is_in : is_in,
+            in_team : false,
             user_id : u,
             status: _Waiting,
+            appliers: {},
             teams: [],
             request_sent : false,
             tournament : tournament,
@@ -20,12 +21,16 @@ class ApplyButton extends React.Component {
         this.applyToTeamInTournament = this.applyToTeamInTournament.bind(this);
         this.discardToTeamInTournament = this.discardToTeamInTournament.bind(this);
         this.chooseTeam = this.chooseTeam.bind(this);
+        this.isInTeam = this.isInTeam.bind(this);
+        this.isTeamOwner = this.isTeamOwner.bind(this);
+        this.setApplies = this.setApplies.bind(this);
     }
 
     componentDidMount(){
         const self = this;
 
 
+        //что происходит при выборе команды в модальном окне
         $("body").on("click", ".choose-team", function () {
             console.log(this);
             const team_id = $(this).attr("data-id");
@@ -33,12 +38,76 @@ class ApplyButton extends React.Component {
             return false;
         });
 
-        // console.log(this.state.is_in);
+        var in_team = self.isInTeam();
+        var team_owners = self.isTeamOwner();
+        var is_team_owner = !!team_owners[u];
+        console.log(is_team_owner);
+
+        this.setState({
+            in_team : in_team,
+            is_team_owner : is_team_owner,
+        });
+
+        //если пользователь в числе участников
+        if (in_team) {
+
+            $.ajax({
+                url: "/teams/api/get_ttapplies/" + this.state.tournament.id + "/" + participants[u].team_id,
+                method: "get",
+                dataType : "json",
+                timeout : 3000,
+
+                statusCode: {
+                    404: function() {
+                        alert( "page not found" );
+                    }
+                }
+            }).done(function (data) {
+
+                if (data.status === "ok") {
+                    if (data.ttapplies.length > 0) {
+                        self.setApplies( data.ttapplies);
+                    }
+                }
+
+            }).fail(function ( jqXHR, textStatus ) {}).always(function () { });
+        } else if (typeof u != "undefined" && u != "null") {
+            $.ajax({
+                url: "/teams/api/get_ttapplies/" + this.state.tournament.id,
+                method: "get",
+                dataType : "json",
+                timeout : 3000,
+
+                statusCode: {
+                    404: function() {
+                        alert( "page not found" );
+                    }
+                }
+            }).done(function (data) {
+
+                if (data.status === "ok") {
+                    if (data.ttapplies.length > 0) {
+                        self.setApplies( data.ttapplies);
+                    }
+                }
+
+            }).fail(function ( jqXHR, textStatus ) {}).always(function () { });
+        }
+
+
+    }
+
+
+    setApplies(applies){
+        const self = this;
+        this.props.setApplies(applies);
     }
 
     chooseTeam(){
         const self = this;
         $("#chooseTeamModal").modal("show");
+
+
 
         $.ajax({
             url: "/teams/chooseTeam",
@@ -74,6 +143,25 @@ class ApplyButton extends React.Component {
             });
 
         });
+
+    }
+
+    //узнаем в команде ли человек
+    isInTeam(){
+        const self = this;
+
+        //есть ли пользователь в числе участников
+        return !!(participants[u]);
+
+    }
+    //узнаем создатель ли
+    isTeamOwner(){
+        const self = this;
+        let appliers = {}
+        for (let obj in tournaments_teams) {
+            appliers[tournaments_teams[obj].applier_id] = obj;
+        }
+        return appliers;
 
     }
 
@@ -215,13 +303,23 @@ class ApplyButton extends React.Component {
     render() {
 
         return (
-            <span>
+            <div>
 
-                {(this.state.is_in == false) ? <span className="btn btn-lg btn-success float-right"  onClick={this.chooseTeam} >Подать заявку</span> :
-                    <span onClick={this.removeParticipant} className="btn btn-lg btn-danger float-right" >Отозвать заявку</span>}
+                {(this.state.is_team_owner == false) ?
+                    (this.state.in_team == false) ?
+                        <span className="btn btn-block btn-sm btn-success mb-2"  onClick={this.chooseTeam} >Подать заявку</span> :
+                        <span onClick={this.removeParticipant} className="btn btn-block btn-danger btn-sm mb-2" >Отозвать заявку</span>
+                    : null
+                }
+
+
+
+
+
+
                 <ChooseTeam teams={this.state.teams}/>
 
-            </span>
+            </div>
 
 
 
@@ -229,11 +327,10 @@ class ApplyButton extends React.Component {
 
     }
 }
-$(function () {
-    render(
-        <ApplyButton/>
-        , document.getElementById('get_in_team'));
-})
+
+
+export default ApplyButton;
+
 
 
 
