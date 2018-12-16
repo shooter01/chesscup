@@ -1,7 +1,7 @@
 import React from 'react';
 import {render} from 'react-dom';
 import ParticipantsListTable from "./ParticipantsListTable.jsx";
-
+import ApplyButton from "../team/apply_button.jsx";
 
 class TeamsList extends React.Component {
     constructor(props) {
@@ -9,6 +9,7 @@ class TeamsList extends React.Component {
         this.state = {
             teams: this.props.teams,
             tournament: this.props.tournament,
+            apliers: [],
         }
         this.selectTeam = this.selectTeam.bind(this);
         this.removeTeam = this.removeTeam.bind(this);
@@ -102,7 +103,8 @@ class TeamsList extends React.Component {
         var cname = "customRadio";
 console.log(this.state.tournament);
         return (
-            <div className={this.state.tournament.is_online === 0 ? "position-relative mt-0" : "position-relative mt-5"}>
+            <div className={this.state.tournament.is_online === 0 ? "position-relative mt-0 row" : "position-relative mt-5 row"}>
+                <div className="col-sm-9">
                 {Object.keys(this.state.teams).map((item, index) => (
                     <div className={this.state.teams[item].applier_id == u ? "mt-1 applier alert alert-success" : "mt-1"} key={index}>
                         <div className={(this.props.current_team == this.state.teams[item].team_id ? "p-1 mb-2 d-flex justify-content-between team-title participant selected bg-primary text-white" : "p-1 mb-2 bg-light text-dark d-flex justify-content-between team-title participant ")} data-id={item} onClick={this.selectTeam}>
@@ -150,8 +152,26 @@ console.log(this.state.tournament);
                          : null }
 
                     </div>
+
                 ))}
 
+                </div>
+                <div className="col-sm-3">
+                    <table className="table table-sm">
+                        <thead className="thead-dark">
+                            <tr>
+                                <th scope="col">Заявки</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {this.state.apliers.map((user, index1) => (
+                            <tr>
+                                <td></td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         );
@@ -160,3 +180,4 @@ console.log(this.state.tournament);
 }
 
 export default TeamsList;
+

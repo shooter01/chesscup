@@ -132,6 +132,9 @@
                 <% } %>
         <% } %>
 
+        <span id="get_in_team"></span>
+
+
         <% if (user && user.user && user.user.id === tournament.creator_id) { %>
             <h3 class="mt-3 mb-0"><%= tournament.title %> </h3>
         <% } else { %>
@@ -156,7 +159,7 @@
 
 
         <style>
-            /*.trash-team {
+            .trash-team {
                 color: white;
 
             }
@@ -201,11 +204,11 @@
             }
             .border-radius-1 {
                 border-radius: 10px;
-            }*/
+            }
         </style>
 
-            <!--<div id="myteam"></div>
-            <script src="/js/myteam.min.js"></script>-->
+            <div id="myteam"></div>
+            <script src="/js/myteam.min.js"></script>
         <% }  %>
 
 
@@ -322,6 +325,7 @@
     var team_boards = '<%= tournament.team_boards %>';
     var current_tour = '<%= tournament.current_tour %>';
     var tour_id = '<%= (typeof tour_id != "undefined") ? tour_id : null %>';
+    var is_in = false;
 
 </script>
 
