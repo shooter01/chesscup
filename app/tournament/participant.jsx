@@ -14,20 +14,20 @@ class Participants extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            users: all_students,
-            filtered: all_students,
+            users: (typeof all_students != "undefined") ? all_students : null,
+            filtered: (typeof all_students != "undefined") ? all_students : null,
             participants: participants,
             admins: participants,
             request_sent : false,
-            tournament_id: tournament_id,
+            tournament_id: tournament.id,
             status: _Waiting,
             alert_status: "info",
             current_tab: "participants",
-            teachers: teachers,
+            teachers: (typeof teachers != "undefined") ? teachers : null,
             tournament: tournament,
             current_user: null,
             offices: [],
-            teams: teams,
+            teams: (typeof tournaments_teams != "undefined") ? tournaments_teams : teams,
             current_team: null,
             timeout : 0
         };
@@ -766,27 +766,37 @@ class Participants extends React.Component {
             <div className="row position-relative">
                 <div className="col-12">
                     <div className="row">
-                        <div className="col-md-10">
+                        <div className="col-md-12">
                             <div {...a}>{_Status} : {this.state.status}</div>
                         </div>
-                        <div className="col-md-2">
-                            <a {...linkTo} className="btn btn-primary btn-block btn-lg">{_ToTournament}</a>
-                        </div>
+                        {/*TODO поменять потом условие так как изначально турнир не онлайн*/}
+                        {(this.state.tournament.is_online) ?
+                            <div className="col-md-2">
+                                <a {...linkTo} className="btn btn-primary btn-block btn-lg">{_ToTournament}</a>
+                            </div>
+                        : null}
                     </div>
 
                 </div>
-                {/*в команднике без добавления участников убираем список*/}
-                <div className="col-sm-3">
-                    <input type="text" className="form-control" placeholder={_Search}  onChange={this.search} />
-                        <div className="list-group mt-2 school-participants">
-                            {this.state.tournament.type != 20 && this.state.filtered.map((item, index) => (
-                                <a href="" className="list-group-item list-group-item-action" key={index} onClick={this.addParticipant} data-rating={item.tournaments_rating} data-id={item.id}>
-                                    {item.name}
-                                </a>
-                            ))}
-                        </div>
-                </div>
-                <div className="col-sm-9 tournament-participants">
+                {/*если турнир онлайн, не показываем левую сторону*/}
+                {/*TODO поменять потом условие так как изначально турнир не онлайн*/}
+                {(this.state.tournament.is_online) ?
+                    <div className="col-sm-3">
+                        <input type="text" className="form-control" placeholder={_Search}  onChange={this.search} />
+                            <div className="list-group mt-2 school-participants">
+                                {this.state.filtered && this.state.tournament.type != 20 && this.state.filtered.map((item, index) => (
+                                    <a href="" className="list-group-item list-group-item-action" key={index} onClick={this.addParticipant} data-rating={item.tournaments_rating} data-id={item.id}>
+                                        {item.name}
+                                    </a>
+                                ))}
+                            </div>
+                    </div> : null}
+                <div className="col-sm-12 tournament-participants">
+
+                    {/*если турнир онлайн, не показываем левую сторону*/}
+                    {/*TODO поменять потом условие так как изначально турнир не онлайн*/}
+                    {(this.state.tournament.is_online) ?
+
                     <ul className="nav nav-pills nav-fill">
                         <li className="nav-item">
                             <a className="nav-link active" data-id="participants" onClick={this.showTab} id="admin-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-expanded="true">
@@ -814,10 +824,11 @@ class Participants extends React.Component {
                                 <span className="btn btn-success float-right" onClick={this.addModal}>{_AddParticipant}</span>
                             </li>
                         : null}
-                    </ul>
+                    </ul> : null}
 
                     {(this.state.tournament.type > 10 && this.state.current_tab !== "admins") ?
-                        <TeamsList setTeam={this.setTeam} tournament={this.state.tournament} removeParticipant={this.removeParticipant} removeTeam={this.removeTeam} teams={this.state.teams} current_team={this.state.current_team} changeOrder={this.changeOrder} />
+                        <TeamsList setTeam={this.setTeam} tournament={this.state.tournament} addParticipant={this.addParticipant} removeParticipant={this.removeParticipant} removeTeam={this.removeTeam}
+                                   teams={this.state.teams} current_team={this.state.current_team} changeOrder={this.changeOrder} />
                         :
                         <ParticipantsListTable tournament={this.state.tournament}  removeParticipant={this.removeParticipant} participants={this.state.participants} />
                     }
@@ -878,6 +889,9 @@ class Participants extends React.Component {
     }
 }
 
-render(
-    <Participants/>
-    , document.getElementById('participants'));
+$(function () {
+    render(
+        <Participants/>
+        , document.getElementById('participants'));
+});
+

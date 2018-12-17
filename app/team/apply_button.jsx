@@ -24,6 +24,7 @@ class ApplyButton extends React.Component {
         this.isInTeam = this.isInTeam.bind(this);
         this.isTeamOwner = this.isTeamOwner.bind(this);
         this.setApplies = this.setApplies.bind(this);
+        this.getApplies = this.getApplies.bind(this);
     }
 
     componentDidMount(){
@@ -50,27 +51,7 @@ class ApplyButton extends React.Component {
 
         //если пользователь в числе участников
         if (in_team) {
-
-            $.ajax({
-                url: "/teams/api/get_ttapplies/" + this.state.tournament.id + "/" + participants[u].team_id,
-                method: "get",
-                dataType : "json",
-                timeout : 3000,
-
-                statusCode: {
-                    404: function() {
-                        alert( "page not found" );
-                    }
-                }
-            }).done(function (data) {
-
-                if (data.status === "ok") {
-                    if (data.ttapplies.length > 0) {
-                        self.setApplies( data.ttapplies);
-                    }
-                }
-
-            }).fail(function ( jqXHR, textStatus ) {}).always(function () { });
+            self.getApplies(participants[u].team_id);
         } else if (typeof u != "undefined" && u != "null") {
             $.ajax({
                 url: "/teams/api/get_ttapplies/" + this.state.tournament.id,
@@ -86,8 +67,9 @@ class ApplyButton extends React.Component {
             }).done(function (data) {
 
                 if (data.status === "ok") {
+                    //обнаружены заявки данного персонажа
                     if (data.ttapplies.length > 0) {
-                        self.setApplies( data.ttapplies);
+                        self.getApplies(data.ttapplies[0].team_id);
                     }
                 }
 
@@ -97,6 +79,36 @@ class ApplyButton extends React.Component {
 
     }
 
+
+    getApplies(team_id){
+        const self = this;
+        $.ajax({
+            url: "/teams/api/get_ttapplies/" + this.state.tournament.id + "/" + team_id,
+            method: "get",
+            dataType : "json",
+            timeout : 3000,
+
+            statusCode: {
+                404: function() {
+                    alert( "page not found" );
+                }
+            }
+        }).done(function (data) {
+
+            if (data.status === "ok") {
+                if (data.ttapplies.length > 0) {
+                    self.setApplies( data.ttapplies);
+                }
+            }
+
+        }).fail(function ( jqXHR, textStatus ) {}).always(function () { });
+    }
+
+
+    get(applies){
+        const self = this;
+        this.props.setApplies(applies);
+    }
 
     setApplies(applies){
         const self = this;
@@ -311,11 +323,6 @@ class ApplyButton extends React.Component {
                         <span onClick={this.removeParticipant} className="btn btn-block btn-danger btn-sm mb-2" >Отозвать заявку</span>
                     : null
                 }
-
-
-
-
-
 
                 <ChooseTeam teams={this.state.teams}/>
 

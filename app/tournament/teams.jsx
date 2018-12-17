@@ -14,12 +14,36 @@ class TeamsList extends React.Component {
         this.selectTeam = this.selectTeam.bind(this);
         this.removeTeam = this.removeTeam.bind(this);
         this.removeParticipant = this.removeParticipant.bind(this);
+        this.approvePlayer = this.approvePlayer.bind(this);
         this.changeOrder = this.changeOrder.bind(this);
         this.setApplies = this.setApplies.bind(this);
+        this.approvePlayer = this.approvePlayer.bind(this);
 
     }
     componentDidMount(){
-        var that = this;
+        const self = this;
+
+
+        $("body").on("click", ".approve_player", function () {
+            const user_id = $(this).attr("data-id");
+            self.approvePlayer(user_id);
+        });
+
+        console.log(this.props);
+
+
+    }
+    approvePlayer(event){
+        const self = this;
+
+        var $target = $(event.target);
+        var id = $target.data("id");
+
+        if (id) {
+            this.props.addParticipant(event);
+        }
+
+
     }
     changeOrder(event){
         var that = this;
@@ -124,7 +148,7 @@ console.log(this.state.tournament);
 
                                 <a href="" className="fa fa-trash trash-team text-dark mr-1 mt-1" data-id={item} title="Удаление команды" onClick={this.removeTeam} ></a>
                             </span>
-                                :null }
+                                : <span data-id={item} onClick={this.selectTeam} className="select-team-btn mr-3">Показать заявки</span> }
                         </div>
 
                         {(this.state.teams[item].users.length > 0) ?
@@ -179,8 +203,8 @@ console.log(this.state.tournament);
                                 <td>
                                     <div>{user.name}</div>
 
-                                <i className="fa fa-check btn btn-success btn-sm" aria-hidden="true"></i>
-                                <i className="fa fa-times btn btn-danger btn-sm" aria-hidden="true"></i>
+                                <i className="fa fa-check btn btn-success btn-sm approve_player" data-id={user.user_id} aria-hidden="true"></i>
+                                <i className="fa fa-times btn btn-danger btn-sm decline_player" data-id={user.user_id}  aria-hidden="true"></i>
 </td>
                             </tr>
                         ))}
