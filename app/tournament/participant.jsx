@@ -21,6 +21,7 @@ class Participants extends React.Component {
             request_sent : false,
             tournament_id: tournament.id,
             status: _Waiting,
+            team_owner: null,//владеет ли командой в командном online турнире
             alert_status: "info",
             current_tab: "participants",
             teachers: (typeof teachers != "undefined") ? teachers : null,
@@ -46,6 +47,7 @@ class Participants extends React.Component {
         this.removeTeam = this.removeTeam.bind(this);
         this.changeOrder = this.changeOrder.bind(this);
         this.resetTeam = this.resetTeam.bind(this);
+        this.setOnlineTeamOwner = this.setOnlineTeamOwner.bind(this);
 
 
     }
@@ -382,6 +384,18 @@ class Participants extends React.Component {
             teams : data.teams
         });
     }
+    setOnlineTeamOwner(team_id){
+        const self = this;
+        //если владелец команды в онайлн турнире, то даем понять это родительскому классу, информация нужна для фиксации id команды
+        //при одобрении игроков
+        if (team_id) {
+            this.setState({
+                team_owner : team_id
+            }, function () {
+                console.log(team_id);
+            });
+        }
+    }
     addParticipant(event, user){
         var that = this;
         if (event) event.preventDefault();
@@ -417,7 +431,8 @@ class Participants extends React.Component {
                 tournament_id : tournament_id,
                 rating : rating,
                 user_type : that.state.current_tab,
-                team_id : that.state.current_team,
+                //если владелец команды, то выбираем ее
+                team_id : (that.state.team_owner) ? that.state.team_owner : that.state.current_team,
                 tournament_type : that.state.tournament.type
             },
             statusCode: {
@@ -827,8 +842,15 @@ class Participants extends React.Component {
                     </ul> : null}
 
                     {(this.state.tournament.type > 10 && this.state.current_tab !== "admins") ?
-                        <TeamsList setTeam={this.setTeam} tournament={this.state.tournament} addParticipant={this.addParticipant} removeParticipant={this.removeParticipant} removeTeam={this.removeTeam}
-                                   teams={this.state.teams} current_team={this.state.current_team} changeOrder={this.changeOrder} />
+                        <TeamsList setTeam={this.setTeam}
+                                   tournament={this.state.tournament}
+                                   addParticipant={this.addParticipant}
+                                   removeParticipant={this.removeParticipant}
+                                   setOnlineTeamOwner={this.setOnlineTeamOwner}
+                                   removeTeam={this.removeTeam}
+                                   teams={this.state.teams}
+                                   current_team={this.state.current_team}
+                                   changeOrder={this.changeOrder} />
                         :
                         <ParticipantsListTable tournament={this.state.tournament}  removeParticipant={this.removeParticipant} participants={this.state.participants} />
                     }

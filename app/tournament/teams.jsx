@@ -14,10 +14,10 @@ class TeamsList extends React.Component {
         this.selectTeam = this.selectTeam.bind(this);
         this.removeTeam = this.removeTeam.bind(this);
         this.removeParticipant = this.removeParticipant.bind(this);
-        this.approvePlayer = this.approvePlayer.bind(this);
         this.changeOrder = this.changeOrder.bind(this);
         this.setApplies = this.setApplies.bind(this);
         this.approvePlayer = this.approvePlayer.bind(this);
+        this.setOnlineTeamOwner = this.setOnlineTeamOwner.bind(this);
 
     }
     componentDidMount(){
@@ -44,6 +44,15 @@ class TeamsList extends React.Component {
         }
 
 
+    }
+    setOnlineTeamOwner(team_id){
+        const self = this;
+
+        //если владелец команды в онайлн турнире, то даем понять это родительскому классу, информация нужна для фиксации id команды
+        //при одобрении игроков
+        if (team_id) {
+            this.props.setOnlineTeamOwner(team_id);
+        }
     }
     changeOrder(event){
         var that = this;
@@ -189,7 +198,7 @@ console.log(this.state.tournament);
                 </div>
                 <div className="col-sm-3">
 
-                    <ApplyButton setApplies={this.setApplies}/>
+                    <ApplyButton setApplies={this.setApplies} setOnlineTeamOwner={this.setOnlineTeamOwner}/>
 
                     <table className="table table-sm">
                         <thead className="thead-dark">
@@ -203,7 +212,8 @@ console.log(this.state.tournament);
                                 <td>
                                     <div>{user.name}</div>
 
-                                <i className="fa fa-check btn btn-success btn-sm approve_player" data-id={user.user_id} aria-hidden="true"></i>
+                                <i className="fa fa-check btn btn-success btn-sm approve_player"
+                                   onClick={this.approvePlayer} data-rating={user.tournaments_rating} data-id={user.user_id} aria-hidden="true"></i>
                                 <i className="fa fa-times btn btn-danger btn-sm decline_player" data-id={user.user_id}  aria-hidden="true"></i>
 </td>
                             </tr>

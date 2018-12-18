@@ -42,7 +42,12 @@ class ApplyButton extends React.Component {
         var in_team = self.isInTeam();
         var team_owners = self.isTeamOwner();
         var is_team_owner = !!team_owners[u];
-        console.log(is_team_owner);
+
+        //если владелец команды, то даем понять это родительскому классу, информация нужна для фиксации id команды
+        //при одобрении игроков
+        if (is_team_owner) {
+            this.props.setOnlineTeamOwner(team_owners[u]);
+        }
 
         this.setState({
             in_team : in_team,
