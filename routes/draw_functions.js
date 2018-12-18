@@ -8,6 +8,7 @@ teampairing = bluebird.promisifyAll(teampairing);
 roundrobin = bluebird.promisifyAll(roundrobin);
 swiss = bluebird.promisifyAll(swiss);
 
+const make_teams = require('./helpers/make_teams');
 
 const DRAW = {
     checkEmptyResults : function (results, tourney) {
@@ -767,7 +768,9 @@ console.log(roundrobin);
                 for (let i = 0; i < results.length; i++) {
                     teams_names[results[i].team_id] = {};
                     teams_names[results[i].team_id].name = results[i].team_name; //имя команды
+                    teams_names[results[i].team_id].team_id = results[i].team_id; //id команды
                     teams_names[results[i].team_id].applier_id = results[i].applier_id; //кто заявил
+                    teams_names[results[i].team_id].users = []; //состав команды
                     results_table.push({
                         id : results[i].team_id,
                         team_name : results[i].team_name,
@@ -782,8 +785,9 @@ console.log(roundrobin);
                 results_table = DRAW.teamSortArr(results_table);
                 participants_boards = DRAW.sortBoards(teams_participants, participants_scores);
 
-                var teams = {};
-                for (var i = 0; i < teams_participants.length; i++) {
+
+
+               /* for (var i = 0; i < teams_participants.length; i++) {
                     var obj = teams_participants[i];
 
                     teams[obj.team_id] = teams[obj.team_id] || {};
@@ -803,11 +807,11 @@ console.log(roundrobin);
                     if (user.user_id) {
                         teams[obj.team_id].users.push(user);
                     }
-                }
+                }*/
 
 
 
-                tournaments_teams = teams;
+                tournaments_teams = make_teams(teams_participants, teams_names);
 
                 return pool.query('SELECT tr.* FROM tournaments_results tr WHERE tr.tournament_id = ? AND tr.tour = ?',
                 [tournament_id, tour_id])

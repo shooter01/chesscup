@@ -984,7 +984,6 @@ module.exports = function(app, passport, pool) {
                     /**
                      * получаем иформацию о команде
                      */
-                    console.log( app.mongoDB);
                     return app.mongoDB.collection("ttapplies")
                         .find(
                             {
@@ -994,7 +993,6 @@ module.exports = function(app, passport, pool) {
                                 let ttapplies = [];
                                 cursor.forEach(function (game) {
                                     ttapplies.push(game);
-                                    //  console.log(game);
                                 }, function () {
                                     res.json({
                                         status : "ok",
@@ -1032,7 +1030,6 @@ module.exports = function(app, passport, pool) {
                 let tournament_id = req.params.tournament_id;
                 tournament_id = parseInt(tournament_id);
 
-                console.log(req.params.tournament_id);
 
                 if (!isNaN(tournament_id)) {
 
@@ -1047,10 +1044,14 @@ module.exports = function(app, passport, pool) {
                                     tournament_id : tournament_id,
                                     user_id : parseInt(req.session.passport.user.id),
                                 }, function (err, cursor) {
+                                    console.log("===");
+                                    console.log(cursor);
+
                                     let ttapplies = [];
+                                    console.log(cursor);
                                     cursor.forEach(function (game) {
                                         ttapplies.push(game);
-                                        //  console.log(game);
+
                                     }, function () {
                                         res.json({
                                             status : "ok",

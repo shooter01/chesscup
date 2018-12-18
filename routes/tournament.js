@@ -522,7 +522,7 @@ module.exports = function(app, passport, pool, i18n) {
                 var sql = "SELECT users.* FROM " + table + " LEFT JOIN users ON users.id = " + table + ".user_id WHERE tournament_id = ? ORDER BY id DESC";
 
                 if (req.body.tournament_type > 10 && user_type != "admins") {
-                    sql = 'SELECT tt.id AS team_id,tt.team_name, tp.user_id, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC, tp.team_board ASC';
+                    sql = 'SELECT tt.id AS team_id,tt.team_name,tt.applier_id, tp.user_id, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC, tp.team_board ASC';
                 }
 
                 return pool.query(sql, office.tournament_id)
@@ -606,7 +606,7 @@ module.exports = function(app, passport, pool, i18n) {
                     var sql = "SELECT users.* FROM " + table + " LEFT JOIN users ON users.id = " + table + ".user_id WHERE tournament_id = ? ORDER BY id DESC";
 
                     if (req.body.tournament_type > 10) {
-                        sql = 'SELECT tt.id AS team_id,tt.team_name, tp.user_id, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC, tp.team_board ASC';
+                        sql = 'SELECT tt.id AS team_id,tt.team_name,tt.applier_id, tp.user_id, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC, tp.team_board ASC';
                     }
 
                     return pool.query(sql, office.tournament_id);
@@ -1830,6 +1830,8 @@ module.exports = function(app, passport, pool, i18n) {
                 team_board : obj.team_board,
             };
             teams[obj.team_id].name = obj.team_name;
+            teams[obj.team_id].applier_id = obj.applier_id;
+            teams[obj.team_id].users = teams[obj.team_id].users || [];
 
             if (user.user_id) {
                 teams[obj.team_id].users.push(user);
@@ -1930,13 +1932,28 @@ module.exports = function(app, passport, pool, i18n) {
                 test+= " WHEN " + obj + " THEN " + order[obj];
             }
 
-            pool
-                .query('UPDATE tournaments_participants SET team_board = CASE user_id ' + test + '  END WHERE user_id IN ?', [[Object.keys(order)]])
-                .then(rows => {
-                        var sql = 'SELECT tt.id AS team_id,tt.team_name, tp.user_id,tp.team_board, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC, tp.team_board ASC';
+            let sql = 'UPDATE tournaments_participants SET team_board = CASE user_id ' + test + '  END WHERE user_id IN ?';
+            let sql_arg = [[Object.keys(order)]];
+            const keys_count = Object.keys(order).length;
+            console.log(keys_count);
+            var get_info = 'SELECT tt.id AS team_id,tt.team_name,tt.applier_id, tp.user_id,tp.team_board, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC, tp.team_board ASC';
 
-                    return pool.query(sql, tournament_id)
+            if (keys_count === 0) {
+                sql = get_info;
+                sql_arg = tournament_id;
+            }
+
+            pool
+                .query(sql, sql_arg)
+                .then(rows => {
+                    if (keys_count === 0) {
+                        return rows;
+                    } else {
+                        return pool.query(get_info, tournament_id)
+                    }
+
                 }).then(rows => {
+                    console.log(rows);
                     var teams = makeTeams(rows);
 
                     res.json({
