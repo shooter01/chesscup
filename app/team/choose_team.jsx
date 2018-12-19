@@ -43,7 +43,7 @@ class ChooseTeam extends React.Component {
                               {
 
                                   this.state.teams.map((item, index) => (
-                                      <a href="#" key={index} className="list-group-item list-group-item-action choose-team" data-id={item.id}>{item.team_name}</a>
+                                      <a href="#" key={index} data-name={item.team_name} className="list-group-item list-group-item-action choose-team" data-id={item.id}>{item.team_name}</a>
                                   ))
 
                               }

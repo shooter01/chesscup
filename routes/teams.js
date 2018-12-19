@@ -9,6 +9,7 @@ const path = require('path');
 const multer = require('multer');
 const crypto = require('crypto');
 const mime = require('mime');
+const ObjectId = require('mongodb').ObjectId;
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -891,8 +892,36 @@ module.exports = function(app, passport, pool) {
                     "user_id": req.session.passport.user.id,
                     "team_id": parseInt(team_id),
                     "name": req.session.passport.user.name,
+                    "team_name": req.body.team_name,
                     "tournament_id": parseInt(tournament_id),
                 }, function () {
+                    res.json({
+                        status : "ok",
+                    });
+                });
+            }
+        });
+
+        router.post('/api/decline_player',
+        [
+            isLoggedIn,
+            check('tournament_id', 'The tournament_id field is required').exists().isLength({ min: 1 }),
+            check('apply_id', 'The apply_id field is required').exists().isLength({ min: 1 }),
+        ],
+        function (req, res, next) {
+            let apply_id = req.body.apply_id;
+            let tournament_id = req.body.tournament_id;
+
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+
+
+                app.mongoDB.collection("ttapplies").remove({_id: ObjectId(apply_id)}, function () {
                     res.json({
                         status : "ok",
                     });
@@ -1014,7 +1043,6 @@ module.exports = function(app, passport, pool) {
 
         router.get('/api/get_ttapplies/:tournament_id',
         [
-            isLoggedIn,
             check('tournament_id', 'The tournament field is required').exists().isLength({ min: 1 }),
 
         ],
@@ -1042,13 +1070,9 @@ module.exports = function(app, passport, pool) {
                             .find(
                                 {
                                     tournament_id : tournament_id,
-                                    user_id : parseInt(req.session.passport.user.id),
                                 }, function (err, cursor) {
-                                    console.log("===");
-                                    console.log(cursor);
 
                                     let ttapplies = [];
-                                    console.log(cursor);
                                     cursor.forEach(function (game) {
                                         ttapplies.push(game);
 
