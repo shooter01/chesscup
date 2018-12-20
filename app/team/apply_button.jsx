@@ -34,7 +34,6 @@ class ApplyButton extends React.Component {
 
         //что происходит при выборе команды в модальном окне
         $("body").on("click", ".choose-team", function () {
-            console.log(this);
             self.applyToTeamInTournament($(this).attr("data-id"), $(this).attr("data-name"));
             return false;
         });
@@ -60,11 +59,17 @@ class ApplyButton extends React.Component {
             this.props.setCurrentTeam(team_owners[u]);
         }
 
+        self.getApplies();
+
+        $(document).on("get_apply", function () {
+            self.getApplies();
+        });
+
         //если пользователь в числе участников
         /*if (in_team) {
             self.getApplies(participants[u].team_id);
         } else if (typeof u != "undefined" && u != "null") {*/
-            $.ajax({
+            /*$.ajax({
                 url: "/teams/api/get_ttapplies/" + this.state.tournament.id,
                 method: "get",
                 dataType : "json",
@@ -87,16 +92,42 @@ class ApplyButton extends React.Component {
                     }
                 }
 
-            }).fail(function ( jqXHR, textStatus ) {}).always(function () { });
+            }).fail(function ( jqXHR, textStatus ) {}).always(function () { });*/
       //  }
 
 
     }
 
 
-    getApplies(team_id){
+    getApplies(){
         const self = this;
+
         $.ajax({
+            url: "/teams/api/get_ttapplies/" + this.state.tournament.id,
+            method: "get",
+            dataType : "json",
+            timeout : 3000,
+
+            statusCode: {
+                404: function() {
+                    alert( "page not found" );
+                }
+            }
+        }).done(function (data) {
+
+            if (data.status === "ok") {
+                //обнаружены заявки данного персонажа
+                //if (data.ttapplies.length > 0) {
+                    self.setApplies(data.ttapplies);
+               // }
+            }
+
+        }).fail(function ( jqXHR, textStatus ) {}).always(function () { });
+
+
+
+
+        /*$.ajax({
             url: "/teams/api/get_ttapplies/" + this.state.tournament.id + "/" + team_id,
             method: "get",
             dataType : "json",
@@ -115,7 +146,7 @@ class ApplyButton extends React.Component {
                 }
             }
 
-        }).fail(function ( jqXHR, textStatus ) {}).always(function () { });
+        }).fail(function ( jqXHR, textStatus ) {}).always(function () { });*/
     }
 
 
@@ -251,17 +282,17 @@ class ApplyButton extends React.Component {
 
         }).fail(function ( jqXHR, textStatus ) {
             // alert( "Request failed: " + textStatus );
-            /*var error = "";
+            var error = "";
             for (var obj in jqXHR.responseJSON.errors) {
                 error = jqXHR.responseJSON.errors[obj].msg;
             }
-
-            that.setState({
+            alert(error);
+            /*that.setState({
                 status : error,
                 alert_status: "danger"
-            });
+            });*/
 
-            that.state.timeout = setTimeout(function () {
+            /*that.state.timeout = setTimeout(function () {
                 that.setDefaultState();
             }, 2000);*/
 

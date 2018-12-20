@@ -37,9 +37,6 @@ class ChooseTeam extends React.Component {
 
                               <div className="list-group">
 
-
-
-
                               {
 
                                   this.state.teams.map((item, index) => (

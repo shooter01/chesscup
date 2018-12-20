@@ -2,6 +2,7 @@ import React from 'react';
 import {render} from 'react-dom';
 import ParticipantsListTable from "./ParticipantsListTable.jsx";
 import ApplyButton from "../team/apply_button.jsx";
+import WS from "../ws";
 
 class TeamsList extends React.Component {
     constructor(props) {
@@ -26,6 +27,7 @@ class TeamsList extends React.Component {
         this.filterApplies = this.filterApplies.bind(this);
         this.setCurrentTeam = this.setCurrentTeam.bind(this);
         this.showMyApplies = this.showMyApplies.bind(this);
+        this.handleWSData = this.handleWSData.bind(this);
 
     }
     componentDidMount(){
@@ -41,10 +43,33 @@ class TeamsList extends React.Component {
             self.declinePlayer(user_id);
         });
 
-        console.log(this.props);
+
+
+        self.socket = new WS(function (data) {
+            self.handleWSData(data);
+        }, "localhost:7000");
+
+
 
 
     }
+
+
+    handleWSData(data){
+
+        if (data.action === "get_apply") {
+            $(document).trigger("get_apply");
+        } else if (data.action === "message") {
+
+        }
+
+
+
+        console.log(data);
+
+    }
+
+
     approvePlayer(event){
         const self = this;
 
@@ -83,10 +108,7 @@ class TeamsList extends React.Component {
                 }
             }).done(function (data) {
 
-                if (data.status === "ok") {
 
-
-                }
 
             }).fail(function ( jqXHR, textStatus ) {
 
@@ -252,7 +274,7 @@ class TeamsList extends React.Component {
             style : ""
         };
         var cname = "customRadio";
-console.log(this.state.teams);
+
         return (
             <div className={this.state.tournament.is_online === 0 ? "position-relative mt-0 row" : "position-relative mt-5 row"}>
                 <div className="col-sm-8">
@@ -328,19 +350,21 @@ console.log(this.state.teams);
                             <tbody>
                             {this.state.team_apliers.length > 0 && this.state.team_apliers.map((user, index1) => (
                                 <tr key={index1}>
-                                    <td>
-                                        <div>{user.name} (<b>{user.team_name}</b>)</div>
+                                    <td className="d-flex justify-content-between">
+                                        <span>{user.name} (<b>{user.team_name}</b>)</span>
 
 
-                                    {(typeof u !== "undefined" && this.state.teams[user.team_id].applier_id == u) ?
+                                        <span>
+                                            {(typeof u !== "undefined" && this.state.teams[user.team_id].applier_id == u) ?
 
-                                        <i className="fa fa-check btn btn-success btn-sm approve_player"
-                                        onClick={this.approvePlayer} data-rating={user.tournaments_rating} data-id={user.user_id} aria-hidden="true"></i>
-                                    : null}
+                                                <i className="fa fa-check btn btn-success btn-sm approve_player"
+                                                onClick={this.approvePlayer} data-rating={user.tournaments_rating} data-id={user.user_id} aria-hidden="true"></i>
+                                            : null}
 
-                                    {((typeof u !== "undefined" && this.state.teams[user.team_id].applier_id == u && this.state.current_team == user.team_id) || (typeof u != "undefined" && u != null && u == user.user_id)) ?
-                                    <i onClick={this.declinePlayer} data-apply_id={user._id} className="fa fa-times btn btn-danger btn-sm decline_player" data-id={user.user_id}  aria-hidden="true"></i>
-                                        : null}
+                                            {((typeof u !== "undefined" && this.state.teams[user.team_id].applier_id == u && this.state.current_team == user.team_id) || (typeof u != "undefined" && u != null && u == user.user_id)) ?
+                                            <i onClick={this.declinePlayer} data-apply_id={user._id} className="fa fa-times btn btn-danger btn-sm decline_player" data-id={user.user_id}  aria-hidden="true"></i>
+                                                : null}
+                                        </span>
     </td>
                                 </tr>
                             ))}

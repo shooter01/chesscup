@@ -871,7 +871,30 @@ module.exports = function(app, passport, pool) {
         [
             isLoggedIn,
             check('tournament_id', 'The tournament_id field is required').exists().isLength({ min: 1 }),
-            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
+            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }).custom((value, { req }) => {
+
+                return new Promise((resolve, reject) => {
+
+                    app.mongoDB.collection("ttapplies")
+                        .find(
+                            {
+                                tournament_id : parseInt(req.body.tournament_id),
+                                team_id : parseInt(value),
+                                user_id : parseInt(req.session.passport.user.id),
+                            }, function (err, cursor) {
+                                let ttapplies = [];
+                                cursor.forEach(function (game) {
+                                    ttapplies.push(game);
+                                }, function () {
+                                    if(ttapplies.length > 0) {
+                                        return reject("Нельзя отправлять несколько заявок в 1 команду");
+                                    } else {
+                                        return resolve();
+                                    }
+                                });
+                            });
+                });
+            }),
 
         ],
         function (req, res, next) {
@@ -895,6 +918,12 @@ module.exports = function(app, passport, pool) {
                     "team_name": req.body.team_name,
                     "tournament_id": parseInt(tournament_id),
                 }, function () {
+
+                    app.ROOMS.emit('t' + tournament_id,
+                        JSON.stringify({
+                            action : "get_apply"
+                        }));
+
                     res.json({
                         status : "ok",
                     });
@@ -920,8 +949,13 @@ module.exports = function(app, passport, pool) {
                 });
             } else {
 
+                app.ROOMS.emit('t' + tournament_id,
+                    JSON.stringify({
+                        action : "get_apply"
+                    }));
 
-                app.mongoDB.collection("ttapplies").remove({_id: ObjectId(apply_id)}, function () {
+
+                app.mongoDB.collection("ttapplies").deleteOne({_id: ObjectId(apply_id)}, function () {
                     res.json({
                         status : "ok",
                     });
