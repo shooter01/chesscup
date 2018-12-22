@@ -53,10 +53,14 @@ class ApplyButton extends React.Component {
             is_team_owner : is_team_owner,
         });
 
-        if (in_team) {
-            this.props.setCurrentTeam(participants[u].team_id);
-        } else if (is_team_owner) {
+        if (is_team_owner) {
             this.props.setCurrentTeam(team_owners[u]);
+            $("#decline-team-btn").removeClass("hidden").attr("data-id", team_owners[u]);
+        } else if (in_team) {
+            this.props.setCurrentTeam(participants[u].team_id);
+            $("#leave-team-btn").removeClass("hidden");
+        } else {
+            $("#apply-team-btn").removeClass("hidden")
         }
 
         self.getApplies();

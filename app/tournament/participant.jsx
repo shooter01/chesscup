@@ -3,6 +3,7 @@ import {render} from 'react-dom';
 import ModalInput from "./../users/ModalInput.jsx";
 import TeamsInput from "./TeamsInput.jsx";
 import TeamsList from "./teams.jsx";
+import ApplyTeam from "../team/apply_team.jsx";
 import ParticipantsListTable from "./ParticipantsListTable.jsx";
 /*import Loading from "./../tasks/Loading.jsx";
 import BreadCumbs from "./BreadCumbs.jsx";
@@ -189,15 +190,23 @@ class Participants extends React.Component {
         }).done(function (data) {
 
             if (data.participants || data.teams) {
-                that.setState({
-                    participants : data.participants || that.state.participants,
-                    teams : data.teams || that.state.teams,
-                    status : "Команда удалена",
-                    alert_status: "success"
-                });
-                that.state.timeout = setTimeout(function () {
-                    that.setDefaultState();
-                }, 2000);
+
+                //TODO TOURNAMENT
+                if (!that.state.tournament.is_online) {
+                    location.reload();
+                } else {
+                    that.setState({
+                        participants : data.participants || that.state.participants,
+                        teams : data.teams || that.state.teams,
+                        status : "Команда удалена",
+                        alert_status: "success"
+                    });
+                    that.state.timeout = setTimeout(function () {
+                        that.setDefaultState();
+                    }, 2000);
+                }
+
+
             }
 
         }).fail(function ( jqXHR, textStatus ) {
@@ -737,8 +746,6 @@ class Participants extends React.Component {
         }
     }
 
-
-
     render() {
        // if (!this.renderPos()) {return false;}
 
@@ -791,7 +798,7 @@ class Participants extends React.Component {
             <div className="row position-relative">
                 <div className="col-12">
                     <div className="row">
-                        <div className="col-md-12">
+                        <div className="col-md-8">
                             <div {...a}>{_Status} : {this.state.status}</div>
                         </div>
                         {/*TODO поменять потом условие так как изначально турнир не онлайн*/}
@@ -799,7 +806,7 @@ class Participants extends React.Component {
                             <div className="col-md-2">
                                 <a {...linkTo} className="btn btn-primary btn-block btn-lg">{_ToTournament}</a>
                             </div>
-                        : null}
+                        :   <div className="col-md-4"><ApplyTeam removeTeam={this.removeTeam} /></div>}
                     </div>
 
                 </div>

@@ -275,8 +275,126 @@ module.exports = function(app, passport, pool) {
                 });
             }
         });
+    router.post('/api/apply_team', [
+            isLoggedIn,
+            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }).custom((value, { req }) => {
+
+                return new Promise((resolve, reject) => {
+
+                    pool.query('SELECT * FROM tournaments_teams WHERE applier_id = ? OR team_id = ?', [
+                        req.session.passport.user.id,
+                        value,
+                    ]).then(function (rows) {
+                        if(rows.length > 0) {
+                            return reject("Вы уже заявили 1 команду или эта команда уже заявлена.");
+                        } else {
+                            return resolve();
+                        }
+                    });
+                });
+            }),
+            check('team_name', 'The team_name field is required').exists().isLength({ min: 1 }),
+            check('tournament_id', 'The tournament_id field is required').exists().isLength({ min: 1 }).custom((value, { req }) => {
+
+                return new Promise((resolve, reject) => {
+
+                    pool.query('SELECT * FROM tournaments_participants WHERE user_id = ? AND tournament_id = ?', [
+                        req.session.passport.user.id,
+                        value,
+                    ]).then(function (rows) {
+                        if(rows.length > 0) {
+                            return reject("Вы являетесь участником турнира. Вы не можете заявлять команды.");
+                        } else {
+                            return resolve();
+                        }
+                    });
+                });
+            }),
+        ],
+        function (req, res, next) {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+                var newDateObj;
+
+                let office = {
+                    team_id: req.body.team_id.trim(),
+                    team_name: req.body.team_name.trim(),
+                    applier_id: req.session.passport.user.id,
+                    tournament_id: req.body.tournament_id.trim(),
+                    is_active: 1,
+                };
+
+                let participant = {
+                    tournament_id: req.body.tournament_id,
+                    user_id: req.session.passport.user.id,
+                    start_rating: 1200,
+                    team_board: 1,
+                    team_id: req.body.team_id.trim(),
+                };
+
+                pool.query('INSERT INTO tournaments_teams SET ?', office)
+                .then(function (results) {
+                    console.log(results.insertId);
+                    if (results.insertId) {
+                        participant['team_id'] = results.insertId;
+                        return pool.query('INSERT INTO tournaments_participants SET ?', participant);
+                    } else {
+                        return true;
+                    }
+                }).then(function (results) {
+                    return pool.query("SELECT tt.id AS team_id,tt.team_name, tp.user_id, u.name,u.email FROM tournaments_teams" +
+                        " AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u " +
+                        "ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC, tp.team_board ASC", office.tournament_id)
+                }).then(function (results) {
+                    var teams = makeTeams(results);
+
+                    app.mongoDB.collection("ttapplies").deleteMany({user_id: req.session.passport.user.id}, function () {});
 
 
+                    res.json({
+                        status : "ok",
+                        teams : teams
+                    });
+
+                }).catch(function (err) {
+                    console.log(err);
+                    res.json({
+                        status : "err",
+                        msg : err
+                    });
+                });
+            }
+        });
+
+    function makeTeams(participants) {
+        var teams = {};
+        for (var i = 0; i < participants.length; i++) {
+            var obj = participants[i];
+
+            teams[obj.team_id] = teams[obj.team_id] || {};
+            teams[obj.team_id].team_id = obj.team_id;
+            teams[obj.team_id].users = teams[obj.team_id].users || [];
+
+            var user = {
+                user_id : obj.user_id,
+                name : obj.name,
+                email : obj.email,
+                team_board : obj.team_board,
+            };
+            teams[obj.team_id].name = obj.team_name;
+            teams[obj.team_id].applier_id = obj.applier_id;
+            teams[obj.team_id].users = teams[obj.team_id].users || [];
+
+            if (user.user_id) {
+                teams[obj.team_id].users.push(user);
+            }
+        }
+        return teams;
+    }
 
     router.post('/approve', [
             isLoggedIn,
@@ -935,10 +1053,12 @@ module.exports = function(app, passport, pool) {
         [
             isLoggedIn,
             check('tournament_id', 'The tournament_id field is required').exists().isLength({ min: 1 }),
-            check('apply_id', 'The apply_id field is required').exists().isLength({ min: 1 }),
+            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
+            check('user_id', 'The user_id field is required').exists().isLength({ min: 1 }),
         ],
         function (req, res, next) {
-            let apply_id = req.body.apply_id;
+            let user_id = parseInt(req.body.user_id);
+            let team_id = parseInt(req.body.team_id);
             let tournament_id = req.body.tournament_id;
 
             const errors = validationResult(req);
@@ -953,9 +1073,10 @@ module.exports = function(app, passport, pool) {
                     JSON.stringify({
                         action : "get_apply"
                     }));
+                console.log(user_id);
+                console.log(team_id);
 
-
-                app.mongoDB.collection("ttapplies").deleteOne({_id: ObjectId(apply_id)}, function () {
+                app.mongoDB.collection("ttapplies").deleteMany({user_id: user_id, team_id : team_id}, function () {
                     res.json({
                         status : "ok",
                     });
@@ -1128,6 +1249,53 @@ module.exports = function(app, passport, pool) {
                         message  : "Данные не найдены",
                     });
                 }
+            }
+        });
+
+router.get('/api/get_teams/:user_id',
+    check('user_id', 'The user_id field is required').exists().isLength({ min: 1 }),
+
+    function (req, res, next) {
+
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+
+                let user_id = req.params.user_id;
+                user_id = parseInt(user_id);
+
+
+                if (!isNaN(user_id)) {
+                        pool
+                            .query('SELECT * FROM teams WHERE creator_id = ? OR vice_captain_id = ?', [user_id, user_id])
+                            .then(rows => {
+                                res.json({
+                                    status : "ok",
+                                    teams : rows
+                                });
+
+                            }).catch(function (err) {
+
+                            res.json({
+                                status : "error",
+                                message  : "Команда не найдена",
+                            });
+
+                        });
+
+                } else {
+                    res.json({
+                        status : "error",
+                        message  : "Данные не найдены",
+                    });
+                }
+
+
+
             }
         });
 

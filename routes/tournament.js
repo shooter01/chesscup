@@ -541,10 +541,30 @@ module.exports = function(app, passport, pool, i18n) {
 
                 if (req.body.tournament_type > 10 && user_type != "admins") {
                     var teams = makeTeams(results);
-                    res.json({
-                        status : "ok",
-                        teams : teams,
+
+                    app.ROOMS.emit('t' + office.tournament_id,
+                        JSON.stringify({
+                            action : "participant",
+                            teams : teams
+                        }));
+
+
+                    app.mongoDB.collection("ttapplies").deleteMany({
+                        user_id: parseInt(req.body.user_id),
+                    }, function () {
+
+                        app.ROOMS.emit('t' + office.tournament_id,
+                            JSON.stringify({
+                                action : "get_apply"
+                            }));
+
+                        res.json({
+                            status : "ok",
+                            teams : teams,
+                        });
                     });
+
+
                 } else {
                     res.json({
                         status : "ok",
@@ -627,6 +647,13 @@ module.exports = function(app, passport, pool, i18n) {
 
                 if (req.body.tournament_type > 10) {
                     var teams = makeTeams(results);
+
+                    app.ROOMS.emit('t' + office.tournament_id,
+                        JSON.stringify({
+                            action : "participant",
+                            teams : teams
+                        }));
+
                     res.json({
                         status : "ok",
                         teams : teams,

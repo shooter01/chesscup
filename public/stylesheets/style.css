@@ -25,3 +25,6 @@ a {
   overflow-x: hidden;
   padding-bottom: 10px;
 }
+.table-success {
+  background-color: #4caf50;
+}

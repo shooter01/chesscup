@@ -15,7 +15,7 @@ class TeamsList extends React.Component {
             team_apliers: [],//заявки в конкретную команду
             in_team: null, //в команде ли пользователь
             is_team_owner: null, //владелец ли команды
-        }
+        };
         this.selectTeam = this.selectTeam.bind(this);
         this.removeTeam = this.removeTeam.bind(this);
         this.removeParticipant = this.removeParticipant.bind(this);
@@ -34,15 +34,16 @@ class TeamsList extends React.Component {
         const self = this;
 
 
-        $("body").on("click", ".approve_player", function () {
+     /*   $("body").on("click", ".approve_player", function () {
             const user_id = $(this).attr("data-id");
             self.approvePlayer(user_id);
         });
         $("body").on("click", ".decline_player", function () {
-            const user_id = $(this).attr("data-id");
-            self.declinePlayer(user_id);
+            const user_id = $(this).attr("data-user-id");
+            const team_id = $(this).attr("data-team-id");
+            self.declinePlayer(user_id, team_id);
         });
-
+*/
 
 
         self.socket = new WS(function (data) {
@@ -59,12 +60,14 @@ class TeamsList extends React.Component {
 
         if (data.action === "get_apply") {
             $(document).trigger("get_apply");
-        } else if (data.action === "message") {
+        } else if (data.action === "participant") {
+            //$(document).trigger("participant");
+
+            this.setState({
+                teams : data.teams
+            });
 
         }
-
-
-
         console.log(data);
 
     }
@@ -84,10 +87,9 @@ class TeamsList extends React.Component {
         const self = this;
 
         var $target = $(event.target);
-        var id = $target.data("id");
-        var apply_id = $target.data("apply_id");
-
-        if (id) {
+        //var apply_id = $target.data("apply_id");
+        console.log(event.target);
+       // if (team_id && user_id) {
             $.ajax({
                 url: "/teams/api/decline_player",
                 method: "post",
@@ -99,7 +101,8 @@ class TeamsList extends React.Component {
                 },
                 data : {
                     tournament_id : this.state.tournament.id,
-                    apply_id : apply_id,
+                    user_id : $target.attr("data-user-id"),
+                    team_id : $target.attr("data-team-id"),
                 },
                 statusCode: {
                     404: function() {
@@ -119,7 +122,7 @@ class TeamsList extends React.Component {
                 });
 
             });
-        }
+       // }
     }
     setOnlineTeamOwner(team_id){
         const self = this;
@@ -235,25 +238,16 @@ class TeamsList extends React.Component {
         if (confirm("Вы уверены?")){
             var $target = $(event.target);
             var id = $target.data("id");
-
             this.props.removeTeam(id);
         }
-
-
-
-
     }
 
     componentWillReceiveProps(nextProps){
-
-
       //  if(nextProps.value !== this.props.pairs){
             this.setState({
                 teams:nextProps.teams,
             });
        // }
-
-
     }
     render() {
         var w5 = {
@@ -279,7 +273,7 @@ class TeamsList extends React.Component {
             <div className={this.state.tournament.is_online === 0 ? "position-relative mt-0 row" : "position-relative mt-5 row"}>
                 <div className="col-sm-8">
                 {Object.keys(this.state.teams).map((item, index) => (
-                    <div className={typeof u !== "undefined" && this.state.teams[item].applier_id == u ? "mt-1 applier alert alert-success" : "mt-1"} key={index}>
+                    <div className="mt-1" key={index}>
                         <div className={(this.props.current_team != null && (this.props.current_team == this.state.teams[item].team_id) ? "p-1 mb-2 d-flex justify-content-between team-title participant selected bg-primary text-white" : "p-1 mb-2 bg-light text-dark d-flex justify-content-between team-title participant ")} data-id={item} onClick={this.selectTeam}>
                             <div>
                                <b>{this.state.teams[item].team_id} {this.state.teams[item].name} </b>
@@ -294,7 +288,8 @@ class TeamsList extends React.Component {
                         </div>
 
                         {(typeof this.state.teams[item].users !== "undefined" && this.state.teams[item].users.length > 0) ?
-                            <table className="table table-hover borderless table-sm" key={index}>
+                            <table className={(typeof u !== "undefined" && this.state.teams[item].applier_id == u) ? "table table-hover borderless table-sm table-success" :
+                                "table table-hover borderless table-sm"} key={index}>
                                 <thead>
                                 <tr>
                                     <th>Доска</th>
@@ -305,11 +300,11 @@ class TeamsList extends React.Component {
                                 </thead>
                                 <tbody>
                                 {this.state.teams[item].users.map((user, index1) => (
-                                    <tr key={index1} className="first-row" data-id={this.state.teams[item].team_id} data-user-id={user.user_id}>
+                                    <tr key={index1} className={(typeof u != "undefined" && u != "null" && user.user_id == u) ? "bg-success" : null} data-id={this.state.teams[item].team_id} data-user-id={user.user_id}>
                                         <th scope="row">{index1 + 1}</th>
                                         <td>{user.name} {user.user_id} Доска : {user.team_board}</td>
                                         <td>
-                                            {typeof u !== "undefined" && this.state.teams[item].applier_id == u ?
+                                            {typeof u !== "undefined" && typeof this.state.teams[item] != "undefined" && this.state.teams[item].applier_id == u ?
                                             <div>
                                                 <span className="far fa-caret-square-up caret" data-action="up" data-team-id={this.state.teams[item].team_id} onClick={this.changeOrder} data-board={user.team_board} data-user-id={user.user_id}></span>
                                                 <span className="far fa-caret-square-down caret ml-1" data-action="down" onClick={this.changeOrder} data-team-id={this.state.teams[item].team_id} data-board={user.team_board} data-user-id={user.user_id}></span>
@@ -332,9 +327,6 @@ class TeamsList extends React.Component {
                 ))}
 
                 </div>
-
-
-
                     <div className="col-sm-4">
                         <ApplyButton setApplies={this.setApplies} showMyApplies={this.showMyApplies} setCurrentTeam={this.setCurrentTeam} setOnlineTeamOwner={this.setOnlineTeamOwner}/>
 
@@ -355,14 +347,14 @@ class TeamsList extends React.Component {
 
 
                                         <span>
-                                            {(typeof u !== "undefined" && this.state.teams[user.team_id].applier_id == u) ?
+                                            {(typeof u !== "undefined" &&  typeof this.state.teams[user.team_id] != "undefined" && this.state.teams[user.team_id].applier_id == u) ?
 
                                                 <i className="fa fa-check btn btn-success btn-sm approve_player"
                                                 onClick={this.approvePlayer} data-rating={user.tournaments_rating} data-id={user.user_id} aria-hidden="true"></i>
                                             : null}
 
-                                            {((typeof u !== "undefined" && this.state.teams[user.team_id].applier_id == u && this.state.current_team == user.team_id) || (typeof u != "undefined" && u != null && u == user.user_id)) ?
-                                            <i onClick={this.declinePlayer} data-apply_id={user._id} className="fa fa-times btn btn-danger btn-sm decline_player" data-id={user.user_id}  aria-hidden="true"></i>
+                                            {((typeof u !== "undefined" &&  typeof this.state.teams[user.team_id] != "undefined" && this.state.teams[user.team_id].applier_id == u && this.state.current_team == user.team_id) || (typeof u != "undefined" && u != null && u == user.user_id)) ?
+                                            <i onClick={this.declinePlayer} data-apply_id={user._id} className="fa fa-times btn btn-danger btn-sm decline_player" data-user-id={user.user_id} data-team-id={user.team_id}  aria-hidden="true"></i>
                                                 : null}
                                         </span>
     </td>
