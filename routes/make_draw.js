@@ -92,11 +92,22 @@ const make_draw = function (data) {
                 }
 
               //  var g = DRAW.makeResultsForRoundRobinSystem(tournament_results, participants, tourney);
-                return DRAW.makeResultsForSwissSystem(tournament_results, participants, tourney, bye_participants, pool).then(function (g) {
+                return DRAW.makeResultsForSwissSystem(tournament_results, participants, tourney, bye_participants, pool, app).then(function (g) {
 
                     //console.log("ggg");
                    // console.log(g);
                    // throw new Error("STOPPED");
+
+                    console.log(typeof g.swiss);
+                    console.log(g.swiss instanceof Error);
+
+                    if (g.swiss instanceof Error) {
+                        app.ROOMS.emit('t' + tournament_id,
+                            JSON.stringify({
+                                "action" : "tournament_event"
+                            }));
+                        throw g.swiss;
+                    }
 
                     const pairs = DRAW.sortSwiss(g.swiss, participants_object);
 
@@ -119,6 +130,8 @@ const make_draw = function (data) {
                         return true;
                     }
 
+                }).catch(function (error) {
+                    throw new Error("Too small participants");
                 });
 
 

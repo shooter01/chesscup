@@ -155,6 +155,10 @@ class TeamsTables extends React.Component {
     }
 }
 
+export default TeamsTables;
+
+/*
 render(
     <TeamsTables/>
     , document.getElementById('team_tables'));
+*/

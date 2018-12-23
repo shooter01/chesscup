@@ -2,7 +2,7 @@ const pairsCalc = require('robin-js'); // CJS
 const DRAW_TEAM = require('../draw_team_functions');
 const DRAW = require('../draw_functions');
 
-const teampairing = function (results, participants, tourney, bye_participants, pool) {
+const teampairing = function (results, participants, tourney, bye_participants, pool, app) {
     let pairs = [],
         insert_object = [],
         already_played = {},
@@ -15,7 +15,6 @@ const teampairing = function (results, participants, tourney, bye_participants, 
         teams_scores_object = [],//объект для вставки в tournaments_teams_scores
         participants_insert_array = [];
 
-    console.log("roundrobin");
 
     const teams = makeObjectByPair(participants);
 
@@ -26,6 +25,22 @@ const teampairing = function (results, participants, tourney, bye_participants, 
 
         .then(rows => {
             team_participants = rows;
+
+
+            if (team_participants.length < 2) {
+                pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
+                    current_tour : 0,
+                    is_active : 1,
+                    is_closed : 1,
+                    is_canceled : 1,
+                }, tourney.id]).then(function () {
+
+                    console.log("CANCELED");
+
+                });
+                throw new Error("Too small quantity of participants");
+            }
+
             //собираем результаты
             return  pool.query("SELECT * FROM tournaments_teams_results WHERE tournament_id = ?", [tourney.id]);
         })
@@ -94,15 +109,17 @@ const teampairing = function (results, participants, tourney, bye_participants, 
                 for (let i = 0; i < tourney.team_boards; i++) {
                     const first_board_team_1 = teams[home][i];
                     const first_board_team_2 = teams[away][i];
-                    participants_insert_array.push({
-                        home: first_board_team_1,
-                        away: first_board_team_2,
-                    });
+                    if (typeof first_board_team_1 != "undefined" || typeof first_board_team_2 != "undefined") {
+                        participants_insert_array.push({
+                            home: first_board_team_1,
+                            away: first_board_team_2,
+                        });
+                    }
                 }
             }
 
-           // console.log(insert_object);
-           // console.log(team_points);
+            console.log(participants_insert_array);
+            console.log(teams);
           //  console.log(insert_object);
           //  console.log(for_addition_teams);
 
@@ -160,8 +177,7 @@ const teampairing = function (results, participants, tourney, bye_participants, 
             return participants_insert_array;
 
         }).catch(function (err) {
-            console.log(err);
-
+            return err;
         });
 };
 

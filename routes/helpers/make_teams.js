@@ -6,19 +6,22 @@ const makeTeams = function (teams_participants, teams) {
 
        // teams[obj.team_id] = teams[obj.team_id] || {};
        // teams[obj.team_id].team_id = obj.team_id;
-        teams[obj.team_id].users = teams[obj.team_id].users || [];
 
-        var user = {
-            user_id: obj.user_id,
-            name: obj.name,
-            email: obj.email,
-            team_board: obj.team_board,
-        };
+        if (typeof teams[obj.team_id] !== "undefined") {
+            teams[obj.team_id].users = teams[obj.team_id].users || [];
 
-        if (user.user_id) {
-            teams[obj.team_id].users.push(user);
-            teams[obj.team_id].users.sort(compare);
+            var user = {
+                user_id: obj.user_id,
+                name: obj.name,
+                email: obj.email,
+                team_board: obj.team_board,
+            };
 
+            if (user.user_id) {
+                teams[obj.team_id].users.push(user);
+                teams[obj.team_id].users.sort(compare);
+
+            }
         }
     }
     return teams;

@@ -95,7 +95,7 @@
 
 
 <% if (tournament.is_online !==  1) { %>
-<a href="/tournament/<%= tournament.id %>/participants" class="btn btn-warning"><%- __("Participants") %></a>
+    <a href="/tournament/<%= tournament.id %>/participants" class="btn btn-warning"><%- __("Participants") %></a>
 <% } %>
 
 <% } %>
@@ -122,7 +122,7 @@
 
 
 
-        <% if (tournament.is_active !==  1 && tournament.is_online ==  1) { %>
+        <% if (tournament.is_active !==  1 && tournament.is_online ==  1 && tournament.type <  10) { %>
                 <% if (user && user.user) { %>
                     <span id="get_in"></span>
                     <script src="/js/get_in.min.js"></script>
@@ -134,10 +134,7 @@
 
 
 
-        <% if (tournament.type > 10) { %>
-            <span id="apply_team"></span>
-            <script src="/js/apply_team.min.js"></script>
-        <% } %>
+
 
         <% if (user && user.user && user.user.id === tournament.creator_id) { %>
             <h3 class="mt-3 mb-0"><%= tournament.title %> </h3>
@@ -159,7 +156,12 @@
         </ul>
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">-->
-        <% if (tournament.is_active !==  1) { %>
+
+
+        <div id="pairing"></div>
+
+
+        <% if (tournament.is_active !==  1 && tournament.is_online === 1 && tournament.type > 10) { %>
 
 
         <style>
@@ -211,6 +213,9 @@
             }
         </style>
 
+
+
+
         <div id="participants"></div>
 
         <script src="/js/participants.min.js"></script>
@@ -221,7 +226,6 @@
         <% }  %>
 
 
-        <div id="pairing"></div>
         <div id="team_tables"></div>
 
                 <!--<div id="participants"></div>-->

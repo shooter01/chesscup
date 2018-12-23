@@ -405,7 +405,6 @@ class Pairing extends React.Component {
         if (this.state.pairs == null || this.state.pairs.length === 0) {
              this.getActualData();
         }
-
         if (this.state.tournament.is_online == 1 && typeof tour_choosed === "undefined"){
            //this.socket = io(window.location.origin, {query: 't1=' + this.state.tournament_id});
             let ws_params = (typeof window.g_ws_params !== "undefined") ? window.g_ws_params : {};

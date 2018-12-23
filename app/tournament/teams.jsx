@@ -28,6 +28,8 @@ class TeamsList extends React.Component {
         this.setCurrentTeam = this.setCurrentTeam.bind(this);
         this.showMyApplies = this.showMyApplies.bind(this);
         this.handleWSData = this.handleWSData.bind(this);
+        this.getActualData = this.getActualData.bind(this);
+        this.updateTournament = this.updateTournament.bind(this);
 
     }
     componentDidMount(){
@@ -67,12 +69,30 @@ class TeamsList extends React.Component {
                 teams : data.teams
             });
 
+        } else if (data.action === "tournament_event") {
+            $(document).trigger("tournament_event");
+
         }
         console.log(data);
 
     }
 
+    updateTournament() {
+        this.getActualData();
+    }
+    getActualData(){
+        var self = this;
+        $.getJSON('/tournament/' + this.state.tournament.id + '/get_info').done(function (data) {
+            if (self._isMounted) {
 
+                self.setState({
+                    pairs: JSON.parse(data.pairing) || [],
+                    tournament: data.tournament || {},
+                    participants: data.participants.length ? data.participants : self.state.participants,
+                });
+            }
+        });
+    }
     approvePlayer(event){
         const self = this;
 
@@ -270,15 +290,17 @@ class TeamsList extends React.Component {
         var cname = "customRadio";
 
         return (
-            <div className={this.state.tournament.is_online === 0 ? "position-relative mt-0 row" : "position-relative mt-5 row"}>
-                <div className="col-sm-8">
+            <div className={this.state.tournament.is_online === 1 ? "position-relative mt-0 row" : "position-relative mt-5 row"}>
+
+
+                <div className={this.state.tournament.is_online === 1 ? "col-sm-8" : "col-sm-12"}>
                 {Object.keys(this.state.teams).map((item, index) => (
                     <div className="mt-1" key={index}>
                         <div className={(this.props.current_team != null && (this.props.current_team == this.state.teams[item].team_id) ? "p-1 mb-2 d-flex justify-content-between team-title participant selected bg-primary text-white" : "p-1 mb-2 bg-light text-dark d-flex justify-content-between team-title participant ")} data-id={item} onClick={this.selectTeam}>
                             <div>
                                <b>{this.state.teams[item].team_id} {this.state.teams[item].name} </b>
                             </div>
-                            {this.state.tournament.is_online === 1 ?
+                            {this.state.tournament.is_online !== 1 ?
                             <span>
                                 {(this.props.current_team == this.state.teams[item].team_id ? null : <span data-id={item} onClick={this.selectTeam} className="select-team-btn mr-3">{_ChooseTeam}</span>)}
 
@@ -288,7 +310,7 @@ class TeamsList extends React.Component {
                         </div>
 
                         {(typeof this.state.teams[item].users !== "undefined" && this.state.teams[item].users.length > 0) ?
-                            <table className={(typeof u !== "undefined" && this.state.teams[item].applier_id == u) ? "table table-hover borderless table-sm table-success" :
+                            <table className={(typeof u !== "undefined" && this.state.teams[item].applier_id == u && this.state.tournament.is_online === 1) ? "table table-hover borderless table-sm table-success" :
                                 "table table-hover borderless table-sm"} key={index}>
                                 <thead>
                                 <tr>
@@ -327,17 +349,21 @@ class TeamsList extends React.Component {
                 ))}
 
                 </div>
+
+
+                {this.state.tournament.is_online === 1 ?
+
                     <div className="col-sm-4">
                         <ApplyButton setApplies={this.setApplies} showMyApplies={this.showMyApplies} setCurrentTeam={this.setCurrentTeam} setOnlineTeamOwner={this.setOnlineTeamOwner}/>
 
                         <table className="table table-sm">
                             <thead className="thead-dark">
-                                <tr>
-                                    {(this.state.in_team || this.state.current_team || this.state.is_team_owner) ?
+                            <tr>
+                                {(this.state.in_team || this.state.current_team || this.state.is_team_owner) ?
                                     <th scope="col">Заявки {(this.state.current_team) ?
                                         <span>в {this.state.teams[this.state.current_team].name}</span> : null}</th> :
-                                        <th scope="col">Мои заявки</th>}
-                                </tr>
+                                    <th scope="col">Мои заявки</th>}
+                            </tr>
                             </thead>
                             <tbody>
                             {this.state.team_apliers.length > 0 && this.state.team_apliers.map((user, index1) => (
@@ -350,20 +376,23 @@ class TeamsList extends React.Component {
                                             {(typeof u !== "undefined" &&  typeof this.state.teams[user.team_id] != "undefined" && this.state.teams[user.team_id].applier_id == u) ?
 
                                                 <i className="fa fa-check btn btn-success btn-sm approve_player"
-                                                onClick={this.approvePlayer} data-rating={user.tournaments_rating} data-id={user.user_id} aria-hidden="true"></i>
-                                            : null}
+                                                   onClick={this.approvePlayer} data-rating={user.tournaments_rating} data-id={user.user_id} aria-hidden="true"></i>
+                                                : null}
 
                                             {((typeof u !== "undefined" &&  typeof this.state.teams[user.team_id] != "undefined" && this.state.teams[user.team_id].applier_id == u && this.state.current_team == user.team_id) || (typeof u != "undefined" && u != null && u == user.user_id)) ?
-                                            <i onClick={this.declinePlayer} data-apply_id={user._id} className="fa fa-times btn btn-danger btn-sm decline_player" data-user-id={user.user_id} data-team-id={user.team_id}  aria-hidden="true"></i>
+                                                <i onClick={this.declinePlayer} data-apply_id={user._id} className="fa fa-times btn btn-danger btn-sm decline_player" data-user-id={user.user_id} data-team-id={user.team_id}  aria-hidden="true"></i>
                                                 : null}
                                         </span>
-    </td>
+                                    </td>
                                 </tr>
                             ))}
                             </tbody>
                         </table>
 
                     </div>
+
+                    : null}
+
 
             </div>
 

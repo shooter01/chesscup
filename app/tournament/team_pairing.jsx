@@ -1,11 +1,15 @@
 import React from 'react';
 import {render} from 'react-dom';
 import TournamentStatus from "./TournamentStatus.jsx";
+import TeamsTables from "./teams_tables.jsx";
+import Participants from "./participant.jsx";
 
 
 class Pairing extends React.Component {
     constructor(props) {
         super(props);
+        this._isMounted = false;
+
         this.state = {
             pairs: pairs,
             tournament_id: tournament_id,
@@ -22,11 +26,13 @@ class Pairing extends React.Component {
             save_url: (type != "null" && type == 20) ? "/tournament/save_teams_result" : "/tournament/save_result",
         }
         this.saveResult = this.saveResult.bind(this);
+        this.getActualData = this.getActualData.bind(this);
 
     }
     componentDidMount(){
         var that = this;
 
+        this._isMounted = true;
 
         $("#next_tour").on("click", function () {
             $.ajax({
@@ -105,9 +111,32 @@ class Pairing extends React.Component {
         });
 
 
+        $(document).on("tournament_event", function () {
+            that.updateTournament();
+        });
+
+
         // this.getUsers(200);
     }
 
+    updateTournament() {
+        this.getActualData();
+    }
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+    getActualData(){
+        var self = this;
+        $.getJSON('/tournament/' + this.state.tournament_id + '/get_info').done(function (data) {
+            if (self._isMounted) {
+                self.setState({
+                    pairs: JSON.parse(data.pairing) || [],
+                    tournament: data.tournament || {},
+                    // participants: data.participants.length ? data.participants : self.state.participants,
+                });
+            }
+        });
+    }
     saveResult(event){
 
         var that = this;
@@ -346,8 +375,12 @@ class Pairing extends React.Component {
                                 : null}
                         </div>
                     ))}
-            </div>
 
+                <Participants/>
+                <TeamsTables/>
+
+
+            </div>
 
         );
 

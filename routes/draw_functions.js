@@ -103,7 +103,7 @@ const DRAW = {
         return  { for_addition : for_addition, overall : overall };
     },
 
-    makeResultsForSwissSystem : function (results, participants, tourney, bye_participants, pool) {
+    makeResultsForSwissSystem : function (results, participants, tourney, bye_participants, pool, app) {
         var res = [], berger_object = {}, global, colors = {}, already_played = {}, d;
 
         var newParticipants = [];
@@ -171,8 +171,7 @@ const DRAW = {
         }
 
         delete berger_object['null'];
-console.log("<>");
-console.log(roundrobin);
+        console.log("<>");
         //если круговой
         if (tourney.type === 2) {
             return roundrobin(results, participants, tourney, bye_participants).then(function (a) {
@@ -191,7 +190,7 @@ console.log(roundrobin);
 
         //если командный круговой
         } else if (tourney.type === 11) {
-            return teampairing(results, participants, tourney, bye_participants, pool).then(function (a) {
+            return teampairing(results, participants, tourney, bye_participants, pool, app).then(function (a) {
                 return {swiss : a, berger_object : berger_object, colors : colors};
             });
         }

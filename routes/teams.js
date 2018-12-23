@@ -281,9 +281,11 @@ module.exports = function(app, passport, pool) {
 
                 return new Promise((resolve, reject) => {
 
-                    pool.query('SELECT * FROM tournaments_teams WHERE applier_id = ? OR team_id = ?', [
+                    pool.query('SELECT * FROM tournaments_teams WHERE (applier_id = ? AND tournament_id = ?) OR (team_id = ? AND tournament_id = ?)', [
                         req.session.passport.user.id,
+                        req.body.tournament_id.trim(),
                         value,
+                        req.body.tournament_id.trim()
                     ]).then(function (rows) {
                         if(rows.length > 0) {
                             return reject("Вы уже заявили 1 команду или эта команда уже заявлена.");

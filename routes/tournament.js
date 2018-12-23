@@ -737,11 +737,11 @@ module.exports = function(app, passport, pool, i18n) {
                     req.body.tournament_id.trim()
                 ]).then(function (rows) {
 
-                    if(rows.length > 0 && rows[0].is_online == 1 && rows[0].is_active == 1 && !rows[0].is_closed) {
-                        return reject("Турнир не завершен. Завершите все матчи");
-                    } else {
+                   // if(rows.length > 0 && rows[0].is_online == 1 && rows[0].is_active == 1 && !rows[0].is_closed) {
+                   //     return reject("Турнир не завершен. Завершите все матчи");
+                  //  } else {
                         return resolve();
-                    }
+                  //  }
                 });
             });
         }),
@@ -771,7 +771,7 @@ module.exports = function(app, passport, pool, i18n) {
                 }).then(function (results) {
                     return pool.query('DELETE FROM tournaments_teams_scores WHERE tournament_id = ?', office.tournament_id);
                 }).then(function (results) {
-                var newDateObj = moment(new Date()).add(0.5, 'm').toDate();
+                var newDateObj = moment(new Date()).add(0.1, 'm').toDate();
 
                 return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[
                     {

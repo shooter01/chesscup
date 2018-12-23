@@ -12,7 +12,7 @@
             <option value="2" <%= (typeof tournament !== "undefined" && tournament.type == "2") ? "selected" : "" %>><%- __("CreateRoundRobin") %></option>
             <option value="1" <%= (typeof tournament !== "undefined" && tournament.type == "1") ? "selected" : "" %>><%- __("CreateIndividSwiss") %></option>
 
-            <!--<option value="12" <%= (typeof tournament !== "undefined" && tournament.type == "12") ? "selected" : "" %>><%- __("CreateTeamRoundRobinWithPlayers") %></option>-->
+            <option value="11" <%= (typeof tournament !== "undefined" && tournament.type == "11") ? "selected" : "" %>><%- __("CreateTeamRoundRobinWithPlayers") %></option>
             <!--option value="20" <%= (typeof tournament !== "undefined" && tournament.type == "20") ? "selected" : "" %>><%- __("CreateTeamSwissWithoutPlayers") %></option>-->
 
         </select>
@@ -154,9 +154,10 @@
             $("#team_boards-wrapper").removeClass("hidden");
         } else {
             $("#team_boards-wrapper").addClass("hidden");
+
         }
 
-        if ($("#type").val() == 2) {
+        if ($("#type").val() == 2 || $("#type").val() == 11) {
             $("#tours_count_wrapper").addClass("hidden");
         } else {
             $("#tours_count_wrapper").removeClass("hidden");

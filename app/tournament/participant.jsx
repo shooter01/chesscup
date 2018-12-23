@@ -192,7 +192,7 @@ class Participants extends React.Component {
             if (data.participants || data.teams) {
 
                 //TODO TOURNAMENT
-                if (!that.state.tournament.is_online) {
+                if (that.state.tournament.is_online) {
                     location.reload();
                 } else {
                     that.setState({
@@ -469,8 +469,9 @@ class Participants extends React.Component {
                     that.setDefaultState();
                 }, 2000);
 
-                that.updateOrder(team_id);
-
+                if (that.state.tournament.type > 10) {
+                    that.updateOrder(team_id);
+                }
             }
 
         }).fail(function ( jqXHR, textStatus ) {
@@ -795,14 +796,13 @@ class Participants extends React.Component {
         };
 
         return (
-            <div className="row position-relative">
+            <div className="row position-relative mt-1">
                 <div className="col-12">
                     <div className="row">
                         <div className="col-md-8">
                             <div {...a}>{_Status} : {this.state.status}</div>
                         </div>
-                        {/*TODO поменять потом условие так как изначально турнир не онлайн*/}
-                        {(this.state.tournament.is_online) ?
+                        {(!this.state.tournament.is_online) ?
                             <div className="col-md-2">
                                 <a {...linkTo} className="btn btn-primary btn-block btn-lg">{_ToTournament}</a>
                             </div>
@@ -811,8 +811,7 @@ class Participants extends React.Component {
 
                 </div>
                 {/*если турнир онлайн, не показываем левую сторону*/}
-                {/*TODO поменять потом условие так как изначально турнир не онлайн*/}
-                {(this.state.tournament.is_online) ?
+                {(!this.state.tournament.is_online) ?
                     <div className="col-sm-3">
                         <input type="text" className="form-control" placeholder={_Search}  onChange={this.search} />
                             <div className="list-group mt-2 school-participants">
@@ -823,11 +822,10 @@ class Participants extends React.Component {
                                 ))}
                             </div>
                     </div> : null}
-                <div className="col-sm-12 tournament-participants">
+                <div className={(!this.state.tournament.is_online) ? "col-sm-9 tournament-participants" : "col-sm-12 tournament-participants"}>
 
                     {/*если турнир онлайн, не показываем левую сторону*/}
-                    {/*TODO поменять потом условие так как изначально турнир не онлайн*/}
-                    {(this.state.tournament.is_online) ?
+                    {(!this.state.tournament.is_online) ?
 
                     <ul className="nav nav-pills nav-fill">
                         <li className="nav-item">
@@ -927,10 +925,13 @@ class Participants extends React.Component {
 
     }
 }
+export default Participants;
 
+/*
 $(function () {
     render(
         <Participants/>
         , document.getElementById('participants'));
 });
 
+*/
