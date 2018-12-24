@@ -9,12 +9,11 @@ class TeamsTables extends React.Component {
         super(props);
         this.state = {
             tournament: tournament,
-            results_table: results_table,
-            participants_boards: participants_boards,
-            participants: participants_array,
-
+            results_table : this.props.results_table || [],
+            participants_boards : this.props.participants_boards || {},
+            participants : this.props.participants || [],
+            participants_array : this.props.participants_array || [],
         };
-        console.log(Object.keys(this.state.participants_boards));
     }
     componentDidMount(){
         const self = this;
@@ -35,18 +34,39 @@ class TeamsTables extends React.Component {
     componentWillReceiveProps(nextProps){
 
 
-      //  if(nextProps.value !== this.props.pairs){
+       if(nextProps.value !== this.props.results_table){
             this.setState({
-                teams:nextProps.teams,
-            });
-       // }
+                results_table:nextProps.results_table,
 
+            });
+       }
+
+
+       if(nextProps.value !== this.props.participants_array){
+            this.setState({
+                participants_array:nextProps.participants_array,
+
+            });
+       }
+       if(nextProps.value !== this.props.participants){
+            this.setState({
+                participants:nextProps.participants,
+
+            });
+       }
+       if(nextProps.value !== this.props.participants_boards){
+            this.setState({
+                participants_boards:nextProps.participants_boards,
+
+            });
+       }
 
     }
     render() {
+        const self = this;
 
-
-        var tifOptions = Object.keys(participants_boards).map(function(key, index) {
+        console.log(participants_array);
+        var tifOptions = Object.keys(this.state.participants_boards).map(function(key, index) {
             return <div key={key}>
                 <h5 className="mt-2">Доска № {index + 1}</h5>
                 <table className="table table-bordered table-hover table-sm">
@@ -62,9 +82,9 @@ class TeamsTables extends React.Component {
                     </tr>
                     </thead>
                     <tbody>
+                    {console.log(this)}
 
-
-                    {participants_boards[key].map((item, index) => (
+                    {self.state.participants_boards[key].map((item, index) => (
                         <tr key={index}>
                             <td>{index + 1}</td>
                             <td><a target="_blank" href="/users/stat/74">{item.name}</a></td>
@@ -143,7 +163,7 @@ class TeamsTables extends React.Component {
                     </div>
                     <div className="tab-pane fade" id="individial" role="tabpanel" aria-labelledby="contact-tab">
 
-                        <ResultsTable participants={this.state.participants} tournament={this.state.tournament}/>
+                        <ResultsTable participants={this.state.participants_array} tournament={this.state.tournament}/>
 
                     </div>
                 </div>

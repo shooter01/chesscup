@@ -2,7 +2,6 @@ import React from 'react';
 import {render} from 'react-dom';
 import ParticipantsListTable from "./ParticipantsListTable.jsx";
 import ApplyButton from "../team/apply_button.jsx";
-import WS from "../ws";
 
 class TeamsList extends React.Component {
     constructor(props) {
@@ -27,9 +26,7 @@ class TeamsList extends React.Component {
         this.filterApplies = this.filterApplies.bind(this);
         this.setCurrentTeam = this.setCurrentTeam.bind(this);
         this.showMyApplies = this.showMyApplies.bind(this);
-        this.handleWSData = this.handleWSData.bind(this);
-        this.getActualData = this.getActualData.bind(this);
-        this.updateTournament = this.updateTournament.bind(this);
+
 
     }
     componentDidMount(){
@@ -48,51 +45,11 @@ class TeamsList extends React.Component {
 */
 
 
-        self.socket = new WS(function (data) {
-            self.handleWSData(data);
-        }, "localhost:7000");
-
-
-
 
     }
 
 
-    handleWSData(data){
 
-        if (data.action === "get_apply") {
-            $(document).trigger("get_apply");
-        } else if (data.action === "participant") {
-            //$(document).trigger("participant");
-
-            this.setState({
-                teams : data.teams
-            });
-
-        } else if (data.action === "tournament_event") {
-            $(document).trigger("tournament_event");
-
-        }
-        console.log(data);
-
-    }
-
-    updateTournament() {
-        this.getActualData();
-    }
-    getActualData(){
-        var self = this;
-        $.getJSON('/tournament/' + this.state.tournament.id + '/get_info').done(function (data) {
-            if (self._isMounted) {
-
-                self.setState({
-                    pairs: JSON.parse(data.pairing) || [],
-                    tournament: data.tournament || {},
-                    participants: data.participants.length ? data.participants : self.state.participants,
-                });
-            }
-        });
-    }
     approvePlayer(event){
         const self = this;
 
@@ -322,7 +279,7 @@ class TeamsList extends React.Component {
                                 </thead>
                                 <tbody>
                                 {this.state.teams[item].users.map((user, index1) => (
-                                    <tr key={index1} className={(typeof u != "undefined" && u != "null" && user.user_id == u) ? "bg-success" : null} data-id={this.state.teams[item].team_id} data-user-id={user.user_id}>
+                                    <tr key={index1} className={(this.state.tournament.is_online === 1 && typeof u != "undefined" && u != "null" && user.user_id == u) ? "bg-success" : null} data-id={this.state.teams[item].team_id} data-user-id={user.user_id}>
                                         <th scope="row">{index1 + 1}</th>
                                         <td>{user.name} {user.user_id} Доска : {user.team_board}</td>
                                         <td>
@@ -333,8 +290,10 @@ class TeamsList extends React.Component {
                                                 <a href="" className="fa fa-trash float-right" data-id={user.user_id} data-team-id={this.state.teams[item].team_id} title="Удаление участника" onClick={this.removeParticipant} data-team_id={this.state.teams[item].team_id}></a>
                                             </div>
                                                 : <span>
-                                                    {typeof u !== "undefined" && user.user_id == u ?
-                                                        <span className="badge badge-danger float-right" data-id={user.user_id} data-team-id={this.state.teams[item].team_id} title="Удаление участника" onClick={this.removeParticipant} data-team_id={this.state.teams[item].team_id}>Покинуть</span> : null}
+                                                    {this.state.tournament.is_online === 1 && typeof u !== "undefined" && user.user_id == u ?
+                                                        <span className="badge badge-danger float-right" data-id={user.user_id}
+                                                              data-team-id={this.state.teams[item].team_id} title="Удаление участника"
+                                                              onClick={this.removeParticipant} data-team_id={this.state.teams[item].team_id}>Покинуть</span> : null}
                                                 </span>
                                             }
                                         </td>

@@ -926,12 +926,3 @@ class Participants extends React.Component {
     }
 }
 export default Participants;
-
-/*
-$(function () {
-    render(
-        <Participants/>
-        , document.getElementById('participants'));
-});
-
-*/

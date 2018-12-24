@@ -120,7 +120,12 @@ const make_draw = function (data) {
 
                     const buhgolz = DRAW.getBuhgolz(tournament_results, participants_object);
                     scores_array = DRAW.makeScoresArray(participants_object, berger, buhgolz, tourney);
-
+                  //  console.log("======");
+                  //  console.log(scores_array);
+                  //  console.log(participants_object);
+                   // console.log(berger);
+                   // console.log(buhgolz);
+                   // console.log(tourney);
                     if (let_insert && ((tourney.current_tour + 1) <= tourney.tours_count)) {
                         return pool.query('INSERT INTO tournaments_results (' +
                             'p1_id, p2_id, p1_won, p2_won,p1_scores,p2_scores, tournament_id,created_at,tour,board, ' +
@@ -131,7 +136,7 @@ const make_draw = function (data) {
                     }
 
                 }).catch(function (error) {
-                    throw new Error("Too small participants");
+                    console.log(error);
                 });
 
 

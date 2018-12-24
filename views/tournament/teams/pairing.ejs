@@ -127,15 +127,38 @@
 <script>
     var tournaments_teams = JSON.parse('<%- tournaments_teams %>');
     var pairs = JSON.parse('<%- pairs %>');
+    var participants = [];
     var team_tour_points = JSON.parse('<%- team_tour_points %>');
     var teams_scores = JSON.parse('<%- teams_scores %>');
     var tournament = '<%= tournament %>';
     var tournament_id = '<%= tournament.id %>';
     var type = '<%= tournament.type %>';
+    var results_table = JSON.parse('<%- results_table %>');
+    var participants_array = JSON.parse('<%- participants_array %>');
+    var participants_boards = JSON.parse('<%- participants_boards %>');
     var team_boards = '<%= tournament.team_boards %>';
     var current_tour = '<%= tournament.current_tour %>';
     var tour_id = '<%= (typeof tour_id != "undefined") ? tour_id : null %>';
-
+    var _Participants = '<%- __("Participants") %>';
+    var _Teams = '<%- __("ParticipantsTeams") %>';
+    var _ToTournament = '<%- __("ParticipantsToTournament") %>';
+    var _AddParticipant = '<%- __("ParticipantsAddParticipant") %>';
+    var _AddTeam = '<%- __("ParticipantsAddTeam") %>';
+    var _AddingTeam = '<%- __("ParticipantsAddingTeam") %>';
+    var _Administrators = '<%- __("ParticipantsAdministrators") %>';
+    var _Search = '<%- __("ParticipantsSearch") %>';
+    var _SuccessUpdate = '<%- __("ParticipantsSuccessUpdate") %>';
+    var _TeamName = '<%- __("ParticipantsTeamName") %>';
+    var _Close = '<%- __("Close") %>';
+    var _Save = '<%- __("Save") %>';
+    var _Saving = '<%- __("Saving") %>';
+    var _Status = '<%- __("ParticipantsStatus") %>';
+    var _Waiting = '<%- __("ParticipantsWaiting") %>';
+    var _Rating = '<%- __("ParticipantsRating") %>';
+    var _Name = '<%- __("Name") %>';
+    var _ParticipantAdded = '<%- __("ParticipantAdded") %>';
+    var _RequestSent = '<%- __("ParticipantRequestSent") %>';
+    var _ChooseTeam = '<%- __("ParticipantsChooseTeamTitle") %>';
 </script>
 
 

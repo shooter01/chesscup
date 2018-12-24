@@ -1,6 +1,7 @@
 const pairsCalc = require('robin-js'); // CJS
 const DRAW_TEAM = require('../draw_team_functions');
-const DRAW = require('../draw_functions');
+console.log("DRAW");
+console.log(DRAW_TEAM);
 
 const teampairing = function (results, participants, tourney, bye_participants, pool, app) {
     let pairs = [],
@@ -11,6 +12,7 @@ const teampairing = function (results, participants, tourney, bye_participants, 
         team_results = [],
         teams_scores,
         additional_coef,
+        tours_count, //количество туров
         team_points = {},//командные очки (id команды как ключ)
         teams_scores_object = [],//объект для вставки в tournaments_teams_scores
         participants_insert_array = [];
@@ -26,7 +28,6 @@ const teampairing = function (results, participants, tourney, bye_participants, 
         .then(rows => {
             team_participants = rows;
 
-
             if (team_participants.length < 2) {
                 pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
                     current_tour : 0,
@@ -39,10 +40,17 @@ const teampairing = function (results, participants, tourney, bye_participants, 
 
                 });
                 throw new Error("Too small quantity of participants");
+            } else {
+                 tours_count = getToursCount(tourney, team_participants);
+                 return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
+                    tours_count : tours_count
+                }, tourney.id]);
             }
-
+        })
+        .then(rows => {
             //собираем результаты
             return  pool.query("SELECT * FROM tournaments_teams_results WHERE tournament_id = ?", [tourney.id]);
+
         })
         .then(rows => {
             team_results = rows;
@@ -80,7 +88,8 @@ const teampairing = function (results, participants, tourney, bye_participants, 
             teams_scores = result.teams_scores;
             additional_coef = result.additional_coef;
 
-
+            console.log(">>>>>");
+            console.log(insert_object);
             var for_addition_teams = [];
             for (var i = 0; i < insert_object.length; i++) {
                 var obj = insert_object[i], p1_won = null, p2_won = null;
@@ -118,10 +127,12 @@ const teampairing = function (results, participants, tourney, bye_participants, 
                 }
             }
 
-            console.log(participants_insert_array);
-            console.log(teams);
-          //  console.log(insert_object);
-          //  console.log(for_addition_teams);
+        //    console.log(participants_insert_array);
+         ///   console.log(teams);
+         //   console.log(insert_object);
+           console.log("<<<<<<<<");
+           console.log(tourney.current_tour);
+           console.log(tourney.tours_count);
 
 
             if (((tourney.current_tour + 1) <= tourney.tours_count)) {
@@ -153,7 +164,6 @@ const teampairing = function (results, participants, tourney, bye_participants, 
             const buhgolz = getBuhgolz(team_results, team_points);
             const boardPoints = getBoardPoints(team_results);
 
-            console.log(boardPoints);
 
             for (let i = 0; i < team_participants.length; i++) {
                 let obj = team_participants[i];
@@ -343,6 +353,23 @@ function makeObjectByPair(participants) {
         teams[obj1.team_id][obj1.team_board] = obj1.user_id;
     }
     return teams;
+
+
+}
+
+
+//функция создает объект команды, с объектом ключей -
+function getToursCount(tourney, participants) {
+    let tours_count = tourney.tours_count;
+
+    //если это круговой индивидуальный турнир
+    if (tourney.type === 11) {
+        //количество участников нечетное?
+        const isOdd = participants.length % 2 === 1;
+        tours_count = (isOdd) ? participants.length : participants.length - 1;
+    }
+
+    return tours_count;
 
 
 }

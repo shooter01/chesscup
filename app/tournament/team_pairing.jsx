@@ -3,6 +3,7 @@ import {render} from 'react-dom';
 import TournamentStatus from "./TournamentStatus.jsx";
 import TeamsTables from "./teams_tables.jsx";
 import Participants from "./participant.jsx";
+import WS from "../ws";
 
 
 class Pairing extends React.Component {
@@ -21,13 +22,19 @@ class Pairing extends React.Component {
             user_pairs: [],
             team_boards: Array.apply(null, {length: parseInt(team_boards)}).map(Function.call, Number),
             user_id: [],
+            results_table: results_table,
+            participants_boards: participants_boards,
+            participants: participants,
+            participants_array: participants_array,
             owner: window.owner,
             type: type,
             save_url: (type != "null" && type == 20) ? "/tournament/save_teams_result" : "/tournament/save_result",
         }
         this.saveResult = this.saveResult.bind(this);
         this.getActualData = this.getActualData.bind(this);
-
+        this.handleWSData = this.handleWSData.bind(this);
+        this.getActualData = this.getActualData.bind(this);
+        this.updateTournament = this.updateTournament.bind(this);
     }
     componentDidMount(){
         var that = this;
@@ -111,28 +118,52 @@ class Pairing extends React.Component {
         });
 
 
-        $(document).on("tournament_event", function () {
+
+        that.socket = new WS(function (data) {
+            that.handleWSData(data);
+        }, "localhost:7000");
+
+        /*$(document).on("tournament_event", function () {
             that.updateTournament();
-        });
+        });*/
 
 
         // this.getUsers(200);
     }
 
+    handleWSData(data){
+        const self = this;
+        if (data.action === "get_apply") {
+            $(document).trigger("get_apply");
+        } else if (data.action === "participant") {
+            //$(document).trigger("participant");
+
+            this.setState({
+                teams : data.teams
+            });
+
+        } else if (data.action === "tournament_event") {
+            self.updateTournament();
+
+        }
+        console.log(data);
+
+    }
+
     updateTournament() {
         this.getActualData();
     }
-    componentWillUnmount() {
-        this._isMounted = false;
-    }
     getActualData(){
         var self = this;
-        $.getJSON('/tournament/' + this.state.tournament_id + '/get_info').done(function (data) {
+        $.getJSON('/tournament/' + this.state.tournament.id + '/get_info').done(function (data) {
             if (self._isMounted) {
                 self.setState({
-                    pairs: JSON.parse(data.pairing) || [],
+                    pairs: JSON.parse(data.pairs) || [],
+                    results_table: JSON.parse(data.results_table) || [],
                     tournament: data.tournament || {},
-                    // participants: data.participants.length ? data.participants : self.state.participants,
+                    participants_boards: JSON.parse(data.participants_boards) || [],
+                    participants: JSON.parse(data.participants) || {},
+                    participants_array: JSON.parse(data.participants_array) || [],
                 });
             }
         });
@@ -376,8 +407,16 @@ class Pairing extends React.Component {
                         </div>
                     ))}
 
-                <Participants/>
-                <TeamsTables/>
+                {!this.state.tournament.is_active && this.state.tournament.is_online ? <Participants /> : null}
+                <TeamsTables
+                        results_table={this.state.results_table}
+                        participants_boards={this.state.participants_boards}
+                        participants={this.state.participants}
+                        participants_array={this.state.participants_array}
+
+                    />
+
+
 
 
             </div>

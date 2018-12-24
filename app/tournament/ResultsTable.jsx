@@ -21,6 +21,7 @@ class ResultsTable extends React.Component {
         this.state = {
             participants : this.props.participants || [],
         }
+
     }
 
     componentWillReceiveProps(nextProps){
@@ -31,7 +32,6 @@ class ResultsTable extends React.Component {
 
 
     render() {
-
         var width = {
             width : 7 + "%"
         }

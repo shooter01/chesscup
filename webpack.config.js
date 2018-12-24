@@ -11,7 +11,7 @@ var APP_DIR = path.resolve(__dirname, 'app');
 var config = {
     entry: {
         users : './app/users/users.jsx',
-        participants : './app/tournament/participant.jsx',
+        participants_page : './app/tournament/participants_page.jsx',
         p : './app/tournament/pairing.jsx',
         current_games : './app/tournament/current_games.jsx',
         chat : './app/tournament/Chat.jsx',

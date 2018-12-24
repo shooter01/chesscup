@@ -410,6 +410,8 @@ module.exports = function(app, passport, pool, i18n) {
                 tournament_id: req.body.tournament_id,
                 teacher_id: req.body.teacher_id,
                 team_name: req.body.team_name,
+                team_id: 0,
+                applier_id: req.session.passport.user.id,
             };
 
             pool.query('INSERT INTO tournaments_teams SET ?', office).then(function (results) {
@@ -1416,43 +1418,40 @@ module.exports = function(app, passport, pool, i18n) {
                         app.mongoDB.collection("cache").findOne({tournament_id : parseInt(tournament.id), tour : parseInt(tournament.current_tour)}, function (err, mongoTournament) {
                           //  if (!mongoTournament) {
                             if (true) {
-                                DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app).then(function(swiss) {
 
 
-                                    mongoinsert.participants = swiss.participants;
-                                    mongoinsert.pairing = swiss.pairing;
-                                    mongoinsert.tournament_id = tournament.id;
-                                    mongoinsert.tour = tournament.current_tour;
 
-                                    return app.mongoDB.collection("cache").insertOne({
 
-                                        "participants": mongoinsert.participants,
-                                        "scores_object": mongoinsert.scores_object,
-                                        "pairing": mongoinsert.pairing,
-                                        "tour": parseInt(tournament.current_tour),
-                                        "tournament_id": parseInt(tournament.id),
-                                    }, function () {
-                                        return res.json({
-                                            tournament  : tournament,
-                                            pairing  : JSON.stringify(mongoinsert.pairing),
-                                            participants : mongoinsert.participants,
-                                            tour_id : tour_id,
+                                if (tournament.type > 10) {
+                                    DRAW.teamSwiss(req, res, next, pool, tournament, tournament.id, tournament.current_tour).then(function(swiss) {
+                                        res.json({
+                                            tournament: tournament,
+                                            tournamentJSON  : JSON.stringify(tournament),
+
+                                            tour_id: tournament.current_tour,
+                                            pairs: JSON.stringify(swiss.pairs),
+                                            team_tour_points: JSON.stringify(swiss.team_tour_points),
+                                            participants_boards: JSON.stringify(swiss.participants_boards),
+                                            participants_array: JSON.stringify(swiss.participants_array),
+                                            participants: JSON.stringify(swiss.participants),
+
+                                            teams_scores: JSON.stringify(swiss.teams_scores),
+                                            results_table: JSON.stringify(swiss.results_table),
+                                            tournaments_teams: JSON.stringify(swiss.tournaments_teams)
                                         });
+                                    }).catch(function(e) {
+                                        console.log(e);
                                     });
-
-                                }).catch(function(e) {
-                                    console.log(e);
-                                });
+                                } else {
+                                    DRAW.defaultSwiss(req, res, next, pool, tournament, tournament_id, tour_id, app).then(function(swiss) {
 
 
-                               /* console.log(swiss);
-                                mongoinsert.participants = swiss.participants;
-                                mongoinsert.scores_object = swiss.scores_object;
-                                mongoinsert.tournament_id = tournament.id;
-                                mongoinsert.tour = tournament.current_tour;
+                                        mongoinsert.participants = swiss.participants;
+                                        mongoinsert.pairing = swiss.pairing;
+                                        mongoinsert.tournament_id = tournament.id;
+                                        mongoinsert.tour = tournament.current_tour;
 
-
-                                app.mongoDB.collection("cache").insertOne({
+                                        return app.mongoDB.collection("cache").insertOne({
 
                                             "participants": mongoinsert.participants,
                                             "scores_object": mongoinsert.scores_object,
@@ -1460,14 +1459,22 @@ module.exports = function(app, passport, pool, i18n) {
                                             "tour": parseInt(tournament.current_tour),
                                             "tournament_id": parseInt(tournament.id),
                                         }, function () {
-                                                res.json({
-                                                    tournament  : tournament,
-                                                    pairing  : JSON.stringify(pairing),
-                                                    participants : participants,
-                                                    tour_id : tour_id,
-                                                    scores_object :  JSON.stringify(scores_object),
-                                                });
-                                });*/
+                                            return res.json({
+                                                tournament  : tournament,
+                                                pairing  : JSON.stringify(mongoinsert.pairing),
+                                                participants : mongoinsert.participants,
+                                                tour_id : tour_id,
+                                            });
+                                        });
+
+                                    }).catch(function(e) {
+                                        console.log(e);
+                                    });
+                                }
+
+
+
+
 
                             } else {
                                 res.json({
@@ -1519,10 +1526,17 @@ module.exports = function(app, passport, pool, i18n) {
                                 //console.log(swiss.pairs);
                                 res.render('tournament/teams/pairing', {
                                     tournament: tournament,
-                                    tour_id: tour_id,
+                                    tournamentJSON: JSON.stringify(tournament),
+
+                                    tour_id: tournament.current_tour,
                                     pairs: JSON.stringify(swiss.pairs),
                                     team_tour_points: JSON.stringify(swiss.team_tour_points),
+                                    participants_boards: JSON.stringify(swiss.participants_boards),
+                                    participants_array: JSON.stringify(swiss.participants_array),
+                                    participants: JSON.stringify(swiss.participants),
+
                                     teams_scores: JSON.stringify(swiss.teams_scores),
+                                    results_table: JSON.stringify(swiss.results_table),
                                     tournaments_teams: JSON.stringify(swiss.tournaments_teams)
                                 });
                             }).catch(function(e) {

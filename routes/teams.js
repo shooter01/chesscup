@@ -334,7 +334,7 @@ module.exports = function(app, passport, pool) {
                     tournament_id: req.body.tournament_id,
                     user_id: req.session.passport.user.id,
                     start_rating: 1200,
-                    team_board: 1,
+                    team_board: 0,
                     team_id: req.body.team_id.trim(),
                 };
 
