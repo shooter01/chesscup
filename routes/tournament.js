@@ -773,7 +773,7 @@ module.exports = function(app, passport, pool, i18n) {
                 }).then(function (results) {
                     return pool.query('DELETE FROM tournaments_teams_scores WHERE tournament_id = ?', office.tournament_id);
                 }).then(function (results) {
-                var newDateObj = moment(new Date()).add(0.1, 'm').toDate();
+                var newDateObj = moment(new Date()).add(0.4, 'm').toDate();
 
                 return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[
                     {
@@ -1634,7 +1634,7 @@ module.exports = function(app, passport, pool, i18n) {
 
                             if (tournament.type > 10) {
                                 DRAW.teamSwiss(req, res, next, app.pool, tournament, tournament_id, tournament.current_tour).then(function (swiss) {
-                                    console.log(swiss.participants);
+                                    //console.log(swiss.participants);
 
                                     res.render('tournament/show', {
                                         tournament: tournament,
@@ -1915,7 +1915,7 @@ module.exports = function(app, passport, pool, i18n) {
                             }).then(rows => {
                                 teachers = rows;
 
-                                console.log(participants);
+                                //console.log(participants);
 
                                 res.render('tournament/participants', {
                                     tournament  : tourney,
@@ -1976,7 +1976,7 @@ module.exports = function(app, passport, pool, i18n) {
             let sql = 'UPDATE tournaments_participants SET team_board = CASE user_id ' + test + '  END WHERE user_id IN ?';
             let sql_arg = [[Object.keys(order)]];
             const keys_count = Object.keys(order).length;
-            console.log(keys_count);
+           // console.log(keys_count);
             var get_info = 'SELECT tt.id AS team_id,tt.team_name,tt.applier_id, tp.user_id,tp.team_board, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC, tp.team_board ASC';
 
             if (keys_count === 0) {
@@ -1994,7 +1994,7 @@ module.exports = function(app, passport, pool, i18n) {
                     }
 
                 }).then(rows => {
-                    console.log(rows);
+                   // console.log(rows);
                     var teams = makeTeams(rows);
 
                     res.json({

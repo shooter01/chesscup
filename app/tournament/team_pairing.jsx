@@ -4,6 +4,7 @@ import TournamentStatus from "./TournamentStatus.jsx";
 import TeamsTables from "./teams_tables.jsx";
 import Participants from "./participant.jsx";
 import WS from "../ws";
+import Tours from "./Tours.jsx";
 
 
 class Pairing extends React.Component {
@@ -407,7 +408,7 @@ class Pairing extends React.Component {
                         </div>
                     ))}
 
-                {!this.state.tournament.is_active && this.state.tournament.is_online ? <Participants /> : null}
+                {!this.state.tournament.is_active && this.state.tournament.is_online ? <Participants /> : <Tours tournament={this.state.tournament} />}
                 <TeamsTables
                         results_table={this.state.results_table}
                         participants_boards={this.state.participants_boards}

@@ -981,7 +981,9 @@ const DRAW = {
 
     sortByTeamBoard : function (pairs) {
         for (let obj1 in pairs) {
-            pairs[obj1].users[0] = pairs[obj1].users[0].sort(sortByScores);
+            if (pairs[obj1].users.length) {
+                pairs[obj1].users[0] = pairs[obj1].users[0].sort(sortByScores);
+            }
         }
 
         function sortByScores(a,b) {

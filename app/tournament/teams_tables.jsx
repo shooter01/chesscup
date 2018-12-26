@@ -65,7 +65,6 @@ class TeamsTables extends React.Component {
     render() {
         const self = this;
 
-        console.log(participants_array);
         var tifOptions = Object.keys(this.state.participants_boards).map(function(key, index) {
             return <div key={key}>
                 <h5 className="mt-2">Доска № {index + 1}</h5>
@@ -74,28 +73,25 @@ class TeamsTables extends React.Component {
                     <tr>
                         <th></th>
                         <th>Имя</th>
-                        <th>Очки</th>
-                        <th>Бх</th>
-                        <th>SB</th>
-                        <th>Rate</th>
-                        <th></th>
+                        <th className="text-center">Очки</th>
+                        <th className="text-center">Бх</th>
+                        <th className="text-center">SB</th>
+                        {/*<th className="text-center">Rate</th>*/}
+                        {/*<th></th>*/}
                     </tr>
                     </thead>
                     <tbody>
-                    {console.log(this)}
-
                     {self.state.participants_boards[key].map((item, index) => (
                         <tr key={index}>
                             <td>{index + 1}</td>
                             <td><a target="_blank" href="/users/stat/74">{item.name}</a></td>
-                            <td>{item.scores}</td>
-                            <td>{item.bh}</td>
-                            <td>{item.berger}</td>
-                            <td>{item.tournaments_rating}</td>
-                            <td>
+                            <td className="text-center">{item.scores}</td>
+                            <td className="text-center">{item.bh}</td>
+                            <td className="text-center">{item.berger}</td>
+                            {/*<td className="text-center">{item.tournaments_rating}</td>*/}
+                            {/*<td className="text-center">
                                 <a href="" data-id="74" className="participant fa fa-eye"></a>
-                                <a target="_blank" href="/users/stat/74" className="fa fa-chart-line"></a>
-                            </td>
+                            </td>*/}
                         </tr>
                     ))}
 
@@ -106,9 +102,6 @@ class TeamsTables extends React.Component {
 
         return (
             <div className="position-relative mt-2">
-
-                <Tours tournament={this.state.tournament} />
-
 
                 <ul className="nav nav-tabs" id="teams_tables_nav" role="tablist">
                     <li className="nav-item">

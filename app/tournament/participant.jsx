@@ -405,8 +405,6 @@ class Participants extends React.Component {
         if (team_id) {
             this.setState({
                 team_owner : team_id
-            }, function () {
-                console.log(team_id);
             });
         }
     }

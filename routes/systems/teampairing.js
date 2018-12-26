@@ -1,7 +1,5 @@
 const pairsCalc = require('robin-js'); // CJS
 const DRAW_TEAM = require('../draw_team_functions');
-console.log("DRAW");
-console.log(DRAW_TEAM);
 
 const teampairing = function (results, participants, tourney, bye_participants, pool, app) {
     let pairs = [],
@@ -130,10 +128,6 @@ const teampairing = function (results, participants, tourney, bye_participants, 
         //    console.log(participants_insert_array);
          ///   console.log(teams);
          //   console.log(insert_object);
-           console.log("<<<<<<<<");
-           console.log(tourney.current_tour);
-           console.log(tourney.tours_count);
-
 
             if (((tourney.current_tour + 1) <= tourney.tours_count)) {
 
@@ -178,8 +172,12 @@ const teampairing = function (results, participants, tourney, bye_participants, 
                 ]);
             }
 
+            if (scores.length > 0) {
+                return pool.query('INSERT INTO tournaments_teams_scores (team_id, tournament_id, tour, scores, team_scores, bh, berger) VALUES ?', [scores])
+            } else {
+                return true;
+            }
 
-             return pool.query('INSERT INTO tournaments_teams_scores (team_id, tournament_id, tour, scores, team_scores, bh, berger) VALUES ?', [scores])
 
         })
         .then(rows => {
