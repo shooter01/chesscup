@@ -168,7 +168,7 @@ class Participants extends React.Component {
 
     removeTeam(team_id){
         var that = this;
-        event.preventDefault();
+        //event.preventDefault();
 
 
        if (!team_id) {
