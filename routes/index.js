@@ -28,10 +28,20 @@ module.exports = function (app, passport, pool) {
 
 
         pool.query('SELECT * FROM tournaments ORDER BY tournaments.id DESC LIMIT 10').then(function (results) {
+            let tournaments_system = [], tournaments = [];
+            for (let i = 0; i < results.length; i++) {
+                let obj = results[i];
+                if (obj.is_system && obj.is_closed !== 1) {
+                    tournaments_system.push(obj);
+                } else {
+                    tournaments.push(obj);
+                }
+            }
 
             res.render('index', {
-                tournaments : results,
+                tournaments : tournaments,
                 moment: moment,
+                tournaments_system: tournaments_system,
                 title: 'Tournaments',
                 countries : countries
 
