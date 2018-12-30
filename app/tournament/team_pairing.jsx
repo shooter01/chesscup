@@ -189,6 +189,93 @@ class Pairing extends React.Component {
         });
 
 
+        $("#delete_tournament").on("click", function (event) {
+            event.preventDefault();
+            if (confirm("Вы уверены? Все данные будут удалены.")) {
+                $.ajax({
+                    url: "/tournament/delete_tournament",
+                    method: "post",
+                    timeout : 3000,
+                    beforeSend : function () {
+                        self.setState({
+                            request_sent : true,
+                        });
+                    },
+                    data : {
+                        //result : value,
+                        tournament_id : self.state.tournament_id
+                    },
+                    statusCode: {
+                        404: function() {
+                            alert( "page not found" );
+                        }
+                    }
+                }).done(function (data) {
+                    if (data.status === "ok") {
+                        location.href = "/";
+                    } else {
+                        alert(data.msg);
+                    }
+                }).fail(function ( jqXHR, textStatus ) {
+                    var error = "";
+                    for (var obj in jqXHR.responseJSON.errors) {
+                        error = jqXHR.responseJSON.errors[obj].msg;
+                    }
+
+                    alert(error);
+                    //alert( "Request failed: " + textStatus );
+                }).always(function () {
+                    self.setState({
+                        request_sent : false
+                    });
+                });
+            }
+        });
+
+        $("#delete_last").on("click", function (event) {
+            event.preventDefault();
+            if (confirm("Are you sure?")) {
+                $.ajax({
+                    url: "/tournament/undo_last_tour",
+                    method: "post",
+                    timeout : 3000,
+                    beforeSend : function () {
+                        self.setState({
+                            request_sent : true,
+                        });
+                    },
+                    data : {
+                        //result : value,
+                        tournament_id : self.state.tournament_id
+                    },
+                    statusCode: {
+                        404: function() {
+                            alert( "page not found" );
+                        }
+                    }
+                }).done(function (data) {
+                    if (data.status === "ok") {
+                        // console.log(parseInt(self.state.current_tour));
+                        location.href = "/tournament/" + self.state.tournament_id + "/tour/" + (parseInt(self.state.current_tour) - 1);
+                    } else {
+                        alert(data.msg);
+                    }
+                }).fail(function ( jqXHR, textStatus ) {
+                    var error = "";
+                    for (var obj in jqXHR.responseJSON.errors) {
+                        error = jqXHR.responseJSON.errors[obj].msg;
+                    }
+                    alert(error);
+                    //alert( "Request failed: " + textStatus );
+                }).always(function () {
+                    self.setState({
+                        request_sent : false
+                    });
+                });
+            }
+        });
+
+
         $(".sendMessage").on("click", function () {
             self.addMessage();
 
