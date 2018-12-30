@@ -355,7 +355,10 @@ module.exports = function(app, passport, pool) {
                     var teams = makeTeams(results);
 
                     app.mongoDB.collection("ttapplies").deleteMany({user_id: req.session.passport.user.id}, function () {});
-
+                    app.ROOMS.emit('t' + office.tournament_id,
+                        JSON.stringify({
+                            action : "tournament_event"
+                        }));
 
                     res.json({
                         status : "ok",

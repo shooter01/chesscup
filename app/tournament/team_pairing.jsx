@@ -36,9 +36,79 @@ class Pairing extends React.Component {
         this.handleWSData = this.handleWSData.bind(this);
         this.getActualData = this.getActualData.bind(this);
         this.updateTournament = this.updateTournament.bind(this);
+        this.getActualData = this.getActualData.bind(this);
+        this.socketAddMessage = this.socketAddMessage.bind(this);
     }
+
+
+    socketAddMessage(data){
+        const self = this;
+
+        $(".messages").append('<div class="mt-1 mt-2"><b>' + data.data.name + '</b>&nbsp;&nbsp;' + data.data.msg + '</div>');
+
+        this.scrollToBottomMessages()
+        console.log(data);
+    }
+    scrollToBottomMessages(){
+        var objDiv = document.querySelector("#messages");
+        if (objDiv) {
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }
+    }
+
+    addMessage(){
+        const self = this;
+        var mes = $(".message-input-text").val();
+        if (mes != "") {
+            if (typeof user_name === "undefined") {
+                return false;
+            }
+            let item = {
+                msg: mes,
+                action: "message",
+                user_id: u,
+                name: user_name,
+                game_id: "t" + self.state.tournament_id,
+                chat_id : self.state.chat_id
+            };
+
+            self.socket.ws.send(JSON.stringify(item));
+
+            $(".message-input-text").get(0).value = "";
+            $(".message-input-text").get(0).focus();
+        }
+    }
+    getMessages(){
+        var self = this;
+        if (this.state.chat_id) {
+            $.getJSON("/chat/" + this.state.chat_id + "/messages", function (data) {
+                if (data.status == "ok") {
+                    try {
+                        data = JSON.parse(data.messages);
+                        var temp = $("<div>");
+
+                        for (var i = 0; i < data.length; i++) {
+                            var obj = JSON.parse(data[i].msg);
+                            temp.append('<div class="mt-1 mt-2"><b>' + obj.name + '</b>&nbsp;&nbsp;' + obj.msg + '</div>');
+                        }
+                        $(".messages").html(temp);
+
+                        self.scrollToBottomMessages()
+
+
+                        // console.log(temp);
+                    } catch(e) {
+                        console.log(e.message);
+                    }
+                }
+
+            })
+        }
+    }
+
     componentDidMount(){
         var that = this;
+        const self = this;
 
         this._isMounted = true;
 
@@ -119,6 +189,20 @@ class Pairing extends React.Component {
         });
 
 
+        $(".sendMessage").on("click", function () {
+            self.addMessage();
+
+            return false;
+        });
+
+        $(".message-input-text").on("keydown", function (e) {
+            if(e.keyCode == 13 && e.shiftKey == false) {
+                self.addMessage();
+                e.preventDefault();
+            }
+        });
+
+
 
         that.socket = new WS(function (data) {
             that.handleWSData(data);
@@ -146,6 +230,8 @@ class Pairing extends React.Component {
         } else if (data.action === "tournament_event") {
             self.updateTournament();
 
+        } else if (data.action === "message") {
+            this.socketAddMessage(data);
         }
         console.log(data);
 
@@ -165,6 +251,7 @@ class Pairing extends React.Component {
                     participants_boards: JSON.parse(data.participants_boards) || [],
                     participants: JSON.parse(data.participants) || {},
                     participants_array: JSON.parse(data.participants_array) || [],
+                    tournaments_teams: JSON.parse(data.tournaments_teams) || [],
                 });
             }
         });
@@ -408,7 +495,7 @@ class Pairing extends React.Component {
                         </div>
                     ))}
 
-                {!this.state.tournament.is_active && this.state.tournament.is_online ? <Participants /> : <Tours tournament={this.state.tournament} />}
+                {!this.state.tournament.is_active && this.state.tournament.is_online ? <Participants tournaments_teams={this.state.tournaments_teams} /> : <Tours tournament={this.state.tournament} />}
                 <TeamsTables
                         results_table={this.state.results_table}
                         participants_boards={this.state.participants_boards}

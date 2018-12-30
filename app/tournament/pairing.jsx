@@ -314,8 +314,7 @@ class Pairing extends React.Component {
                 self.addMessage();
                 e.preventDefault();
             }
-
-        })
+        });
 
         /*$("#bots_invasion").on("click", function (event) {
             event.preventDefault();

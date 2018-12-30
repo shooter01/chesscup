@@ -40,6 +40,7 @@ const teampairing = function (results, participants, tourney, bye_participants, 
                 throw new Error("Too small quantity of participants");
             } else {
                  tours_count = getToursCount(tourney, team_participants);
+                 tourney.tours_count = tours_count;
                  return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
                     tours_count : tours_count
                 }, tourney.id]);

@@ -418,6 +418,7 @@ module.exports = function(app, passport, pool, i18n) {
                 return pool.query("SELECT tt.id AS team_id,tt.team_name, tp.user_id, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC, tp.team_board ASC", office.tournament_id)
             }).then(function (results) {
                 var teams = makeTeams(results);
+
                 res.json({
                     status : "ok",
                     teams : teams
@@ -719,6 +720,13 @@ module.exports = function(app, passport, pool, i18n) {
                     return pool.query("SELECT tt.id AS team_id,tt.team_name, tp.user_id, u.name,u.email FROM tournaments_teams AS tt LEFT JOIN tournaments_participants AS tp ON tp.team_id = tt.id LEFT JOIN users AS u ON tp.user_id = u.id WHERE tt.tournament_id = ? ORDER BY tt.id DESC, tp.team_board ASC", office.tournament_id);
                 }).then(function (results) {
                 var teams = makeTeams(results);
+
+                app.ROOMS.emit('t' + office.tournament_id,
+                    JSON.stringify({
+                        action : "tournament_event"
+                    }));
+
+
                 res.json({
                     status : "ok",
                     teams : teams

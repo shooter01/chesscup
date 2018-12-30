@@ -29,7 +29,7 @@ class Participants extends React.Component {
             tournament: tournament,
             current_user: null,
             offices: [],
-            teams: (typeof tournaments_teams != "undefined") ? tournaments_teams : teams,
+            teams: this.props.tournaments_teams,
             current_team: null,
             timeout : 0
         };
@@ -108,7 +108,13 @@ class Participants extends React.Component {
 
         this.setHeight($(".school-participants"));
         this.setHeight($(".tournament-participants"));
+    }
 
+    componentWillReceiveProps(nextProps){
+
+        if(nextProps.tournaments_teams !== this.props.tournaments_teams){
+            this.setState({teams:nextProps.tournaments_teams});
+        }
 
     }
 
