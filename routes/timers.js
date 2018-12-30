@@ -4,6 +4,7 @@ const save_result_mongo = require('./save_result_mongo');
 const game_over = require('./game_over');
 const ObjectId = require('mongodb').ObjectId;
 const is_draw = require('./is_draw');
+const moment = require('moment');
 
 
 module.exports = function (app) {
@@ -185,4 +186,64 @@ module.exports = function (app) {
     }, 2000);
 
 
+
+
+    //раз в полчаса проверяем на авто турниры
+    setInterval(function () {
+
+        const cur = new Date();
+
+        if (cur.getHours() >= 1 && cur.getHours() < 4) {
+            const time_start = "20:00:00";
+
+            let newDateObj = moment(cur.getDate() + "-" + (cur.getMonth() + 1) + "-" + cur.getFullYear() + " " + time_start, 'DD-MM-YYYYTHH:mm').toDate();
+            const yyyy = "" + cur.getFullYear() + (cur.getMonth() + 1) + cur.getDate();
+            let office = {
+                title: "Ежедневный блитц-турнир",
+                city: "Moscow",
+                tours_count: 9,
+                country: 'RU',
+                type: 2,
+                time_inc: 0,
+                is_active : 0,
+                start_date: cur,
+                amount: 3,
+                start_time: newDateObj,
+                is_online: 1,
+                // wait_minutes: parseInt(req.body.wait_minutes),
+                accurate_date_start: cur.getFullYear() + "-" + (cur.getMonth() + 1) + "-" + cur.getDate(),
+                accurate_time_start: time_start,
+                end_date: cur.getFullYear() + "-" + (cur.getMonth() + 1) + "-" + cur.getDate(),
+                team_boards: null,
+                start_type: 'accurate',
+                current_tour: 0,
+                created_at: new Date(),
+                system_id: yyyy + 'BLITZROBIN30',
+                creator_id: 1,
+                is_system: 1,
+            };
+
+            pool
+                .query('SELECT * FROM tournaments WHERE is_online = 1 AND is_system = 1 AND system_id = ?', yyyy + 'BLITZROBIN30')
+                .then(games => {
+                    if (games.length === 0) {
+                        return pool.query('INSERT INTO tournaments SET ?', office)
+                    } else {
+                        return true;
+                    }
+                }).then(function (results) {
+                if (results.insertId > 0) {
+                    console.log("INSERTED");
+                }
+            }).catch(function (err) {
+                console.log("ERROR");
+                console.log(err);
+            });
+        }
+
+
+       // let newDateObj = cur.getFullYear() + "-" + cur.getDate() + "-" + cur.getDate() +" " + "23:00:00";
+
+
+    }, 1800);
 }
