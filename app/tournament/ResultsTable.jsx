@@ -51,7 +51,7 @@ class ResultsTable extends React.Component {
                             Points
                         </th>
                         <th className="text-center">
-                            Buhgolz
+                            Buchgolz
                         </th>
                         <th className="text-center">
                             Berger

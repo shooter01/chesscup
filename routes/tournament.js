@@ -520,6 +520,21 @@ module.exports = function(app, passport, pool, i18n) {
                     office.team_board = (max_board == null) ? 0 : max_board + 1;
                 }
                 return pool.query('INSERT INTO ' + table + ' SET ?', office);
+            }).then(function () {
+                return pool.query('SELECT participants_count FROM tournaments where id = ?', office.tournament_id)
+            }).then(function (results) {
+                console.log(results);
+
+                if (results.length > 0) {
+                    return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[
+                        {
+                            participants_count : results[0].participants_count + 1,
+                        }, office.tournament_id]);
+                } else {
+                    return true;
+                }
+
+
             }).then(function (results) {
 
                 var sql = "SELECT users.* FROM " + table + " LEFT JOIN users ON users.id = " + table + ".user_id WHERE tournament_id = ? ORDER BY id DESC";
@@ -633,7 +648,20 @@ module.exports = function(app, passport, pool, i18n) {
                     }
 
                     return pool.query(sql, office.tournament_id);
+                }).then(function () {
+                    return pool.query('SELECT participants_count FROM tournaments where id = ?', office.tournament_id)
                 }).then(function (results) {
+                    console.log(results);
+
+                    if (results.length > 0) {
+                        return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[
+                            {
+                                participants_count : results[0].participants_count - 1,
+                            }, office.tournament_id]);
+                    } else {
+                        return true;
+                    }
+            }).then(function (results) {
 
 
                 app.mongoDB.collection("cache").deleteMany({tournament_id: parseInt(office.tournament_id)}, function (err, mongoGame) {

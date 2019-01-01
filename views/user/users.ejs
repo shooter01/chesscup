@@ -28,20 +28,21 @@
 
     <% for (var i = 0; i < users.length; i++) { %>
 
-        <tr>
+            <tr>
 
-            <td>
-                <div  class="user_link <%= (online[users[i].id]) ? "online" : "" %>">
-                    <i class="line" title="<%= (online[users[i].id]) ? "В сети" : "Не в сети" %>"></i>
-                    <a href="/users/<%= users[i].id %>"><%= users[i].name %></a>
-                </div>
-            </td>
-            <td><%= users[i].tournaments_rating %></td>
-            <td><%= (users[i].country) ? countries[users[i].country] : "" %></td>
-            <% if (user && user.user && user.user.id === 1) { %>
-                <td><span class="btn btn-danger btn-sm hide" data-id="<%= users[i].id %>">Скрыть</span></td>
-            <% } %>
-        </tr>
+                <td>
+                    <div  class="user_link <%= (online[users[i].id]) ? "online" : "" %>">
+                        <i class="line" title="<%= (online[users[i].id]) ? "В сети" : "Не в сети" %>"></i>
+                        <a href="/users/<%= users[i].id %>"><%= users[i].name %></a>
+                    </div>
+                </td>
+                <td><%= users[i].tournaments_rating %></td>
+                <td><%= (users[i].country) ? countries[users[i].country] : "" %></td>
+                <% if (user && user.user && user.user.id === 1) { %>
+                    <td><span class="btn btn-danger btn-sm hide" data-id="<%= users[i].id %>">Скрыть</span></td>
+                <% } %>
+            </tr>
+
     <% } %>
 
     <link rel="stylesheet" href="/stylesheets/game.css">

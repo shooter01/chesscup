@@ -1,10 +1,20 @@
+<style>
+    .badge.badge-outlined {
+        color: #2196F3;
+        border: 1px solid #2196F3;
+    }
+</style>
+
 <% for (var i = 0; i < tournaments.length; i++) { %>
 
 <a href="/tournament/<%= tournaments[i].id %>" class="list-group-item list-group-item-action flex-column align-items-start ">
     <div class="row">
 
         <div class="col-lg-9">
-            <h4><%= tournaments[i].title %></h4>
+            <h4 class="mb-0"><%= tournaments[i].title %></h4>
+            <%  if (tournaments[i].is_active === 0) { %>
+                <span class="badge badge-outlined mb-2 mt-2 timer hidden" data-time="<%= (tournaments[i].start_time) ? tournaments[i].start_time.getTime() - new Date().getTime() : 0 %>">Стартует через: 3 часа</span>
+            <% } %>
             <div>
                 <%  if (tournaments[i].is_online) { %>
                 <span class="badge badge-danger">Online</span>
@@ -29,11 +39,12 @@
                 <div class="progress-bar" role="progressbar" style="width: <%= (tournaments[i].current_tour/tournaments[i].tours_count)*100 %>%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
             <%  if (tournaments[i].type === 1) { %>
-            <small>тур <%= (tournaments[i].current_tour <= tournaments[i].tours_count) ? tournaments[i].current_tour : tournaments[i].tours_count %>/<%= tournaments[i].tours_count %></small>
+            <span class="badge p-0 mt-2 mb-2">тур <%= (tournaments[i].current_tour <= tournaments[i].tours_count) ? tournaments[i].current_tour : tournaments[i].tours_count %>/<%= tournaments[i].tours_count %></span>
             <% } %>
-            <br>
-            <div class="d-flex justify-content-between">
-                <div class="mt-2"></div>
+            <div class="d-flex justify-content-between align-bottom">
+                <div class="mt-2">
+                    <span class="badge p-0 mt-1 mb-1">Участников : <%= tournaments[i].participants_count %></span>
+                </div>
                 <div><img src="/images/blank.png" class="float-right flag flag-<%= tournaments[i].country.toLocaleLowerCase() %>" title="<%= countries[tournaments[i].country] %>" alt="<%= countries[tournaments[i].country] %>"></div>
             </div>
         </div>

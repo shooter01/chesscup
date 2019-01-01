@@ -231,15 +231,14 @@ module.exports = function (app) {
                     } else {
                         return true;
                     }
-                }).then(function (results) {
-                if (results.insertId > 0) {
-                    console.log("INSERTED");
-                }
-            }).catch(function (err) {
-                console.log("ERROR");
-                console.log(err);
-            });
+                }).then(games => {
+                    return pool.query('DELETE FROM tournaments WHERE is_canceled = ?', 1);
+                }).catch(function (err) {
+                    console.log("ERROR");
+                    console.log(err);
+                });
         }
+
 
 
        // let newDateObj = cur.getFullYear() + "-" + cur.getDate() + "-" + cur.getDate() +" " + "23:00:00";

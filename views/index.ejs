@@ -17,3 +17,18 @@
     }) %>
 </div>
 <link rel="stylesheet" href="/stylesheets/flags.css">
+
+<script src="/js/timer.js"></script>
+
+<script>
+    $(function () {
+        $(".timer").each(function (index, element) {
+            element = $(this);
+            var timeleft = element.attr("data-time");
+            new Timer({
+                timeleft : timeleft,
+                element : element
+            });
+        })
+    });
+</script>
