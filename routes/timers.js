@@ -244,5 +244,5 @@ module.exports = function (app) {
        // let newDateObj = cur.getFullYear() + "-" + cur.getDate() + "-" + cur.getDate() +" " + "23:00:00";
 
 
-    }, 1800);
+    }, 180000);
 }
