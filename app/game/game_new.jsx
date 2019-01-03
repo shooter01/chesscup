@@ -263,6 +263,7 @@ class App {
         self.checkSynced();
         $('.message-input-text, .sendMessage').remove();
         this.setMatterialDiff();
+        this.setTitle();
     }
 
     getMeta(){
@@ -677,6 +678,7 @@ class App {
                 window.s_endgame.play();
                 //aa.play('endgame');
             }
+            document.title = "Игра завершена " + self.state.p1_name + " vs " + self.state.p2_name;
 
         } else {
             //если партия не завершена
@@ -1007,134 +1009,172 @@ class App {
 
     }
 
+
+    checkFocus(){
+        const self = this;
+
+        var hasFocus = document.hasFocus();
+        if (!hasFocus) {
+
+            setTimeout(function () {
+
+                self.setUnfocusedTitle();
+                self.checkFocus();
+            }, 500);
+        } else {
+            self.setTitle();
+        }
+    }
+    setTitle(forced){
+        const self = this;
+        if (self.state.isPlayer && self.state.playerColor === self.state.who_to_move) {
+            document.title = "Ваш ход";
+        } else if (self.state.isPlayer && self.state.playerColor !== self.state.who_to_move) {
+            document.title = "Ожидание хода соперника";
+        }
+    }
+    setUnfocusedTitle(){
+        const self = this;
+        if (typeof self.lastMessage === "undefined") {
+            document.title = "*";
+            self.lastMessage = true;
+        } else {
+            self.setTitle();
+            self.lastMessage = undefined;
+        }
+    }
+
     socketMove(data){
         const self = this;
 
+        self.game.move({ from: data.from, to: data.to });
+        if (self.game.fen() !== data.fen) {
+            self.game.load(data.fen);
+        }
 
-            self.game.move({ from: data.from, to: data.to });
-            if (self.game.fen() !== data.fen) {
-                self.game.load(data.fen);
+        self.setState({
+            who_to_move: (self.game.turn() === 'w') ? "white" : "black",
+            white_time: data.p1_time_left,
+            black_time: data.p2_time_left,
+            is_over: data.is_over,
+            is_started: (self.game.turn() === 'w') ? 1 : self.state.is_started,
+        }, function () {
+            self.setTime();
+
+            let is_over = (data.is_over == 1);
+
+           /* if (u == p1 && this.state.who_to_move == "white") {
+                if (!is_over) {
+                    const moves = self.game.moves({verbose:true});
+                    const move = moves[Math.floor(Math.random() * moves.length)];
+                    console.log(move);
+                    setTimeout(function () {
+                        self.move(move.from, move.to);
+                    }, 100);
+                }
             }
 
-            self.setState({
-                who_to_move: (self.game.turn() === 'w') ? "white" : "black",
-                white_time: data.p1_time_left,
-                black_time: data.p2_time_left,
-                is_over: data.is_over,
-                is_started: (self.game.turn() === 'w') ? 1 : self.state.is_started,
-            }, function () {
-                self.setTime();
-
-                const is_over = (data.is_over == 1);
-
-               /* if (u == p1 && this.state.who_to_move == "white") {
-                    if (!is_over) {
-                        const moves = self.game.moves({verbose:true});
-                        const move = moves[Math.floor(Math.random() * moves.length)];
-                        console.log(move);
-                        setTimeout(function () {
-                            self.move(move.from, move.to);
-                        }, 100);
-                    }
+            if (u == p2 && this.state.who_to_move == "black") {
+                if (!is_over) {
+                    const moves = self.game.moves({verbose:true});
+                    const move = moves[Math.floor(Math.random() * moves.length)];
+                    console.log(move);
+                    setTimeout(function () {
+                        self.move(move.from, move.to);
+                    }, 100);
                 }
+            }
 
-                if (u == p2 && this.state.who_to_move == "black") {
-                    if (!is_over) {
-                        const moves = self.game.moves({verbose:true});
-                        const move = moves[Math.floor(Math.random() * moves.length)];
-                        console.log(move);
-                        setTimeout(function () {
-                            self.move(move.from, move.to);
-                        }, 100);
-                    }
-                }
+            /* if (is_over) {
+             self.defeat_sound.play()
+             }*/
 
-                /* if (is_over) {
-                 self.defeat_sound.play()
-                 }*/
-
-                self.cg.set({
-                    fen: self.game.fen(),
-                    viewOnly : is_over,
-                    lastMove: [data.from, data.to],
-                    movable: {
-                        dests: getDests(self.game)
-                    },
-                    turnColor: (self.game.turn() === 'w') ? "white" : "black"
-                });
-
-                self.premoved = self.cg.playPremove();
-
-
-                if (self.game.in_check() === true) {
-                    self.cg.set({
-                        check: true,
-                        state: {
-                            check: true,
-                        }
-                    })
-
-                }
-
-                if (typeof data.san != "undefined" && data.san != "undefined") {
-                    var a = this.state.moves;
-                    a.push(data.san);
-                    self.setState({
-                        moves: a,
-                    }, function () {
-                        self.addMove(data.san);
-                        self.scrollToBottom();
-
-                    });
-
-                    if (data.captured) {
-
-                        if (!window.s_capture.paused) {
-                            setTimeout(function () {
-                                s_audio_capture1.play()
-                            }, 50);
-                        } else {
-                            window.s_capture.play();
-                        }
-
-
-
-
-
-                    } else {
-
-
-                        if (!window.s_move.paused) {
-                            setTimeout(function () {
-                                s_audio_move1.play()
-                            }, 50);
-                        } else {
-                            window.s_move.play();
-                        }
-
-
-                    }
-                }
-                self.setMatterialDiff();
+            self.cg.set({
+                fen: self.game.fen(),
+                viewOnly : is_over,
+                lastMove: [data.from, data.to],
+                movable: {
+                    dests: getDests(self.game)
+                },
+                turnColor: (self.game.turn() === 'w') ? "white" : "black"
             });
 
-            if (this.state.is_started === 1) {
-                self.$timeleft_black.addClass("hidden");
-                self.$timeleft_white.addClass("hidden");
-                if (this.state.moves.length > 2) {
-                    $(".draw-yes").removeAttr("disabled")
-                }
-                self.setRunning();
-            } else {
-                if (this.state.moves.length === 0) {
-                    self.$timeleft_white.removeClass("hidden");
-                }
-                if (this.state.moves.length === 1) {
-                    self.$timeleft_black.removeClass("hidden");
-                    self.$timeleft_white.addClass("hidden");
-                    self.startTimer();
+            self.premoved = self.cg.playPremove();
+
+
+            if (self.game.in_check() === true) {
+                self.cg.set({
+                    check: true,
+                    state: {
+                        check: true,
+                    }
+                })
+
+            }
+
+            if (typeof data.san != "undefined" && data.san != "undefined") {
+                var a = this.state.moves;
+                a.push(data.san);
+                self.setState({
+                    moves: a,
+                }, function () {
+                    self.addMove(data.san);
+                    self.scrollToBottom();
+                    a = null;
+                });
+
+                if (data.captured) {
+
+                    if (!window.s_capture.paused) {
+                        setTimeout(function () {
+                            s_audio_capture1.play()
+                        }, 50);
+                    } else {
+                        window.s_capture.play();
+                    }
+
+
+
+
+
+                } else {
+
+
+                    if (!window.s_move.paused) {
+                        setTimeout(function () {
+                            s_audio_move1.play()
+                        }, 50);
+                    } else {
+                        window.s_move.play();
+                    }
+
+
                 }
             }
+            self.setMatterialDiff();
+            self.setTitle();
+           // self.checkFocus();
+            is_over = null;
+            a = undefined;
+        });
+
+        if (this.state.is_started === 1) {
+            self.$timeleft_black.addClass("hidden");
+            self.$timeleft_white.addClass("hidden");
+            if (this.state.moves.length > 2) {
+                $(".draw-yes").removeAttr("disabled")
+            }
+            self.setRunning();
+        } else {
+            if (this.state.moves.length === 0) {
+                self.$timeleft_white.removeClass("hidden");
+            }
+            if (this.state.moves.length === 1) {
+                self.$timeleft_black.removeClass("hidden");
+                self.$timeleft_white.addClass("hidden");
+                self.startTimer();
+            }
+        }
 
     }
     cancelMove(data){
