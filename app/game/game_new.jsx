@@ -1032,6 +1032,9 @@ class App {
         } else if (self.state.isPlayer && self.state.playerColor !== self.state.who_to_move) {
             document.title = "Ожидание хода соперника";
         }
+        if (self.state.is_over === 1) {
+            document.title = "Игра завершена " + self.state.p1_name + " vs " + self.state.p2_name;
+        }
     }
     setUnfocusedTitle(){
         const self = this;
