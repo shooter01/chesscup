@@ -312,9 +312,25 @@ module.exports = function (app, passport, pool) {
 
                 },
                 { upsert: true }, function () {
-                    res.json({
-                        status : "ok",
-                    });
+
+                    if (req.session.passport.user.is_team_owner > 0) {
+
+                        return pool
+                            .query("SELECT * FROM teams_applies WHERE team_id = ?", req.session.passport.user.is_team_owner).then(function (rows) {
+                                res.json({
+                                    status : "ok",
+                                    applies_count : rows.length
+                                });
+                            });
+
+                    } else {
+                        res.json({
+                            status : "ok",
+                        });
+                    }
+
+
+
                 })
         } else {
             res.json({

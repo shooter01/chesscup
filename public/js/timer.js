@@ -58,7 +58,7 @@ Timer.prototype.tick = function () {
     var remainingSeconds = minuteSeconds % secondsInAMinute;
     var seconds = Math.ceil(remainingSeconds);
 
-    var html = $("<span>Осталось : </span>");
+    var html = $("<span>Старт: 20.00 МСК. Осталось: </span>");
 
     if (days > 0) {
         var a = this.generateSpan("day", " ", days);

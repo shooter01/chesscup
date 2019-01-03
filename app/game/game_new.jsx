@@ -261,10 +261,51 @@ class App {
         this.game.header('Site', 'chesscup.org');
 
         self.checkSynced();
+        $('.message-input-text, .sendMessage').remove();
+        this.setMatterialDiff();
     }
 
     getMeta(){
         return $("head meta[name='author']").attr("content") === 'chesscup';
+    }
+
+    setMatterialDiff(){
+        const self = this;
+        setTimeout(function () {
+            const mat_diff = getMaterialDiff(self.cg.state);
+            const score = getScore(self.cg.state);
+
+            let black_html = $("<div>");
+            let white_html = $("<div>");
+
+            if (clientWidth < 1100) {
+                black_html.html("<score>Black: </score>");
+                white_html.html("<score>White: </score>");
+            }
+
+            for (var obj in mat_diff.black) {
+                black_html.append($("<tomb><mono-piece class='" + obj + "'></mono-piece></tomb>"));
+            }
+
+            for (var obj in mat_diff.white) {
+                white_html.append($("<tomb><mono-piece class='" + obj + "'></mono-piece></tomb>"));
+            }
+
+            if (score > 0) {
+                white_html.append($("<score>+" + Math.abs(score) + "</score>"));
+            } else if (score < 0) {
+                black_html.append($("<score>+" + Math.abs(score) + "</score>"));
+            }
+
+            if (self.state.orientation === "white") {
+                $("#up_cemetry").html(black_html);
+                $("#bottom_cemetry").html(white_html);
+            } else {
+                $("#up_cemetry").html(white_html);
+                $("#bottom_cemetry").html(black_html);
+            }
+        }, 10);
+
     }
 
     getElem(){
@@ -600,13 +641,13 @@ class App {
             }
 
             //выиграли белые
-            if (this.state.p1_won === 1) {
+            /*if (this.state.p1_won === 1) {
                 $(".p1_won").removeClass("hidden");
             } else if (this.state.p2_won === 1) {
                 $(".p2_won").removeClass("hidden");
             } else if (this.state.p2_won === 0.5) {
                 $(".p2_draw").removeClass("hidden");
-            }
+            }*/
 
             if (this.state.isPlayer) {
                 if (this.state.tourney_id === null) {
@@ -653,8 +694,10 @@ class App {
         } else {
             reason = REASONS[this.state.reason];
         }
-        this.$moves.append($('<div class="result_wrap"><p class="result">' + this.state.p1_won + '-' + this.state.p2_won
-            + '</p><div class="status"><div>' + reason + '</div><div>' + REASONS.titles(this.state.p1_won) + '</div></p></div>'));
+        const result = $('<div class="result_wrap"><p class="result">' + this.state.p1_won + '-' + this.state.p2_won
+            + '</p><div class="status"><div>' + reason + '</div><div>' + REASONS.titles(this.state.p1_won) + '</div></div>');
+        this.$moves.append(result);
+        $(".game_result").removeClass("hidden").html(result.clone());
 
         this.scrollToBottom();
 
@@ -1072,6 +1115,7 @@ class App {
 
                     }
                 }
+                self.setMatterialDiff();
             });
 
             if (this.state.is_started === 1) {
@@ -1826,6 +1870,50 @@ function getDests(game) {
     return dests;
 }
 
+
+function getMaterialDiff(data) {
+    var counts = {
+        king: 0,
+        queen: 0,
+        rook: 0,
+        bishop: 0,
+        knight: 0,
+        pawn: 0
+    };
+    for (var k in data.pieces) {
+        var p = data.pieces[k];
+        counts[p.role] += ((p.color === 'white') ? 1 : -1);
+    }
+    var diff = {
+        white: {},
+        black: {}
+    };
+    for (var role in counts) {
+        var c = counts[role];
+        if (c > 0) diff.white[role] = c;
+        else if (c < 0) diff.black[role] = -c;
+    }
+    return diff;
+}
+
+
+var pieceScores = {
+    pawn: 1,
+    knight: 3,
+    bishop: 3,
+    rook: 5,
+    queen: 9,
+    king: 0
+};
+
+function getScore(data) {
+    var score = 0;
+    for (var k in data.pieces) {
+        score += pieceScores[data.pieces[k].role] * (data.pieces[k].color === 'white' ? 1 : -1);
+    }
+    return score;
+}
+
 $(function () {
-    new App();
+    window.party = new App();
 });

@@ -519,7 +519,7 @@ class Pairing extends React.Component {
                 self.setState({
                     pairs: JSON.parse(data.pairing) || [],
                     tournament: data.tournament || {},
-                    participants: data.participants.length ? data.participants : self.state.participants,
+                    participants: data.participants,
                 });
             }
         });

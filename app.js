@@ -115,6 +115,7 @@ passport.serializeUser(function(user, done) {
         name : user.name,
         role : user.role,
         rating : user.rating,
+        is_team_owner : user.is_team_owner,
         is_paid : user.is_paid,
         is_sbornik : is_sbornik,
         school_id : user.school_id

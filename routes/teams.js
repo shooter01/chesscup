@@ -165,7 +165,7 @@ module.exports = function(app, passport, pool) {
                                 'WHERE ' +
                                 'users.id = ?',
                                 [
-                                    {is_team_owner : 1},
+                                    {is_team_owner : team_id},
                                     req.session.passport.user.id,
 
                                 ])

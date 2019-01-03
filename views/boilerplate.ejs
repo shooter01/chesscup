@@ -38,19 +38,20 @@
                     <a class="nav-link" href="/"><%- __("MenuHome") %> <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/play">Play</a>
+                    <a class="nav-link" href="/play">Playzone</a>
                 </li>
+                <% if (user && user.user && user.user.is_team_owner) { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/teams/<%= user.user.is_team_owner %>">Моя команда<span id="team_applies_count" class="badge badge-light">0</span></a>
+                    </li>
+                <% } %>
                 <li class="nav-item">
                     <a class="nav-link" href="/teams">Команды</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/errorfound">Нашли ошибку?</a>
                 </li>
-
-
-
-
-                </ul>
+            </ul>
 
             <ul class="navbar navbar-nav navbar-right">
 
@@ -65,9 +66,15 @@
 
 
                 <% if (user && user.user) { %>
-                <li class="nav-item"><a class="nav-link" href="/users/<%= user.user.id %>">Профиль</a></li>
-                <li class="nav-item"><a class="nav-link" href="/logout"><%- __("MenuLogout") %></a></li>
-
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <%= user.user.name %>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="/users/<%= user.user.id %>">Профиль</a>
+                            <a class="dropdown-item" href="/logout"><%- __("MenuLogout") %></a>
+                        </div>
+                    </li>
                 <% } else { %>
                 <!-- Authentication Links -->
 
@@ -214,7 +221,14 @@
     <script src="/js/ws.min.js"></script>
     <% if (user && user.user) { %>
         <script>
-            $.get("/visit");
+            $.get("/visit", function (data) {
+                if (data && data.status === "ok") {
+                    if (typeof data.applies_count !== "undefined" && data.applies_count > 0) {
+                        $("#team_applies_count").html(data.applies_count);
+                        $("#team_applies_count").removeClass("badge-light").addClass("badge-danger");
+                    }
+                }
+            });
         </script>
 
     <% }  %>

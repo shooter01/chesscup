@@ -54,7 +54,7 @@
     <div class="mt-1 row lichess_ground lichess_board_wrap" id="lichess_ground">
 
 
-                <div class="col-md-12 col-lg-6 col-sm-12">
+                <div id="board-side" class="col-md-12 col-lg-6 col-sm-12">
 
                     <div class="clock_top">
                         <div id="up_player_online" class="username user_link black offline pt-2 pb-2 player_bar up_player_online">
@@ -93,10 +93,10 @@
                     </div>
                 </div>
 
-                <div class="col-md-12 col-lg-6 col-sm-12">
-                    <div class="row">
-                        <div class="col-md-6 col-lg-6 col-sm-12">
-
+               <!-- <div class="col-md-12 col-lg-6 col-sm-12">
+                    <div class="row">-->
+                        <div class="col-md-12 col-lg-3 col-sm-12">
+                            <div class="cemetery" id="up_cemetry"></div>
 
                             <div class="table_wrap hidden">
 
@@ -191,13 +191,15 @@
                                     <div class="time clock_bottom_time"></div>
                                 </div>
                             </div>
+                            <div class="cemetery" id="bottom_cemetry"></div>
 
+                            <div class="alert alert-secondary mt-1 mb-1 game_result hidden p-0" ><b>Белые выиграли</b></div>
 
-                            <div class="alert alert-secondary mt-1 mb-1 p1_won hidden" ><b>Белые выиграли</b></div>
+                            <!--<div class="alert alert-secondary mt-1 mb-1 p1_won hidden" ><b>Белые выиграли</b></div>
 
                             <div class="alert alert-secondary mt-1 mb-1 p2_won hidden" ><b>Черные выиграли</b></div>
 
-                            <div class="alert alert-secondary mt-1 mb-1 p2_draw hidden" ><b>Ничья</b></div>
+                            <div class="alert alert-secondary mt-1 mb-1 p2_draw hidden" ><b>Ничья</b></div>-->
 
                             <div>
                                 <div class="alert alert-danger mt-1 mb-1 hidden" id="timeleft_white">Время на ход белых: <span class="timeleft"></span></div>
@@ -261,7 +263,7 @@
                         </div>
 
 
-                        <div class="col-md-6 col-lg-6 col-sm-12" id="chat_side">
+                        <div class="col-md-12 col-lg-3 col-sm-12" id="chat_side">
                             <div class="side_box padded">
                                 <div class="players">
 
@@ -316,8 +318,8 @@
 
                         </div>
 
-                    </div>
-                </div>
+                   <!-- </div>
+                </div>-->
 
 
 
@@ -333,6 +335,14 @@
 <script>
 
     var clientWidth = document.documentElement.clientWidth;
+
+    if (clientWidth > 1100) {
+        $("#board-side").before($("#chat_side"));
+    } else {
+        $("#chat_side").prepend($("#up_cemetry"));
+        $("#chat_side").prepend($("#bottom_cemetry"));
+    }
+
     var u;
     var fen = '<%= (mongoGame) ? mongoGame.fen : null %>';
     var moves = '<%= (mongoGame) ? mongoGame.moves : null %>';
@@ -437,7 +447,7 @@
             </div>
             <div class="modal-body">
                 <textarea id="pgn_copy" rows="10" style="width: 100%; height: 100%">
-                    asdas
+
                 </textarea>
 
             </div>
