@@ -279,7 +279,7 @@ class App {
             let black_html = $("<div>");
             let white_html = $("<div>");
 
-            if (clientWidth < 1100) {
+            if (clientWidth < 1000) {
                 black_html.html("<score>Black: </score>");
                 white_html.html("<score>White: </score>");
             }
@@ -1869,6 +1869,26 @@ class App {
             self.addMessage();
             return false;
         });
+        $("#mobile_buttons").on("click", function () {
+            $("#mobile-btns").toggleClass("hidden");
+
+            $('html, body').animate({
+                scrollTop: $("#lichess_ground").offset().top
+            });
+
+            $(".mobile-btn").off("click").on("click", function () {
+                if ($(this).hasClass("forward")) {
+                    self.goForward();
+                }
+                if ($(this).hasClass("back")) {
+                    self.goBack();
+                }
+                return false;
+            });
+
+            return false;
+        });
+
 
         $(".message-input-text").on("keydown", function (e) {
             if(e.keyCode == 13 && e.shiftKey == false) {

@@ -5,8 +5,8 @@
 
 <style>
     .mobile-btn {
-        font-size: 60px;
-        width: 50%
+        font-size: 40px;
+        width: 45%;
     }
     #dirty {
         display: none;
@@ -39,7 +39,14 @@
 <% } else { %>
 <div class="row mt-3">
     <div class="col-lg-12 ">
-        <a href="/play" class="btn btn-primary btn-sm-block">В лобби</a>
+        <div class="row">
+            <div class="col-6">
+                <a href="/play" class="btn btn-primary btn-sm-block ">В лобби</a>
+            </div>
+            <div class="col-6">
+                <span href="" class="btn btn-primary btn-sm-block hidden" id="mobile_buttons">Управление</span>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -208,6 +215,12 @@
 
                             <% if (user && user.user && (user.user.id == mongoGame.p1_id || user.user.id == mongoGame.p2_id)) { %>
 
+
+                                <div class="text-center hidden" id="mobile-btns">
+                                    <button class="fbt mobile-btn d-lg-none back" data-icon="Y" data-ply="28"></button>
+                                    <button class="fbt mobile-btn d-lg-none forward" data-icon="X" data-ply="30"></button>
+                                </div>
+
                                 <div class="mobile-controls hidden">
                                     <div>
                                         <div class="control buttons rematch hidden">
@@ -336,11 +349,12 @@
 
     var clientWidth = document.documentElement.clientWidth;
 
-    if (clientWidth > 1100) {
+    if (clientWidth > 1000) {
         $("#board-side").before($("#chat_side"));
     } else {
         $("#chat_side").prepend($("#up_cemetry"));
         $("#chat_side").prepend($("#bottom_cemetry"));
+        $("#mobile_buttons").removeClass("hidden");
     }
 
     var u;

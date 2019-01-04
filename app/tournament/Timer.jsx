@@ -32,6 +32,7 @@ class Timer extends React.Component {
 
         this.tick = this.tick.bind(this);
         this.setTimer = this.setTimer.bind(this);
+
     }
 
     componentDidMount(){
@@ -39,6 +40,7 @@ class Timer extends React.Component {
         this._isMounted = true;
 
         this.setTimer();
+        this.tick();
     }
 
     componentWillUnmount() {
@@ -131,8 +133,8 @@ class Timer extends React.Component {
             <span>
                 {this._isMounted ? <span>
                                         {this.state.timeleft > 0 ? <span>
-                                                {(this.state.days_left) ? this.state.days_left + " дней " : null}
-                                                {(this.state.hours_left) ? this.state.hours_left + " часов " : null}
+                                                {(this.state.days_left) ? this.state.days_left + "d " : null}
+                                                {(this.state.hours_left) ? this.state.hours_left + "h " : null}
                                                 {(this.state.secs_left) ? this.state.minutes_left + ":" + this.state.secs_left + " " : null}
                                                 </span> : <span>0:00</span>}
 
