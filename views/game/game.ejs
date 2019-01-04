@@ -34,7 +34,9 @@
 
 <a href="/tournament/<%= tournament.id %>" class="btn btn-primary "><%- __("ParticipantsToTournament") %></a>
 <a href="/tournament/<%= tournament.id %>/tour/<%= game.tour %>" class="btn btn-info">Тур <%= game.tour %></a>
-<span href="" class="btn btn-primary hidden" id="mobile_buttons">Управление</span>
+<span class="btn btn-primary hidden" id="mobile_buttons">
+    <i class="fa fa-arrows-alt-h"></i>
+</span>
 
 <% } else { %>
 <div class="row mt-3">
@@ -44,7 +46,9 @@
                 <a href="/play" class="btn btn-primary btn-sm-block ">В лобби</a>
             </div>
             <div class="col-6">
-                <span href="" class="btn btn-primary btn-sm-block hidden" id="mobile_buttons">Управление</span>
+                <span class="btn btn-primary hidden" id="mobile_buttons">
+                    <i class="fa fa-arrows-alt-h"></i>
+                </span>
             </div>
         </div>
     </div>
@@ -212,14 +216,14 @@
                                 <div class="alert alert-danger mt-1 mb-1 hidden" id="timeleft_white">Время на ход белых: <span class="timeleft"></span></div>
                                 <div class="alert alert-primary mt-1 mb-1 hidden" id="timeleft_black">Время на ход черных: <span class="timeleft"></span></div>
                             </div>
-
+                            <div class="text-center hidden" id="mobile-btns">
+                                <button class="fbt mobile-btn d-lg-none back" data-icon="Y" data-ply="28"></button>
+                                <button class="fbt mobile-btn d-lg-none forward" data-icon="X" data-ply="30"></button>
+                            </div>
                             <% if (user && user.user && (user.user.id == mongoGame.p1_id || user.user.id == mongoGame.p2_id)) { %>
 
 
-                                <div class="text-center hidden" id="mobile-btns">
-                                    <button class="fbt mobile-btn d-lg-none back" data-icon="Y" data-ply="28"></button>
-                                    <button class="fbt mobile-btn d-lg-none forward" data-icon="X" data-ply="30"></button>
-                                </div>
+
 
                                 <div class="mobile-controls hidden">
                                     <div>
