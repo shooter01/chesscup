@@ -67,8 +67,8 @@ module.exports = function(app, passport, pool) {
         limit_start = page * limit - limit;
 
 
-        pool.query("SELECT COUNT(*) as count FROM teams WHERE is_hidden = 0", function (err, result, fields) {
-            var sql1 = "SELECT teams.* FROM teams WHERE is_hidden = 0 ORDER BY participants_count DESC LIMIT ?,?";
+        pool.query("SELECT COUNT(*) as count FROM leagues WHERE is_hidden = 0", function (err, result, fields) {
+            var sql1 = "SELECT leagues.* FROM leagues WHERE is_hidden = 0 LIMIT ?,?";
 
             pool
                 .query(sql1, [limit_start, limit])
@@ -79,14 +79,14 @@ module.exports = function(app, passport, pool) {
                         pageCount = total / pageSize;
 
 
-                    res.render('teams/teams', {
+                    res.render('leagues/leagues', {
                         countries : countries,
                         count: result[0].count,
                         total: total,
                         pageSize: pageSize,
                         currentPage: page,
                         pageCount: pageCount,
-                        teams : rows,
+                        leagues : rows,
 
                     });
 
@@ -95,6 +95,7 @@ module.exports = function(app, passport, pool) {
                 // console.log(err);
                 res.json({
                     status : "error",
+                    err : err,
                 });
             });
         });
@@ -102,7 +103,7 @@ module.exports = function(app, passport, pool) {
 
 
     router.get('/create', [isLoggedIn], function (req, res, next) {
-        res.render('teams/create', {
+        res.render('leagues/create', {
             countries : countries
         });
     });
@@ -114,11 +115,11 @@ module.exports = function(app, passport, pool) {
 
                 return new Promise((resolve, reject) => {
 
-                    pool.query('SELECT * FROM teams WHERE creator_id = ?', [
+                    pool.query('SELECT * FROM leagues WHERE creator_id = ?', [
                         req.session.passport.user.id
                     ]).then(function (rows) {
                         if(rows.length > 0) {
-                            return reject("Нельзя владеть несколькими командами. Вы являетесь капитаном команды : " + rows[0].name);
+                            return reject("Нельзя владеть несколькими лигами. Вы являетесь владельцем лиги : " + rows[0].name);
                         } else {
                             return resolve();
                         }
@@ -143,36 +144,31 @@ module.exports = function(app, passport, pool) {
                     created_at: new Date(),
                     image: '/images/user.png',
                     creator_id: req.session.passport.user.id,
-                    participants_count : 1
                 };
 
 
-                pool.query('INSERT INTO teams SET ?', office)
+                pool.query('INSERT INTO leagues SET ?', office)
                     .then(function (results) {
                         team_id = results.insertId;
-                        let office = {
-                            team_id: results.insertId,
-                            user_id: req.session.passport.user.id,
-                            team_title: 1,
-                        };
-
-                        return pool.query('INSERT INTO teams_participants SET ?', office);
-
+                        return true;
                     }).then(function (results) {
-                        inserted = results.insertId;
                             return pool.query('UPDATE users SET ? ' +
                                 'WHERE ' +
                                 'users.id = ?',
                                 [
-                                    {is_team_owner : 1},
+                                    {is_league_owner : team_id},
                                     req.session.passport.user.id,
 
                                 ])
                     }).then(function (results) {
-                        if (inserted > 0) {
+                        if (team_id > 0) {
                             res.json({
                                 status : "ok",
                                 insertId : team_id
+                            });
+                        } else {
+                            res.json({
+                                status : "error",
                             });
                         }
                     }).catch(function (err) {
@@ -180,6 +176,114 @@ module.exports = function(app, passport, pool) {
                     });
             }
         });
+
+
+    router.post('/seasons/create', [
+            isLoggedIn,
+            check('league_id', 'The league_id field is required').exists().isLength({ min: 1 }).custom((value, { req }) => {
+
+                return new Promise((resolve, reject) => {
+
+                    pool.query('SELECT * FROM leagues_seasons WHERE league_id = ? AND is_over = ?',
+                        [value, 0]
+                    ).then(function (rows) {
+                        if(rows.length > 0) {
+                            return reject("У вас есть незавершенные сезоны. Завершите все сезоны.");
+                        } else {
+                            return resolve();
+                        }
+                    });
+                });
+            }),
+        ],
+        function (req, res, next) {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+
+
+                pool.query('SELECT * FROM leagues_seasons WHERE league_id = ?',
+                    [req.body.league_id.trim(), 0]
+                ).then(function (rows) {
+
+
+                    let office = {
+                        name: "Сезон " + (rows.length + 1),
+                        description: "",
+                        league_id: req.body.league_id.trim(),
+                        creator_id: req.session.passport.user.id,
+                        created_at: new Date(),
+                        is_over: 0,
+                    };
+
+
+                    return pool
+                        .query('INSERT INTO leagues_seasons SET ?', office)
+                        .then(results => {
+                            res.json({
+                                status: "ok",
+                            });
+
+                        })
+                }).catch(function (err) {
+                    console.log(err);
+                    res.json({
+                        status: "error",
+                    });
+                });
+            }
+        });
+
+    router.post('/seasons/end', [
+            isLoggedIn,
+            check('season_id', 'Вы не указали сезон.').exists().isLength({ min: 1 }).custom((value, { req }) => {
+                return new Promise((resolve, reject) => {
+
+                    pool.query('SELECT * FROM leagues_seasons WHERE id = ?', [
+                        value.trim()
+                    ]).then(function (rows) {
+                        if(rows.length > 0 && (rows[0].creator_id != req.session.passport.user.id)) {
+                            return reject("У вас нет прав редактировать этот сезон");
+                        } else {
+                            return resolve();
+                        }
+                    });
+                });
+            }),
+        ],
+        function (req, res, next) {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+
+
+                pool.query('UPDATE leagues_seasons SET ? ' +
+                    'WHERE ' +
+                    'leagues_seasons.id = ?',
+                    [
+                        {is_over : 1},
+                        req.body.season_id,
+
+                    ]).then(function () {
+                        res.json({
+                            status : "ok",
+                        });
+                }).catch(function (err) {
+                     console.log(err);
+                    res.json({
+                        status : "error",
+                    });
+                });
+            }
+        });
+
+
 
     router.post('/upload', [
             isLoggedIn,
@@ -202,9 +306,9 @@ module.exports = function(app, passport, pool) {
                     .resize(200, 200)
                     .toFile("public/uploads/" + req.file.filename, (err, info) => {
 
-                        pool.query('UPDATE teams SET ? ' +
+                        pool.query('UPDATE leagues SET ? ' +
                             'WHERE ' +
-                            'teams.id = ?',
+                            'leagues.id = ?',
                             [
                                 {image : "/uploads/" + req.file.filename},
                                 req.body.team_id,
@@ -227,363 +331,14 @@ module.exports = function(app, passport, pool) {
         );
 
 
-    router.post('/apply', [
-            isLoggedIn,
-            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
-        ],
-        function (req, res, next) {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                return res.status(422).json({
-                    errors: errors.mapped()
-                });
-            } else {
-                var newDateObj;
 
-                let office = {
-                    team_id: req.body.team_id.trim(),
-                    user_id: req.session.passport.user.id,
-                    name: req.session.passport.user.name,
-                };
 
-
-                var sql1 = "SELECT * FROM teams_applies WHERE user_id = ? AND team_id = ?";
-
-                pool
-                    .query(sql1, [office.user_id, office.team_id])
-                    .then(rows => {
-
-                        if (rows.length == 0) {
-                            return pool.query('INSERT INTO teams_applies SET ?', office);
-                        } else {
-                            return true;
-
-                        }
-
-                    }).then(results => {
-
-                            res.json({
-                                status : "ok",
-                            });
-
-                    }).catch(function (err) {
-                    // console.log(err);
-                    res.json({
-                        status : "error",
-                    });
-                });
-            }
-        });
-
-
-
-    router.post('/approve', [
-            isLoggedIn,
-            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
-        ],
-        function (req, res, next) {
-            const errors = validationResult(req);
-            //console.log(errors);
-            if (!errors.isEmpty()) {
-                return res.status(422).json({
-                    errors: errors.mapped()
-                });
-            } else {
-                var newDateObj;
-
-                let office = {
-                    team_id: req.body.team_id.trim(),
-                    user_id: req.body.user_id.trim(),
-                };
-
-
-                var sql1 = "DELETE FROM teams_applies WHERE user_id = ? AND team_id = ?";
-
-                pool
-                    .query(sql1, [office.user_id, office.team_id])
-                    .then(rows => {
-
-                        return pool.query('INSERT INTO teams_participants SET ?', office);
-
-                    }).then(rows => {
-
-                        return pool.query('SELECT COUNT(*) AS count FROM  teams_participants ' +
-                            'WHERE ' +
-                            'teams_participants.team_id = ?',
-                            [
-                                office.team_id,
-                            ])
-                    })
-                    .then(rows => {
-                       // console.log(rows);
-                        return pool.query('UPDATE teams SET ? ' +
-                            'WHERE ' +
-                            'teams.id = ?',
-                            [
-                                {participants_count : rows[0].count},
-                                office.team_id,
-
-                            ])
-
-                    }).then(rows => {
-
-                        res.json({
-                            status : "ok",
-                        });
-
-                    }).catch(function (err) {
-                    // console.log(err);
-                    res.json({
-                        status : "error",
-                    });
-                });
-            }
-        });
-
-    router.post('/dis_apply', [
-            isLoggedIn,
-            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
-        ],
-        function (req, res, next) {
-            const errors = validationResult(req);
-            //console.log(errors);
-            if (!errors.isEmpty()) {
-                return res.status(422).json({
-                    errors: errors.mapped()
-                });
-            } else {
-                var newDateObj;
-
-                let office = {
-                    team_id: req.body.team_id.trim(),
-                    user_id: req.session.passport.user.id,
-                };
-
-
-                var sql1 = "DELETE FROM teams_applies WHERE user_id = ? AND team_id = ?";
-
-                pool
-                    .query(sql1, [office.user_id, office.team_id])
-                    .then(rows => {
-
-                            res.json({
-                                status : "ok",
-                            });
-
-                    }).catch(function (err) {
-                    // console.log(err);
-                    res.json({
-                        status : "error",
-                    });
-                });
-            }
-        });
-
-
-
-    router.post('/leave', [
-            isLoggedIn,
-            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
-        ],
-        function (req, res, next) {
-            const errors = validationResult(req);
-           // console.log(errors);
-            if (!errors.isEmpty()) {
-                return res.status(422).json({
-                    errors: errors.mapped()
-                });
-            } else {
-
-                let office = {
-                    team_id: req.body.team_id.trim(),
-                    user_id: req.session.passport.user.id,
-                };
-
-
-                var sql1 = "DELETE FROM teams_participants WHERE user_id = ? AND team_id = ?";
-
-                pool
-                    .query(sql1, [office.user_id, office.team_id])
-                    .then(rows => {
-
-                            res.json({
-                                status : "ok",
-                            });
-
-                    }).then(rows => {
-
-                    return pool.query('SELECT COUNT(*) AS count FROM  teams_participants ' +
-                        'WHERE ' +
-                        'teams_participants.team_id = ?',
-                        [
-                            office.team_id,
-                        ])
-                })
-                    .then(rows => {
-                      //  console.log(rows);
-                        return pool.query('UPDATE teams SET ? ' +
-                            'WHERE ' +
-                            'teams.id = ?',
-                            [
-                                {participants_count : rows[0].count},
-                                office.team_id,
-
-                            ])
-
-                    }).catch(function (err) {
-                    // console.log(err);
-                    res.json({
-                        status : "error",
-                    });
-                });
-            }
-        });
-
-
-    router.post('/remove_participant', [
-            isLoggedIn,
-            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
-            check('user_id', 'The user_id field is required').exists().isLength({ min: 1 }),
-        ],
-        function (req, res, next) {
-            const errors = validationResult(req);
-           // console.log(errors);
-            if (!errors.isEmpty()) {
-                return res.status(422).json({
-                    errors: errors.mapped()
-                });
-            } else {
-
-                let office = {
-                    team_id: req.body.team_id.trim(),
-                    user_id: req.body.user_id.trim(),
-                };
-
-
-                var sql1 = "DELETE FROM teams_participants WHERE user_id = ? AND team_id = ?";
-
-                pool
-                    .query(sql1, [office.user_id, office.team_id])
-                    .then(rows => {
-
-                            return pool.query('SELECT COUNT(*) AS count FROM  teams_participants ' +
-                                'WHERE ' +
-                                'teams_participants.team_id = ?',
-                                [
-                                    office.team_id,
-                                ])
-                        })
-                    .then(rows => {
-                       // console.log(rows);
-                            return pool.query('UPDATE teams SET ? ' +
-                                'WHERE ' +
-                                'teams.id = ?',
-                                [
-                                    {participants_count : rows[0].count},
-                                    office.team_id,
-
-                                ])
-
-                    }).then(rows => {
-
-                            res.json({
-                                status : "ok",
-                            });
-
-                    }).catch(function (err) {
-                    // console.log(err);
-                    res.json({
-                        status : "error",
-                    });
-                });
-            }
-        });
-
-
-
-
-    router.post('/assign_vice_captain', [
-            isLoggedIn,
-            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
-            check('user_id', 'The user_id field is required').exists().isLength({ min: 1 }),
-        ],
-        function (req, res, next) {
-            const errors = validationResult(req);
-            //console.log(errors);
-            if (!errors.isEmpty()) {
-                return res.status(422).json({
-                    errors: errors.mapped()
-                });
-            } else {
-
-                let office = {
-                    team_id: req.body.team_id.trim(),
-                    user_id: req.body.user_id.trim(),
-                };
-
-
-                pool.query('UPDATE teams SET ? ' +
-                    'WHERE ' +
-                    'teams.id = ?',
-                    [
-                        {vice_captain_id : null},
-                        office.team_id,
-
-                    ]).then(rows => {
-
-                        return pool.query('UPDATE teams SET ? ' +
-                            'WHERE ' +
-                            'teams.id = ?',
-                            [
-                                {vice_captain_id : office.user_id},
-                                office.team_id,
-
-                            ])
-                    }).then(rows => {
-                        //убираем вице капитана
-                        return pool.query('UPDATE teams_participants SET ? ' +
-                            'WHERE ' +
-                            'teams_participants.team_title = ? AND ' +
-                            'teams_participants.team_id = ?',
-                            [
-                                {team_title : 100},
-                                2,
-                                office.team_id,
-
-                            ])
-                    }).then(rows => {
-                        //ставим вице капитана
-                        return pool.query('UPDATE teams_participants SET ? ' +
-                            'WHERE ' +
-                            'teams_participants.user_id = ? AND ' +
-                            'teams_participants.team_id = ?',
-                            [
-                                {team_title : 2},
-                                office.user_id,
-                                office.team_id,
-
-                            ])
-                    }).then(rows => {
-                 //   console.log(rows);
-
-                            res.json({
-                                status : "ok",
-                            });
-
-                    }).catch(function (err) {
-                        // console.log(err);
-                        res.json({
-                            status : "error",
-                        });
-                    });
-            }
-        });
 
     router.post('/update', [
             isLoggedIn,
             check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
             check('name', 'The name field is required').exists().isLength({ min: 1 }),
-            check('country', 'The name field is required').exists().isLength({ min: 1 }),
+            check('country', 'The country field is required').exists().isLength({ min: 1 }),
         ],
         function (req, res, next) {
             const errors = validationResult(req);
@@ -601,9 +356,9 @@ module.exports = function(app, passport, pool) {
                 };
 
 
-                pool.query('UPDATE teams SET ? ' +
+                pool.query('UPDATE leagues SET ? ' +
                     'WHERE ' +
-                    'teams.id = ?',
+                    'leagues.id = ?',
                     [
                         office,
                         req.body.team_id.trim(),
@@ -625,10 +380,11 @@ module.exports = function(app, passport, pool) {
             }
         });
 
-    router.post('/assign_captain', [
+
+    router.post('/seasons/update', [
             isLoggedIn,
-            check('team_id', 'The team_id field is required').exists().isLength({ min: 1 }),
-            check('user_id', 'The user_id field is required').exists().isLength({ min: 1 }),
+            check('season_id', 'The season_id field is required').exists().isLength({ min: 1 }),
+            check('description', 'The description field is required').exists().isLength({ min: 1 }),
         ],
         function (req, res, next) {
             const errors = validationResult(req);
@@ -640,61 +396,26 @@ module.exports = function(app, passport, pool) {
             } else {
 
                 let office = {
-                    team_id: req.body.team_id.trim(),
-                    user_id: req.body.user_id.trim(),
+                    description: req.body.description,
                 };
 
 
-                pool.query('UPDATE teams SET ? ' +
+                pool.query('UPDATE leagues_seasons SET ? ' +
                     'WHERE ' +
-                    'teams.id = ?',
+                    'leagues_seasons.id = ?',
                     [
-                        {creator_id : 0},
-                        office.team_id,
+                        office,
+                        req.body.season_id.trim(),
 
                     ]).then(rows => {
-
-                        return pool.query('UPDATE teams SET ? ' +
-                            'WHERE ' +
-                            'teams.id = ?',
-                            [
-                                {creator_id : office.user_id},
-                                office.team_id,
-
-                            ])
-                    }).then(rows => {
-                        //убираем капитана
-                        return pool.query('UPDATE teams_participants SET ? ' +
-                            'WHERE ' +
-                            'teams_participants.team_title = ? AND ' +
-                            'teams_participants.team_id = ?',
-                            [
-                                {team_title : 100},
-                                1,
-                                office.team_id,
-
-                            ])
-                    }).then(rows => {
-                        //ставим капитана
-                        return pool.query('UPDATE teams_participants SET ? ' +
-                            'WHERE ' +
-                            'teams_participants.user_id = ? AND ' +
-                            'teams_participants.team_id = ?',
-                            [
-                                {team_title : 1},
-                                office.user_id,
-                                office.team_id,
-
-                            ])
-                    }).then(rows => {
-                 //   console.log(rows);
+                  //  console.log(rows);
 
                             res.json({
                                 status : "ok",
                             });
 
                     }).catch(function (err) {
-                        // console.log(err);
+                         console.log(err);
                         res.json({
                             status : "error",
                         });
@@ -707,11 +428,66 @@ module.exports = function(app, passport, pool) {
 
 
 
+    router.get('/:team_id/season/:season_id',
+        function (req, res, next) {
+            let team_id = req.params.team_id;
+            let season_id = req.params.season_id;
+            team_id = parseInt(team_id);
+            season_id = parseInt(season_id);
+            let team, season, tournaments = [], participants = [];
+            if (!isNaN(team_id) && !isNaN(season_id)) {
+
+                /**
+                 * получаем иформацию о команде
+                 */
+
+                pool
+                    .query('SELECT leagues.*, users.name AS creator_name FROM leagues LEFT JOIN users ON users.id = leagues.creator_id WHERE leagues.id = ?', team_id)
+            .then(rows => {
+                team = rows;
+                return pool
+                    .query("SELECT * FROM leagues_seasons WHERE id = ?", season_id)
+            }).then(rows => {
+                    season = rows[0];
+                    return pool
+                        .query("SELECT * FROM tournaments WHERE season_id = ?", season_id)
+            }).then(function (rows) {
+                tournaments = rows;
+                    season.description = season.description.trim();
+
+                    if (team.length) {
+                    return res.render('leagues/season_show', {
+                        league : team[0],
+                        season : season,
+                        participants : participants,
+                        tournaments : tournaments,
+                    });
+                } else {
+                    res.render('error', {
+                        message  : "Сезон не найден",
+                    });
+                }
+
+
+
+            }).catch(function (err) {
+                console.log(err);
+                    res.render('error', {
+                        message  : "Сезон не найден",
+                    });
+        });
+            } else {
+                res.render('error', {
+                    message  : "Сезон не найден",
+                });
+            }
+        });
+
     router.get('/:team_id',
         function (req, res, next) {
             let team_id = req.params.team_id;
             team_id = parseInt(team_id);
-            let team, participants, is_participant = false, is_applied = false , applies = [];
+            let team, participants, seasons = [];
             if (!isNaN(team_id)) {
 
                 /**
@@ -719,94 +495,38 @@ module.exports = function(app, passport, pool) {
                  */
 
                 pool
-                    .query('SELECT teams.*, users.name AS creator_name FROM teams LEFT JOIN users ON users.id = teams.creator_id WHERE teams.id = ?', team_id)
+                    .query('SELECT leagues.*, users.name AS creator_name FROM leagues LEFT JOIN users ON users.id = leagues.creator_id WHERE leagues.id = ?', team_id)
             .then(rows => {
-                team = rows[0];
-               // if (req.isAuthenticated()) {
-
-                    /**
-                     * если авторизован - проверяем участник ли
-                     */
-
-                    return pool
-                        .query("SELECT ta.*, u.name, u.tournaments_rating FROM teams_participants ta LEFT JOIN users u ON u.id = ta.user_id WHERE team_id = ? ORDER BY ta.team_title", [team_id])
-              //  } else {
-                //    return false;
-              //  }
-
+                team = rows;
+                return pool
+                    .query("SELECT * FROM leagues_seasons WHERE league_id = ?", team_id)
             }).then(rows => {
+                    seasons = rows;
+            }).then(function () {
 
-                participants = rows;
-               // console.log(participants);
-                if (req.isAuthenticated()) {
 
-                    for (var i = 0; i < participants.length; i++) {
-                        var obj = participants[i];
-                        if (obj.user_id === req.session.passport.user.id) {
-                            is_participant = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (req.isAuthenticated() && is_participant) {
-                    return true;
-                } else if (req.isAuthenticated() && !is_participant) {
-
-                    /**
-                     * если авторизован и не участник - проверяем подавал ли заявку
-                     */
-
-                    return pool
-                        .query("SELECT * FROM teams_applies WHERE user_id = ? AND team_id = ?", [req.session.passport.user.id, team_id])
+                if (team.length) {
+                    return res.render('leagues/show', {
+                        league : team[0],
+                        seasons : seasons,
+                    });
                 } else {
-                    return true;
-                }
-
-            }).then(rows => {
-
-                if (req.isAuthenticated() && !is_participant) {
-                    is_applied = !!rows.length;
-                }
-
-                if (req.isAuthenticated() && (team.creator_id === req.session.passport.user.id || team.vice_captain_id === req.session.passport.user.id)) {
-
-                    /**
-                     * если авторизован и участник и владелец - проверяем есть ли заявки
-                     */
-
-                    return pool
-                        .query("SELECT * FROM teams_applies WHERE team_id = ?", team_id)
-                } else {
-                    return true;
+                    res.render('error', {
+                        message  : "Лига не найдена1",
+                    });
                 }
 
 
-            }).then(rows => {
-
-                if (req.isAuthenticated() && (team.creator_id === req.session.passport.user.id || team.vice_captain_id === req.session.passport.user.id) && rows.length) {
-               //     console.log(applies);
-
-                    applies = rows;
-                }
-               // console.log(participants);
-                return res.render('teams/show', {
-                    team : team,
-                    participants : participants,
-                    is_applied : is_applied,
-                    is_participant : is_participant,
-                    applies : applies
-                });
 
             }).catch(function (err) {
-            // console.log(err);
+                console.log(err);
                     res.render('error', {
-                        message  : "Команда не найдена",
+                        message  : "Лига не найдена1",
                     });
         });
             } else {
                 res.render('error', {
-                    message  : "Команда не найдена",
+                    message  : "Лига не найдена",
                 });
             }
         });
@@ -816,14 +536,14 @@ module.exports = function(app, passport, pool) {
     router.get('/:team_id/edit',
         [
             isLoggedIn,
-            check('team_id', 'Вы не указали команду.').exists().isLength({ min: 1 }).custom((value, { req }) => {
+            check('team_id', 'Вы не указали лигу.').exists().isLength({ min: 1 }).custom((value, { req }) => {
                 return new Promise((resolve, reject) => {
 
-                    pool.query('SELECT * FROM teams WHERE id = ?', [
+                    pool.query('SELECT * FROM leagues WHERE id = ?', [
                         value.trim()
                     ]).then(function (rows) {
-                        if(rows.length > 0 && (rows[0].creator_id != req.session.passport.user.id || rows[0].vice_captain_id != req.session.passport.user.id)) {
-                            return reject("У вас нет прав редактировать команду");
+                        if(rows.length > 0 && (rows[0].creator_id != req.session.passport.user.id)) {
+                            return reject("У вас нет прав редактировать эту лигу");
                         } else {
                             return resolve();
                         }
@@ -842,12 +562,12 @@ module.exports = function(app, passport, pool) {
                  */
 
                 pool
-                    .query('SELECT teams.*, users.name AS creator_name FROM teams LEFT JOIN users ON users.id = teams.creator_id WHERE teams.id = ?', team_id)
+                    .query('SELECT leagues.*, users.name AS creator_name FROM leagues LEFT JOIN users ON users.id = leagues.creator_id WHERE leagues.id = ?', team_id)
             .then(rows => {
-                team = rows[0];
-
-                return res.render('teams/edit', {
-                    team : team,
+                league = rows[0];
+                league.description = league.description.trim();
+                return res.render('leagues/edit', {
+                    team : league,
                     countries : countries
 
                 });

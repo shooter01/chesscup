@@ -1,0 +1,221 @@
+
+<% layout('boilerplate') -%>
+
+
+<div class="row mt-3">
+    <div class="col-lg-12 d-none d-lg-block">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/leagues">Лиги</a></li>
+                <li class="breadcrumb-item"><a href="/leagues/<%= league.id %>"><%= league.name %></a></li>
+                <li class="breadcrumb-item"><%= season.name %></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+
+
+
+<div class="row">
+    <div class="col-lg-9">
+
+        <div class="flex-column align-items-start ">
+            <div class="row">
+                <div class="col-lg-9">
+                    <h3><a href="/leagues/<%= league.id %>"><%= league.name %></a> - <%= season.name %></h3>
+                </div>
+
+                <div class="col-lg-3 text-right">
+
+                    <% if (season.is_over === 0) { %>
+
+                        <% if (user && user.user && (season.creator_id === user.user.id)) { %>
+                            <a href="/leagues/<%= league.id %>/edit" class="btn btn-success btn-sm btn-sm-block " data-toggle="modal" data-target="#edit_description">Редактировать </a>
+                            <a href="/leagues/<%= league.id %>/edit" class="btn btn-success btn-sm btn-sm-block  mt-1" id="end_season">Завершить сезон</a>
+                        <% }  %>
+                    <% } else {  %>
+                        <h4><div class="badge badge-danger">Сезон завершен</div></h4>
+                    <% } %>
+
+                </div>
+            </div>
+        </div>
+
+        <hr>
+        <div>
+            <h3>Описание сезона</h3>
+            <%=  season.description  %>
+        </div>
+
+        <hr>
+
+
+        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Участники</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Турниры</a>
+            </li>
+
+        </ul>
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+
+                <div class="flex-column align-items-start ">
+                    <div class="row">
+                        <div class="col-lg-9">
+                            <h3>Участники</h3>
+                        </div>
+                        <div class="col-lg-3">
+
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <table class="table table-sm">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Имя</th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <% for (var i = 0; i < participants.length; i++) { %>
+                                <tr>
+                                    <th scope="row"><%= i + 1 %></th>
+                                    <td>
+                                        <a href="/tournament/<%= participants[i].id %>">
+                                            <%= participants[i].title %>
+                                        </a>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+            <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+
+                <div class="flex-column align-items-start ">
+                    <div class="row">
+                        <div class="col-lg-9">
+                            <h3>Турниры</h3>
+                        </div>
+                        <div class="col-lg-3">
+
+                        </div>
+                    </div>
+                </div>
+                <div>
+
+                    <table class="table table-sm">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Название</th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        <% for (var i = 0; i < tournaments.length; i++) { %>
+
+                        <tr>
+
+                            <th scope="row"><%= i + 1 %></th>
+                            <td>
+                                <a href="/tournament/<%= tournaments[i].id %>">
+                                    <%= tournaments[i].title %>
+                                </a>
+                            </td>
+                        </tr>
+
+                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+        </div>
+
+
+    </div>
+    <div class="col-lg-3">
+
+
+
+    </div>
+</div>
+
+
+
+<script>
+    var u = null;
+
+    var _Participants = '<%- __("Participants") %>';
+    var _leagues = '<%- __("Participantsleagues") %>';
+    var _ToTournament = '<%- __("ParticipantsToTournament") %>';
+    var _AddParticipant = '<%- __("ParticipantsAddParticipant") %>';
+    var _Addleague = '<%- __("ParticipantsAddTeam") %>';
+    var _AddingTeam = '<%- __("ParticipantsAddingTeam") %>';
+    var _Administrators = '<%- __("ParticipantsAdministrators") %>';
+    var _Search = '<%- __("ParticipantsSearch") %>';
+    var _SuccessUpdate = '<%- __("ParticipantsSuccessUpdate") %>';
+    var _TeamName = '<%- __("ParticipantsTeamName") %>';
+    var _Close = '<%- __("Close") %>';
+    var _Save = '<%- __("Save") %>';
+    var _Saving = '<%- __("Saving") %>';
+    var _Status = '<%- __("ParticipantsStatus") %>';
+    var _Waiting = '<%- __("ParticipantsWaiting") %>';
+    var _Rating = '<%- __("ParticipantsRating") %>';
+    var _Name = '<%- __("Name") %>';
+    var _ParticipantAdded = '<%- __("ParticipantAdded") %>';
+    var _RequestSent = '<%- __("ParticipantRequestSent") %>';
+    var _ChooseTeam = '<%- __("ParticipantsChooseTeamTitle") %>';
+    var _Board = '<%- __("Board") %>';
+    var _Points = '<%- __("Points") %>';
+    var _Result = '<%- __("Result") %>';
+    var _Saved = '<%- __("Saved") %>';
+    var _SaveError = '<%- __("SaveError") %>';
+    var _Tour = '<%- __("ParticipantTour") %>';
+    var _AreYouSure = '<%- __("ParticipantAreYouSure") %>';
+</script>
+
+<% if (user && user.user) { %>
+<script>
+    var user_id = '<%= user.user.id %>';
+    var league_id = '<%= league.id %>';
+    var season_id = '<%= season.id %>';
+</script>
+
+<script src="/js/league.min.js"></script>
+<% } %>
+
+<div class="modal fade" id="edit_description" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Редактирование</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <textarea class="form-control" id="season_description" rows="3">
+                    <%=  league.description  %>
+                </textarea>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                <button type="button" id="update_description" class="btn btn-primary">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>

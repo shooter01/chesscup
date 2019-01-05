@@ -51,7 +51,7 @@ class StartDate extends React.Component {
 
 
                 if (self.state.start_type == "accurate") {
-                    $('[data-type="accurate"]').tab('show') // Select tab by name
+                    $('[data-type="accurate"]').tab('show'); // Select tab by name
                 }
             });
 
@@ -74,7 +74,6 @@ class StartDate extends React.Component {
     }
 
     render() {
-
         return (
 
             <div>
@@ -111,10 +110,10 @@ class StartDate extends React.Component {
                                         <p id="basicExample">
                                             <label htmlFor="accurate_date_start">Дата старта: </label>
 
-                                            <input type="text" id="accurate_date_start" className="date start form-control" />
+                                            <input type="text" id="accurate_date_start"  className="date start form-control" />
                                             <label htmlFor="accurate_time_start" className="mt-3">Точное время старта (МСК): </label>
 
-                                            <input type="text" id="accurate_time_start" className="time start form-control" />
+                                            <input type="text" id="accurate_time_start"  className="time start form-control" />
 
                                         </p>
                                     </div>

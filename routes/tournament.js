@@ -52,9 +52,38 @@ module.exports = function(app, passport, pool, i18n) {
 
     router.get('/create', [isLoggedIn], function (req, res, next) {
 
-        res.render('tournament/create', {
-            countries : countries
-        });
+        if (req.session.passport.user.is_league_owner) {
+            let league, season;
+            pool
+                .query('SELECT * FROM leagues WHERE id = ?', req.session.passport.user.is_league_owner)
+                .then(rows => {
+                    league = rows[0];
+                    return pool
+                        .query('SELECT * FROM leagues_seasons WHERE league_id = ? ORDER BY id DESC LIMIT 1', league.id);
+                }).then(rows => {
+                season = rows[0];
+                    res.render('tournament/create', {
+                        countries : countries,
+                        league : league,
+                        season : season,
+                    });
+                }).catch(function (err) {
+                    console.log(err);
+                    res.render('error', {
+                        message  : "Ошибка извлечения лиги",
+                    });
+            })
+        } else {
+            res.render('tournament/create', {
+                countries : countries
+            });
+        }
+
+
+
+
+
+
 
     });
 
@@ -245,6 +274,7 @@ module.exports = function(app, passport, pool, i18n) {
                 country: req.body.country,
                 type: req.body.type,
                 time_inc: req.body.time_inc,
+                season_id: req.body.season_id,
                 is_active : 0,
                 start_date: req.body.start_date,
                 amount: parseInt(req.body.amount),
@@ -338,6 +368,7 @@ module.exports = function(app, passport, pool, i18n) {
                 team_boards: req.body.team_boards,
                 type: req.body.type,
                 amount: req.body.amount,
+                season_id: req.body.season_id,
                 start_time: newDateObj,
                 start_type: req.body.start_type,
                 time_inc: req.body.time_inc,
@@ -1749,7 +1780,7 @@ module.exports = function(app, passport, pool, i18n) {
         let tournament_id = req.params.tournament_id;
         tournament_id = parseInt(tournament_id);
             const errors = validationResult(req);
-
+            let league, season, tournament;
             if (!errors.isEmpty()) {
 
                 var error = "";
@@ -1772,19 +1803,44 @@ module.exports = function(app, passport, pool, i18n) {
 
 
 
+
                     if (!isNaN(tournament_id)) {
                         pool
                             .query('SELECT * FROM tournaments WHERE id = ?', tournament_id)
                            .then(rows => {
+                               tournament = rows;
 
-                               if (rows.length > 0) {
-                                   rows[0].start_date = moment(rows[0].start_date).format("YYYY-MM-DD");
-                                   rows[0].end_date = moment(rows[0].end_date).format("YYYY-MM-DD");
+                               if (req.session.passport.user.is_league_owner) {
+                                   return pool
+                                       .query('SELECT * FROM leagues WHERE id = ?', req.session.passport.user.is_league_owner);
+                                   } else {
+                                       return true;
+                                   }
+                           }).then(rows => {
+                                league = rows[0];
+
+                            if (req.session.passport.user.is_league_owner) {
+                                return pool
+                                    .query('SELECT * FROM leagues_seasons WHERE league_id = ? ORDER BY id DESC LIMIT 1', league.id);
+                            } else {
+                                return true;
+                            }
+                        }).then(rows => {
+                            season = rows[0];
+                                console.log(tournament);
+                               if (tournament.length > 0) {
+                                   tournament[0].start_date = moment(tournament[0].start_date).format("YYYY-MM-DD");
+                                   tournament[0].end_date = moment(tournament[0].end_date).format("YYYY-MM-DD");
                                    // 2018-05-31
                                    //console.log(rows[0]);
+
+                                   console.log(tournament);
+
                                    res.render('tournament/edit', {
-                                       tournament  : rows[0],
-                                       tournamentJSON  : JSON.stringify(rows[0]),
+                                       tournament  : tournament[0],
+                                       league  : league,
+                                       season  : season,
+                                       tournamentJSON  : JSON.stringify(tournament[0]),
 
                                        countries : countries
                                    });

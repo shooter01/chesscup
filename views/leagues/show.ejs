@@ -6,8 +6,8 @@
     <div class="col-lg-12 d-none d-lg-block">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/teams">Команды</a></li>
-                <li class="breadcrumb-item active" aria-current="page"><%= team.name %></li>
+                <li class="breadcrumb-item"><a href="/leagues">Лиги</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= league.name %></li>
             </ol>
         </nav>
     </div>
@@ -21,178 +21,68 @@
 
         <div class="flex-column align-items-start ">
             <div class="row">
-
-                <div class="col-lg-10">
-                    <h3><%= team.name %></h3>
-
-
-
+                <div class="col-lg-9">
+                    <h3><%= league.name %></h3>
                 </div>
 
-
-                <div class="col-lg-2">
-
-                    <% if (is_participant && team.creator_id !== user.user.id)  { %>
-                        <span href="" class="btn btn-danger float-right" id="leave">Покинуть</span>
-
-                    <% } else if (is_applied) { %>
-                        <span href="" class="btn btn-warning float-right" id="dis_apply">Отменить заявку</span>
-                    <% } else { %>
-
-                            <% if (user && user.user)  { %>
-
-                                <% if (user && user.user && (team.creator_id === user.user.id)) { %>
-                                <a href="/teams/<%= team.id %>/edit" class="btn btn-success btn-sm">Редактировать</a></h3>
-                                <% } else { %>
-                                    <span href="" class="btn btn-primary float-right" id="apply">Подать заявку</span>
-
-                                <% }  %>
-                            <% } else { %>
-                                <a class="btn btn-primary float-right" href="/login">Войдите для участия</a>
-                            <% } %>
+                <div class="col-lg-3">
+                    <% if (user && user.user && (league.creator_id === user.user.id)) { %>
+                        <a href="/leagues/<%= league.id %>/edit" class="btn btn-success btn-sm float-right">Редактировать</a></h3>
                     <% } %>
-
-
                 </div>
-
-
             </div>
         </div>
 
         <hr>
+        <div>
+            <h3>Описание</h3>
+            <%=  league.description  %>
+        </div>
 
-        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Участники</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Описание</a>
-            </li>
-            <% if (user && user.user && (team.creator_id === user.user.id  || team.vice_captain_id === user.user.id)) { %>
+        <hr>
 
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="pill" href="#applies" role="tab" aria-controls="pills-profile" aria-selected="false">Заявки (<%= applies.length %>)</a>
-                </li>
-
-
-            <% } %>
-
-        </ul>
-        <div class="tab-content" id="pills-tabContent">
-            <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-
-                <table class="table table-sm">
-                    <thead class="thead-dark">
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Имя</th>
-                        <th scope="col" class="text-center">Звание</th>
-                        <th scope="col" class="text-center">Рейтинг</th>
-                        <% if (user && user.user && (team.creator_id === user.user.id || team.vice_captain_id === user.user.id)) { %>
-                            <th scope="col" class="text-center"></th>
-                        <% } %>
-                    </tr>
-                    </thead>
-                    <tbody>
-
-                    <% for (var i = 0; i < participants.length; i++) { %>
-                    <% if (participants[i].user_id === team.creator_id) { %>
-                        <tr class="table-danger">
-                    <% } else if (participants[i].user_id === team.vice_captain_id) { %>
-                        <tr class="table-primary">
-                    <% } else { %>
-                        <tr>
-                    <%  } %>
-                        <th scope="row"><%= i + 1 %></th>
-                        <td><%= participants[i].name %></td>
-                        <td class="text-center">
-
-                            <% if (participants[i].user_id === team.creator_id) { %>
-                            Капитан
-                            <%  } else if (participants[i].user_id === team.vice_captain_id) { %>
-                            Вице-капитан
-
-                            <%  } %>
-                        </td>
-                        <td class="text-center"><%= participants[i].tournaments_rating %></td>
-                        <% if (user && user.user && (team.creator_id === user.user.id || team.vice_captain_id === user.user.id)) { %>
-                        <td class="text-right">
-                            <% if (user && user.user && (participants[i].user_id !== team.creator_id && participants[i].user_id !== team.vice_captain_id) && user.user.id === team.creator_id) { %>
-                                <span class="dropdown dropleft">
-                                    <button class="btn btn-warning dropdown-toggle btn-sm" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-
-                                    </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                                        <button class="dropdown-item assign_vice_captain" type="button" data-id="<%= participants[i].user_id %>">Назначить вице-капитаном</button>
-                                            <!--<div class="dropdown-divider"></div>-->
-
-                                        <!--<button class="dropdown-item assign_captain" type="button" data-id="<%= participants[i].user_id %>">Назначить капитаном</button>-->
-                                    </div>
-                                </span>
-
-
-                            <% } %>
-
-                            <% if (user && user.user && (participants[i].user_id !== team.creator_id && participants[i].user_id !== team.vice_captain_id)) { %>
-                            <span class="btn btn-sm btn-danger remove" style="font-weight: bolder" data-id="<%= participants[i].user_id %>">X</span>
-                            <% } %>
-
-                        </td>
-                        <% } %>
-                    </tr>
-
-                    <% } %>
-
-                    </tbody>
-                </table>
-
-
-            </div>
-            <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-                <%=  team.description  %>
-            </div>
-            <% if (user && user.user && (team.creator_id === user.user.id || team.vice_captain_id === user.user.id)) { %>
-                <div class="tab-pane fade" id="applies" role="tabpanel" aria-labelledby="pills-profile-tab">
-
-
-                    <table class="table table-sm">
-                        <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Имя</th>
-                            <th scope="col">Control</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-
-                    <% for (var i = 0; i < applies.length; i++) { %>
-
-                        <tr>
-                            <th scope="row">1</th>
-                            <td><a href="/users/<%= applies[i].user_id %>" target="_blank"><%= applies[i].name %></a></td>
-                            <td>
-                                <span class="btn btn-sm btn-success approve" data-id="<%= applies[i].user_id %>">Одобрить</span>
-                                <span class="btn btn-sm btn-danger decline">Отклонить</span>
-                            </td>
-                        </tr>
-
-                    <% } %>
-
-
-                        </tbody>
-                    </table>
-
+        <div class="flex-column align-items-start ">
+            <div class="row">
+                <div class="col-lg-9">
+                    <h3>Сезоны</h3>
                 </div>
-            <% } %>
+                <div class="col-lg-3">
+                    <% if (user && user.user && (league.creator_id === user.user.id)) { %>
+                        <a href="/leagues/create" class="btn btn-success btn-sm float-right" id="add_season">Добавить сезон</a></h3>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <div>
+            <div class="list-group">
+
+                <% for (var i = 0; i < seasons.length; i++) { %>
+                    <a href="/leagues/<%= league.id %>/season/<%= seasons[i].id %>" class="list-group-item list-group-item-action">
+                       <%= seasons[i].name %>
+                        <% if (seasons[i].is_over) { %>
+                            <span class="badge badge-danger">Завершён</span>
+                        <% } %>
+                    </a>
+                <% } %>
+
+
+
+            </div>
+
 
         </div>
     </div>
     <div class="col-lg-3">
 
-        <img src="<%=  team.image  %>" class="img-thumbnail" alt="">
+        <img src="<%=  league.image  %>" class="img-thumbnail" alt="">
 
 
-        <div class="mt-2 mb-2">Капитан: <%= team.creator_name %></div>
+        <div class="mt-2 mb-2">Создатель: <%= league.creator_name %></div>
 
     </div>
 </div>
@@ -203,10 +93,10 @@
     var u = null;
 
     var _Participants = '<%- __("Participants") %>';
-    var _Teams = '<%- __("ParticipantsTeams") %>';
+    var _leagues = '<%- __("Participantsleagues") %>';
     var _ToTournament = '<%- __("ParticipantsToTournament") %>';
     var _AddParticipant = '<%- __("ParticipantsAddParticipant") %>';
-    var _AddTeam = '<%- __("ParticipantsAddTeam") %>';
+    var _Addleague = '<%- __("ParticipantsAddTeam") %>';
     var _AddingTeam = '<%- __("ParticipantsAddingTeam") %>';
     var _Administrators = '<%- __("ParticipantsAdministrators") %>';
     var _Search = '<%- __("ParticipantsSearch") %>';
@@ -234,9 +124,9 @@
 <% if (user && user.user) { %>
 <script>
     var user_id = '<%= user.user.id %>';
-    var team_id = '<%= team.id %>';
+    var league_id = '<%= league.id %>';
 </script>
 
-<script src="/js/team.min.js"></script>
+<script src="/js/league.min.js"></script>
 <% } %>
 
