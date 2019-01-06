@@ -41,16 +41,39 @@
                     <a class="nav-link" href="/play">Playzone</a>
                 </li>
                 <% if (user && user.user && user.user.is_team_owner) { %>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="/teams/<%= user.user.is_team_owner %>" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Моя команда<span id="team_applies_count" class="badge badge-light">0</span>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="/teams/<%= user.user.is_team_owner %>">Моя команда</a>
+                            <a class="dropdown-item" href="/teams">Команды</a>
+                        </div>
+                    </li>
+                <% } else { %>
                     <li class="nav-item">
-                        <a class="nav-link" href="/teams/<%= user.user.is_team_owner %>">Моя команда<span id="team_applies_count" class="badge badge-light">0</span></a>
+                        <a class="nav-link" href="/teams">Команды</a>
                     </li>
                 <% } %>
-                <li class="nav-item">
-                    <a class="nav-link" href="/teams">Команды</a>
+
+
+                <% if (user && user.user && user.user.is_league_owner) { %>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="/leagues/<%= user.user.is_league_owner %>" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Моя лига
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/leagues/<%= user.user.is_league_owner %>">Моя лига</a>
+                        <a class="dropdown-item" href="/leagues">Лиги</a>
+                    </div>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/leagues">Лиги</a>
-                </li>
+                <% } else { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/leagues">Лиги</a>
+                    </li>
+                <% } %>
+
+
                 <li class="nav-item">
                     <a class="nav-link" href="/errorfound">Нашли ошибку?</a>
                 </li>

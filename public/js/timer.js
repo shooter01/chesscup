@@ -22,6 +22,7 @@ Timer.prototype.setTimer = function () {
             self.tick();
         } else {
             self.timeleft = 0;
+            self.element.remove();
             clearInterval(self.interval);
         }
     }, 1000);
@@ -63,15 +64,15 @@ Timer.prototype.tick = function () {
     if (days > 0) {
         var a = this.generateSpan("day", " ", days);
         html.append(this.generateSpan("day", " ", days));//this.generateSpan("day", " ", days);
-    }
-    if (hours > 0) {
+    } else if (hours > 0) {
         html.append(this.generateSpan("hour", " ", hours));
-    }
-    if (minutes > 0) {
+    } else if (minutes > 0) {
         html.append(this.generateSpan("minute", " ", minutes));
+    } else if (seconds > 0) {
+        html.append(this.generateSpan("second", " ", seconds));
     }
 
-    html.append(this.generateSpan("second", " ", seconds));
+
 
     this.element.html(html);
 };
