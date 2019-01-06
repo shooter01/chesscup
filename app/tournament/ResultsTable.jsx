@@ -48,13 +48,16 @@ class ResultsTable extends React.Component {
                             Имя
                         </th>
                         <th className="text-center">
-                            Points
+                            Очки
                         </th>
                         <th className="text-center">
-                            Buchgolz
+                            Бухг.
                         </th>
                         <th className="text-center">
-                            Berger
+                            Бергер
+                        </th>
+                        <th className="text-center">
+                            Очки лиги
                         </th>
                         <th>
 
@@ -70,6 +73,7 @@ class ResultsTable extends React.Component {
                         <td className="text-center">{item.scores}</td>
                         <td className="text-center">{item.bh}</td>
                         <td className="text-center">{item.berger}</td>
+                        <td className="text-center">{item.league_points}</td>
                         <td style={width} className="text-center">
                             <a href=""  data-id={item.user_id}  className="participant fa fa-eye"></a>
 

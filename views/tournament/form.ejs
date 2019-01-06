@@ -25,7 +25,7 @@
 <div class="row">
     <div class="col-sm-12 mt-3">
         <label for="amount">Привязка к лиге (первым 10 будут начисляться очки лиги): </label>
-        <select name="season_id" id="season_id" class="form-control">
+        <select name="season_id" id="season_id" data-league-id="<%= league.id %>" class="form-control">
             <option value="0"></option>
             <option value="<%= season.id %>" <%= (typeof tournament !== "undefined" && tournament.season_id ==  season.id ) ? "selected"  : null %>><%= league.name %> - <%= season.name %></option>
         </select>

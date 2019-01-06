@@ -58,6 +58,8 @@
                 country : $("#country").val(),
                 type : $("#type").val(),
                 season_id : $("#season_id").val(),
+                league_id : $("#season_id").attr("data-league-id"),
+                season_name : $("#season_id option:selected").text(),
                 amount : $("#amount").val(),
                 wait_minutes : $("#wait_minutes").val() || 30,
                 is_online : $("#is_online").val(),

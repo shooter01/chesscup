@@ -619,13 +619,27 @@ const DRAW = {
     },
 
     defaultSwiss : function (req, res, next, pool, tournament, tournament_id, tour_id, app) {
-        let participants, participants_array = [], scores_object = {}, pairing = [];
+        let participants, participants_array = [], scores_object = {}, pairing = [], league_points_object = {};
 
             return pool
                     .query('SELECT tr.*, u1.name AS p1_name, u1.title AS p1_title, u2.title AS p2_title, u1.tournaments_rating AS p1_rating, u2.name AS p2_name, u2.tournaments_rating AS p2_rating FROM tournaments_results tr LEFT JOIN users u1 ON tr.p1_id = u1.id LEFT JOIN  users u2 ON tr.p2_id = u2.id WHERE tr.tournament_id = ? AND tr.tour = ?', [tournament_id, tour_id])
             .then(rows => {
                 pairing = rows;
             }).then(rows => {
+                if (tournament.league_id && tournament.season_id) {
+                    let sql = "SELECT ts.* FROM  leagues_results ts WHERE ts.tournament_id = ?";
+                    return pool
+                        .query(sql, tournament.id)
+                } else {
+                    return true;
+                }
+
+            }).then(rows => {
+                    //считаем очки лиги для этого турнира
+                    if (tournament.league_id && tournament.season_id) {
+                        league_points_object = getLeaguePoints(rows);
+                    }
+
                     let sql = "SELECT ts.* FROM tournaments_scores ts WHERE ts.tournament_id = ? AND ts.tour = ?";
                     return pool
                         .query(sql, [tournament_id, tour_id - 1 ])
@@ -636,6 +650,7 @@ const DRAW = {
                     scores_object[rows[i].user_id].bh = rows[i].bh;
                     scores_object[rows[i].user_id].scores = rows[i].scores;
                     scores_object[rows[i].user_id].berger = rows[i].berger;
+                    scores_object[rows[i].user_id].league_points = league_points_object[rows[i].user_id] || 0;
                 }
 
                 let sql = "SELECT tp.*, u.name, u.tournaments_rating, u.title FROM tournaments_participants tp LEFT JOIN users u ON u.id = tp.user_id  WHERE tp.tournament_id = ?";
@@ -646,7 +661,6 @@ const DRAW = {
 
                     for (var i = 0; i < rows.length; i++) {
                         participants_array.push(Object.assign(rows[i], scores_object[rows[i].user_id]));
-
                     }
 
 
@@ -999,6 +1013,13 @@ const DRAW = {
     }
 };
 
-
+function getLeaguePoints(rows) {
+    let users_leagues = {};
+    for (let i = 0; i < rows.length; i++) {
+        let obj = rows[i];
+        users_leagues[obj.user_id] = obj.points;
+    }
+    return users_leagues;
+}
 
 module.exports = DRAW;

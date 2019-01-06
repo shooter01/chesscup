@@ -3,8 +3,10 @@ const moment = require('moment');
 const invite_user_to_game = require('./invite_user_to_game');
 const create_game_mongo = require('./create_game_mongo');
 const bluebird = require('bluebird');
+let league_points = require('./systems/league_points');
 
-DRAW.makeResultsForSwissSystem = bluebird.promisifyAll(DRAW.makeResultsForSwissSystem)
+DRAW.makeResultsForSwissSystem = bluebird.promisifyAll(DRAW.makeResultsForSwissSystem);
+league_points = bluebird.promisifyAll(league_points);
 
 const make_draw = function (data) {
     const tournament_id = data.tournament_id;
@@ -19,6 +21,7 @@ const make_draw = function (data) {
     }
     let let_insert = true;
     let let_tournament_insert = true;
+    let is_over = false; //завершен ли турнир
 
     let tourney,
         participants = [],
@@ -95,11 +98,10 @@ const make_draw = function (data) {
                 return DRAW.makeResultsForSwissSystem(tournament_results, participants, tourney, bye_participants, pool, app).then(function (g) {
 
                     //console.log("ggg");
-                   // console.log(g);
-                   // throw new Error("STOPPED");
+                    //throw new Error("STOPPED");
 
-                    console.log(typeof g.swiss);
-                    console.log(g.swiss instanceof Error);
+                    //console.log(typeof g.swiss);
+                    //console.log(g.swiss instanceof Error);
 
                     if (g.swiss instanceof Error) {
                         app.ROOMS.emit('t' + tournament_id,
@@ -226,6 +228,7 @@ const make_draw = function (data) {
                         tours_count : tours_count
                     },tourney.id]);
                 } else {
+                    is_over = true;
                     return pool.query('UPDATE tournaments SET ? WHERE tournaments.id = ?',[{
                         current_tour : tourney.current_tour + 1,
                         is_active : 1,
@@ -234,6 +237,14 @@ const make_draw = function (data) {
 
                 }
             }
+        }).then(function(){
+
+              if (is_over === true) {
+                 //добавляем очки лиги, если турнир завершен
+                return league_points(tournament_results, participants, tourney, bye_participants, pool, app);
+              } else {
+                  return true;
+              }
         }).then(rows => {
 
                 var tour = ((tourney.current_tour + 1) <= tourney.tours_count) ? tourney.current_tour + 1 : null;

@@ -1,6 +1,12 @@
 
 <% layout('boilerplate') -%>
 
+<style>
+    .text-underlined {
+        text-decoration: underline!important;
+    }
+</style>
+
 
 <div class="row mt-3">
     <div class="col-lg-12 d-none d-lg-block">
@@ -73,7 +79,12 @@
 
 <div class="row">
     <div class="col-sm-9">
-<% if (user && user.user && user.user.id === tournament.creator_id) { %>
+
+        <% if (tournament.season_id && tournament.league_id) { %>
+            <div class="p-1 mb-2 bg-danger text-white">Данный турнир относится к лиге <a href="/leagues/<%= tournament.league_id %>/season/<%= tournament.season_id %>" class="text-white text-underlined"><%= tournament.season_name %></a></div>
+        <% } %>
+
+        <% if (user && user.user && user.user.id === tournament.creator_id) { %>
     <% if (tournament.is_closed != 1) { %>
         <a href="/tournament/<%= tournament.id %>/edit" class="btn btn-success"><%- __("Edit_tournament") %></a>
     <% } %>

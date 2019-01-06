@@ -275,6 +275,8 @@ module.exports = function(app, passport, pool, i18n) {
                 type: req.body.type,
                 time_inc: req.body.time_inc,
                 season_id: req.body.season_id,
+                league_id: req.body.league_id,
+                season_name: req.body.season_name,
                 is_active : 0,
                 start_date: req.body.start_date,
                 amount: parseInt(req.body.amount),
@@ -369,6 +371,8 @@ module.exports = function(app, passport, pool, i18n) {
                 type: req.body.type,
                 amount: req.body.amount,
                 season_id: req.body.season_id,
+                league_id: req.body.league_id,
+                season_name: req.body.season_name,
                 start_time: newDateObj,
                 start_type: req.body.start_type,
                 time_inc: req.body.time_inc,
@@ -1103,7 +1107,7 @@ module.exports = function(app, passport, pool, i18n) {
 
                     return pool.query('DELETE FROM tournaments_results WHERE tournament_id = ? AND tour = ?', [office.tournament_id, current_tour]);
                 }).then(function (results) {
-                    return pool.query('DELETE FROM tournaments_results WHERE tournament_id = ? AND tour = ?', [office.tournament_id, current_tour]);
+                    return pool.query('DELETE FROM tournaments_scores WHERE tournament_id = ?', [office.tournament_id, current_tour]);
                 }).then(function (results) {
                     return pool.query('DELETE FROM tournaments_teams_results WHERE tournament_id = ? AND tour = ?', [office.tournament_id, current_tour]);
                 }).then(function (results) {

@@ -25,6 +25,12 @@
                 <% } %>
 
                 <span class="badge badge"><%= tournaments[i].amount %> + <%= tournaments[i].time_inc %></span>
+
+
+                <% if (tournaments[i].season_id && tournaments[i].league_id) { %>
+                    <span class="badge badge-warning"><%= tournaments[i].season_name %></span>
+                <% } %>
+
             </div>
         </div>
 
