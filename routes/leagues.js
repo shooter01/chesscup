@@ -583,14 +583,14 @@ module.exports = function(app, passport, pool) {
                 });
 
             }).catch(function (err) {
-            // console.log(err);
+             console.log(err);
                     res.render('error', {
-                        message  : "Команда не найдена",
+                        message  : "Ошибка",
                     });
         });
             } else {
                 res.render('error', {
-                    message  : "Команда не найдена",
+                    message  : "Ошибка",
                 });
             }
         });
