@@ -575,7 +575,7 @@ module.exports = function(app, passport, pool) {
                     .query('SELECT leagues.*, users.name AS creator_name FROM leagues LEFT JOIN users ON users.id = leagues.creator_id WHERE leagues.id = ?', team_id)
             .then(rows => {
                 league = rows[0];
-                league.description = league.description.trim();
+                league.description = league.description;
                 return res.render('leagues/edit', {
                     team : league,
                     countries : countries
