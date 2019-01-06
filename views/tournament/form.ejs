@@ -20,7 +20,7 @@
 </div>
 
 
-<% if (user && user.user && user.user.is_league_owner) { %>
+<% if (user && user.user && user.user.is_league_owner && typeof season != "undefined" && typeof season.id != "undefined" && typeof league != "undefined" && typeof league.id != "undefined") { %>
 
 <div class="row">
     <div class="col-sm-12 mt-3">

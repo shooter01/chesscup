@@ -59,7 +59,7 @@ module.exports = function(app, passport, pool, i18n) {
                 .then(rows => {
                     league = rows[0];
                     return pool
-                        .query('SELECT * FROM leagues_seasons WHERE league_id = ? ORDER BY id DESC LIMIT 1', league.id);
+                        .query('SELECT * FROM leagues_seasons WHERE league_id = ? AND is_over = 0 ORDER BY id DESC LIMIT 1', league.id);
                 }).then(rows => {
                 season = rows[0];
                     res.render('tournament/create', {
