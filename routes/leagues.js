@@ -458,7 +458,7 @@ module.exports = function(app, passport, pool) {
                         .query("SELECT * FROM tournaments WHERE season_id = ?", season_id)
             }).then(rows => {
                     tournaments = rows;
-                    let sql = "SELECT ts.*, users.name  FROM leagues_scores ts LEFT JOIN users ON users.id = ts.user_id WHERE ts.league_id = ? AND ts.season_id = ?";
+                    let sql = "SELECT ts.*, users.name  FROM leagues_scores ts LEFT JOIN users ON users.id = ts.user_id WHERE ts.league_id = ? AND ts.season_id = ?  ORDER BY ts.points DESC";
                     return pool
                         .query(sql, [team_id, season_id])
 
@@ -510,7 +510,7 @@ module.exports = function(app, passport, pool) {
             .then(rows => {
                 team = rows;
                 return pool
-                    .query("SELECT * FROM leagues_seasons WHERE league_id = ?", team_id)
+                    .query("SELECT * FROM leagues_seasons WHERE league_id = ? ORDER BY id DESC", team_id)
             }).then(rows => {
                     seasons = rows;
             }).then(function () {
@@ -531,7 +531,7 @@ module.exports = function(app, passport, pool) {
             }).catch(function (err) {
                 console.log(err);
                     res.render('error', {
-                        message  : "Лига не найдена1",
+                        message  : err,
                     });
         });
             } else {

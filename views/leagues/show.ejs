@@ -66,8 +66,11 @@
                        <%= seasons[i].name %>
                         <% if (seasons[i].is_over) { %>
                             <span class="badge badge-danger">Завершён</span>
+                        <% } else { %>
+                            <span class="badge badge-success">Текущий</span>
+
                         <% } %>
-                    </a>
+                        </a>
                 <% } %>
 
 
