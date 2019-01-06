@@ -5,6 +5,7 @@ const { check, validationResult } = require('express-validator/check');
 const countries = require('./countries');
 const sharp = require('sharp');
 const path = require('path');
+const nl2br  = require('nl2br');
 
 const multer = require('multer');
 const crypto = require('crypto');
@@ -451,9 +452,15 @@ module.exports = function(app, passport, pool) {
                     season = rows[0];
                     return pool
                         .query("SELECT * FROM tournaments WHERE season_id = ?", season_id)
-            }).then(function (rows) {
-                tournaments = rows;
-                    season.description = season.description.trim();
+            }).then(rows => {
+                    tournaments = rows;
+                    let sql = "SELECT ts.*, users.name  FROM leagues_scores ts LEFT JOIN users ON users.id = ts.user_id WHERE ts.league_id = ? AND ts.season_id = ?";
+                    return pool
+                        .query(sql, [team_id, season_id])
+
+                }).then(function (rows) {
+                    participants = rows;
+                    season.des = nl2br(season.description);
 
                     if (team.length) {
                     return res.render('leagues/season_show', {
@@ -503,8 +510,7 @@ module.exports = function(app, passport, pool) {
             }).then(rows => {
                     seasons = rows;
             }).then(function () {
-
-
+                    team[0].description = nl2br(team[0].description);
                 if (team.length) {
                     return res.render('leagues/show', {
                         league : team[0],

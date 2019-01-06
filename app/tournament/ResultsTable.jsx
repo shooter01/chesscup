@@ -20,6 +20,7 @@ class ResultsTable extends React.Component {
         super(props);
         this.state = {
             participants : this.props.participants || [],
+            tournament : this.props.tournament,
         }
 
     }
@@ -27,6 +28,9 @@ class ResultsTable extends React.Component {
     componentWillReceiveProps(nextProps){
         if(nextProps.value !== this.state.participants){
             this.setState({participants:nextProps.participants});
+        }
+        if(nextProps.value !== this.state.tournament){
+            this.setState({tournament:nextProps.tournament});
         }
     }
 
@@ -56,9 +60,11 @@ class ResultsTable extends React.Component {
                         <th className="text-center">
                             Бергер
                         </th>
+                        {this.state.tournament.league_id && this.state.tournament.season_id ?
                         <th className="text-center">
                             Очки лиги
-                        </th>
+                        </th> : null
+                        }
                         <th>
 
                         </th>
@@ -73,7 +79,10 @@ class ResultsTable extends React.Component {
                         <td className="text-center">{item.scores}</td>
                         <td className="text-center">{item.bh}</td>
                         <td className="text-center">{item.berger}</td>
-                        <td className="text-center">{item.league_points}</td>
+                        {this.state.tournament.league_id && this.state.tournament.season_id ?
+                            <td className="text-center text-success">{item.league_points ? "+" + item.league_points : null}</td>
+                            : null
+                        }
                         <td style={width} className="text-center">
                             <a href=""  data-id={item.user_id}  className="participant fa fa-eye"></a>
 

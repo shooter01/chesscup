@@ -149,7 +149,7 @@
 
             </div>
             <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-                <%=  team.description  %>
+                <%-  team.description  %>
             </div>
             <% if (user && user.user && (team.creator_id === user.user.id || team.vice_captain_id === user.user.id)) { %>
                 <div class="tab-pane fade" id="applies" role="tabpanel" aria-labelledby="pills-profile-tab">

@@ -5,6 +5,7 @@ const { check, validationResult } = require('express-validator/check');
 const countries = require('./countries');
 const sharp = require('sharp');
 const path = require('path');
+const nl2br  = require('nl2br');
 
 const multer = require('multer');
 const crypto = require('crypto');
@@ -913,7 +914,9 @@ module.exports = function(app, passport, pool) {
 
                     applies = rows;
                 }
-               // console.log(participants);
+                    team.description = nl2br(team.description);
+
+                    // console.log(participants);
                 return res.render('teams/show', {
                     team : team,
                     participants : participants,

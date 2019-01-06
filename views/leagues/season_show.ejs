@@ -45,7 +45,7 @@
         <hr>
         <div>
             <h3>Описание сезона</h3>
-            <%=  season.description  %>
+            <%-  season.des  %>
         </div>
 
         <hr>
@@ -74,11 +74,12 @@
                     </div>
                 </div>
                 <div>
-                    <table class="table table-sm">
+                    <table class="table table-sm table-striped table-hover">
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Имя</th>
+                            <th scope="col" class="text-center">Очки сезона</th>
 
                         </tr>
                         </thead>
@@ -87,9 +88,10 @@
                                 <tr>
                                     <th scope="row"><%= i + 1 %></th>
                                     <td>
-                                        <a href="/tournament/<%= participants[i].id %>">
-                                            <%= participants[i].title %>
-                                        </a>
+                                        <%= participants[i].name %>
+                                    </td>
+                                    <td class="text-center">
+                                        <%= participants[i].points %>
                                     </td>
                                 </tr>
                             <% } %>
@@ -207,10 +209,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <textarea class="form-control" id="season_description" rows="3">
-                    <%=  league.description  %>
-                </textarea>
-
+                <textarea class="form-control" id="season_description" rows="6"><%=  season.description  %></textarea>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
