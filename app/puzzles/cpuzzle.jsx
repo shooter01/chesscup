@@ -37,6 +37,7 @@ class App extends React.Component {
         this.makeRandomMove = this.makeRandomMove.bind(this);
         this.isOver = this.isOver.bind(this);
         this.reload = this.reload.bind(this);
+        this.handlePuzzles = this.handlePuzzles.bind(this);
         this.makeStockfishMove = this.makeStockfishMove.bind(this);
 
     }
@@ -859,6 +860,22 @@ class App extends React.Component {
         }
     }
 
+
+    getPuzzles(){
+        $.ajax({
+            url : '/get_puzzles',
+            dataType : "json",
+            success : this.handlePuzzles,
+            error : function () {
+
+            },
+        });
+    }
+
+    handlePuzzles(){
+        console.log(data);
+    }
+
     componentDidMount(){
         var self =  this;
         this.game = new Chess(pos);
@@ -978,7 +995,7 @@ class App extends React.Component {
         });
 
 
-
+        this.getPuzzles();
 
     }
 
@@ -1013,7 +1030,7 @@ class App extends React.Component {
                                 }
                             </div>
                         }
-                        <div className="blue merida">
+                        <div className="brown cburnett is2d">
                             <div id="dirty" className="cg-board-wrap"></div>
                         </div>
                             {(this.state.new_elo !== null && this.state.puzzle_current_state === "over") ?
