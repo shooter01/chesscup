@@ -225,10 +225,7 @@ module.exports = function (app, passport, pool) {
 
 
     router.get('/puzzle_rush', function (req, res) {
-        res.render('puzzle_rush');
-    });
-    router.get('/get_puzzles', function (req, res) {
-
+        res.render('puzzles/puzzle_rush');
     });
 
     router.post('/password/email', [

@@ -175,6 +175,7 @@ var leagues = require('./routes/leagues')(app, passport, pool);
 var users = require('./routes/users')(app, passport, pool);
 var tournament = require('./routes/tournament')(app, passport, pool, i18n);
 var play = require('./routes/play')(app, passport, pool, i18n);
+var puzzles = require('./routes/puzzles')(app, passport, pool, i18n);
 
 
 // This is how you'd set a locale from req.cookies.
@@ -190,6 +191,7 @@ app.use('/tournament', tournament);
 app.use('/play', play);
 app.use('/teams', teams);
 app.use('/leagues', leagues);
+app.use('/puzzles', puzzles);
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
