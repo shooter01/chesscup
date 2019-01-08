@@ -223,6 +223,11 @@ module.exports = function (app, passport, pool) {
         res.render('reset');
     });
 
+
+    router.get('/puzzle_rush', function (req, res) {
+        res.render('puzzle_rush');
+    });
+
     router.post('/password/email', [
         check('email')
             .isEmail().withMessage('The email field is required')

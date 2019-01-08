@@ -1687,7 +1687,141 @@ module.exports = function(app, passport, pool, i18n) {
     });
 
     router.get('/:tournament_id/final',
+
+
         function (req, res, next) {
+            let tournament_id = req.params.tournament_id;
+            tournament_id = parseInt(tournament_id);
+            var tourney, participants, is_in = false;
+            if (!isNaN(tournament_id)) {
+                pool
+                    .query('SELECT tournaments.*, users.name FROM tournaments LEFT JOIN users ON users.id = tournaments.creator_id WHERE tournaments.id = ?', tournament_id)
+
+
+                    .then(rows => {
+                        //participants = rows;
+                        tourney = rows[0];
+
+
+                        if (rows.length) {
+                            const timeleft = (tourney.start_time) ? tourney.start_time.getTime() - new Date().getTime() : 0;
+
+                            if (tourney.type > 10) {
+                                DRAW.teamSwiss(req, res, next, pool, tourney, tournament_id, tourney.current_tour).then(function(swiss) {
+                                    //console.log("===");
+                                    //console.log(swiss.pairs);
+                                    res.render('tournament/show', {
+                                        tournament: tourney,
+                                        tournamentJSON  : JSON.stringify(tourney),
+
+                                        tour_id: tourney.current_tour,
+                                        pairs: JSON.stringify(swiss.pairs),
+                                        timeleft : timeleft,
+                                        team_tour_points: JSON.stringify(swiss.team_tour_points),
+                                        participants_boards: JSON.stringify(swiss.participants_boards),
+                                        participants_array: JSON.stringify(swiss.participants_array),
+                                        participants: JSON.stringify(swiss.participants),
+
+                                        teams_scores: JSON.stringify(swiss.teams_scores),
+                                        results_table: JSON.stringify(swiss.results_table),
+                                        tournaments_teams: JSON.stringify(swiss.tournaments_teams)
+                                    });
+                                }).catch(function(e) {
+                                    console.log(e);
+                                });
+                            } else {
+                                DRAW.defaultSwiss(req, res, next, pool, tourney, tournament_id, tourney.current_tour, app).then(function(swiss) {
+
+                                    tourney.start_date = moment(tourney.start_date).format("DD-MM-YYYY");
+                                    tourney.end_date = moment(tourney.end_date).format("DD-MM-YYYY");
+                                    tourney.created_at = moment(tourney.created_at).format("DD-MM-YYYY");
+
+                                    if (req.isAuthenticated()) {
+                                        for (var i = 0; i < swiss.participants.length; i++) {
+                                            var obj = swiss.participants[i];
+                                            if (req.session.passport.user.id == obj.user_id) {
+                                                is_in = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    //console.log(swiss.participants);
+                                    return res.render('tournament/show', {
+                                        tournament  : tourney,
+                                        pairing  : JSON.stringify(swiss.pairing),
+                                        tournamentJSON  : JSON.stringify(tourney),
+                                        participants : swiss.participants,
+                                        timeleft : timeleft,
+                                        is_in : is_in,
+                                        participantsJSON : JSON.stringify(swiss.participants),
+                                        tour_id : tourney.current_tour,
+                                    });
+                                }).catch(function(e) {
+                                    console.log(e);
+                                });
+                            }
+
+
+
+
+                        } else {
+                            res.render('error', {
+                                message  : req.i18n.__("TourneyNotFound"),
+                                error  : req.i18n.__("TourneyNotFound"),
+                            });
+                        }
+
+
+
+                        /*      if (req.isAuthenticated()) {
+                         for (var i = 0; i < participants.length; i++) {
+                         var obj = participants[i];
+                         if (req.session.passport.user.id == obj.id){
+                         is_in = true;
+                         break;
+                         }
+                         }
+                         }*/
+                        //  console.log(is_in);
+
+                        //}).then(rows => {
+
+                        /*    if (tourney.length > 0) {
+                         tourney[0].start_date = moment(tourney[0].start_date).format("DD-MM-YYYY");
+                         tourney[0].end_date = moment(tourney[0].end_date).format("DD-MM-YYYY");
+                         tourney[0].created_at = moment(tourney[0].created_at).format("DD-MM-YYYY");
+                         // console.log(tourney[0].start_time);
+                         //  console.log(new Date());
+                         let timeleft = (tourney[0].start_time) ? tourney[0].start_time.getTime() - new Date().getTime() : 0;
+                         res.render('tournament/show', {
+                         tournament  : tourney[0],
+                         tournamentJSON  : JSON.stringify(tourney[0]),
+                         countries : countries,
+                         timeleft : timeleft,
+                         is_in : is_in,
+                         participants : JSON.stringify(participants)
+
+                         });*/
+                        /*} else {
+                         res.render('error', {
+                         message  : req.i18n.__("TourneyNotFound"),
+                         error  : req.i18n.__("TourneyNotFound"),
+                         });
+                         }*/
+
+
+
+                    }).catch(function (err) {
+                    console.log(err);
+                });
+            } else {
+                res.render('error', {
+                    message  : "Турнир не найден",
+                });
+            }
+
+
+        /*function (req, res, next) {
         let tournament_id = req.params.tournament_id;
         tournament_id = parseInt(tournament_id);
         let tournament;
@@ -1757,7 +1891,7 @@ module.exports = function(app, passport, pool, i18n) {
             res.render('error', {
                 message: req.i18n.__("TourneyNotFound"),
             });
-        }
+        }*/
     });
 
 

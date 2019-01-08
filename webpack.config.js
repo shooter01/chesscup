@@ -14,6 +14,7 @@ var config = {
         participants_page : './app/tournament/participants_page.jsx',
         p : './app/tournament/pairing.jsx',
         current_games : './app/tournament/current_games.jsx',
+        ci : './app/puzzles/cpuzzle.jsx',
         chat : './app/tournament/Chat.jsx',
         get_in : './app/tournament/get_in.jsx',
         teams_tables : './app/tournament/teams_tables.jsx',
