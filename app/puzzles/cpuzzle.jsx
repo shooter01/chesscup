@@ -1263,7 +1263,6 @@ class App extends React.Component {
                                 <div className="col-12 ">
                                     <h4 className="text-secondary font-weight-bold text-center"><i className="fa fa-medal text-secondary font-weight-bold"></i> Global</h4>
                                 </div>
-
                             </div>
 
 
@@ -1281,6 +1280,8 @@ class App extends React.Component {
                                             </select>
                                         </span>
                                     </div>
+                                    <hr className="mt-2 mb-2"/>
+
                                 </div>
                             </div>
 
