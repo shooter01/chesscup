@@ -44,11 +44,10 @@ module.exports = function(app, passport, pool, i18n) {
             } else {
 
                 let start = req.body.h;
-                start = parseInt(start);
+                start = parseInt(start); //LIMIT ?, 100 , start*10
                 if (!isNaN(start)) {
-                    pool.query('SELECT id, fen, moves FROM sb_puzzles ORDER BY end_rating LIMIT ?, 100', start*10)
+                    pool.query('SELECT id, fen, moves, end_rating AS r FROM sb_puzzles ORDER BY r LIMIT ?, 100', start)
                         .then(rows => {
-                            console.log(rows);
                             rows = shuffle(rows);
                             rows = rows.slice(0, 10);
                             res.json({

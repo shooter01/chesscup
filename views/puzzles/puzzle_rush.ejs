@@ -25,9 +25,9 @@
     }
 
     .checkbox {
-        font-size: 18px;
+        font-size: 1em;
     }
-    .countdown {
+    .center-card {
         width : 100%; height : 100%; position: absolute; z-index: 9999
     }
     .card {
@@ -53,6 +53,106 @@
         transform: rotate(360deg);
         cursor: pointer;
     }
+
+    .over-modal {
+        position: absolute;
+        -webkit-transform: scale(0.1);
+        -moz-transform: scale(0.1);
+        -ms-transform: scale(0.1);
+        transform: scale(0.1);
+        top: -300px;
+        opacity: 0;
+        -webkit-transition: all 0.3s;
+        -moz-transition: all 0.3s;
+        transition: all 0.3s;
+    }
+
+    .over-modal.in {
+        -webkit-transform: scale(1);
+        -moz-transform: scale(1);
+        -ms-transform: scale(1);
+        transform: scale(1);
+        -webkit-transform: translate3d(0, 300px, 0);
+        transform: translate3d(0, 300px, 0);
+        opacity: 1;
+    }
+    .streak-indicator-incorrect {
+        color: #b1332f;
+    }
+    .streak-indicator-link {
+        cursor: pointer;
+    }
+    .streak-indicator-streak {
+        -ms-flex-align: center;
+        align-items: center;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        font-size: 1rem;
+        font-weight: 600;
+        height: 42px;
+        -ms-flex-pack: center;
+        justify-content: center;
+        user-select: none;
+    }
+    .streak-indicator-icon {
+        height: 22px;
+        width: 34px;
+        font-weight: 400;
+        margin: -14px 0 -8px;
+    }
+    .icon-font-component {
+        -ms-flex-align: center;
+        align-items: center;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-pack: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .streak-indicator-icon span {
+        font-size: 3.4rem;
+        margin-top: -5.78px;
+    }
+    .icon-font-component span {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        speak: none;
+    }
+    .icon-font-component span {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        speak: none;
+    }
+    .icon-font-component span {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        speak: none;
+    }
+    .icon-font-chess {
+        font-family: Chess;
+    }
+    .streak-indicator-component {
+        display: -ms-grid;
+        display: grid;
+        -ms-grid-columns: (32px) [auto-fill];
+        grid-template-columns: repeat(auto-fill,32px);
+        -ms-grid-rows: (42px) [auto-fill];
+        grid-template-rows: repeat(auto-fill,42px);
+        -ms-flex-pack: justify;
+        justify-content: space-between;
+        margin: 0;
+        padding: 0 2px;
+    }
+    .sidebar-finish-streaks {
+        margin-bottom: 0;
+    }
+
+    .rounded {
+        width : 100%
+    }
+
 </style>
 
 <script>
@@ -65,6 +165,14 @@
     var user_name = 'aaa';
     var computer = 0;
 </script>
+
+<% if (user && user.user && user.user.name) { %>
+<script>
+    var username = "<%= user.user.name %>";
+    var user_id = "<%= user.user.id %>";
+</script>
+
+<% } %>
 
 <link rel="stylesheet" href="/js/cg/assets/s.min.css">
 
@@ -96,10 +204,10 @@
 <script src="/js/ju/ju.min.js"></script>
 
 
-<audio src="/audio/sprint/beep-digital_zJcW8_Vd.mp3" id="scorrect" ></audio>
-<audio src="/audio/sprint/electrical-device-beep-error_zyLZqdVd.mp3" id="swrong" ></audio>
-<audio src="/audio/sprint/long-ticking_zy_uA2NO.mp3" id="beforebegin" ></audio>
-<audio src="/audio/sprint/desk-bell-service-1_GknppZVd.mp3" id="bell" ></audio>
+<audio src="/sounds/puzzles/correct.mp3" id="scorrect" ></audio>
+<audio src="/sounds/puzzles/wrong.mp3" id="swrong" ></audio>
+<audio src="/sounds/puzzles/tick.mp3" id="stick" ></audio>
+<audio src="/sounds/puzzles/start.mp3" id="start" ></audio>
 
 
 

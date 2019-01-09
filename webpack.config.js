@@ -10,12 +10,12 @@ var APP_DIR = path.resolve(__dirname, 'app');
 
 var config = {
     entry: {
-        users : './app/users/users.jsx',
+       /* users : './app/users/users.jsx',
         participants_page : './app/tournament/participants_page.jsx',
         p : './app/tournament/pairing.jsx',
-        current_games : './app/tournament/current_games.jsx',
+        current_games : './app/tournament/current_games.jsx',*/
         ci : './app/puzzles/cpuzzle.jsx',
-        chat : './app/tournament/Chat.jsx',
+        /*chat : './app/tournament/Chat.jsx',
         get_in : './app/tournament/get_in.jsx',
         teams_tables : './app/tournament/teams_tables.jsx',
         tournament_events : './app/tournament/tournament_events.jsx',
@@ -33,7 +33,7 @@ var config = {
         g : './app/game/game_new.jsx',
         play : './app/play/play.jsx',
         team_pairing : './app/tournament/team_pairing.jsx',
-        ws : './app/websockets/ws.jsx',
+        ws : './app/websockets/ws.jsx',*/
     },
     output: {
         path: BUILD_DIR,
