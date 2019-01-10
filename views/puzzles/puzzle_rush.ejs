@@ -153,6 +153,25 @@
         width : 100%
     }
 
+    .w-10 {
+        width: 10%;
+    }
+    .w-15 {
+        width: 15%;
+    }
+    .w-70 {
+        width: 70%;
+    }
+    .table td {
+        border: 0px!important;
+        vertical-align: middle;
+    }
+
+    .table-wrapper {
+        max-height: 600px;
+        overflow: auto;
+    }
+
 </style>
 
 <script>
@@ -170,9 +189,25 @@
 <script>
     var username = "<%= user.user.name %>";
     var user_id = "<%= user.user.id %>";
+    var country = "<%= user.user.country %>";
 </script>
 
 <% } %>
+<style>
+    .country>img {
+        vertical-align: middle;
+    }
+
+    .flag {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+    }
+    img {
+        border: 0;
+    }
+</style>
 
 <link rel="stylesheet" href="/js/cg/assets/s.min.css">
 

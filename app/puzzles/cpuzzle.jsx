@@ -19,14 +19,17 @@ class App extends React.Component {
             // state : "over",
             countError : 0,
             puzzle_counter : 0,
+            width : "auto",
+            restrict : "global",
             correct_puzzle_counter : 0,
             puzzles : [],//массив паззлов
+            users : [],//массив паззлов
             computer : false,
             computer_state : "Поставьте мат! Ваш ход!",
             computer_complete_status : "pending",
             engine_level : false,
             efforts_array : [],//массив успешных или неуспешных попыток
-            hundred : 1,//десяток паззлов по счету (идет запрос по 10 паззлов)
+            hundred : 0,//десяток паззлов по счету (идет запрос по 10 паззлов)
             correct_i : 0,
             diff : null,
             new_elo : null,
@@ -51,6 +54,7 @@ class App extends React.Component {
         this.handlePuzzles = this.handlePuzzles.bind(this);
         this.makeStockfishMove = this.makeStockfishMove.bind(this);
         this.makeAutomaticMoves = this.makeAutomaticMoves.bind(this);
+        this.setResultsRange = this.setResultsRange.bind(this);
 
     }
     onPromotion(source, target){
@@ -177,6 +181,17 @@ class App extends React.Component {
                 }, 250);
             }
         }
+    }
+
+    setResultsRange(event){
+        const element = $(event.target);
+        const state = element.val();
+
+        this.setState({
+            restrict : state
+        }, function () {
+            this.getResults();
+        })
     }
 
     isOver() {
@@ -712,7 +727,8 @@ class App extends React.Component {
             method : "post",
             data : {
                 p_id : self.state.puzzles[self.state.puzzle_counter].id,
-                r : result //если удачно решил - отправляем 1
+                r : result, //если удачно решил - отправляем 1
+                hash : self.hash, //если удачно решил - отправляем 1
             },
             timeout : 3000,
             success : function () {
@@ -735,7 +751,8 @@ class App extends React.Component {
             dataType : "json",
             method : "post",
             data : {
-                h : hundred
+                h : hundred,
+                hash : this.hash,
             },
             timeout : 3000,
             success : this.handlePuzzles,
@@ -792,6 +809,8 @@ class App extends React.Component {
             var obj = temp[i];
             this.state.puzzles.push(obj);
         }
+
+        this.hash = data.hash; //id записи в монго
 
         console.log(this.state.puzzles);
         this.setAnotherPuzzle();
@@ -864,7 +883,12 @@ class App extends React.Component {
 
         //$(".countdown").width(width);
         $(".center-card").width(width);
+        $(".center-card").height(width);
         $(".card").width(width/1.5);
+
+        this.setState({
+            width : width
+        });
 
         var valid = self.game.moves();
         var p = [];
@@ -900,15 +924,19 @@ class App extends React.Component {
 
 
         $("body").on("click", ".start-btn", function () {
+            self.hash = undefined;
+
             self.setState({
                 state : "started",
                 countError : 0,
                 efforts_array : [],
                 puzzles : [],
+                hundred : 0,
                 puzzle_counter : 0,
                 correct_puzzle_counter : 0,
             }, function () {
-                self.getPuzzles(1);
+                $(".center-card").height(width);
+                self.getPuzzles(this.state.hundred);
                 self.setInitialTimer();
 
             });
@@ -916,13 +944,38 @@ class App extends React.Component {
         });
 
 
-        //self.setOver();
+        self.getResults();
     }
 
     start(){
         this.timer({
             timeleft : 30000,
             element : "#timer",
+        });
+    }
+    getResults(){
+        const self = this;
+        $.ajax({
+            url : '/puzzles/get_results',
+            dataType : "json",
+            method : "post",
+            data : {
+                restrict : this.state.restrict,
+            },
+            timeout : 3000,
+            success : function (data) {
+                self.setState({
+                    users : data.users
+                })
+            },
+            error : function ( jqXHR, textStatus ) {
+                var error = "";
+                for (var obj in jqXHR.responseJSON.errors) {
+                    error = jqXHR.responseJSON.errors[obj].msg;
+                }
+                alert(error);
+
+            },
         });
     }
 
@@ -1045,17 +1098,39 @@ class App extends React.Component {
         this.setState({
             state : "over"
         }, function () {
-            console.log($(".over-modal").length);
+            $(".center-card").height(this.state.width);
             setTimeout(function () {
                 $(".over-modal").addClass("in");
             }, 10);
-
+            //this.saveResult();
             //$(".over-modal").addClass("in");
-
-        })
+        });
+        this.getResults();
 
     }
+    saveResult(){
+        const self = this;
+        $.ajax({
+            url : '/puzzles/save_result',
+            dataType : "json",
+            method : "post",
+            data : {
+                result : self.state.correct_puzzle_counter,
+            },
+            timeout : 3000,
+            success : function () {
 
+            },
+            error : function ( jqXHR, textStatus ) {
+                var error = "";
+                for (var obj in jqXHR.responseJSON.errors) {
+                    error = jqXHR.responseJSON.errors[obj].msg;
+                }
+                alert(error);
+
+            },
+        });
+    }
 
     tick () {
         var secondsInAMinute = 60;
@@ -1179,9 +1254,9 @@ class App extends React.Component {
                             {(this.state.move_made === false && (this.state.state === "main" || this.state.state === "started")) ?
                                 <div>
                                     {(this.state.first_move === "white") ?
-                                        <h1 className="bg-light text-dark text-center mb-2">White to move</h1> :
+                                        <h1 className="bg-light text-dark text-center mb-2">Ход белых</h1> :
                                         (this.state.first_move === "black") ?
-                                            <h1 className="bg-dark text-white text-center mb-2">Black to move1</h1> :
+                                            <h1 className="bg-dark text-white text-center mb-2">Ход чёрных</h1> :
                                             <div className="bg-success text-white text-center p-2 font-weight-bold mb-2">
                                                 <h3 className="mb-0"><i className="fas fa-puzzle-piece mr-1"></i> <span className="font-weight-bold">Puzzle Rush</span></h3>
                                             </div>  }
@@ -1260,8 +1335,8 @@ class App extends React.Component {
                             </div>
                             <div className="row mt-2">
 
-                                <div className="col-12 ">
-                                    <h4 className="text-secondary font-weight-bold text-center"><i className="fa fa-medal text-secondary font-weight-bold"></i> Global</h4>
+                                <div className="col-12">
+                                    <h5 className="text-secondary font-weight-bold text-center"><i className="fa fa-medal text-secondary font-weight-bold"></i> Global</h5>
                                 </div>
                             </div>
 
@@ -1271,17 +1346,33 @@ class App extends React.Component {
                                     <div className="d-flex justify-content-between justify-content-center align-items-center">
                                         <span>Leaderboard</span>
                                         <span>
-                                            <select className="form-control form-control-sm" id="exampleFormControlSelect1">
-                                              <option>1</option>
-                                              <option>2</option>
-                                              <option>3</option>
-                                              <option>4</option>
-                                              <option>5</option>
+                                            <select className="form-control form-control-sm" onChange={this.setResultsRange}>
+                                              <option value="all">All</option>
+                                              <option value="daily">Daily</option>
                                             </select>
                                         </span>
                                     </div>
                                     <hr className="mt-2 mb-2"/>
+                                    <div className="table-wrapper">
+                                        <table className="table table-sm table-hover">
+                                            <tbody>
+                                                {this.state.users.map((item, index) => (
+                                                    <tr key={index} >
+                                                        <td className="w-10 text-center font-weight-bold">#{index + 1}</td>
+                                                        <td className="w-15 text-center">
+                                                            <img className="rounded mx-auto max" src={item.user_image} alt=""/>
+                                                        </td>
+                                                        <td className="w-60 font-weight-bold"><a target="_blank" href={"/users/" + item.user_id}> {item.user_name}</a>
+                                                            &nbsp;
+                                                            {item.country ? <span className="country"><img className="flag" src={"/images/flags/" + item.country + ".png"} /></span> : null}
 
+                                                        </td>
+                                                        <td className="w-10 text-center font-weight-bold">{item.result}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
 

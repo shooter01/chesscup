@@ -42,17 +42,38 @@ module.exports = function(app, passport, pool, i18n) {
                     errors: errors.mapped()
                 });
             } else {
-
                 let start = req.body.h;
+                let tasks = [];
+                let hash = req.body.hash;
                 start = parseInt(start); //LIMIT ?, 100 , start*10
                 if (!isNaN(start)) {
-                    pool.query('SELECT id, fen, moves, end_rating AS r FROM sb_puzzles ORDER BY r LIMIT ?, 100', start)
+                    pool.query('SELECT id, fen, moves, end_rating AS r FROM sb_puzzles ORDER BY r LIMIT ?, 100', start*100)
                         .then(rows => {
                             rows = shuffle(rows);
-                            rows = rows.slice(0, 10);
+                            tasks = rows.slice(0, 10);
+                            const user_image = req.session.passport.user.image; //user_id
+
+                            if (typeof hash === "undefined") {
+                                return app.mongoDB.collection("puzzle_rush").insertOne(
+                                    {
+                                        user_id : req.session.passport.user.id,
+                                        result : 0,
+                                        user_name : req.session.passport.user.name,
+                                        country : req.session.passport.user.country,
+                                        user_image : user_image ? user_image : '/images/user.png',
+                                        time : new Date()
+                                    }
+                                );
+                            } else {
+                                return true;
+                            }
+
+                        }).then((err, rows) => {
+                            var mongo_id = (typeof err.insertedId !== "undefined") ? err.insertedId : hash;
                             res.json({
                                 status : "ok",
-                                p : JSON.stringify(rows)
+                                p : JSON.stringify(tasks),
+                                hash : mongo_id
                             });
                         })
                         .catch(function (err) {
@@ -64,6 +85,90 @@ module.exports = function(app, passport, pool, i18n) {
                         msg : "hacker detected"
                     });
                 }
+            }
+    });
+
+    router.post('/get_results',
+        [
+            check('restrict', 'The restrict field is required').exists().isLength({ min: 1 })
+        ]
+        ,function (req, res) {
+
+
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+                let restrict = req.body.restrict;
+
+                /*var date_past = moment(new Date()).add(-1, 'h').toDate();
+                var date = new Date();*/
+
+                var start = moment().startOf('day').toDate(); // set to 12:00 am today
+                var end = moment().endOf('day').toDate(); // set to 23:59 pm today
+                console.log(restrict);
+                console.log(end);
+
+                let aggr = [];
+
+                if (restrict === "daily") {
+                    aggr.push({ $match : { "time" : { $gt: start, $lt: end } } });
+                }
+                aggr.push({
+                    $sort: { result: -1 }
+                });
+                aggr.push({
+                    $group: {
+                        _id: "$user_id",
+                        result: { $first: "$result" },
+                        user_name: { $first: "$user_name" },
+                        country: { $first: "$country" },
+                        user_image: { $first: "$user_image" },
+                        o_id: { $first: "$_id" }
+                    }
+                });
+                aggr.push({
+                    $project: {
+                        _id: "$o_id",
+                        user_name: "$user_name",
+                        user_image: "$user_image",
+                        country: "$country",
+                        user_id: "$_id",
+                        result: -1
+                    }
+                });
+
+                var a = app.mongoDB.collection("puzzle_rush").aggregate(aggr).toArray(function(err, result) {
+                    if (err) throw err;
+                    console.log(result);
+
+                    result = result.sort(compare);
+                    res.json({
+                        status : "ok",
+                        users : result
+                    });
+                });
+
+                function compare(a, b) {
+                    return a.result < b.result;
+                }
+
+                /*a.aggregate({}, function(err, cursor) {
+                    let users = [];
+                    cursor.forEach(function (user) {
+                        //console.log(game);
+                        users.push(user);
+                    }, function () {
+                        res.json({
+                            status : "ok",
+                            users : users
+                        });
+                    });
+                })*/
+
             }
     });
 
@@ -167,16 +272,29 @@ module.exports = function(app, passport, pool, i18n) {
                                 return true;
                             }
                         }).then(rows => {
-                           if (rows == true) {
+                            if (r === 1) {
+                                app.mongoDB.collection("puzzle_rush").updateOne(
+                                    {
+                                        _id : ObjectId(req.body.hash)
+                                    },
+                                    { $inc: { result: +1 } }
+
+                                );
+                            } else {
+                                return false;
+                            }
+
+                        }).then(rows => {
+                          /* if (rows == true) {
                                res.json({
                                    status : "errored",
                                });
 
-                           } else {
+                           } else {*/
                                res.json({
                                    status : "ok",
                                });
-                           }
+                           //}
                         })
                         .catch(function (err) {
                             console.log(err);
@@ -190,6 +308,58 @@ module.exports = function(app, passport, pool, i18n) {
                     theme.diff = theme.changed_rating - current_rating;*/
 
 
+
+                } else {
+                    res.json({
+                        status : "error",
+                        msg : "hacker detected"
+                    });
+                }
+            }
+        });
+
+
+
+
+    router.post('/save_result',
+        [
+            check('result', 'The result field is required').exists().isInt({ min: 0, max: 500 }).isLength({ min: 1 }),
+        ],
+        function (req, res) {
+
+
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+
+                let result = req.body.result; //result
+                result = parseInt(result);
+                let user_id = req.session.passport.user.id; //user_id
+                const user_name = req.session.passport.user.name; //user_id
+                const user_image = req.session.passport.user.image; //user_id
+                user_id = parseInt(user_id);
+                if (!isNaN(result) && !isNaN(user_id)) {
+
+
+                    app.mongoDB.collection("puzzle_rush").updateOne(
+                        {
+                            _id : user_id,
+                            result : result,
+                        },
+                        function (err, data) {
+
+                            console.log(data);
+
+                            res.json({
+                                status : "ok",
+                            });
+
+                        }
+                    );
 
                 } else {
                     res.json({

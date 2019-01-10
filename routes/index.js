@@ -108,6 +108,7 @@ module.exports = function (app, passport, pool) {
                         errors: errors.mapped(),
                         username : req.body.username,
                         name : req.body.name,
+                        image : '/images/user.png',
                     });
 
 

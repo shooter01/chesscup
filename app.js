@@ -118,6 +118,8 @@ passport.serializeUser(function(user, done) {
         is_team_owner : user.is_team_owner,
         is_league_owner : user.is_league_owner,
         is_paid : user.is_paid,
+        country : user.country,
+        image : user.image,
         is_sbornik : is_sbornik,
         school_id : user.school_id
     });
