@@ -114,9 +114,9 @@ module.exports = function(app, passport, pool, i18n) {
 
                 let aggr = [];
 
-                if (restrict === "daily") {
+               // if (restrict === "daily") {
                     aggr.push({ $match : { "time" : { $gt: start, $lt: end } } });
-                }
+               // }
                 aggr.push({
                     $sort: { result: -1 }
                 });
@@ -141,36 +141,60 @@ module.exports = function(app, passport, pool, i18n) {
                     }
                 });
 
-                var a = app.mongoDB.collection("puzzle_rush").aggregate(aggr).toArray(function(err, result) {
+                app.mongoDB.collection("puzzle_rush").aggregate(aggr).toArray(function(err, result) {
                     if (err) throw err;
+                    console.log("====");
                     console.log(result);
 
                     result = result.sort(compare);
-                    res.json({
-                        status : "ok",
-                        users : result
-                    });
-                });
 
-                function compare(a, b) {
-                    return a.result < b.result;
-                }
 
-                /*a.aggregate({}, function(err, cursor) {
-                    let users = [];
-                    cursor.forEach(function (user) {
-                        //console.log(game);
-                        users.push(user);
-                    }, function () {
+                    if (req.isAuthenticated()) {
+                        let my_result = [], aggr = [];
+
+                        /*aggr.push({ $match : { "time" : { $gt: start, $lt: end }, user_id : req.session.passport.user.id } });
+                        aggr.push({
+                            $sort: { result: -1 }
+                        });*/
+
+                        app.mongoDB.collection("puzzle_rush").find({user_id : req.session.passport.user.id,  "time" : { $gt: start, $lt: end } })
+                            .sort({result:-1}).limit(1).toArray(function(err, user_today) {
+                            console.log(">>>>");
+                            console.log(result);
+
+
+                            app.mongoDB.collection("puzzle_rush").find({user_id : req.session.passport.user.id}).sort({result:-1}).limit(1).toArray(function(err, user_all) {
+                                console.log("====");
+
+                                console.log(result);
+
+                                res.json({
+                                    status : "ok",
+                                    users : result,
+                                    user : {
+                                        user_today : user_today,
+                                        user_all : user_all
+                                    }
+                                });
+                            });
+                        });
+                    } else {
                         res.json({
                             status : "ok",
-                            users : users
+                            users : result
                         });
-                    });
-                })*/
+                    }
+
+                });
+
+
 
             }
     });
+
+    function compare(a, b) {
+        return a.result < b.result;
+    }
 
     router.post('/api/get_puzzle/:p_id',
         [

@@ -159,17 +159,64 @@
     .w-15 {
         width: 15%;
     }
+    .w-55 {
+        width: 55%;
+    }
+    .w-65 {
+        width: 65%;
+    }
     .w-70 {
         width: 70%;
+    }
+    .w-100 {
+        width: 100%;
+    }
+    .h-100 {
+        height : 100%;
     }
     .table td {
         border: 0px!important;
         vertical-align: middle;
+        height:100%;
+    }
+    .table td div {
+        box-sizing: border-box;
+        height:100%;
+        overflow: hidden;
     }
 
     .table-wrapper {
         max-height: 600px;
         overflow: auto;
+    }
+
+    .correct-quick {
+        position: absolute;
+        top : 0em;
+        right : 1em;
+        z-index: 200;
+        color: green;
+    }
+
+    .status-icon {
+        font-size: 0.8em;
+
+    }
+
+
+    .img-circle {
+        font-size: 5em;
+        width: 1.2em;
+        height: 1.2em;
+        text-align: center;
+        display: inline-block;
+        background: #e3cbaa;
+    }
+    .green {
+        background: green!important;
+    }
+    .img-circle {
+        border-radius: 50%;
     }
 
 </style>
@@ -217,10 +264,10 @@
 
     <div class="col-12" id="task_header">
         <div class="row">
-            <div class="col-lg-6 col-md-12" id="wrpr">
+            <div class="col-md-6 col-sm-12" id="wrpr">
 
             </div>
-            <div class="col-lg-6 d-none d-lg-block" >
+            <div class="col-md-6 d-none d-lg-block" >
 
             </div>
         </div>

@@ -19,6 +19,11 @@ class App extends React.Component {
             // state : "over",
             countError : 0,
             puzzle_counter : 0,
+            user_today : "6",//лучший результат юзера за сегодня
+            user_all : "6",//лучший результат юзера за все время
+            longest_streak : 0, //самая длинная серия
+            current_streak : 0, //текущая серия
+            puzzle_status : null,
             width : "auto",
             restrict : "global",
             correct_puzzle_counter : 0,
@@ -55,6 +60,7 @@ class App extends React.Component {
         this.makeStockfishMove = this.makeStockfishMove.bind(this);
         this.makeAutomaticMoves = this.makeAutomaticMoves.bind(this);
         this.setResultsRange = this.setResultsRange.bind(this);
+        this.setPuzzleStatus = this.setPuzzleStatus.bind(this);
 
     }
     onPromotion(source, target){
@@ -258,6 +264,17 @@ class App extends React.Component {
     };
     reload() {
         location.reload();
+    };
+    setPuzzleStatus(status) {
+        const self = this;
+        this.setState({
+            puzzle_status : status
+        });
+        setTimeout(function () {
+            self.setState({
+                puzzle_status : null
+            });
+        }, 500);
     };
     makeStockfishMove() {
         var that = this;
@@ -618,10 +635,14 @@ class App extends React.Component {
                     && move_coorect  && t) {
                     //var status = (is_last_move) ? "over" : "good";
                     this.state.efforts_array.push({result : true, id : this.state.puzzles[this.state.puzzle_counter].id, rating : this.state.puzzles[this.state.puzzle_counter].r})
+                    this.setPuzzleStatus("correct");
+
                     this.setState({
                         checkCounter: ++this.state.checkCounter,
                         correct_puzzle_counter: ++this.state.correct_puzzle_counter,
                         puzzle_current_state : "good",
+                        current_streak : ++this.state.current_streak,
+                        longest_streak : (this.state.current_streak > this.state.longest_streak) ? this.state.current_streak : this.state.longest_streak
                     }, function () {
                         this.request_sent = false;
 
@@ -635,9 +656,12 @@ class App extends React.Component {
                     that.game.undo();
                     this.state.efforts_array.push({result : false, id : this.state.puzzles[this.state.puzzle_counter].id, rating : this.state.puzzles[this.state.puzzle_counter].r})
                     cg.set({fen: that.game.fen(), turnColor:this.state.first_move, movable : { dests : getDests(that.game) }});
+                    this.setPuzzleStatus("error");
+
                     this.setState({
                         puzzle_current_state : "error",
                         global_error : true,
+                        current_streak : 0,
                         countError : ++this.state.countError
                     }, function () {
                         //console.log(this.state.efforts_array);
@@ -882,9 +906,8 @@ class App extends React.Component {
         $("#dirty").height(width);
 
         //$(".countdown").width(width);
-        $(".center-card").width(width);
-        $(".center-card").height(width);
-        $(".card").width(width/1.5);
+        //$(".center-card").width(width).height(width);
+        //$(".card").width(width/1.5);
 
         this.setState({
             width : width
@@ -931,11 +954,13 @@ class App extends React.Component {
                 countError : 0,
                 efforts_array : [],
                 puzzles : [],
+                longest_streak : 0,
+                current_streak : 0,
                 hundred : 0,
                 puzzle_counter : 0,
                 correct_puzzle_counter : 0,
             }, function () {
-                $(".center-card").height(width);
+                //$(".center-card").height(width).width(width);
                 self.getPuzzles(this.state.hundred);
                 self.setInitialTimer();
 
@@ -1096,9 +1121,9 @@ class App extends React.Component {
             }
         });
         this.setState({
-            state : "over"
+            state : "over",
         }, function () {
-            $(".center-card").height(this.state.width);
+            //$(".center-card").height(this.state.width).width(this.state.width);
             setTimeout(function () {
                 $(".over-modal").addClass("in");
             }, 10);
@@ -1163,7 +1188,7 @@ class App extends React.Component {
         return (
             <div className="col-lg-12">
                 <div className="row">
-                    <div className="col-lg-6 col-md-12">
+                    <div className="col-md-6 col-sm-12">
                         <div id="testpng">
                         {(this.state.puzzle_current_state !== "over" && this.state.fenArrCursor > 0) ?
                             <h6 className="badge badge-danger dsp-block">Найдите {this.state.fenArrCursor + 1} вариант решения</h6>
@@ -1171,28 +1196,41 @@ class App extends React.Component {
 
 
                             {this.state.state === "started" ?
-                                <div className="d-flex center-card justify-content-center align-items-center">
+                                <div className="row d-flex center-card justify-content-center align-items-center">
                                     <span className="score font-weight-bold" id="start_timer"></span>
                                 </div>
                                 : null}
 
 
+                           {/* {(this.state.puzzle_status) ?
+                                (this.state.puzzle_status === 'correct') ?
+                                    <div className="correct-quick">
+                                        <div className="img-circle big-icon green d-flex justify-content-center align-items-center">
+                                            <i className="fa fa-check text-white status-icon"></i>
+                                        </div>
+                                    </div> : <div className="correct-quick">
+                                        <div className="img-circle big-icon green d-flex justify-content-center align-items-center">
+                                            <i className="fas fa-times text-white status-icon"></i>
+                                        </div>
+                                    </div> : null}*/}
+
+
 
                             {this.state.state === "welcome" ?
-                                <div className="d-flex center-card justify-content-center align-items-center">
+                                <div className="row d-flex center-card justify-content-center align-items-center">
                                     <div className="card">
                                         <div className="card-body p-0">
-                                            <h3 className="card-title text-center pl-3 pl-3 mt-3 font-weight-bold">PUZZLES</h3>
+                                            <h3 className="card-title text-center pl-3 pl-3 mt-3 font-weight-bold">ЗАДАЧИ</h3>
                                             <div className="card-text text-center pl-3 pl-3">
                                                 <img src="/images/puzzle.png" className="img-puzzle mt-2 mb-2" alt=""/>
-                                                <div className="mt-2 mb-2 font-weight-bold text-success">RUSH</div>
+                                                <div className="mt-2 mb-2 font-weight-bold text-success">Штурм</div>
                                             </div>
-                                            <div className="bg-light w-100 p-4">
-                                                Solve as many puzzles as you can in 5 minutes! Each puzzle gets harder. 3 strikes and you’re out.
+                                            <div className="bg-light w-100 p-4 text-center">
+                                                Решите столько задач, сколько сможете, за 5 минут! С каждой задачей сложность возрастает. Три ошибки, и испытание закончено.
                                             </div>
                                         </div>
                                         <div className="text-center p-3">
-                                            <button className="btn btn-block btn-primary btn-lg start-btn">Start</button>
+                                            <button className="btn btn-block btn-primary btn-lg start-btn">Начать</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1201,21 +1239,42 @@ class App extends React.Component {
 
 
                             {this.state.state === "over" ?
-                                <div className="d-flex center-card justify-content-center align-items-center over-modal">
+                                <div className="row d-flex center-card justify-content-center align-items-center over-modal">
                                     <div className="card">
                                         <div className="card-body p-0">
-                                            <h3 className="card-title text-center pl-3 pl-3 pt-3 pb-3 font-weight-bold bg-success text-white">Nice try!</h3>
+                                            <h3 className="card-title text-center pl-3 pl-3 pt-3 pb-3 font-weight-bold bg-success text-white">Неплохо!</h3>
                                             <div className="card-text text-center pl-3 pl-3 ">
                                                 <span className="font-weight-bold">Ваш результат</span>
                                                 <h1 className="font-weight-bold">
-
                                                     <div>{this.state.correct_puzzle_counter}</div>
                                                 </h1>
                                             </div>
 
+                                            <div className="row mt-4 mb-4">
+                                                <span className="col-6 text-center">
+                                                    <h6 className="mb-0"><i className="fas fa-calendar-day text-secondary"></i></h6>
+                                                    <h6 className="mb-0"><small>СЕГОДНЯ</small></h6>
+                                                    <h3 className="mb-0 font-weight-bold">{this.state.user_today}</h3>
+                                                </span>
+
+                                                <span className="col-6 text-center">
+                                                    <h6 className="mb-0"><i className="fas fa-sync-alt text-secondary"></i></h6>
+                                                    <h6 className="mb-0"><small>ВСЁ ВРЕМЯ</small></h6>
+                                                    <h3 className="mb-0 font-weight-bold">{this.state.user_all}</h3>
+                                                </span>
+                                            </div>
+
+                                            <div className="mt-5 mb-3">
+                                                <div className="pl-3 pr-3 d-flex justify-content-between h-100 justify-content-center align-items-center mt-4">
+
+                                                    <span><i className="fas fa-fire mr-2 text-secondary"></i><span className="text-secondary">Самая длинная серия</span></span>
+
+                                                    <span>{this.state.longest_streak}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="text-center p-3">
-                                            <button className="btn btn-block btn-success btn-lg start-btn" >Play again</button>
+                                        <div className="text-center p-3 mb-3">
+                                            <button className="btn btn-block btn-success btn-lg start-btn" >Сыграть снова</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1242,51 +1301,80 @@ class App extends React.Component {
                         </div>
                 </div>
 
-                <div className="col-lg-4 col-md-12">
+                <div className="col-md-4 col-sm-12 ml-md-4">
 
                     {/*если это паззл раш, а не отдельный пазл*/}
                     {typeof puzzle_id === "undefined" ?
 
                         <div>
 
-
-                        <div>
-                            {(this.state.move_made === false && (this.state.state === "main" || this.state.state === "started")) ?
-                                <div>
-                                    {(this.state.first_move === "white") ?
-                                        <h1 className="bg-light text-dark text-center mb-2">Ход белых</h1> :
-                                        (this.state.first_move === "black") ?
-                                            <h1 className="bg-dark text-white text-center mb-2">Ход чёрных</h1> :
+                            <div>
+                                {(this.state.move_made === false && (this.state.state === "main" || this.state.state === "started")) ?
+                                    <div>
+                                        {(this.state.puzzle_status) ?
+                                            (this.state.puzzle_status === 'correct') ?
                                             <div className="bg-success text-white text-center p-2 font-weight-bold mb-2">
-                                                <h3 className="mb-0"><i className="fas fa-puzzle-piece mr-1"></i> <span className="font-weight-bold">Puzzle Rush</span></h3>
-                                            </div>  }
+                                                <h3 className="m-0"><i className="fas fa-check"></i>&nbsp;Правильно!</h3>
+                                            </div> : <div className="bg-danger text-white text-center p-2 font-weight-bold mb-2">
+                                                    <h3 className="m-0"><i className="fas fa-times"></i>&nbsp;Ошибка!</h3>
+                                                </div>
+                                            :
+                                            <div>
+                                                {(this.state.first_move === "white") ?
+                                                    <div className="bg-light text-white text-center p-2 font-weight-bold mb-2">
+                                                        <h3 className="m-0"><i className="fas fa-square text-white mr-1"></i> <span className="font-weight-bold text-dark">Ход белых</span></h3>
+                                                    </div> :
+                                                    (this.state.first_move === "black") ?
+                                                        <div className="bg-dark text-white text-center p-2 font-weight-bold mb-2">
+                                                            <h3 className="m-0"><i className="fas fa-square text-black-50 mr-1"></i> <span className="font-weight-bold text-white">Ход чёрных</span></h3>
+                                                        </div> :
+                                                        <div className="bg-success text-white text-center p-2 font-weight-bold mb-2">
+                                                            <h3 className="m-0"><i className="fas fa-puzzle-piece mr-1"></i> <span className="font-weight-bold">Puzzle Rush</span></h3>
+                                                        </div>  }
 
-                                </div>
-                                :
-                                <div className="bg-success text-white text-center p-2 font-weight-bold mb-2">
-                                    <h3 className="mb-0"><i className="fas fa-puzzle-piece mr-1"></i> <span className="font-weight-bold">Puzzle Rush</span></h3>
-                                </div>
-                            }
-                        </div>
+                                            </div>
+                                        }
+                                    </div>
+                                    :
+                                    <div className="bg-success text-white text-center p-2 font-weight-bold mb-2">
+                                        <h3 className="mb-0"><i className="fas fa-puzzle-piece mr-1"></i>
+                                            <span className="font-weight-bold">Puzzle Rush</span>
+                                        </h3>
+                                    </div>
+                                }
+                            </div>
 
 
                         <div>
                             {(typeof username != "undefined") ?
-                                <div className="d-flex justify-content-between h-100 justify-content-center align-items-center row mt-4">
+                                <div className="row d-flex justify-content-between h-100 justify-content-center align-items-center mt-4">
 
-                                    <span className="col-3">
+                                    <span className={this.state.state === "welcome" ? "col-4" : "col-3"}>
                                         <img src="/images/user.png" alt="..." className="rounded mx-auto" />
                                     </span>
-                                    <span className="col-5">
+
+                                    {this.state.state === "welcome" ? <span className="col-4 text-center">
+                                        <h6 className="mb-0"><i className="fas fa-calendar-day text-secondary"></i></h6>
+                                        <small className="mb-0">СЕГОДНЯ</small>
+                                        <h3 className="mb-0 font-weight-bold">{this.state.user_today}</h3>
+                                    </span> : <span className="col-5">
                                         <a href={"/users/" + user_id} target="_blank" className="text-nowrap"><small>{username}</small></a>
                                         <h1 className="font-weight-bold mb-0">{this.state.correct_puzzle_counter}</h1>
-                                    </span>
+                                    </span>}
 
 
 
-                                    <span className="col-4">
+
+
+
+                                    {this.state.state === "welcome" ? <span className="col-4 text-center">
+                                            <h6 className="mb-0"><i className="fas fa-sync-alt text-secondary"></i></h6>
+                                            <small className="mb-0">ВСЁ ВРЕМЯ</small>
+                                            <h3 className="mb-0 font-weight-bold">{this.state.user_all}</h3>
+                                        </span> : <span className="col-4">
                                         <h1 id="timer" className="text-secondary text-right"></h1>
-                                    </span>
+                                    </span>}
+
                                 </div>
                                 : null}
                             {/*<div className="streak-indicator-component sidebar-finish-streaks">
@@ -1308,9 +1396,9 @@ class App extends React.Component {
                                 </div>
                             </div>*/}
 
+                            {this.state.state !== "welcome" ?
 
-
-                            <div className="streak-indicator-component sidebar-finish-streaks mt-3">
+                            <div className="col-12 streak-indicator-component sidebar-finish-streaks mt-3">
                                 { this.state.efforts_array.map((item, index) => (
                                     <span key={index}>
                                         {item.result === true ?
@@ -1325,30 +1413,34 @@ class App extends React.Component {
                                             </a>}
                                     </span>
                                 ))}
-                            </div>
+                            </div> : null}
                         </div>
-                            <div className="row mt-5">
-                                {this.state.state === "over" ? <div className="col-12 text-secondary font-weight-bold text-center">
-                                        <span className="btn btn-light start-btn"><i className="fas fa-redo-alt text-secondary font-weight-bold"></i> Play Puzzle Rush  </span>
-                                    </div> : null}
+                            {this.state.state !== "welcome" ?
 
-                            </div>
-                            <div className="row mt-2">
 
-                                <div className="col-12">
-                                    <h5 className="text-secondary font-weight-bold text-center"><i className="fa fa-medal text-secondary font-weight-bold"></i> Global</h5>
+                                <div className="row mt-5">
+                                    {this.state.state === "over" ? <div className="col-12 mb-2 text-secondary font-weight-bold text-center">
+                                            <span className="btn btn-light start-btn"><i className="fas fa-redo-alt text-secondary font-weight-bold"></i> Play Puzzle Rush  </span>
+                                        </div> : null}
+
                                 </div>
-                            </div>
+                                : null }
+                                {/*<div className="row mt-2">
+
+                                    <div className="col-12">
+                                        <h5 className="text-secondary font-weight-bold text-center"><i className="fa fa-medal text-secondary font-weight-bold"></i> Global</h5>
+                                    </div>
+                                </div>*/}
 
 
                             <div className="row mt-2">
                                 <div className="col-12">
                                     <div className="d-flex justify-content-between justify-content-center align-items-center">
-                                        <span>Leaderboard</span>
+                                        <span>Таблица лидеров</span>
                                         <span>
                                             <select className="form-control form-control-sm" onChange={this.setResultsRange}>
-                                              <option value="all">All</option>
-                                              <option value="daily">Daily</option>
+                                              <option value="all">Все</option>
+                                              <option value="daily">В час</option>
                                             </select>
                                         </span>
                                     </div>
@@ -1359,10 +1451,10 @@ class App extends React.Component {
                                                 {this.state.users.map((item, index) => (
                                                     <tr key={index} >
                                                         <td className="w-10 text-center font-weight-bold">#{index + 1}</td>
-                                                        <td className="w-15 text-center">
+                                                        <td className="w-15 pl-1 text-center">
                                                             <img className="rounded mx-auto max" src={item.user_image} alt=""/>
                                                         </td>
-                                                        <td className="w-60 font-weight-bold"><a target="_blank" href={"/users/" + item.user_id}> {item.user_name}</a>
+                                                        <td className="w-65 font-weight-bold"><a target="_blank" href={"/users/" + item.user_id}> {item.user_name}</a>
                                                             &nbsp;
                                                             {item.country ? <span className="country"><img className="flag" src={"/images/flags/" + item.country + ".png"} /></span> : null}
 
