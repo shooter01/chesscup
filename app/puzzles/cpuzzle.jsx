@@ -62,6 +62,7 @@ class App extends React.Component {
         this.makeAutomaticMoves = this.makeAutomaticMoves.bind(this);
         this.setResultsRange = this.setResultsRange.bind(this);
         this.setPuzzleStatus = this.setPuzzleStatus.bind(this);
+        this.setIncorrect = this.setIncorrect.bind(this);
 
     }
     onPromotion(source, target){
@@ -216,21 +217,39 @@ class App extends React.Component {
         $("#scorrect")[0].play();
     }
     setIncorrect(){
-        const self = this;
-        this.state.efforts_array.push({result : true, id : this.state.puzzles[this.state.puzzle_counter].id, rating : this.state.puzzles[this.state.puzzle_counter].r})
-        this.setPuzzleStatus("correct");
+        const that = this;
+        that.game.undo();
+        this.state.efforts_array.push({result : false, id : this.state.puzzles[this.state.puzzle_counter].id, rating : this.state.puzzles[this.state.puzzle_counter].r})
+        cg.set({fen: that.game.fen(), turnColor:this.state.first_move, movable : { dests : getDests(that.game) }});
+        this.setPuzzleStatus("error");
 
         this.setState({
-            checkCounter: ++this.state.checkCounter,
-            correct_puzzle_counter: ++this.state.correct_puzzle_counter,
-            puzzle_current_state : "good",
-            current_streak : ++this.state.current_streak,
-            longest_streak : (this.state.current_streak > this.state.longest_streak) ? this.state.current_streak : this.state.longest_streak
+            puzzle_current_state : "error",
+            global_error : true,
+            correct_i : 0,
+            historyy : [],
+            checkCounter : 0,
+            current_streak : 0,
+            countError : ++this.state.countError
         }, function () {
-            this.request_sent = false;
+            //console.log(this.state.efforts_array);
+
+            if (this.state.countError >= 3) {
+                that.setOver();
+
+            } else {
+                this.setState({
+                    puzzle_current_state: "over",
+                    puzzle_counter : ++this.state.puzzle_counter
+                }, function () {
+                    this.request_sent = false;
+
+                    that.setAnotherPuzzle();
+                });
+            }
         });
-        self.puzzle_rating(1);
-        $("#scorrect")[0].play();
+        that.puzzle_rating(0);
+        $("#swrong")[0].play();
     }
 
     setResultsRange(event){
@@ -693,38 +712,7 @@ class App extends React.Component {
                     });
 
                 } else {
-                    that.game.undo();
-                    this.state.efforts_array.push({result : false, id : this.state.puzzles[this.state.puzzle_counter].id, rating : this.state.puzzles[this.state.puzzle_counter].r})
-                    cg.set({fen: that.game.fen(), turnColor:this.state.first_move, movable : { dests : getDests(that.game) }});
-                    this.setPuzzleStatus("error");
-
-                    this.setState({
-                        puzzle_current_state : "error",
-                        global_error : true,
-                        correct_i : 0,
-                        historyy : [],
-                        checkCounter : 0,
-                        current_streak : 0,
-                        countError : ++this.state.countError
-                    }, function () {
-                        //console.log(this.state.efforts_array);
-
-                        if (this.state.countError >= 3) {
-                           that.setOver();
-
-                        } else {
-                            this.setState({
-                                puzzle_current_state: "over",
-                                puzzle_counter : ++this.state.puzzle_counter
-                            }, function () {
-                                this.request_sent = false;
-
-                                that.setAnotherPuzzle();
-                            });
-                        }
-                    });
-                    that.puzzle_rating(0);
-                    $("#swrong")[0].play();
+                    this.setIncorrect();
                 }
             });
 
@@ -898,6 +886,7 @@ class App extends React.Component {
         this.setState({
             moves : moves,
             first_move : fm,
+            global_error : false,
             correct_i : 0,
             historyy : [],
             checkCounter : 0,
@@ -1052,7 +1041,7 @@ class App extends React.Component {
 
     start(){
         this.timer({
-            timeleft : 300000,
+            timeleft : 3000,
             element : "#timer",
         });
     }
@@ -1520,7 +1509,11 @@ class App extends React.Component {
 
                                 <div className="row mt-5">
                                     {this.state.state === "over" ? <div className="col-12 mb-2 text-secondary font-weight-bold text-center">
-                                            <span className="btn btn-light start-btn"><i className="fas fa-redo-alt text-secondary font-weight-bold mr-1"></i>Play Puzzle Rush  </span>
+                                            <span className="btn btn-light start-btn"><i className="fas fa-redo-alt text-secondary font-weight-bold mr-1"></i>Сыграть снова  </span>
+                                        </div> : null}
+
+                                    {this.state.state === "main" ? <div className="col-12 mb-2 text-secondary font-weight-bold text-center">
+                                            <span className="btn btn-light" onClick={this.setIncorrect}>Пропустить</span>
                                         </div> : null}
 
                                 </div>
