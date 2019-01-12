@@ -142,6 +142,7 @@ module.exports = function(app, passport, pool, i18n) {
                 app.mongoDB.collection("puzzle_rush").aggregate(aggr).limit(50).toArray(function(err, result) {
                     if (err) throw err;
                     result = result.sort(compare);
+
                     if (req.isAuthenticated()) {
                         let my_result = [], aggr = [];
 
@@ -180,9 +181,7 @@ module.exports = function(app, passport, pool, i18n) {
     });
 
     function compare(a, b) {
-        console.log(a);
-        console.log(b);
-        return a.result > b.result;
+        return a.result < b.result;
     }
 
     router.post('/api/get_puzzle/:p_id',
