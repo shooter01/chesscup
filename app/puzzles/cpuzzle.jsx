@@ -141,9 +141,9 @@ class App extends React.Component {
                 //debugger;
                 if ((this.state.moves.length) === 0 ) {
 
-                    if (this.state.global_error !== true) {
+                    if (this.state.global_error !== true && typeof puzzle_id === "undefined") {
                         this.setCorrect();
-                    } else {
+                    } else if (typeof puzzle_id === "undefined") {
                         this.setIncorrect();
                     }
 
