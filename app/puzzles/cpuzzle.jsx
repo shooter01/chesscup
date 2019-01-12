@@ -906,7 +906,9 @@ class App extends React.Component {
         $("#dirty").height(width);
 
         //$(".countdown").width(width);
-        $(".center-card").width(width).height(width);
+
+
+
 
         if (typeof user_id === "undefined") {
             $(".card").width(width/1.5);
@@ -914,7 +916,14 @@ class App extends React.Component {
                 $("#reg_button").html("Регистрация");
             }
         } else {
-            $(".card").width(width/1.7);
+
+            if (document.documentElement.clientWidth < 1100) {
+                $(".card").width(width/1.1);
+            } else {
+               // $(".center-card").height(width).width(width);
+                $(".card").width(width/1.7);
+            }
+
         }
 
 
@@ -970,8 +979,13 @@ class App extends React.Component {
                 puzzle_counter : 0,
                 correct_puzzle_counter : 0,
             }, function () {
-                $(".center-card").height(width).width(width);
-                $(".card").width(width/1.5);
+
+                if (document.documentElement.clientWidth < 1100) {
+                    $(".card").width(this.state.width/1.1);
+                }
+
+               // $(".center-card").height(width).width(width);
+              //  $(".card").width(width/1.5);
 
                 self.getPuzzles(this.state.hundred);
                 self.setInitialTimer();
@@ -1146,8 +1160,11 @@ class App extends React.Component {
         this.setState({
             state : "over",
         }, function () {
-            $(".center-card").height(this.state.width).width(this.state.width);
-            $(".card").width(this.state.width/1.7);
+            //
+
+            if (document.documentElement.clientWidth < 1100) {
+                $(".card").width(this.state.width/1.1);
+            }
 
             setTimeout(function () {
                 $(".over-modal").addClass("in");
