@@ -116,7 +116,7 @@ module.exports = function(app, passport, pool, i18n) {
                     aggr.push({ $match : { "time" : { $gt: start, $lt: end } } });
                 }
                 aggr.push({
-                    $sort: { result: 1 }
+                    $sort: { result: -1 }
                 });
                 aggr.push({
                     $group: {
@@ -141,7 +141,7 @@ module.exports = function(app, passport, pool, i18n) {
 
                 app.mongoDB.collection("puzzle_rush").aggregate(aggr).limit(50).toArray(function(err, result) {
                     if (err) throw err;
-                  //  result = result.sort(compare);
+                    result = result.sort(compare2);
 
                     if (req.isAuthenticated()) {
                         let my_result = [], aggr = [];
@@ -180,8 +180,12 @@ module.exports = function(app, passport, pool, i18n) {
             }
     });
 
-    function compare(a, b) {
-        return a.result < b.result;
+    function compare2(a, b) {
+        if (a.result > b.result)
+            return -1;
+        if (a.result < b.result)
+            return 1;
+        return 1;
     }
 
     router.post('/api/get_puzzle/:p_id',
