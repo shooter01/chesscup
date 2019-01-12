@@ -1041,7 +1041,7 @@ class App extends React.Component {
 
     start(){
         this.timer({
-            timeleft : 3000,
+            timeleft : 300000,
             element : "#timer",
         });
     }
