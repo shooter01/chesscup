@@ -833,7 +833,7 @@ class App extends React.Component {
 
         this.hash = data.hash; //id записи в монго
 
-        console.log(this.state.puzzles);
+       // console.log(this.state.puzzles);
         this.setAnotherPuzzle();
 
 
@@ -1050,7 +1050,7 @@ class App extends React.Component {
 
         self.wait_automove_flag = true;
         $("#show_solution").attr("disabled", "disabled");
-        console.log(self.state);
+       // console.log(self.state);
         var flag = false;
         if (self.state.puzzle_counter > 0) {
             flag = true;
@@ -1097,7 +1097,7 @@ class App extends React.Component {
         this.iTimer = 3;
         self.initialTick();
         this.initialTimer = setInterval(function () {
-            console.log(self.iTimer);
+       //     console.log(self.iTimer);
             self.iTimer--;
             if (self.iTimer > 0) {
 
