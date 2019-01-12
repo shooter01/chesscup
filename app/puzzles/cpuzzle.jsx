@@ -1015,7 +1015,7 @@ class App extends React.Component {
             self.hash = undefined;
 
             self.setState({
-                state : "main",
+                state : "started",
                 countError : 0,
                 efforts_array : [],
                 puzzles : [],
@@ -1034,7 +1034,7 @@ class App extends React.Component {
               //  $(".card").width(width/1.5);
 
                 self.getPuzzles(this.state.hundred);
-                //self.setInitialTimer();
+                self.setInitialTimer();
 
             });
 
