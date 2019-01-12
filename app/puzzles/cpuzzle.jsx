@@ -960,13 +960,15 @@ class App extends React.Component {
             $(".card").width(width/1.5);
             if (document.documentElement.clientWidth < 1100) {
                 $("#reg_button").html("Регистрация");
+                $(".center-card").height(width).width(width);
             }
         } else {
 
             if (document.documentElement.clientWidth < 1100) {
                 $(".card").width(width/1.1);
+                $(".center-card").height(width).width(width);
             } else {
-               // $(".center-card").height(width).width(width);
+                $(".center-card").height(width).width(width);
                 $(".card").width(width/1.7);
             }
 
@@ -1028,9 +1030,13 @@ class App extends React.Component {
 
                 if (document.documentElement.clientWidth < 1100) {
                     $(".card").width(this.state.width/1.1);
+                    $(".center-card").height(width).width(width);
+                } else {
+                    $(".center-card").height(width).width(width);
+                    $(".card").width(width/1.7);
                 }
 
-               // $(".center-card").height(width).width(width);
+                //$(".center-card").height(width).width(width);
               //  $(".card").width(width/1.5);
 
                 self.getPuzzles(this.state.hundred);
@@ -1211,6 +1217,10 @@ class App extends React.Component {
 
             if (document.documentElement.clientWidth < 1100) {
                 $(".card").width(this.state.width/1.1);
+                $(".center-card").height(this.state.width).width(this.state.width);
+            } else {
+                $(".center-card").height(this.state.width).width(this.state.width);
+                $(".card").width(this.state.width/1.7);
             }
 
             setTimeout(function () {
@@ -1285,7 +1295,7 @@ class App extends React.Component {
 
 
                             {this.state.state === "started" ?
-                                <div className="row d-flex center-card justify-content-center align-items-center">
+                                <div className="d-flex center-card justify-content-center align-items-center">
                                     <span className="score font-weight-bold" id="start_timer"></span>
                                 </div>
                                 : null}
@@ -1306,7 +1316,7 @@ class App extends React.Component {
 
 
                             {this.state.state === "welcome" ?
-                                <div className="row d-flex center-card justify-content-center align-items-center">
+                                <div className=" d-flex center-card justify-content-center align-items-center">
                                     <div className="card">
                                         <div className="card-body p-0">
                                             <h3 className="card-title text-center pl-3 pl-3 mt-3 font-weight-bold">ЗАДАЧИ</h3>
@@ -1329,7 +1339,7 @@ class App extends React.Component {
 
 
                             {this.state.state === "over" ?
-                                <div className="row d-flex center-card justify-content-center align-items-center over-modal">
+                                <div className="d-flex center-card justify-content-center align-items-center over-modal">
                                     <div className="card">
                                         <div className="card-body p-0">
                                             <h3 className="card-title text-center pl-3 pl-3 pt-3 pb-3 font-weight-bold bg-success text-white">Неплохо!</h3>
