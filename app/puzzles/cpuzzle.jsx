@@ -52,6 +52,7 @@ class App extends React.Component {
         this.renderPos = this.renderPos.bind(this);
         this.getPos = this.getPos.bind(this);
         this.checker = this.checker.bind(this);
+        this.setCorrect = this.setCorrect.bind(this);
         this.makeRandomMove = this.makeRandomMove.bind(this);
         this.checkPuzzlesEnd = this.checkPuzzlesEnd.bind(this);
         this.isOver = this.isOver.bind(this);
@@ -66,7 +67,7 @@ class App extends React.Component {
     onPromotion(source, target){
         var promote_to = "q";
         var that = this;
-        var  piece_theme = '/img/chesspieces/wikipedia/{piece}.png';
+        var  piece_theme = '/images/chesspieces/wikipedia/{piece}.png';
         function getImgSrc(piece) {
             return piece_theme.replace('{piece}', that.game.turn() + piece.toLocaleUpperCase());
         }
@@ -139,6 +140,14 @@ class App extends React.Component {
             }, function () {
                 //debugger;
                 if ((this.state.moves.length) === 0 ) {
+
+                    if (this.state.global_error !== true) {
+                        this.setCorrect();
+                    } else {
+                        this.setIncorrect();
+                    }
+
+
 /*                    cg.set({
                         movable : {
                             free : false,
@@ -189,6 +198,41 @@ class App extends React.Component {
         }
     }
 
+    setCorrect(){
+        const self = this;
+        this.state.efforts_array.push({result : true, id : this.state.puzzles[this.state.puzzle_counter].id, rating : this.state.puzzles[this.state.puzzle_counter].r})
+        this.setPuzzleStatus("correct");
+
+        this.setState({
+            checkCounter: ++this.state.checkCounter,
+            correct_puzzle_counter: ++this.state.correct_puzzle_counter,
+            puzzle_current_state : "good",
+            current_streak : ++this.state.current_streak,
+            longest_streak : (this.state.current_streak > this.state.longest_streak) ? this.state.current_streak : this.state.longest_streak
+        }, function () {
+            this.request_sent = false;
+        });
+        self.puzzle_rating(1);
+        $("#scorrect")[0].play();
+    }
+    setIncorrect(){
+        const self = this;
+        this.state.efforts_array.push({result : true, id : this.state.puzzles[this.state.puzzle_counter].id, rating : this.state.puzzles[this.state.puzzle_counter].r})
+        this.setPuzzleStatus("correct");
+
+        this.setState({
+            checkCounter: ++this.state.checkCounter,
+            correct_puzzle_counter: ++this.state.correct_puzzle_counter,
+            puzzle_current_state : "good",
+            current_streak : ++this.state.current_streak,
+            longest_streak : (this.state.current_streak > this.state.longest_streak) ? this.state.current_streak : this.state.longest_streak
+        }, function () {
+            this.request_sent = false;
+        });
+        self.puzzle_rating(1);
+        $("#scorrect")[0].play();
+    }
+
     setResultsRange(event){
         const element = $(event.target);
         const state = element.val();
@@ -199,6 +243,8 @@ class App extends React.Component {
             this.getResults();
         })
     }
+
+
 
     isOver() {
         var that = this;
@@ -476,8 +522,9 @@ class App extends React.Component {
             return false;
         }
         var arr = this.state.moves[this.state.correct_i][this.state.checkCounter].split("-");
-        this.state.historyy.push(this.state.moves[this.state.correct_i][this.state.checkCounter]);
 
+        this.state.historyy.push(this.state.moves[this.state.correct_i][this.state.checkCounter]);
+       // console.log(this.state.historyy);
         var move = that.game.move({
             from: arr[0],
             to: arr[1],
@@ -566,7 +613,7 @@ class App extends React.Component {
             var move_coorect = false;
             var t = true;
 
-            var correct_i = true;
+            var correct_i = this.state.correct_i;
             var promotion_found = false;
 
 
@@ -593,7 +640,8 @@ class App extends React.Component {
                 var is_history = compareHistory(this.state.historyy, obj);
                 if (cur_move && !promotion_found) {
                     var v = cur_move.split("-");
-                   // console.log("is_history", is_history);
+                //    console.log("is_history", is_history);
+                //    console.log("is_history", this.state.historyy);
 
                     if ((source + "-" + target) == (v[0] + "-" + v[1]) && promotion !== "promotion" && is_history) {
                         move_coorect = true;
@@ -630,28 +678,20 @@ class App extends React.Component {
                // console.log("correct_i", correct_i);
                 //console.log("this.state.moves", this.state.moves);
               //  console.log("this.state", this.state);
-
+               // debugger;
                 if (typeof this.state.moves[this.state.correct_i] !== "undefined"
                     && move_coorect  && t) {
                     //var status = (is_last_move) ? "over" : "good";
-                    this.state.efforts_array.push({result : true, id : this.state.puzzles[this.state.puzzle_counter].id, rating : this.state.puzzles[this.state.puzzle_counter].r})
-                    this.setPuzzleStatus("correct");
+
 
                     this.setState({
                         checkCounter: ++this.state.checkCounter,
-                        correct_puzzle_counter: ++this.state.correct_puzzle_counter,
                         puzzle_current_state : "good",
-                        current_streak : ++this.state.current_streak,
-                        longest_streak : (this.state.current_streak > this.state.longest_streak) ? this.state.current_streak : this.state.longest_streak
                     }, function () {
-                        this.request_sent = false;
-
-                      //  console.log(this.state.efforts_array);
                         this.state.historyy.push(move_for_history);
                         this.checker(false);
                     });
-                    that.puzzle_rating(1);
-                    $("#scorrect")[0].play();
+
                 } else {
                     that.game.undo();
                     this.state.efforts_array.push({result : false, id : this.state.puzzles[this.state.puzzle_counter].id, rating : this.state.puzzles[this.state.puzzle_counter].r})
@@ -661,6 +701,9 @@ class App extends React.Component {
                     this.setState({
                         puzzle_current_state : "error",
                         global_error : true,
+                        correct_i : 0,
+                        historyy : [],
+                        checkCounter : 0,
                         current_streak : 0,
                         countError : ++this.state.countError
                     }, function () {
@@ -855,10 +898,13 @@ class App extends React.Component {
         this.setState({
             moves : moves,
             first_move : fm,
+            correct_i : 0,
+            historyy : [],
+            checkCounter : 0,
             move_made : false
         }, function () {
           //  console.log(self.state.puzzles[self.state.puzzle_counter].id);
-          //  console.log(fm);
+            //console.log(this.state.historyy);
             window.cg = Chessground(document.getElementById('dirty'),{
                 fen : fen,
                 turnColor : fm,
@@ -969,7 +1015,7 @@ class App extends React.Component {
             self.hash = undefined;
 
             self.setState({
-                state : "started",
+                state : "main",
                 countError : 0,
                 efforts_array : [],
                 puzzles : [],
@@ -988,7 +1034,7 @@ class App extends React.Component {
               //  $(".card").width(width/1.5);
 
                 self.getPuzzles(this.state.hundred);
-                self.setInitialTimer();
+                //self.setInitialTimer();
 
             });
 
@@ -1159,6 +1205,7 @@ class App extends React.Component {
         });
         this.setState({
             state : "over",
+            historyy : [],
         }, function () {
             //
 
