@@ -87,12 +87,13 @@ module.exports = function (app, passport, pool) {
             .trim()
             .normalizeEmail(),
         check('name', 'The name field is required').exists().isLength({ min: 1 }),
+        check('country', 'The country field is required').exists().isLength({ min: 1 }),
         check('password', 'The password field is required').exists().isLength({ min: 1 }),
         check('passwordConfirmation', 'Check password confirmation')
             .exists()
             .isLength({ min: 1 })
             .custom((value, { req }) => value === req.body.password),
-        // check('g-recaptcha-response', 'Подтвердите, что вы не робот').exists().isLength({ min: 1 }),
+         check('g-recaptcha-response', 'Подтвердите, что вы не робот').exists().isLength({ min: 1 }),
 
 
     ], function (req, res, next) {
@@ -109,6 +110,9 @@ module.exports = function (app, passport, pool) {
                         username : req.body.username,
                         name : req.body.name,
                         image : '/images/user.png',
+                        countries : countries,
+                        country : req.body.country,
+
                     });
 
 
@@ -123,6 +127,8 @@ module.exports = function (app, passport, pool) {
                             email: req.body.username.trim(),
                             password: req.body.password.trim(),
                             name: req.body.name.trim(),
+                            image : '/images/user.png',
+                            country: req.body.country.trim(),
                             rating: 1200,
                             tournaments_rating: 1200,
                         };
@@ -147,6 +153,8 @@ module.exports = function (app, passport, pool) {
                                     is_office : 0,
                                     is_common : true,
                                     owner_id : user_id,
+                                    countries : countries
+
                                 });
                             } else {
                                 return true;
@@ -160,11 +168,12 @@ module.exports = function (app, passport, pool) {
                             } else {
                                 res.render('login', {
                                     showTest : null,
-                                    "signup": "Use your email and password to login",
+                                    "signup": "Используйте Ваш email и пароль для входа",
+                                   // "signup": "Use your email and password to login",
                                 });
                             }
                         }).catch(function (err) {
-                            //console.log(err);
+                            console.log(err);
                         });
 
                     } else {
@@ -190,8 +199,11 @@ module.exports = function (app, passport, pool) {
                                         username : req.body.username,
                                         name : req.body.name,
                                         schools : rows,
+                                        country : req.body.country,
                                         school_id : req.body.school_id,
                                         role : req.body.role,
+                                        countries : countries,
+
 
                                     });
                                 }).catch((err) => {
@@ -289,7 +301,9 @@ module.exports = function (app, passport, pool) {
             .then(rows => {
                 res.render('signup', {
                     schools : rows,
-                    message : req.flash("error")[0]
+                    message : req.flash("error")[0],
+                    countries : countries
+
                 });
             }).catch((err) => {
             console.log(err);

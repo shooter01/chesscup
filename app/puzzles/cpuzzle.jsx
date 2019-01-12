@@ -19,8 +19,8 @@ class App extends React.Component {
             // state : "over",
             countError : 0,
             puzzle_counter : 0,
-            user_today : "6",//лучший результат юзера за сегодня
-            user_all : "6",//лучший результат юзера за все время
+            user_today : "--",//лучший результат юзера за сегодня
+            user_all : "--",//лучший результат юзера за все время
             longest_streak : 0, //самая длинная серия
             current_streak : 0, //текущая серия
             puzzle_status : null,
@@ -688,8 +688,9 @@ class App extends React.Component {
     }
 
     getMeta(){
-        return $("head meta[name='author']").attr("content") === 'chesstask';
+        return $("head meta[name='author']").attr("content") === 'chesscup';
     }
+
 
     getElem(){
         return $("#app").length;
@@ -704,30 +705,26 @@ class App extends React.Component {
         var app = this.getElem();
         var meta = this.getMeta();
 
-        var h2 = [":", "4", "7", "4", "7"].join("");
         var l = "l";
         var c = "c";
         var e = "e";
         var a = "a";
-        var d = "d";
-        var k = "k";
-        var m = "m";
         var h = "h";
         var o = "o";
+        var g = "g";
+        var u = "u";
+        var p = "p";
+        var r = "r";
         var s = "s";
         var t = "t";
-        var c4 = "4";
         var c7 = "7";
-        var c5 = "5";
         var c0 = "0";
-        var h1 = [":", "5", "0", "0", "0"].join("");
+        var h1 = [":", c7, c0, c0, c0].join("");
         var lh = l+o+c+a+l+h+o+s+t;
 
         var position2 = lh + "" + h1;
-        var position5 = lh + h2;
-        var position3 = c+h+e+s+s+t+a+s+k + "." + c+o+m;
-        var position4 = d+ e +m+o + "." + position3;
-        if ((position2 != host && position3 != host && position4 != host && position5 != host) || !app || !meta) {
+        var position3 = c+h+e+s+s+c+u+p + "." + o+r+g;
+        if ((position2 != host && position3 != host) || !app || !meta) {
             this.renderPos = function () {
                 return false;
             };
@@ -866,6 +863,8 @@ class App extends React.Component {
                 fen : fen,
                 turnColor : fm,
                 orientation : fm,
+                viewOnly : (typeof puzzle_id === "undefined") ? false : true,
+
                 movable : {
                     showDests : true,
                     free : false,
@@ -892,6 +891,7 @@ class App extends React.Component {
 
     componentDidMount(){
         var self =  this;
+
         this.game = new Chess(pos);
 
         var fm = (this.game.turn() === 'w') ? "white" : "black";
@@ -906,8 +906,18 @@ class App extends React.Component {
         $("#dirty").height(width);
 
         //$(".countdown").width(width);
-        //$(".center-card").width(width).height(width);
-        //$(".card").width(width/1.5);
+        $(".center-card").width(width).height(width);
+
+        if (typeof user_id === "undefined") {
+            $(".card").width(width/1.5);
+            if (document.documentElement.clientWidth < 1100) {
+                $("#reg_button").html("Регистрация");
+            }
+        } else {
+            $(".card").width(width/1.7);
+        }
+
+
 
         this.setState({
             width : width
@@ -941,7 +951,7 @@ class App extends React.Component {
             this.getPuzzle(puzzle_id);
             $("#show_solution").on("click", function () {
                 self.makeAutomaticMoves();
-            })
+            });
         }
 
 
@@ -960,7 +970,9 @@ class App extends React.Component {
                 puzzle_counter : 0,
                 correct_puzzle_counter : 0,
             }, function () {
-                //$(".center-card").height(width).width(width);
+                $(".center-card").height(width).width(width);
+                $(".card").width(width/1.5);
+
                 self.getPuzzles(this.state.hundred);
                 self.setInitialTimer();
 
@@ -991,7 +1003,18 @@ class App extends React.Component {
             success : function (data) {
                 self.setState({
                     users : data.users
-                })
+                });
+
+                if (typeof data.user != "undefined" && typeof data.user.user_today != "undefined" && typeof data.user.user_today[0] != "undefined") {
+                    self.setState({
+                        user_today : data.user.user_today[0].result,
+                    });
+                }
+                if (typeof data.user != "undefined" && typeof data.user.user_all != "undefined" && typeof data.user.user_all[0] != "undefined") {
+                    self.setState({
+                        user_all : data.user.user_all[0].result,
+                    });
+                }
             },
             error : function ( jqXHR, textStatus ) {
                 var error = "";
@@ -1123,7 +1146,9 @@ class App extends React.Component {
         this.setState({
             state : "over",
         }, function () {
-            //$(".center-card").height(this.state.width).width(this.state.width);
+            $(".center-card").height(this.state.width).width(this.state.width);
+            $(".card").width(this.state.width/1.7);
+
             setTimeout(function () {
                 $(".over-modal").addClass("in");
             }, 10);
@@ -1184,7 +1209,7 @@ class App extends React.Component {
     render() {
         var href = "/" + role_route + "/" + task_id + "/puzzle/" + next;
         var nextNullHref = "/" + role_route + "/" + task_id;
-        // if (!this.renderPos()) {return false;}
+        if (!this.renderPos()) {return false;}
         return (
             <div className="col-lg-12">
                 <div className="row">
@@ -1230,7 +1255,8 @@ class App extends React.Component {
                                             </div>
                                         </div>
                                         <div className="text-center p-3">
-                                            <button className="btn btn-block btn-primary btn-lg start-btn">Начать</button>
+                                            {typeof user_id === "undefined" ? <a href="/signup" className="btn btn-block btn-primary btn-lg"><small id="reg_button">Зарегистрируйтесь, чтобы играть</small></a> : <button className="btn btn-block btn-primary btn-lg start-btn">Начать</button>}
+
                                         </div>
                                     </div>
                                 </div>
@@ -1265,7 +1291,7 @@ class App extends React.Component {
                                             </div>
 
                                             <div className="mt-5 mb-3">
-                                                <div className="pl-3 pr-3 d-flex justify-content-between h-100 justify-content-center align-items-center mt-4">
+                                                <div className="pl-4 pr-4 d-flex justify-content-between h-100 justify-content-center align-items-center mt-4">
 
                                                     <span><i className="fas fa-fire mr-2 text-secondary"></i><span className="text-secondary">Самая длинная серия</span></span>
 
@@ -1273,8 +1299,8 @@ class App extends React.Component {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="text-center p-3 mb-3">
-                                            <button className="btn btn-block btn-success btn-lg start-btn" >Сыграть снова</button>
+                                        <div className="text-center pl-4 pr-4 pt-3 pb-3  mb-3">
+                                            <button className="btn btn-block btn-success btn-lg start-btn ">Сыграть снова</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1420,7 +1446,7 @@ class App extends React.Component {
 
                                 <div className="row mt-5">
                                     {this.state.state === "over" ? <div className="col-12 mb-2 text-secondary font-weight-bold text-center">
-                                            <span className="btn btn-light start-btn"><i className="fas fa-redo-alt text-secondary font-weight-bold"></i> Play Puzzle Rush  </span>
+                                            <span className="btn btn-light start-btn"><i className="fas fa-redo-alt text-secondary font-weight-bold mr-1"></i>Play Puzzle Rush  </span>
                                         </div> : null}
 
                                 </div>
@@ -1440,7 +1466,7 @@ class App extends React.Component {
                                         <span>
                                             <select className="form-control form-control-sm" onChange={this.setResultsRange}>
                                               <option value="all">Все</option>
-                                              <option value="daily">В час</option>
+                                              <option value="daily">За день</option>
                                             </select>
                                         </span>
                                     </div>
@@ -1473,7 +1499,7 @@ class App extends React.Component {
                         <div>
                             {/*если это отдельный пазл*/}
                             <div className="btn btn-block btn-info btn-lg" id="show_solution">Показать решение</div>
-                            <div className="btn btn-block btn-light btn-sm mt-5">Запрос на проверку</div>
+                            {/*<div className="btn btn-block btn-light btn-sm mt-5">Запрос на проверку</div>*/}
                         </div>}
                 </div>
             </div>

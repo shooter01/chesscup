@@ -109,14 +109,12 @@ module.exports = function(app, passport, pool, i18n) {
 
                 var start = moment().startOf('day').toDate(); // set to 12:00 am today
                 var end = moment().endOf('day').toDate(); // set to 23:59 pm today
-                console.log(restrict);
-                console.log(end);
 
                 let aggr = [];
 
-               // if (restrict === "daily") {
+                if (restrict === "daily") {
                     aggr.push({ $match : { "time" : { $gt: start, $lt: end } } });
-               // }
+                }
                 aggr.push({
                     $sort: { result: -1 }
                 });
@@ -141,14 +139,9 @@ module.exports = function(app, passport, pool, i18n) {
                     }
                 });
 
-                app.mongoDB.collection("puzzle_rush").aggregate(aggr).toArray(function(err, result) {
+                app.mongoDB.collection("puzzle_rush").aggregate(aggr).limit(50).toArray(function(err, result) {
                     if (err) throw err;
-                    console.log("====");
-                    console.log(result);
-
                     result = result.sort(compare);
-
-
                     if (req.isAuthenticated()) {
                         let my_result = [], aggr = [];
 
@@ -159,15 +152,9 @@ module.exports = function(app, passport, pool, i18n) {
 
                         app.mongoDB.collection("puzzle_rush").find({user_id : req.session.passport.user.id,  "time" : { $gt: start, $lt: end } })
                             .sort({result:-1}).limit(1).toArray(function(err, user_today) {
-                            console.log(">>>>");
-                            console.log(result);
 
 
                             app.mongoDB.collection("puzzle_rush").find({user_id : req.session.passport.user.id}).sort({result:-1}).limit(1).toArray(function(err, user_all) {
-                                console.log("====");
-
-                                console.log(result);
-
                                 res.json({
                                     status : "ok",
                                     users : result,
@@ -216,7 +203,6 @@ module.exports = function(app, passport, pool, i18n) {
                 if (!isNaN(puzzle_id)) {
                     pool.query('SELECT id, fen, moves FROM sb_puzzles WHERE id = ?', puzzle_id)
                         .then(rows => {
-                            console.log(rows);
                             res.json({
                                 status : "ok",
                                 p : JSON.stringify(rows)
@@ -273,25 +259,45 @@ module.exports = function(app, passport, pool, i18n) {
                 p_id = parseInt(p_id);
                 let r = req.body.r; //rating
                 r = parseInt(r);
+                let puzzle = [];
                 if (!isNaN(p_id) && !isNaN(r)) {
+
+                    let player_new_rating = 0, puzzle_new_rating = 0;
 
                     pool.query('SELECT * FROM sb_puzzles WHERE id = ? LIMIT 1', p_id)
                         .then(rows => {
-                            console.log(rows);
-                            //если пазл найден
-                            if (rows.length > 0) {
-                                let changed_rating = rows[0].end_rating;
-                                if (r == 1) {
-                                    changed_rating = changed_rating - 10;
-                                } else {
-                                    changed_rating = changed_rating + 10;
-                                }
+                            puzzle = rows;
+                            return pool
+                                .query('SELECT * FROM users WHERE id = ?',
+                                    req.session.passport.user.id)
+                        }).then(rows => {
+                            let user = rows;
+                        //если пазл найден
+                            if (puzzle.length > 0) {
+                                //let changed_rating = puzzle[0].end_rating;
+                                //TODO эту проверку можно убрать когда будет гарантия что у всех рейтинги в виде цифры
+                                user[0].rating = (parseInt(user[0].rating)) ? user[0].rating : 400;
+
+                                var odds_player_wins = elo.expectedScore(user[0].rating, puzzle[0].end_rating);
+                                var odds_puzzle_wins = elo.expectedScore(puzzle[0].end_rating, user[0].rating);
+
+                                const puz_result = (r === 1) ? 0 : 1;
+
+                                player_new_rating = elo.newRating(odds_player_wins, r, user[0].rating);
+                                puzzle_new_rating = elo.newRating(odds_puzzle_wins, puz_result, puzzle[0].end_rating);
 
                                 return pool.query('UPDATE sb_puzzles SET end_rating = ? WHERE id = ?',
                                     [
-                                        changed_rating,
+                                        puzzle_new_rating,
                                         p_id,
                                     ])
+                            } else {
+                                return true;
+                            }
+
+                        }).then(rows => {
+                            if (puzzle.length > 0) {
+                                return pool.query('UPDATE users SET rating = ? WHERE id = ?', [player_new_rating, req.session.passport.user.id]);
                             } else {
                                 return true;
                             }
@@ -305,7 +311,7 @@ module.exports = function(app, passport, pool, i18n) {
 
                                 );
                             } else {
-                                return false;
+                                return true;
                             }
 
                         }).then(rows => {
@@ -375,13 +381,9 @@ module.exports = function(app, passport, pool, i18n) {
                             result : result,
                         },
                         function (err, data) {
-
-                            console.log(data);
-
                             res.json({
                                 status : "ok",
                             });
-
                         }
                     );
 

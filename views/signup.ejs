@@ -86,6 +86,20 @@
         <input type="password" id="passwordConfirmation" class="form-control" required placeholder="<%- __("RegPassConfirm") %>"  name="passwordConfirmation">
     </div>
 
+    <div class="form-group mt-2">
+
+        <label for="passwordConfirmation">Шахматная федерация</label>
+        <select name="country" class="simple-select2" id="country">
+            <% for (var i in countries) { %>
+
+            <option value="<%= i %>"><%= countries[i] %></option>
+
+
+
+            <% } %>
+        </select>
+    </div>
+
     <div class="g-recaptcha" data-sitekey="6LenQHwUAAAAAEPHNNGBzDR9XaDFLkDLWjYfMFDo"></div>
 
 
@@ -97,9 +111,36 @@
 
 </form>
 
-<style>
+<link rel="stylesheet" href="/stylesheets/select2.css" />
 
-</style>
+<link rel="stylesheet" href="/js/select2/dist/select2-bootstrap4.min.css">
+<link rel="stylesheet" href="/stylesheets/flags.css">
+<script src="/js/select2.js"></script>
+
+
+<script>
+    var country = '<% if (typeof country != "undefined") { %><%=country%><% } else { %>><%='RU'%><% } %>';
+</script>
+
+<script>
+    $('.simple-select2').select2({
+        theme: 'bootstrap4',
+        placeholder: "Select an option",
+        allowClear: true,
+        templateResult: formatCountry,
+
+    }).val(country).trigger('change');
+
+
+
+    function formatCountry (country) {
+        if (!country.id) { return country.text; }
+        return $country = $(
+            '<img src="/img/blank.png" class="flag flag-' + country.id.toLowerCase() + '" alt="" />' +
+            ' <span>' + country.text + '</span>'
+        );
+    };
+</script>
 
 <!--<script>
     function changed() {
