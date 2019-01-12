@@ -48,12 +48,12 @@ module.exports = function(app, passport, pool, i18n) {
                 start = parseInt(start); //LIMIT ?, 100 , start*10
                 if (!isNaN(start)) {
                    pool.query('SELECT id, fen, moves, end_rating AS r FROM sb_puzzles ORDER BY r LIMIT ?, 100', start*100)
-                   //  pool.query('SELECT id, fen, moves, end_rating AS r FROM sb_puzzles WHERE id = 1924')
+                   //  pool.query('SELECT id, fen, moves, end_rating AS r FROM sb_puzzles WHERE id = 2')
                         .then(rows => {
-                            rows = shuffle(rows);
-                            tasks = rows.slice(0, 10);
+                             rows = shuffle(rows);
+                             tasks = rows.slice(0, 10);
 
-                           /* for (var i = 0; i < 30; i++) {
+                            /*for (var i = 0; i < 30; i++) {
                                 var obj = rows[0];
                                 tasks.push(obj);
                             }*/

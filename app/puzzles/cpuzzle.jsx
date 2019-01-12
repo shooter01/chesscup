@@ -131,10 +131,10 @@ class App extends React.Component {
             var a = this.state.moves.splice(this.state.correct_i, 1);
 
             this.setState({
-                moves : this.state.moves,
+                moves : [],
                 historyy : [],
                 correct_i : 0,
-                last_moves : a[0],
+                last_moves : [],
                 fenArrCursor: --this.state.fenArrCursor,
                 checkCounter: 0,
             }, function () {
