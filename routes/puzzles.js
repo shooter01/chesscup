@@ -116,7 +116,7 @@ module.exports = function(app, passport, pool, i18n) {
                     aggr.push({ $match : { "time" : { $gt: start, $lt: end } } });
                 }
                 aggr.push({
-                    $sort: { result: -1 }
+                    $sort: { result: 1 }
                 });
                 aggr.push({
                     $group: {
@@ -135,13 +135,13 @@ module.exports = function(app, passport, pool, i18n) {
                         user_image: "$user_image",
                         country: "$country",
                         user_id: "$_id",
-                        result: -1
+                        result: 1
                     }
                 });
 
                 app.mongoDB.collection("puzzle_rush").aggregate(aggr).limit(50).toArray(function(err, result) {
                     if (err) throw err;
-                    result = result.sort(compare);
+                  //  result = result.sort(compare);
 
                     if (req.isAuthenticated()) {
                         let my_result = [], aggr = [];
