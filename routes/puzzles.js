@@ -180,7 +180,9 @@ module.exports = function(app, passport, pool, i18n) {
     });
 
     function compare(a, b) {
-        return a.result < b.result;
+        console.log(a);
+        console.log(b);
+        return a.result > b.result;
     }
 
     router.post('/api/get_puzzle/:p_id',
