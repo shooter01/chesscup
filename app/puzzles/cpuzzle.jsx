@@ -12,6 +12,7 @@ class App extends React.Component {
             last_moves : [],
             historyy : [],
             moves_made : 0,
+            level : 0,
             start_black : false,
             move_made : false,
             iTimer : 4,
@@ -805,6 +806,7 @@ class App extends React.Component {
             data : {
                 h : hundred,
                 hash : this.hash,
+                level : ++this.state.level,
             },
             timeout : 3000,
             success : this.handlePuzzles,
@@ -879,6 +881,7 @@ class App extends React.Component {
         const self = this;
         const fen = this.state.puzzles[this.state.puzzle_counter].fen;
         const moves = JSON.parse(this.state.puzzles[this.state.puzzle_counter].moves);
+
         self.game.load(fen);
         var fm = (self.game.turn() === 'w') ? "white" : "black";
       //  console.log(moves);
@@ -1010,6 +1013,7 @@ class App extends React.Component {
                 countError : 0,
                 efforts_array : [],
                 puzzles : [],
+                level : 0,
                 longest_streak : 0,
                 current_streak : 0,
                 hundred : 0,

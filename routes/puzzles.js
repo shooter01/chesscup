@@ -45,13 +45,24 @@ module.exports = function(app, passport, pool, i18n) {
                 let start = req.body.h;
                 let tasks = [];
                 let hash = req.body.hash;
+                let level = req.body.level;
                 start = parseInt(start); //LIMIT ?, 100 , start*10
-                if (!isNaN(start)) {
-                   pool.query('SELECT id, fen, moves, end_rating AS r FROM sb_puzzles ORDER BY r LIMIT ?, 100', start*100)
-                   //  pool.query('SELECT id, fen, moves, end_rating AS r FROM sb_puzzles WHERE id = 2')
+                level = parseInt(level); //LIMIT ?, 100 , start*10
+                //max уровень заданий - 3
+                if (level > 3) {
+                    level = 2;
+                }
+                if (!isNaN(start) && !isNaN(level)) {
+                   // pool.query('SELECT id, fen, moves, end_rating AS r FROM sb_puzzles ORDER BY r LIMIT ?, 100', start*100)
+                   pool.query('SELECT * FROM sb_puzzles WHERE level = ? ORDER BY RAND() LIMIT 10', level)
+                  //   pool.query('SELECT id, fen, moves, end_rating AS r FROM sb_puzzles WHERE id = 2353')
                         .then(rows => {
-                             rows = shuffle(rows);
-                             tasks = rows.slice(0, 10);
+                           //  rows = shuffle(rows);
+                            // tasks = rows.slice(0, 10);
+                             tasks = rows;
+
+                        }).then((err, rows) => {
+
 
                             /*for (var i = 0; i < 30; i++) {
                                 var obj = rows[0];
