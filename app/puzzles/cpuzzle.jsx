@@ -858,21 +858,19 @@ class App extends React.Component {
 
     handlePuzzles(data){
 
-        const temp = JSON.parse(data.p);
-        for (var i = 0; i < temp.length; i++) {
-            var obj = temp[i];
-            this.state.puzzles.push(obj);
+        if (data.status == "ok") {
+            const temp = JSON.parse(data.p);
+            for (var i = 0; i < temp.length; i++) {
+                var obj = temp[i];
+                this.state.puzzles.push(obj);
+            }
+            this.state.puzzles = this.state.puzzles.sort(compare2);
+            this.hash = data.hash; //id записи в монго
+
+            this.setAnotherPuzzle();
+        } else {
+            alert(data.msg);
         }
-
-        this.hash = data.hash; //id записи в монго
-
-       // console.log(this.state.puzzles);
-        this.setAnotherPuzzle();
-
-
-
-
-
 
     }
 
@@ -952,6 +950,7 @@ class App extends React.Component {
             $(".card").width(width/1.5);
             if (document.documentElement.clientWidth < 1100) {
                 $("#reg_button").html("Регистрация");
+                $("#login_button").html("Вход");
                 $(".center-card").height(width).width(width);
             }
         } else {
@@ -1039,8 +1038,14 @@ class App extends React.Component {
 
         });
 
+        if ($("#scorrect").length){
+            $("#scorrect").get(0).volume = 0.3;
+            $("#swrong").get(0).volume = 0.3;
+        }
 
         self.getResults();
+
+
     }
 
     start(){
@@ -1322,7 +1327,19 @@ class App extends React.Component {
                                             </div>
                                         </div>
                                         <div className="text-center p-3">
-                                            {typeof user_id === "undefined" ? <a href="/signup" className="btn btn-block btn-primary btn-lg"><small id="reg_button">Зарегистрируйтесь, чтобы играть</small></a> : <button className="btn btn-block btn-primary btn-lg start-btn">Начать</button>}
+                                            {typeof user_id === "undefined" ? <div>
+                                                    <div className="mb-2">
+                                                        <a href="/login" className="btn btn-block btn-success btn-lg">
+                                                            <small id="login_button">Есть аккаунт? Вход</small>
+                                                        </a>
+                                                    </div>
+
+                                                    <div>
+                                                        <a href="/signup" className="btn btn-block btn-primary btn-lg">
+                                                            <small id="reg_button">Зарегистрируйтесь, чтобы начать</small>
+                                                        </a>
+                                                    </div>
+                                                </div> : <button className="btn btn-block btn-primary btn-lg start-btn">Начать</button>}
 
                                         </div>
                                     </div>
@@ -1377,6 +1394,20 @@ class App extends React.Component {
 
                         <div className="brown cburnett is2d">
                             <div id="dirty" className="cg-board-wrap"></div>
+
+                                <div className="d-none d-md-block">
+                                    {(this.state.first_move === "white") ?
+                                        <div className="bg-light text-white text-center p-2 font-weight-bold mb-2">
+                                            <h3 className="m-0"><i className="fas fa-square text-white mr-1"></i> </h3>
+                                        </div> :
+                                        (this.state.first_move === "black") ?
+                                            <div className="bg-dark text-white text-center p-2 font-weight-bold mb-2">
+                                                <h3 className="m-0"><i className="fas fa-square text-black-50 mr-1"></i> </h3>
+                                            </div> :
+                                           null  }
+
+                                </div>
+
                         </div>
                             {(this.state.new_elo !== null && this.state.puzzle_current_state === "over") ?
                                 <div className="cover-center d-flex justify-content-center">
@@ -1639,5 +1670,11 @@ function getDests(game) {
 
 
 
-
+function compare2(a, b) {
+    if (a.id < b.id)
+        return -1;
+    if (a.id > b.id)
+        return 1;
+    return 1;
+}
 
