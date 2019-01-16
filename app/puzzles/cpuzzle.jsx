@@ -864,7 +864,8 @@ class App extends React.Component {
                 var obj = temp[i];
                 this.state.puzzles.push(obj);
             }
-            this.state.puzzles = this.state.puzzles.sort(compare2);
+            this.state.puzzles = shuffle(this.state.puzzles);
+            //this.state.puzzles = this.state.puzzles.sort(compare2);
             this.hash = data.hash; //id записи в монго
 
             this.setAnotherPuzzle();
@@ -1666,7 +1667,18 @@ function getDests(game) {
 }
 
 
+function shuffle(array) {
+    var tmp, current, top = array.length;
 
+    if (top) while (--top) {
+        current = Math.floor(Math.random() * (top + 1));
+        tmp = array[current];
+        array[current] = array[top];
+        array[top] = tmp;
+    }
+
+    return array;
+}
 
 
 
