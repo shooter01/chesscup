@@ -859,12 +859,15 @@ class App extends React.Component {
     handlePuzzles(data){
 
         if (data.status == "ok") {
-            const temp = JSON.parse(data.p);
+            let temp = JSON.parse(data.p);
+
+            temp = shuffle(temp);
+
             for (var i = 0; i < temp.length; i++) {
                 var obj = temp[i];
                 this.state.puzzles.push(obj);
             }
-            this.state.puzzles = shuffle(this.state.puzzles);
+
             //this.state.puzzles = this.state.puzzles.sort(compare2);
             this.hash = data.hash; //id записи в монго
 
