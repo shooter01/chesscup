@@ -281,7 +281,7 @@ class TeamsList extends React.Component {
                                 {this.state.teams[item].users.map((user, index1) => (
                                     <tr key={index1} className={(this.state.tournament.is_online === 1 && typeof u != "undefined" && u != "null" && user.user_id == u) ? "bg-success" : null} data-id={this.state.teams[item].team_id} data-user-id={user.user_id}>
                                         <th scope="row">{index1 + 1}</th>
-                                        <td>{user.name} {user.user_id} Доска : {user.team_board}</td>
+                                        <td>{user.name}</td>
                                         <td>
                                             {typeof u !== "undefined" && typeof this.state.teams[item] != "undefined" && this.state.teams[item].applier_id == u ?
                                             <div>

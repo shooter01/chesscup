@@ -195,11 +195,13 @@ module.exports = function (app) {
 
         if (cur.getHours() >= 1 && cur.getHours() < 4) {
             const time_start = "20:00:00";
+            const time_start2 = "21:00:00";
 
             let newDateObj = moment(cur.getDate() + "-" + (cur.getMonth() + 1) + "-" + cur.getFullYear() + " " + time_start, 'DD-MM-YYYYTHH:mm').toDate();
+            let newDateObj2 = moment(cur.getDate() + "-" + (cur.getMonth() + 1) + "-" + cur.getFullYear() + " " + time_start, 'DD-MM-YYYYTHH:mm').toDate();
             const yyyy = "" + cur.getFullYear() + (cur.getMonth() + 1) + cur.getDate();
             let office = {
-                title: "Ежедневный блитц-турнир",
+                title: "Ежедневный блиц-турнир",
                 city: "Moscow",
                 tours_count: 9,
                 country: 'RU',
@@ -223,11 +225,48 @@ module.exports = function (app) {
                 is_system: 1,
             };
 
+
+            let team = {
+                title: "Ежедневный командный блиц-турнир",
+                city: "Moscow",
+                tours_count: 9,
+                country: 'RU',
+                type: 12,
+                time_inc: 0,
+                is_active : 0,
+                start_date: cur,
+                amount: 3,
+                start_time: newDateObj2,
+                is_online: 1,
+                // wait_minutes: parseInt(req.body.wait_minutes),
+                accurate_date_start: cur.getFullYear() + "-" + (cur.getMonth() + 1) + "-" + cur.getDate(),
+                accurate_time_start: time_start,
+                end_date: cur.getFullYear() + "-" + (cur.getMonth() + 1) + "-" + cur.getDate(),
+                team_boards: 2,
+                start_type: 'accurate',
+                current_tour: 0,
+                created_at: new Date(),
+                system_id: yyyy + 'TEAMBROBIN30',
+                creator_id: 1,
+                is_system: 1,
+            };
+
             pool
                 .query('SELECT * FROM tournaments WHERE is_online = 1 AND is_system = 1 AND system_id = ?', yyyy + 'BLITZROBIN30')
                 .then(games => {
                     if (games.length === 0) {
                         return pool.query('INSERT INTO tournaments SET ?', office)
+                    } else {
+                        return true;
+                    }
+                }).then(games => {
+
+                        return pool
+                            .query('SELECT * FROM tournaments WHERE is_online = 1 AND is_system = 1 AND system_id = ?', yyyy + 'TEAMBROBIN30')
+
+                }).then(games => {
+                    if (games.length === 0) {
+                        return pool.query('INSERT INTO tournaments SET ?', team)
                     } else {
                         return true;
                     }
@@ -244,5 +283,5 @@ module.exports = function (app) {
        // let newDateObj = cur.getFullYear() + "-" + cur.getDate() + "-" + cur.getDate() +" " + "23:00:00";
 
 
-    }, 180000);
+    }, 1800000);
 }

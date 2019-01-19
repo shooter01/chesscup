@@ -26,6 +26,7 @@ class App extends React.Component {
             current_streak : 0, //текущая серия
             puzzle_status : null,
             width : "auto",
+            effortsCount : 0,
             restrict : "global",
             correct_puzzle_counter : 0,
             puzzles : [],//массив паззлов
@@ -781,7 +782,7 @@ class App extends React.Component {
             data : {
                 p_id : self.state.puzzles[self.state.puzzle_counter].id,
                 r : result, //если удачно решил - отправляем 1
-                hash : self.hash, //если удачно решил - отправляем 1
+                hash : self.hash, 
             },
             timeout : 3000,
             success : function () {
@@ -1011,34 +1012,54 @@ class App extends React.Component {
         $("body").on("click", ".start-btn", function () {
             self.hash = undefined;
 
-            self.setState({
-                state : "started",
-                countError : 0,
-                efforts_array : [],
-                puzzles : [],
-                level : 0,
-                longest_streak : 0,
-                current_streak : 0,
-                hundred : 0,
-                puzzle_counter : 0,
-                correct_puzzle_counter : 0,
-            }, function () {
+            const date = new Date();
+            const loc = localStorage.getItem("limit" + date.getDate() + date.getMonth());
+            if (isNaN(parseInt(loc))) {
+                localStorage.setItem("limit" + date.getDate() + date.getMonth(), 1);
+            } else {
+                let temp = parseInt(loc);
+                localStorage.setItem("limit" + date.getDate() + date.getMonth(), ++temp);
+            }
 
-                if (document.documentElement.clientWidth < 1100) {
-                    $(".card").width(this.state.width/1.1);
-                    $(".center-card").height(width).width(width);
-                } else {
-                    $(".center-card").height(width).width(width);
-                    $(".card").width(width/1.7);
-                }
+            if (loc >= 5) {
+                self.setState({
+                    state : "limit",
+                }, function () {
+                    setTimeout(function () {
+                        $(".over-modal").addClass("in");
+                    }, 10);
+                });
+            } else {
+                self.setState({
+                    state : "started",
+                    countError : 0,
+                    efforts_array : [],
+                    puzzles : [],
+                    level : 0,
+                    longest_streak : 0,
+                    current_streak : 0,
+                    hundred : 0,
+                    puzzle_counter : 0,
+                    correct_puzzle_counter : 0,
+                }, function () {
 
-                //$(".center-card").height(width).width(width);
-              //  $(".card").width(width/1.5);
+                    if (document.documentElement.clientWidth < 1100) {
+                        $(".card").width(this.state.width/1.1);
+                        $(".center-card").height(width).width(width);
+                    } else {
+                        $(".center-card").height(width).width(width);
+                        $(".card").width(width/1.7);
+                    }
 
-                self.getPuzzles(this.state.hundred);
-                self.setInitialTimer();
+                    //$(".center-card").height(width).width(width);
+                    //  $(".card").width(width/1.5);
 
-            });
+                    self.getPuzzles(self.state.hundred);
+                    self.setInitialTimer();
+                });
+            }
+
+
 
         });
 
@@ -1395,6 +1416,26 @@ class App extends React.Component {
 
                                 : null}
 
+                            {this.state.state === "limit" ?
+                                <div className="d-flex center-card justify-content-center align-items-center over-modal">
+                                    <div className="card">
+                                        <div className="card-body p-0">
+                                            <h3 className="card-title text-center pl-3 pl-3 pt-3 pb-3 font-weight-bold bg-success text-white">Лимит!</h3>
+                                            <div className="card-text text-center pl-3 pl-3 ">
+                                                <span className="font-weight-bold">Вы достигли лимита: </span>
+                                                <h5 className="font-weight-bold">
+                                                    <div>5 попыток в день</div>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div className="text-center pl-4 pr-4 pt-3 pb-3  mb-3">
+                                            <a href="/" className="btn btn-block btn-success btn-lg start-btn ">На главную</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                : null}
+
 
                         <div className="brown cburnett is2d">
                             <div id="dirty" className="cg-board-wrap"></div>
@@ -1530,15 +1571,15 @@ class App extends React.Component {
                                 { this.state.efforts_array.map((item, index) => (
                                     <span key={index}>
                                         {item.result === true ?
-                                            <a  href={"/puzzles/" + item.id} className="streak-indicator-streak streak-indicator-incorrect streak-indicator-link text-center"  target="_blank">
+                                            <span  href={"/puzzles/" + item.id} className="streak-indicator-streak streak-indicator-incorrect streak-indicator-link text-center"  target="_blank">
                                                 <i className="icon-font-component streak-indicator-icon fas fa-check-square text-success checkbox m-1 "></i>
                                                 <small className="icon-font-component streak-indicator-icon text-success font-weight-bold">{item.rating}</small>
-                                            </a>
+                                            </span>
                                             :
-                                            <a  href={"/puzzles/" + item.id} className="streak-indicator-streak streak-indicator-incorrect streak-indicator-link text-center"  target="_blank">
+                                            <span  href={"/puzzles/" + item.id} className="streak-indicator-streak streak-indicator-incorrect streak-indicator-link text-center"  target="_blank">
                                                 <i className="icon-font-component streak-indicator-icon fas fa-times-circle text-danger checkbox m-1 "></i>
                                                 <small className="icon-font-component streak-indicator-icon text-danger font-weight-bold">{item.rating}</small>
-                                            </a>}
+                                            </span>}
                                     </span>
                                 ))}
                             </div> : null}
