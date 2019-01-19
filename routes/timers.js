@@ -240,7 +240,7 @@ module.exports = function (app) {
                 is_online: 1,
                 // wait_minutes: parseInt(req.body.wait_minutes),
                 accurate_date_start: cur.getFullYear() + "-" + (cur.getMonth() + 1) + "-" + cur.getDate(),
-                accurate_time_start: time_start,
+                accurate_time_start: time_start2,
                 end_date: cur.getFullYear() + "-" + (cur.getMonth() + 1) + "-" + cur.getDate(),
                 team_boards: 2,
                 start_type: 'accurate',
