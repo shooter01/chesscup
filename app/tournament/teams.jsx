@@ -255,7 +255,7 @@ class TeamsList extends React.Component {
                     <div className="mt-1" key={index}>
                         <div className={(this.props.current_team != null && (this.props.current_team == this.state.teams[item].team_id) ? "p-1 mb-2 d-flex justify-content-between team-title participant selected bg-primary text-white" : "p-1 mb-2 bg-light text-dark d-flex justify-content-between team-title participant ")} data-id={item} onClick={this.selectTeam}>
                             <div>
-                               <b>{this.state.teams[item].team_id} {this.state.teams[item].name} </b>
+                               <b>{this.state.teams[item].name}</b>
                             </div>
                             {this.state.tournament.is_online !== 1 ?
                             <span>
