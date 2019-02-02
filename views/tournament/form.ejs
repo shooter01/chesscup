@@ -49,7 +49,7 @@
 
     <div class="row">
         <div class="col-sm-12 mt-3">
-            <label for="amount">Контроль времени : </label>
+            <label for="amount">Minutes per side : </label>
             <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
 
             <div id="slider-range-max"></div>
@@ -57,7 +57,7 @@
     </div>
     <div class="row">
         <div class="col-sm-12 mt-3">
-            <label for="time_inc">Добавление секунд на ход : </label>
+            <label for="time_inc">Increment in seconds : </label>
             <input type="text" id="time_inc" readonly style="border:0; color:#f6931f; font-weight:bold;">
 
             <div id="slider-range-max-time_inc"></div>
@@ -68,14 +68,14 @@
 
 <div class="row">
     <div class="col-sm-12 mt-3">
-        <label for="amount">Тип турнира: </label>
+        <label for="amount">Tournament type: </label>
         <select name="is_online" id="is_online" class="form-control" onchange="tournamentTypechanged(this)">
 
 
 
-            <option value="1" <%= (typeof tournament !== "undefined" && tournament.is_online == 1) ? "selected"  : null %>>online (на сайте chesscup.org)</option>
+            <option value="1" <%= (typeof tournament !== "undefined" && tournament.is_online == 1) ? "selected"  : null %>>online (on chesscup.org)</option>
 
-            <option value="0" <%= (typeof tournament !== "undefined" && tournament.is_online == 0) ? "selected"  : null %>>offline (на реальных досках или другом сайте)</option>
+            <option value="0" <%= (typeof tournament !== "undefined" && tournament.is_online == 0) ? "selected"  : null %>>offline (real boards and other site)</option>
 
 
         </select>

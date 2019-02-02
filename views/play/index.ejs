@@ -15,9 +15,9 @@
 <div class="row mt-5">
     <div class="col-sm-12 col-md-3 col-lg-2">
         <% if (user && user.user) { %>
-            <span class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Создать игру</span>
+            <span class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Create a game</span>
         <% } else { %>
-            <a href="/login" class="btn btn-primary" >Создать игру</a>
+            <a href="/login" class="btn btn-primary" >Create a game</a>
         <% } %>
     </div>
     <div class="col-sm-12 col-md-9 col-lg-10">
@@ -31,7 +31,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Создание игры</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">New game</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -39,7 +39,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-sm-12 mt-3">
-                            <label for="amount">Контроль времени : </label>
+                            <label for="amount">Minutes per side : </label>
                             <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
 
                             <div id="slider-range-max"></div>
@@ -47,7 +47,7 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-12 mt-3">
-                            <label for="time_inc">Добавление секунд на ход : </label>
+                            <label for="time_inc">Increment in seconds : </label>
                             <input type="text" id="time_inc" readonly style="border:0; color:#f6931f; font-weight:bold;">
 
                             <div id="slider-range-max-time_inc"></div>
@@ -56,7 +56,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="create_game">Создать</button>
+                    <button type="button" class="btn btn-primary" id="create_game">Create</button>
                 </div>
             </div>
         </div>

@@ -82,16 +82,18 @@ class StartDate extends React.Component {
 
                         <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
                             <li className="nav-item">
-                                <a className="nav-link active" onClick={this.setType} data-type="interval" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Промежуток</a>
+                                <a className="nav-link active" onClick={this.setType} data-type="interval" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">
+                                    Interval</a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" onClick={this.setType} data-type="accurate" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Точное время</a>
+                                <a className="nav-link" onClick={this.setType}
+                                   data-type="accurate" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Custom start date</a>
                             </li>
                             
                         </ul>
                         <div className="tab-content" id="pills-tabContent">
                             <div className="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-                                <label htmlFor="wait_minutes">Время до начала турнира: </label>
+                                <label htmlFor="wait_minutes">Time before tournament starts: </label>
                                 <select name="wait_minutes" id="wait_minutes" className="form-control">
 
                                     {this.state.times.map((item, index) => (

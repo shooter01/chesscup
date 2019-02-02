@@ -201,7 +201,7 @@ module.exports = function (app) {
             let newDateObj2 = moment(cur.getDate() + "-" + (cur.getMonth() + 1) + "-" + cur.getFullYear() + " " + time_start, 'DD-MM-YYYYTHH:mm').toDate();
             const yyyy = "" + cur.getFullYear() + (cur.getMonth() + 1) + cur.getDate();
             let office = {
-                title: "Ежедневный блиц-турнир",
+                title: "Daily round robin blitz",
                 city: "Moscow",
                 tours_count: 9,
                 country: 'RU',
@@ -227,7 +227,7 @@ module.exports = function (app) {
 
 
             let team = {
-                title: "Ежедневный командный блиц-турнир",
+                title: "Daily team round robin blitz",
                 city: "Moscow",
                 tours_count: 9,
                 country: 'RU',

@@ -124,14 +124,14 @@ class PlaySockets extends React.Component {
         return (
             <div>
 
-                <h2>Вызовы</h2>
+                <h2>Challenges</h2>
 
                 <table className="table table-sm">
                     <thead className="thead-dark">
                     <tr>
                         <th scope="col" className="text-center">#</th>
-                        <th scope="col" className="text-center">Имя</th>
-                        <th scope="col" className="text-center">Контроль</th>
+                        <th scope="col" className="text-center">Name</th>
+                        <th scope="col" className="text-center">Time control</th>
                         <th scope="col" className="text-center"></th>
                     </tr>
                     </thead>
@@ -149,9 +149,9 @@ class PlaySockets extends React.Component {
                             <td className="text-center">
                                 {this.state.user_id != null ?
                                      (item.owner !=  this.state.user_id) ?
-                                         <span className="btn btn-primary btn-sm" data-game_id={item._id} onClick={this.accept}>Принять</span>
+                                         <span className="btn btn-primary btn-sm" data-game_id={item._id} onClick={this.accept}>Accept</span>
                                          :
-                                         <span className="btn btn-danger btn-sm" data-game_id={item._id} onClick={this.remove}>Удалить</span>
+                                         <span className="btn btn-danger btn-sm" data-game_id={item._id} onClick={this.remove}>Delete</span>
                                     : null
                                 }
                             </td>
@@ -161,14 +161,14 @@ class PlaySockets extends React.Component {
                     </tbody>
                 </table>
 
-                <h2>Игры</h2>
+                <h2>Current Games</h2>
 
                 <table className="table table-sm">
                     <thead className="thead-light">
                     <tr>
                         <th scope="col" className="text-center">#</th>
                         <th scope="col" className="text-center"></th>
-                        <th scope="col" className="text-center">Контроль</th>
+                        <th scope="col" className="text-center">Time control</th>
                         <th scope="col" className="text-center"></th>
                     </tr>
                     </thead>

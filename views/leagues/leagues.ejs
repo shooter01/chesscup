@@ -10,7 +10,7 @@
 </style>
 
 <h3 class="d-flex justify-content-between mt-5 mb-5">
-    Лиги <a href="/leagues/create" class="btn btn-lg btn-success">Создать лигу</a>
+    Leagues <a href="/leagues/create" class="btn btn-lg btn-success">Create league</a>
 </h3>
 
 
@@ -25,7 +25,7 @@
 
         <div class="col-md-10">
 
-            <a href="/leagues/<%= leagues[i].id %>" class="btn btn-info float-right">Показать</a>
+            <a href="/leagues/<%= leagues[i].id %>" class="btn btn-info float-right">Show</a>
 
             <h2 class="mt-0 team__title"><a href="/leagues/<%= leagues[i].id %>"><%= leagues[i].name %></a>
                 <img src="/images/blank.png" class="ml-4 flag flag-<%= leagues[i].country.toLocaleLowerCase() %>" title="<%= countries[leagues[i].country] %>" alt="<%= countries[leagues[i].country] %>">

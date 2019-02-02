@@ -170,8 +170,8 @@ class GetInButton extends React.Component {
         return (
             <span>
 
-                {(this.state.is_in == false) ? <span className="btn btn-lg btn-success float-right"  onClick={this.addParticipant} >Участвовать</span> :
-                <span onClick={this.removeParticipant} className="btn btn-lg btn-danger float-right" >Покинуть</span>}
+                {(this.state.is_in == false) ? <span className="btn btn-lg btn-success float-right"  onClick={this.addParticipant} >Join</span> :
+                <span onClick={this.removeParticipant} className="btn btn-lg btn-danger float-right" >Leave</span>}
 
 
 

@@ -13,10 +13,6 @@ var flash = require('connect-flash');
 var Database = require('./routes/sql');
 
 
-
-
-
-
 var app = express();
 var engine = require('ejs-mate');
 
@@ -142,10 +138,9 @@ var i18n = require('i18n-2');
 // And attach helper methods for use in templates
 i18n.expressBind(app, {
     // setup some locales - other locales default to en silently
-    locales: ['ru'],
+    locales: [ 'en'],
     extension: '.json',
 
-    // change the cookie name from 'lang' to 'locale'
 });
 
 passport.use("local-login",new LocalStrategy({

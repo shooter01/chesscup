@@ -17,11 +17,11 @@
                 <% } %>
 
                 <%  if (tournaments[i].type === 1) { %>
-                <span class="badge badge">Швейцарская система</span>
+                <span class="badge badge">Swiss system</span>
                 <% } %>
 
                 <%  if (tournaments[i].type === 2) { %>
-                <span class="badge badge">Круговая система</span>
+                <span class="badge badge">Round robin system</span>
                 <% } %>
 
                 <span class="badge badge"><%= tournaments[i].amount %> + <%= tournaments[i].time_inc %></span>
@@ -42,7 +42,7 @@
 
             <div class="d-flex justify-content-between align-bottom">
                 <div class="mt-2">
-                    <span class="badge p-0 mt-1 mb-1">Участников : <%= tournaments[i].participants_count %></span>
+                    <span class="badge p-0 mt-1 mb-1">Participants : <%= tournaments[i].participants_count %></span>
                 </div>
 
                 <%  if (tournaments[i].type === 1) { %>
@@ -55,11 +55,11 @@
             </div>
             <%  if (tournaments[i].is_active === 1 && tournaments[i].is_closed === 1) { %>
                 <div>
-                    <span class="badge badge-secondary">Завершён</span>
+                    <span class="badge badge-secondary">Complete</span>
                 </div>
             <% } else if (tournaments[i].is_active === 1 && tournaments[i].is_closed === 0) { %>
                 <div>
-                    <span class="badge badge-success">Активен</span>
+                    <span class="badge badge-success">Active</span>
                 </div>
             <% } %>
         </div>

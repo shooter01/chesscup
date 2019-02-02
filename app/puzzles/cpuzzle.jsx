@@ -1021,7 +1021,7 @@ class App extends React.Component {
                 localStorage.setItem("limit" + date.getDate() + date.getMonth(), ++temp);
             }
 
-            if (loc >= 5) {
+            if (loc >= 20) {
                 self.setState({
                     state : "limit",
                 }, function () {
@@ -1052,7 +1052,8 @@ class App extends React.Component {
                     }
 
                     //$(".center-card").height(width).width(width);
-                    //  $(".card").width(width/1.5);
+                    //  $(".card").112
+                    // width(width/1.5);
 
                     self.getPuzzles(self.state.hundred);
                     self.setInitialTimer();
@@ -1342,29 +1343,29 @@ class App extends React.Component {
                                 <div className=" d-flex center-card justify-content-center align-items-center">
                                     <div className="card">
                                         <div className="card-body p-0">
-                                            <h3 className="card-title text-center pl-3 pl-3 mt-3 font-weight-bold">ЗАДАЧИ</h3>
+                                            <h3 className="card-title text-center pl-3 pl-3 mt-3 font-weight-bold">PUZZLES</h3>
                                             <div className="card-text text-center pl-3 pl-3">
                                                 <img src="/images/puzzle.png" className="img-puzzle mt-2 mb-2" alt=""/>
-                                                <div className="mt-2 mb-2 font-weight-bold text-success">Штурм</div>
+                                                <div className="mt-2 mb-2 font-weight-bold text-success">Rush</div>
                                             </div>
                                             <div className="bg-light w-100 p-4 text-center">
-                                                Решите столько задач, сколько сможете, за 5 минут! С каждой задачей сложность возрастает. Три ошибки, и испытание закончено.
+                                                Solve as many puzzles as you can in 5 minutes! Each puzzle gets harder. 3 strikes and you’re out.
                                             </div>
                                         </div>
                                         <div className="text-center p-3">
                                             {typeof user_id === "undefined" ? <div>
                                                     <div className="mb-2">
                                                         <a href="/login" className="btn btn-block btn-success btn-lg">
-                                                            <small id="login_button">Есть аккаунт? Вход</small>
+                                                            <small id="login_button">Login</small>
                                                         </a>
                                                     </div>
 
                                                     <div>
                                                         <a href="/signup" className="btn btn-block btn-primary btn-lg">
-                                                            <small id="reg_button">Зарегистрируйтесь, чтобы начать</small>
+                                                            <small id="reg_button">Sign up to play</small>
                                                         </a>
                                                     </div>
-                                                </div> : <button className="btn btn-block btn-primary btn-lg start-btn">Начать</button>}
+                                                </div> : <button className="btn btn-block btn-primary btn-lg start-btn">Start</button>}
 
                                         </div>
                                     </div>
@@ -1377,9 +1378,9 @@ class App extends React.Component {
                                 <div className="d-flex center-card justify-content-center align-items-center over-modal">
                                     <div className="card">
                                         <div className="card-body p-0">
-                                            <h3 className="card-title text-center pl-3 pl-3 pt-3 pb-3 font-weight-bold bg-success text-white">Неплохо!</h3>
+                                            <h3 className="card-title text-center pl-3 pl-3 pt-3 pb-3 font-weight-bold bg-success text-white">Good!</h3>
                                             <div className="card-text text-center pl-3 pl-3 ">
-                                                <span className="font-weight-bold">Ваш результат</span>
+                                                <span className="font-weight-bold">Your result</span>
                                                 <h1 className="font-weight-bold">
                                                     <div>{this.state.correct_puzzle_counter}</div>
                                                 </h1>
@@ -1388,13 +1389,13 @@ class App extends React.Component {
                                             <div className="row mt-4 mb-4">
                                                 <span className="col-6 text-center">
                                                     <h6 className="mb-0"><i className="fas fa-calendar-day text-secondary"></i></h6>
-                                                    <h6 className="mb-0"><small>СЕГОДНЯ</small></h6>
+                                                    <h6 className="mb-0"><small>TODAY</small></h6>
                                                     <h3 className="mb-0 font-weight-bold">{this.state.user_today}</h3>
                                                 </span>
 
                                                 <span className="col-6 text-center">
                                                     <h6 className="mb-0"><i className="fas fa-sync-alt text-secondary"></i></h6>
-                                                    <h6 className="mb-0"><small>ВСЁ ВРЕМЯ</small></h6>
+                                                    <h6 className="mb-0"><small>ALL TIME</small></h6>
                                                     <h3 className="mb-0 font-weight-bold">{this.state.user_all}</h3>
                                                 </span>
                                             </div>
@@ -1402,14 +1403,14 @@ class App extends React.Component {
                                             <div className="mt-5 mb-3">
                                                 <div className="pl-4 pr-4 d-flex justify-content-between h-100 justify-content-center align-items-center mt-4">
 
-                                                    <span><i className="fas fa-fire mr-2 text-secondary"></i><span className="text-secondary">Самая длинная серия</span></span>
+                                                    <span><i className="fas fa-fire mr-2 text-secondary"></i><span className="text-secondary">Longest streak</span></span>
 
                                                     <span>{this.state.longest_streak}</span>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="text-center pl-4 pr-4 pt-3 pb-3  mb-3">
-                                            <button className="btn btn-block btn-success btn-lg start-btn ">Сыграть снова</button>
+                                            <button className="btn btn-block btn-success btn-lg start-btn ">Play Again</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1420,16 +1421,16 @@ class App extends React.Component {
                                 <div className="d-flex center-card justify-content-center align-items-center over-modal">
                                     <div className="card">
                                         <div className="card-body p-0">
-                                            <h3 className="card-title text-center pl-3 pl-3 pt-3 pb-3 font-weight-bold bg-success text-white">Лимит!</h3>
+                                            <h3 className="card-title text-center pl-3 pl-3 pt-3 pb-3 font-weight-bold bg-success text-white">Limit!</h3>
                                             <div className="card-text text-center pl-3 pl-3 ">
-                                                <span className="font-weight-bold">Вы достигли лимита: </span>
+                                                <span className="font-weight-bold">Limit reached: </span>
                                                 <h5 className="font-weight-bold">
-                                                    <div>5 попыток в день</div>
+                                                    <div>20 efforts per day</div>
                                                 </h5>
                                             </div>
                                         </div>
                                         <div className="text-center pl-4 pr-4 pt-3 pb-3  mb-3">
-                                            <a href="/" className="btn btn-block btn-success btn-lg start-btn ">На главную</a>
+                                            <a href="/" className="btn btn-block btn-success btn-lg start-btn ">Home</a>
                                         </div>
                                     </div>
                                 </div>
@@ -1483,19 +1484,19 @@ class App extends React.Component {
                                         {(this.state.puzzle_status) ?
                                             (this.state.puzzle_status === 'correct') ?
                                             <div className="bg-success text-white text-center p-2 font-weight-bold mb-2">
-                                                <h3 className="m-0"><i className="fas fa-check"></i>&nbsp;Правильно!</h3>
+                                                <h3 className="m-0"><i className="fas fa-check"></i>&nbsp;Correct!</h3>
                                             </div> : <div className="bg-danger text-white text-center p-2 font-weight-bold mb-2">
-                                                    <h3 className="m-0"><i className="fas fa-times"></i>&nbsp;Ошибка!</h3>
+                                                    <h3 className="m-0"><i className="fas fa-times"></i>&nbsp;Error!</h3>
                                                 </div>
                                             :
                                             <div>
                                                 {(this.state.first_move === "white") ?
                                                     <div className="bg-light text-white text-center p-2 font-weight-bold mb-2">
-                                                        <h3 className="m-0"><i className="fas fa-square text-white mr-1"></i> <span className="font-weight-bold text-dark">Ход белых</span></h3>
+                                                        <h3 className="m-0"><i className="fas fa-square text-white mr-1"></i> <span className="font-weight-bold text-dark">White to move</span></h3>
                                                     </div> :
                                                     (this.state.first_move === "black") ?
                                                         <div className="bg-dark text-white text-center p-2 font-weight-bold mb-2">
-                                                            <h3 className="m-0"><i className="fas fa-square text-black-50 mr-1"></i> <span className="font-weight-bold text-white">Ход чёрных</span></h3>
+                                                            <h3 className="m-0"><i className="fas fa-square text-black-50 mr-1"></i> <span className="font-weight-bold text-white">Black to move</span></h3>
                                                         </div> :
                                                         <div className="bg-success text-white text-center p-2 font-weight-bold mb-2">
                                                             <h3 className="m-0"><i className="fas fa-puzzle-piece mr-1"></i> <span className="font-weight-bold">Puzzle Rush</span></h3>
@@ -1524,7 +1525,7 @@ class App extends React.Component {
 
                                     {this.state.state === "welcome" ? <span className="col-4 text-center">
                                         <h6 className="mb-0"><i className="fas fa-calendar-day text-secondary"></i></h6>
-                                        <small className="mb-0">СЕГОДНЯ</small>
+                                        <small className="mb-0">TODAY</small>
                                         <h3 className="mb-0 font-weight-bold">{this.state.user_today}</h3>
                                     </span> : <span className="col-5">
                                         <a href={"/users/" + user_id} target="_blank" className="text-nowrap"><small>{username}</small></a>
@@ -1538,7 +1539,7 @@ class App extends React.Component {
 
                                     {this.state.state === "welcome" ? <span className="col-4 text-center">
                                             <h6 className="mb-0"><i className="fas fa-sync-alt text-secondary"></i></h6>
-                                            <small className="mb-0">ВСЁ ВРЕМЯ</small>
+                                            <small className="mb-0">ALL TIME</small>
                                             <h3 className="mb-0 font-weight-bold">{this.state.user_all}</h3>
                                         </span> : <span className="col-4">
                                         <h1 id="timer" className="text-secondary text-right"></h1>
@@ -1571,15 +1572,15 @@ class App extends React.Component {
                                 { this.state.efforts_array.map((item, index) => (
                                     <span key={index}>
                                         {item.result === true ?
-                                            <span  href={"/puzzles/" + item.id} className="streak-indicator-streak streak-indicator-incorrect streak-indicator-link text-center"  target="_blank">
+                                            <a  href={"/puzzles/" + item.id} className="streak-indicator-streak streak-indicator-incorrect streak-indicator-link text-center"  target="_blank">
                                                 <i className="icon-font-component streak-indicator-icon fas fa-check-square text-success checkbox m-1 "></i>
                                                 <small className="icon-font-component streak-indicator-icon text-success font-weight-bold">{item.rating}</small>
-                                            </span>
+                                            </a>
                                             :
-                                            <span  href={"/puzzles/" + item.id} className="streak-indicator-streak streak-indicator-incorrect streak-indicator-link text-center"  target="_blank">
+                                            <a  href={"/puzzles/" + item.id} className="streak-indicator-streak streak-indicator-incorrect streak-indicator-link text-center"  target="_blank">
                                                 <i className="icon-font-component streak-indicator-icon fas fa-times-circle text-danger checkbox m-1 "></i>
                                                 <small className="icon-font-component streak-indicator-icon text-danger font-weight-bold">{item.rating}</small>
-                                            </span>}
+                                            </a>}
                                     </span>
                                 ))}
                             </div> : null}
@@ -1589,11 +1590,11 @@ class App extends React.Component {
 
                                 <div className="row mt-5">
                                     {this.state.state === "over" ? <div className="col-12 mb-2 text-secondary font-weight-bold text-center">
-                                            <span className="btn btn-light start-btn"><i className="fas fa-redo-alt text-secondary font-weight-bold mr-1"></i>Сыграть снова  </span>
+                                            <span className="btn btn-light start-btn"><i className="fas fa-redo-alt text-secondary font-weight-bold mr-1"></i>Play again  </span>
                                         </div> : null}
 
                                     {this.state.state === "main" ? <div className="col-12 mb-2 text-secondary font-weight-bold text-center">
-                                            <span className="btn btn-light" onClick={this.setIncorrect}>Пропустить</span>
+                                            <span className="btn btn-light" onClick={this.setIncorrect}>Skip</span>
                                         </div> : null}
 
                                 </div>
@@ -1609,11 +1610,11 @@ class App extends React.Component {
                             <div className="row mt-2">
                                 <div className="col-12">
                                     <div className="d-flex justify-content-between justify-content-center align-items-center">
-                                        <span>Таблица лидеров</span>
+                                        <span>Leaderboard</span>
                                         <span>
                                             <select className="form-control form-control-sm" onChange={this.setResultsRange}>
-                                              <option value="all">Все</option>
-                                              <option value="daily">За день</option>
+                                              <option value="all">All</option>
+                                              <option value="daily">Daily</option>
                                             </select>
                                         </span>
                                     </div>
@@ -1645,7 +1646,7 @@ class App extends React.Component {
                         :
                         <div>
                             {/*если это отдельный пазл*/}
-                            <div className="btn btn-block btn-info btn-lg" id="show_solution">Показать решение</div>
+                            <div className="btn btn-block btn-info btn-lg" id="show_solution">Show solution</div>
                             {/*<div className="btn btn-block btn-light btn-sm mt-5">Запрос на проверку</div>*/}
                         </div>}
                 </div>
