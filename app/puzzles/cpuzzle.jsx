@@ -954,8 +954,8 @@ class App extends React.Component {
         if (typeof user_id === "undefined") {
             $(".card").width(width/1.5);
             if (document.documentElement.clientWidth < 1100) {
-                $("#reg_button").html("Регистрация");
-                $("#login_button").html("Вход");
+                $("#reg_button").html("Registration");
+                $("#login_button").html("Login");
                 $(".center-card").height(width).width(width);
             }
         } else {
