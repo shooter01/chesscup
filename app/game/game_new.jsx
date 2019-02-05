@@ -157,9 +157,6 @@ class App {
             this.game = new Chess();
         }
 
-        if (!this.renderPos()) {return false;}
-
-
         if (typeof u != "undefined" && p1 == u) {
             this.state.isPlayer = true;
             this.state.playerColor = "white";
