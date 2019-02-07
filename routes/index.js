@@ -5,8 +5,8 @@ const moment = require('moment');
 const { check, validationResult } = require('express-validator/check');
 const { matchedData, sanitize } = require('express-validator/filter');
 const countries = require('./countries');
-var api_key = 'key-b8979f45de416021750386d336a5e8de';
-var domain = 'chesscup.org';
+var api_key = '';
+var domain = '';
 var mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
 var Elo = require('arpad');
 
