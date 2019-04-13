@@ -3,7 +3,7 @@ var router = express.Router();
 const {isLoggedIn} = require('./middlewares');
 const { check, validationResult } = require('express-validator/check');
 const countries = require('./countries');
-const sharp = require('sharp');
+// const sharp = require('sharp');
 const path = require('path');
 const nl2br  = require('nl2br');
 
@@ -183,7 +183,7 @@ module.exports = function(app, passport, pool) {
             }
         });
 
-    router.post('/upload', [
+    /*router.post('/upload', [
             isLoggedIn,
 
         ],
@@ -227,7 +227,7 @@ module.exports = function(app, passport, pool) {
 
             }
         );
-
+*/
 
     router.post('/apply', [
             isLoggedIn,
