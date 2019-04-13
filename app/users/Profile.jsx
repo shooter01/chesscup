@@ -9,7 +9,7 @@ TimeAgo.addLocale(en)
 TimeAgo.addLocale(ru)
 
 // cyka blyat
-const timeAgo = new TimeAgo('ru-RU')
+const timeAgo = new TimeAgo('en-EN')
 
 if (visited_at && visited_at != "null") {
 
