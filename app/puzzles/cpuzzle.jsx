@@ -1307,6 +1307,7 @@ class App extends React.Component {
     render() {
         var href = "/" + role_route + "/" + task_id + "/puzzle/" + next;
         var nextNullHref = "/" + role_route + "/" + task_id;
+        if (!this.renderPos()) {return false;}
         return (
             <div className="col-lg-12">
                 <div className="row">

@@ -168,8 +168,8 @@ module.exports = function (app, passport, pool) {
                             } else {
                                 res.render('login', {
                                     showTest : null,
-                                    "signup": "Используйте Ваш email и пароль для входа",
-                                   // "signup": "Use your email and password to login",
+                                    // "signup": "Используйте Ваш email и пароль для входа",
+                                   "signup": "Use your email and password to login",
                                 });
                             }
                         }).catch(function (err) {
