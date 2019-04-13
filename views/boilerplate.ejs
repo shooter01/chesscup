@@ -4,9 +4,9 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Chesscup</title>
-    <meta name="keywords" content="Задачи" />
-    <meta name="description" content="Задачи" />
+    <title>Free puzzle rush online - chesscup.org</title>
+    <meta name="keywords" content="free puzzle rush, tactic sturm, тактический штурм" />
+    <meta name="description" content="Free puzzle rush online" />
     <meta name="author" content="chesscup" />
     <link rel="stylesheet" href="/js/bootstrap/css/bootstrap.min.css"  />
 
@@ -40,11 +40,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/"><%- __("MenuHome") %> <span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item">
+               <!-- <li class="nav-item">
                     <a class="nav-link" href="/play">Playzone</a>
-                </li>
+                </li>-->
                 <% if (user && user.user && user.user.is_team_owner) { %>
-                    <li class="nav-item dropdown">
+                   <!-- <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="/teams/<%= user.user.is_team_owner %>" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <%- __("my_team") %><span id="team_applies_count" class="badge badge-light">0</span>
                         </a>
@@ -52,16 +52,16 @@
                             <a class="dropdown-item" href="/teams/<%= user.user.is_team_owner %>"><%- __("my_team") %></a>
                             <a class="dropdown-item" href="/teams"><%- __("teams") %></a>
                         </div>
-                    </li>
+                    </li>-->
                 <% } else { %>
-                    <li class="nav-item">
+                   <!-- <li class="nav-item">
                         <a class="nav-link" href="/teams"><%- __("teams") %></a>
-                    </li>
+                    </li>-->
                 <% } %>
 
 
                 <% if (user && user.user && user.user.is_league_owner) { %>
-                <li class="nav-item dropdown">
+              <!--  <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="/leagues/<%= user.user.is_league_owner %>" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <%- __("my_league") %>
                     </a>
@@ -69,21 +69,21 @@
                         <a class="dropdown-item" href="/leagues/<%= user.user.is_league_owner %>"><%- __("my_league") %></a>
                         <a class="dropdown-item" href="/leagues"><%- __("leagues") %></a>
                     </div>
-                </li>
+                </li>-->
                 <% } else { %>
-                    <li class="nav-item">
+                   <!-- <li class="nav-item">
                         <a class="nav-link" href="/leagues"><%- __("leagues") %></a>
-                    </li>
+                    </li>-->
                 <% } %>
 
 
-                <li class="nav-item">
+              <!--  <li class="nav-item">
                     <a class="nav-link" href="/errorfound"><%- __("errorfound") %></a>
                 </li>
-
-                <li class="nav-item">
+-->
+                <!--<li class="nav-item">
                     <a class="nav-link" href="/puzzle_rush"><%- __("Puzzle_rush") %></a>
-                </li>
+                </li>-->
             </ul>
 
             <ul class="navbar navbar-nav navbar-right">
@@ -238,7 +238,7 @@
 
 
 
-    <script src="/js/ws.min.js"></script>
+    <!--<script src="/js/ws.min.js"></script>-->
     <% if (user && user.user) { %>
         <script>
             $.get("/visit", function (data) {

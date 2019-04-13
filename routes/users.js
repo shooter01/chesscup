@@ -374,7 +374,7 @@ module.exports = function(app, passport, pool) {
     });
 
     router.post('/update', [
-            check('secret', 'The secret field is required').exists().isLength({ min: 1 }),
+            // check('secret', 'The secret field is required').exists().isLength({ min: 1 }),
             check('name', 'The name field is required').exists().isLength({ min: 1 }),
             check('email', 'The email field is required').exists().isLength({ min: 1 }).isEmail(),
         ],
@@ -389,7 +389,6 @@ module.exports = function(app, passport, pool) {
             } else {
 
                 let office = {
-                    secret: req.body.secret.trim(),
                     name: req.body.name.trim(),
                     email: req.body.email.trim(),
                     lichess: req.body.lichess.trim(),

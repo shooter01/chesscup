@@ -5,8 +5,8 @@ const moment = require('moment');
 const { check, validationResult } = require('express-validator/check');
 const { matchedData, sanitize } = require('express-validator/filter');
 const countries = require('./countries');
-var api_key = '';
-var domain = '';
+var api_key = 'key-b8979f45de416021750386d336a5e8de';
+var domain = 'chesscup.org';
 var mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
 var Elo = require('arpad');
 
@@ -25,9 +25,9 @@ var elo = new Elo(uscf, min_score, max_score);
 module.exports = function (app, passport, pool) {
   /* GET home page. */
     router.get('/', function(req, res) {
+        res.render('puzzles/puzzle_rush');
 
-
-        pool.query('SELECT * FROM tournaments ORDER BY tournaments.id DESC LIMIT 10').then(function (results) {
+        /*pool.query('SELECT * FROM tournaments ORDER BY tournaments.id DESC LIMIT 10').then(function (results) {
             let tournaments_system = [], tournaments = [];
             for (let i = 0; i < results.length; i++) {
                 let obj = results[i];
@@ -49,7 +49,7 @@ module.exports = function (app, passport, pool) {
 
         }).catch(function (err) {
             console.log(err);
-        });
+        });*/
     });
 
 
@@ -93,7 +93,7 @@ module.exports = function (app, passport, pool) {
             .exists()
             .isLength({ min: 1 })
             .custom((value, { req }) => value === req.body.password),
-         check('g-recaptcha-response', 'Подтвердите, что вы не робот').exists().isLength({ min: 1 }),
+         check('g-recaptcha-response', 'Check captcha field').exists().isLength({ min: 1 }),
 
 
     ], function (req, res, next) {

@@ -8,7 +8,7 @@
     }
 </style>
 
-<div class="row mt-3">
+<!--<div class="row mt-3">
     <div class="col-lg-12">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -17,7 +17,7 @@
             </ol>
         </nav>
     </div>
-</div>
+</div>-->
 
 
 <div class="row">
@@ -44,7 +44,7 @@
                         <%}%>
                     </td>
                 </tr>
-                <tr>
+               <!-- <tr>
                     <th scope="row">FIDE title</th>
                     <td></td>
                 </tr>
@@ -55,7 +55,7 @@
                 <tr>
                     <th scope="row">Online Rating</th>
                     <td><%= profile.tournaments_rating %></td>
-                </tr>
+                </tr>-->
                 </tbody>
             </table>
         </div>
@@ -86,10 +86,10 @@
 
     <% } %>
 
-    <h3>Награды</h3>
+    <!--<h3>Награды</h3>-->
 
 
-    <h3>Аккаунты на других сайтах</h3>
+    <h3>Lichess account</h3>
     <% if (profile.lichess) { %>
         <p>
             Lichess.org <a target="_blank" href="https://lichess.org/@/<%= profile.lichess %>">https://lichess.org/@/<%= profile.lichess %></a>
@@ -101,7 +101,7 @@
         </p>
     <% } %>
 
-    <h3>Последние партии</h3>
+  <!--  <h3>Последние партии</h3>
 
     <table class="table table-sm">
         <thead class="thead-dark">
@@ -112,25 +112,13 @@
         </thead>
         <tbody>
 
+-->
 
 
-
-    <% for (var i = 0; i < games.length; i++) { %>
-        <% if (games[i].p1_id != null && games[i].p2_id != null) { %>
-            <tr>
-                <td>
-                    <%= games[i].p1_name %> - <%= games[i].p2_name %>
-                </td>
-                <td class="text-center">
-                    <%= games[i].p1_won %> - <%= games[i].p2_won %>
-                </td>
-            </tr>
-        <% } %>
-    <% } %>
-
+ <!--
         </tbody>
-    </table>
-    <h3>Последние турниры</h3>
+    </table>-->
+   <!-- <h3>Последние турниры</h3>
 
 
     <table class="table table-sm">
@@ -144,19 +132,9 @@
 
 
 
-        <% for (var i = 0; i < tournaments.length; i++) { %>
-
-            <tr>
-                <td>
-                    <a href="/tournament/<%= tournaments[i].t_id %>"><%= tournaments[i].title %></a>
-                </td>
-
-            </tr>
-
-        <% } %>
 
         </tbody>
-    </table>
+    </table>-->
 
 </div>
 

@@ -21,7 +21,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.engine('ejs', engine);
 
-let db_pass = "3345";
+let db_pass = "ubuntu34";
 let db_name = "chess";
 if (process.env.NODE_ENV === "dev-linux") {
     db_pass = "ubuntu34";
@@ -154,7 +154,7 @@ passport.use("local-login",new LocalStrategy({
             if (err)
                 return done(err);
             if (!user)
-                return done(null, false, {message: 'Введенные данные некорректны. Проверьте логин и пароль.'});
+                return done(null, false, {message: 'Check password and login.'});
             /*if (!user.validPassword(password))
              return done(null, false, {message: 'Oops! Mauvais password.'});*/
 
