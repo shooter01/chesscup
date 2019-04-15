@@ -128,26 +128,7 @@
 
 
     <script>
-        $(".lang-choose").on("click", function (event) {
-            event.preventDefault();
-            var lang = $(this).attr("href").replace("/", "");
-            setCookie("lang", lang, 9999);
-            location.reload();
-            return false;
-        });
 
-
-        $(function () {
-            var lang = getCookie("lang");
-            if (lang === "ru") {
-                $("#lang__title").html("Русский");
-            } else if (lang === "en") {
-                $("#lang__title").html("English");
-            } else {
-                $("#lang__title").html("Language");
-            }
-
-        })
 
 
 
