@@ -790,10 +790,10 @@ class App extends React.Component {
             },
             error : function ( jqXHR, textStatus ) {
                 var error = "";
-                for (var obj in jqXHR.responseJSON.errors) {
+               /* for (var obj in jqXHR.responseJSON.errors) {
                     error = jqXHR.responseJSON.errors[obj].msg;
-                }
-                alert(error);
+                }*/
+                alert('Server error');
 
             },
         });

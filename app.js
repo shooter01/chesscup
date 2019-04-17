@@ -11,7 +11,7 @@ var MySQLStore = require('express-mysql-session')(session);
 
 var flash = require('connect-flash');
 var Database = require('./routes/sql');
-
+var md5 = require('md5');
 
 var app = express();
 var engine = require('ejs-mate');
@@ -90,7 +90,7 @@ MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
 
 
 var getUser = function(email, password, cb) {
-    pool.query("SELECT * FROM users WHERE email = ? AND password = ? LIMIT 1", [email, password])
+    pool.query("SELECT * FROM users WHERE email = ? AND password = ? LIMIT 1", [email, md5(password)])
         .then(function (rows) {
             if (rows.length > 0) {
                 cb(null, rows[0]);

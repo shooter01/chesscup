@@ -1,0 +1,110 @@
+
+<% layout('boilerplate') -%>
+
+<style>
+    .form-signin {
+        max-width: 430px;
+        padding: 15px;
+        margin: 0 auto;
+    }
+    .form-signin .form-signin-heading,
+    .form-signin .checkbox {
+        margin-bottom: 10px;
+    }
+    .form-signin .checkbox {
+        font-weight: normal;
+    }
+    .form-signin .form-control {
+        position: relative;
+        height: auto;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        padding: 10px;
+        font-size: 16px;
+    }
+    .form-signin .form-control:focus {
+        z-index: 2;
+    }
+    .form-signin input[type="email"] {
+        margin-bottom: -1px;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .form-signin input[type="password"] {
+        margin-bottom: 10px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+</style>
+
+
+    <div class="row mt-5">
+        <div class="col-md-8 offset-md-2">
+            <div class="card card-default">
+                <div class="card-header">Reset Password</div>
+                <div class="card-body ">
+
+                    <div class="errors alert alert-danger hidden"></div>
+
+
+                    <form method="post" id="form">
+                        <input type="password" class="input-lg form-control" name="password1" id="password1" placeholder="New Password" autocomplete="off">
+
+                        <input type="password" class="input-lg form-control  mt-3" name="password2" id="password2" placeholder="Repeat Password" autocomplete="off">
+                        <input type="hidden" name="email" id="email" value="<%= email %>">
+
+                        <input type="submit" class="col-xs-12 btn btn-primary btn-load btn-lg  mt-3" data-loading-text="Changing Password..." value="Change Password">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+
+
+
+
+
+    $("#form").on("submit", function () {
+        $(".errors").addClass("hidden").empty();
+        $(".success").addClass("hidden").empty();
+        $("#submit").attr("disabled", "disabled");
+
+        $.post("/password/resetpost"  , {
+            password : $("#password1").val(),
+            passwordConfirmation : $("#password2").val(),
+            email : $("#email").val(),
+        }).done(function (data) {
+            if (data.status != "ok") {
+                $(".errors").removeClass("hidden");
+                if (data.errors) {
+                    for (var obj in data.errors) {
+                        $(".errors").append(data.errors[obj].msg);
+                    }
+                } else {
+                    $(".errors").html(data.msg);
+                }
+
+            } else {
+                location.href = '/login'
+            }
+        }).fail(function (data, jqXHR, textStatus) {
+            $(".errors").removeClass("hidden");
+            if (data) {
+                $(".errors").removeClass("hidden");
+
+                for (var obj in data.responseJSON.errors) {
+                    $(".errors").append(data.responseJSON.errors[obj].msg + "<br/>");
+
+                }
+            } else {
+                alert("Ошибка сохранения");
+            }
+        }).always(function () {
+            $("#submit").removeAttr("disabled");
+        });
+        return false;
+    });
+</script>

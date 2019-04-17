@@ -9,6 +9,8 @@ var api_key = 'key-b8979f45de416021750386d336a5e8de';
 var domain = 'chesscup.org';
 var mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
 var Elo = require('arpad');
+var md5 = require('md5');
+var os = require("os");
 
 var uscf = {
     default: 20,
@@ -93,7 +95,7 @@ module.exports = function (app, passport, pool) {
             .exists()
             .isLength({ min: 1 })
             .custom((value, { req }) => value === req.body.password),
-         check('g-recaptcha-response', 'Check captcha field').exists().isLength({ min: 1 }),
+         // check('g-recaptcha-response', 'Check captcha field').exists().isLength({ min: 1 }),
 
 
     ], function (req, res, next) {
@@ -118,14 +120,15 @@ module.exports = function (app, passport, pool) {
 
         } else {
 
-
+            md5
             pool
                 .query('SELECT * FROM users WHERE email = ? ', req.body.username)
                 .then(rows => {
                     if (rows.length === 0) {
                         let theme = {
                             email: req.body.username.trim(),
-                            password: req.body.password.trim(),
+
+                            password: md5(req.body.password.trim()),
                             name: req.body.name.trim(),
                             image : '/images/user.png',
                             country: req.body.country.trim(),
@@ -222,6 +225,62 @@ module.exports = function (app, passport, pool) {
 
     });
 
+
+
+
+    router.post('/password/resetpost', [
+
+        check('email')
+            .isEmail().withMessage('The email field is required')
+            .trim()
+            .normalizeEmail().custom((value, { req }) => {
+
+            return new Promise((resolve, reject) => {
+
+                pool.query("SELECT * FROM users WHERE email = ? LIMIT 1",
+                    [value]
+                ).then(function (rows) {
+                    if(rows.length == 0) {
+                        return reject("Email not found");
+                    } else {
+                        return resolve();
+                    }
+                });
+            });
+        }),
+        check('password', 'The password field is required').exists().isLength({ min: 1 }),
+        check('passwordConfirmation', 'Check password confirmation')
+            .exists()
+            .isLength({ min: 1 })
+            .custom((value, { req }) => value === req.body.password),
+
+
+    ], function (req, res, next) {
+
+        var isAjaxRequest = req.xhr;
+
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.mapped() });
+        } else {
+            pool.query('UPDATE users SET password = ? WHERE email = ?', [md5(req.body.password), req.body.email])
+                .then(rows => {
+                    app.mongoDB.collection("recovery").deleteMany({
+                        email: req.body.email,
+                    }, function () {
+                        res.json({
+                            status : "ok",
+                        });
+                    });
+
+                }).catch(function (err) {
+                console.log(err);
+            });
+        }
+
+    });
+
     router.get('/login', function (req, res) {
         // render the page and pass in any flash data if it exists
         var showTest = null;
@@ -234,6 +293,18 @@ module.exports = function (app, passport, pool) {
 
     router.get('/password/reset', function (req, res) {
         res.render('reset');
+    });
+
+    router.get('/password/recovery/:hash', function (req, res) {
+        app.mongoDB.collection("recovery").findOne({hash : req.params.hash}, function (err, mongoGame) {
+            if (!mongoGame) {
+                throw new Error('Hash not found')
+                return false;
+            }
+            res.render('recovery', {email : mongoGame.email});
+
+        });
+
     });
 
 
@@ -258,21 +329,36 @@ module.exports = function (app, passport, pool) {
                 .then(rows => {
                     console.log(rows);
                     if (rows.length > 0) {
-                        var data = {
-                            from: 'chesscup.org <no-reply@chesscup.org>',
-                            to: rows[0].email,
-                            subject: 'Password recovery',
-                            text: 'Password : ' + rows[0].password
-                        };
 
-                        mailgun.messages().send(data, function (error, body) {
-                            console.log(error);
-                            res.json({
-                                status : "ok",
+                        const hash = md5(new Date());
+                        app.mongoDB.collection("recovery").updateOne({
+                                email : rows[0].email,
+                            },
+                            {
+                                $set: {
+                                    date : new Date(),
+                                    hash : hash,
+                                },
+
+
+                            },
+                            { upsert: true }, function () {
+
+                                const link  = 'https://chesscup.org/password/recovery/' + hash;
+
+                                var data = {
+                                    from: 'chesscup.org <no-reply@chesscup.org>',
+                                    to: rows[0].email,
+                                    subject: 'Password recovery',
+                                    html: 'Recovery link : <a href="' + link + '">' + link + '</a>'
+                                };
+
+                                mailgun.messages().send(data, function (error, body) {
+                                    res.json({
+                                        status : "ok",
+                                    });
+                                });
                             });
-                        });
-
-
                     } else {
                         res.json({
                             status : "error",
