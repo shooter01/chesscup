@@ -405,6 +405,10 @@ module.exports = function (app, passport, pool) {
         res.render('errorfound');
     });
 
+    router.get('/contacts', function (req, res) {
+        res.render('contact');
+    });
+
     router.get('/visit', function (req, res) {
         if (req.isAuthenticated()) {
             app.mongoDB.collection("visits").updateOne({
