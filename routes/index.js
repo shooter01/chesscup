@@ -88,7 +88,25 @@ module.exports = function (app, passport, pool) {
             .isEmail().withMessage('The email field is required')
             .trim()
             .normalizeEmail(),
-        check('name', 'The name field is required').exists().isLength({ min: 1 }),
+        check('name', 'The name field is required')
+            .exists()
+            .isLength({ min: 1 })
+            .matches(/^[a-zA-Z0-9_]+$/, 'i')
+            .withMessage('Username must be alphanumeric, and can contain underscores').custom((value, { req }) => {
+
+            return new Promise((resolve, reject) => {
+            console.log(value);
+                pool.query("SELECT * FROM users WHERE name = ? LIMIT 1",
+                    [value]
+                ).then(function (rows) {
+                    if(rows.length == 0) {
+                        return resolve();
+                    } else {
+                        return reject("Username is not unique");
+                    }
+                });
+            });
+        }),
         check('country', 'The country field is required').exists().isLength({ min: 1 }),
         check('password', 'The password field is required').exists().isLength({ min: 1 }),
         check('passwordConfirmation', 'Check password confirmation')
@@ -120,7 +138,6 @@ module.exports = function (app, passport, pool) {
 
         } else {
 
-            md5
             pool
                 .query('SELECT * FROM users WHERE email = ? ', req.body.username)
                 .then(rows => {
