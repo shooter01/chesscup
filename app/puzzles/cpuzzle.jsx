@@ -793,7 +793,7 @@ class App extends React.Component {
                /* for (var obj in jqXHR.responseJSON.errors) {
                     error = jqXHR.responseJSON.errors[obj].msg;
                 }*/
-                alert('Server error');
+                alert('Connection error');
 
             },
         });
@@ -1647,6 +1647,7 @@ class App extends React.Component {
                         <div>
                             {/*если это отдельный пазл*/}
                             <div className="btn btn-block btn-info btn-lg" id="show_solution">Show solution</div>
+                            <div className="btn btn-block btn-danger btn-lg" data-toggle="modal" data-target="#reportModal" id="report_puzzle">Report puzzle</div>
                             {/*<div className="btn btn-block btn-light btn-sm mt-5">Запрос на проверку</div>*/}
                         </div>}
                 </div>

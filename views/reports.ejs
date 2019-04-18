@@ -1,0 +1,29 @@
+
+<% layout('boilerplate') -%>
+
+
+
+<table class="table table-sm">
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Puzzle</th>
+        <th scope="col">Reason</th>
+        <th scope="col">User</th>
+    </tr>
+    </thead>
+    <tbody>
+        <% for (var i = 0; i < reports.length; i++) { %>
+            <tr>
+                <th scope="row">1</th>
+                <td><a target="_blank" href="/puzzles/<%= reports[i].puzzle_id %>" ><%= reports[i].puzzle_id %></a></td>
+                <td><%= reports[i].reason %></td>
+                <td><%= reports[i].user_id %></td>
+            </tr>
+        <% } %>
+    </tbody>
+</table>
+
+<div class="list-group mt-5">
+
+</div>

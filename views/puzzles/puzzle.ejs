@@ -91,17 +91,64 @@
 <script src="/js/hc.js"></script>
 
 
-<h3 class="mt-3">Comments</h3>
 
-<!-- Put this script tag to the <head> of your page -->
-<script type="text/javascript" src="https://vk.com/js/api/openapi.js?160"></script>
 
-<script type="text/javascript">
-    VK.init({apiId: 6780456, onlyWidgets: true});
-</script>
+<link rel="stylesheet" href="/stylesheets/animate.css">
 
-<!-- Put this div tag to the place, where the Comments block will be -->
-<div id="vk_comments"></div>
-<script type="text/javascript">
-    VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*", autoPublish : 1, pageUrl : '/puzzles/' + '<%= puzzle_id %>'});
+<div class="modal animated zoomIn faster" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Report puzzle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="mainBlock">
+                    <h5>Puzzle № <%= puzzle_id %></h5>
+                    <textarea class="form-control" placeholder="Reason (optional)" id="reason"></textarea>
+                </div>
+                <h1 class="text-center hidden" id="reported">Reported!</h1>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="send">Report</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var puzzle_id = '<%= puzzle_id %>';
+
+    $("#send").on('click', function () {
+        var self = $(this);
+        $.ajax({
+            url: '/puzzles/report/' + puzzle_id,
+            method: "post",
+            timeout : 3000,
+            beforeSend : function () {
+                self.attr('disabled', 'disabled');
+            },
+            data : {
+                p_id : puzzle_id,
+                reason : $("#reason").val(),
+            }
+        }).done(function (data) {
+            $("#mainBlock").addClass('hidden');
+            $("#reported").removeClass('hidden');
+            self.addClass('hidden');
+
+        }).fail(function ( data, jqXHR, textStatus ) {
+            alert("Connection error!");
+        }).always(function () {
+            self.removeAttr('disabled');
+        });
+    });
+
+
+
 </script>

@@ -48,6 +48,13 @@
                 <li>
                     <a class="nav-link" href="/contacts">Contacts</a>
                 </li>
+
+                <% if (user && user.user && user.user.id == 1) { %>
+                    <li>
+                        <a class="nav-link" href="/reports">Reports <span id="reports_count"></span></a>
+                    </li>
+                <% } %>
+
             </ul>
 
             <ul class="navbar navbar-nav navbar-right">
@@ -167,6 +174,19 @@
             var u = '<%= user.user.id %>';
         </script>
 
+
+        <% if (user.user.id == 1) { %>
+
+            <script>
+                $.get("/get_reports", function (data) {
+                    if (data && data.status === "ok") {
+                        if (typeof data.reports !== "undefined" && data.reports > 0) {
+                            $("#reports_count").html(data.reports);
+                        }
+                    }
+                });
+            </script>
+        <% }  %>
 
     <% }  %>
 

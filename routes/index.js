@@ -329,6 +329,24 @@ module.exports = function (app, passport, pool) {
         res.render('puzzles/puzzle_rush');
     });
 
+    router.get('/reports', function (req, res) {
+        app.mongoDB.collection("reports").find({})
+            .toArray(function (err, reports) {
+            res.render('reports', {reports : reports});
+        });
+    });
+
+    router.get('/get_reports', function (req, res) {
+        app.mongoDB.collection("reports").estimatedDocumentCount(function (err, reports) {
+            console.log(reports)
+            res.json({
+                status : "ok",
+                reports : reports
+            });
+
+        })
+    });
+
     router.post('/password/email', [
         check('email')
             .isEmail().withMessage('The email field is required')

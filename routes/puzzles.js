@@ -268,6 +268,51 @@ module.exports = function (app, passport, pool, i18n) {
     });
 
 
+
+    router.post('/report/:p_id',
+        [
+            check('p_id', 'The puzzle_id field is required').exists().isLength({min: 1})
+        ]
+        , function (req, res) {
+
+
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    errors: errors.mapped()
+                });
+            } else {
+
+                let puzzle_id = req.body.p_id;
+                puzzle_id = parseInt(puzzle_id);
+                if (!isNaN(puzzle_id)) {
+
+                    let user_id = null;
+
+                    if (req.isAuthenticated()){
+                        user_id = req.session.passport.user.id;
+                    }
+
+
+                    app.mongoDB.collection("reports").insert({
+                            puzzle_id : puzzle_id,
+                            user_id : user_id,
+                            reason : req.body.reason
+                        }, function () {
+                            res.json({
+                                status : "ok",
+                            });
+                        });
+                } else {
+                    res.json({
+                        status: "error",
+                    });
+                }
+            }
+        });
+
+
     router.post('/save',
         [
             check('p_id', 'The p_id field is required').exists().isLength({min: 1}),
