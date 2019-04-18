@@ -113,7 +113,7 @@ module.exports = function (app, passport, pool) {
             .exists()
             .isLength({ min: 1 })
             .custom((value, { req }) => value === req.body.password),
-         // check('g-recaptcha-response', 'Check captcha field').exists().isLength({ min: 1 }),
+         check('g-recaptcha-response', 'Check captcha field').exists().isLength({ min: 1 }),
 
 
     ], function (req, res, next) {
