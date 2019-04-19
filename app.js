@@ -55,7 +55,10 @@ app.use(session({
     secret: 'session_cookie_secret',
     store: sessionStore,
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 30 * 12,
+    }
 }));
 app.use(flash());
 

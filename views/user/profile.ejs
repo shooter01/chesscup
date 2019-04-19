@@ -19,11 +19,13 @@
 
 
 
-            <img src="<%= (profile.image) ? profile.image : '/images/user.png' %>" id="image" alt="Profile photo" class="img-thumbnail rounded">
+            <img src="<%= (profile.image) ? profile.image : '/images/user.png' %>"
+                 id="image" alt="Profile photo"
+                 class="img-thumbnail rounded">
             <% if (user && user.user && (user.user.id === 1 || user.user.id == profile.id)) { %>
                 <div class="form-group">
                     <label for="exampleFormControlFile1">Choose image</label>
-                    <input type="file" name="lol" class="form-control-file" id="exampleFormControlFile1">
+                    <input type="file" accept="image/*" name="lol" class="form-control-file" id="exampleFormControlFile1">
                     <div id="container"></div>
                 </div>
                 <hr>

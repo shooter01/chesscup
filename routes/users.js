@@ -360,7 +360,7 @@ module.exports = function(app, passport, pool) {
 
 
                     if(value != req.session.passport.user.id) {
-                        return reject("Ошибка доступа");
+                        return reject("Access denied");
                     } else {
                         return resolve();
                     }
