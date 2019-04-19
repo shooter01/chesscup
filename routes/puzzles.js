@@ -8,6 +8,9 @@ const ObjectId = require('mongodb').ObjectId;
 
 const DRAW_TEAM = require('./draw_team_functions');
 
+let users_cache = {};
+let users_puzzles_cache = {};
+
 var Elo = require('arpad');
 var uscf = {
     default: 20,
@@ -51,24 +54,31 @@ module.exports = function (app, passport, pool, i18n) {
                     level = parseInt(level); //LIMIT ?, 100 , start*10
                     //max уровень заданий - 3
                     if (level > 3) {
-                        level = 2;
+                        level = 3;
+                    }
+                    if (level == 1 || typeof users_puzzles_cache[req.session.passport.user.id] === 'undefined') {
+                        users_puzzles_cache[req.session.passport.user.id] = [10000];
                     }
                     if (!isNaN(start) && !isNaN(level)) {
                         // pool.query('SELECT id, fen, moves, end_rating AS r FROM sb_puzzles ORDER BY r LIMIT ?, 100', start*100)
-                        pool.query('SELECT * FROM sb_puzzles WHERE level = ? ORDER BY RAND() LIMIT 10', level)
+                        pool.query('SELECT * FROM sb_puzzles WHERE level = ?' +
+                            ' AND id NOT IN (?) ORDER BY RAND() LIMIT 10', [level, users_puzzles_cache[req.session.passport.user.id]])
                         //   pool.query('SELECT id, fen, moves, end_rating AS r FROM sb_puzzles WHERE id = 2353')
                             .then(rows => {
                                 //  rows = shuffle(rows);
                                 // tasks = rows.slice(0, 10);
+
                                 tasks = rows;
 
                             }).then((err, rows) => {
 
 
-                            /*for (var i = 0; i < 30; i++) {
-                             var obj = rows[0];
-                             tasks.push(obj);
-                             }*/
+                            for (let i = 0, len = tasks.length; i < len; i++) {
+                                users_puzzles_cache[req.session.passport.user.id].push(tasks[i].id);
+                             }
+
+
+
                             const user_image = req.session.passport.user.image; //user_id
 
                             if (typeof hash === "undefined") {
@@ -106,7 +116,7 @@ module.exports = function (app, passport, pool, i18n) {
                 } else {
                     res.json({
                         status: "error",
-                        msg: "Вы не авторизованы. Пожалуйста, войдите в свой аккаунт"
+                        msg: "Please, login to start"
                     });
                 }
             }
@@ -334,89 +344,105 @@ module.exports = function (app, passport, pool, i18n) {
                 let r = req.body.r; //rating
                 r = parseInt(r);
                 let puzzle = [];
-                if (!isNaN(p_id) && !isNaN(r)) {
 
-                    let player_new_rating = 0, puzzle_new_rating = 0;
 
-                    pool.query('SELECT * FROM sb_puzzles WHERE id = ? LIMIT 1', p_id)
-                        .then(rows => {
-                            puzzle = rows;
-                            return pool
-                                .query('SELECT * FROM users WHERE id = ?',
-                                    req.session.passport.user.id)
+                //prevent hacking
+                if (typeof users_cache[req.session.passport.user.id] === 'undefined' ||
+                    users_cache[req.session.passport.user.id] != p_id)  {
+
+                    if (!isNaN(p_id) && !isNaN(r)) {
+
+                        users_cache[req.session.passport.user.id] = p_id;
+
+                        let player_new_rating = 0, puzzle_new_rating = 0;
+
+                        pool.query('SELECT * FROM sb_puzzles WHERE id = ? LIMIT 1', p_id)
+                            .then(rows => {
+                                puzzle = rows;
+                                return pool
+                                    .query('SELECT * FROM users WHERE id = ?',
+                                        req.session.passport.user.id)
+                            }).then(rows => {
+                            let user = rows;
+                            //если пазл найден
+                            if (puzzle.length > 0) {
+                                //let changed_rating = puzzle[0].end_rating;
+                                //TODO эту проверку можно убрать когда будет гарантия что у всех рейтинги в виде цифры
+                                user[0].rating = (parseInt(user[0].rating)) ? user[0].rating : 400;
+
+                                var odds_player_wins = elo.expectedScore(user[0].rating, puzzle[0].end_rating);
+                                var odds_puzzle_wins = elo.expectedScore(puzzle[0].end_rating, user[0].rating);
+
+                                const puz_result = (r === 1) ? 0 : 1;
+
+                                player_new_rating = elo.newRating(odds_player_wins, r, user[0].rating);
+                                puzzle_new_rating = elo.newRating(odds_puzzle_wins, puz_result, puzzle[0].end_rating);
+
+                                return pool.query('UPDATE sb_puzzles SET end_rating = ? WHERE id = ?',
+                                    [
+                                        puzzle_new_rating,
+                                        p_id,
+                                    ])
+                            } else {
+                                return true;
+                            }
+
                         }).then(rows => {
-                        let user = rows;
-                        //если пазл найден
-                        if (puzzle.length > 0) {
-                            //let changed_rating = puzzle[0].end_rating;
-                            //TODO эту проверку можно убрать когда будет гарантия что у всех рейтинги в виде цифры
-                            user[0].rating = (parseInt(user[0].rating)) ? user[0].rating : 400;
+                            if (puzzle.length > 0) {
+                                return pool.query('UPDATE users SET rating = ? WHERE id = ?', [player_new_rating, req.session.passport.user.id]);
+                            } else {
+                                return true;
+                            }
+                        }).then(rows => {
+                            if (r === 1) {
+                                app.mongoDB.collection("puzzle_rush").updateOne(
+                                    {
+                                        _id: ObjectId(req.body.hash)
+                                    },
+                                    {$inc: {result: +1}}
+                                );
+                            } else {
+                                return true;
+                            }
 
-                            var odds_player_wins = elo.expectedScore(user[0].rating, puzzle[0].end_rating);
-                            var odds_puzzle_wins = elo.expectedScore(puzzle[0].end_rating, user[0].rating);
+                        }).then(rows => {
+                            /* if (rows == true) {
+                             res.json({
+                             status : "errored",
+                             });
 
-                            const puz_result = (r === 1) ? 0 : 1;
+                             } else {*/
+                            res.json({
+                                status: "ok",
+                            });
+                            //}
+                        })
+                            .catch(function (err) {
+                                console.log(err);
+                            });
 
-                            player_new_rating = elo.newRating(odds_player_wins, r, user[0].rating);
-                            puzzle_new_rating = elo.newRating(odds_puzzle_wins, puz_result, puzzle[0].end_rating);
+                        /*if (theme.result == 1) {
+                         theme.changed_rating = elo.newRatingIfWon(current_rating, puzzle_rating);
+                         } else {
+                         theme.changed_rating = elo.newRatingIfLost(current_rating, puzzle_rating);
+                         }
+                         theme.diff = theme.changed_rating - current_rating;*/
 
-                            return pool.query('UPDATE sb_puzzles SET end_rating = ? WHERE id = ?',
-                                [
-                                    puzzle_new_rating,
-                                    p_id,
-                                ])
-                        } else {
-                            return true;
-                        }
 
-                    }).then(rows => {
-                        if (puzzle.length > 0) {
-                            return pool.query('UPDATE users SET rating = ? WHERE id = ?', [player_new_rating, req.session.passport.user.id]);
-                        } else {
-                            return true;
-                        }
-                    }).then(rows => {
-                        if (r === 1) {
-                            app.mongoDB.collection("puzzle_rush").updateOne(
-                                {
-                                    _id: ObjectId(req.body.hash)
-                                },
-                                {$inc: {result: +1}}
-                            );
-                        } else {
-                            return true;
-                        }
-
-                    }).then(rows => {
-                        /* if (rows == true) {
-                         res.json({
-                         status : "errored",
-                         });
-
-                         } else {*/
+                    } else {
                         res.json({
-                            status: "ok",
+                            status: "error",
+                            msg: "hacker detected"
                         });
-                        //}
-                    })
-                        .catch(function (err) {
-                            console.log(err);
-                        });
-
-                    /*if (theme.result == 1) {
-                     theme.changed_rating = elo.newRatingIfWon(current_rating, puzzle_rating);
-                     } else {
-                     theme.changed_rating = elo.newRatingIfLost(current_rating, puzzle_rating);
-                     }
-                     theme.diff = theme.changed_rating - current_rating;*/
+                    }
 
 
                 } else {
                     res.json({
-                        status: "error",
-                        msg: "hacker detected"
+                        status: "ok",
                     });
                 }
+
             }
         });
 

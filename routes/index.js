@@ -27,7 +27,9 @@ var elo = new Elo(uscf, min_score, max_score);
 module.exports = function (app, passport, pool) {
   /* GET home page. */
     router.get('/', function(req, res) {
-        res.render('puzzles/puzzle_rush');
+        res.render('puzzles/puzzle_rush', {
+            countries : JSON.stringify(countries)
+        })
 
         /*pool.query('SELECT * FROM tournaments ORDER BY tournaments.id DESC LIMIT 10').then(function (results) {
             let tournaments_system = [], tournaments = [];

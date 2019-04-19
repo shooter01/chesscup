@@ -4,6 +4,61 @@ const {isLoggedIn} = require('./middlewares');
 const { check, validationResult } = require('express-validator/check');
 const countries = require('./countries');
 
+
+const path = require('path');
+const sharp = require('sharp');
+const multer = require('multer');
+const crypto = require('crypto');
+const mime = require('mime');
+
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads/original')
+    },
+    filename: function (req, file, cb) {
+        crypto.pseudoRandomBytes(16, function (err, raw) {
+            cb(null, raw.toString('hex') + Date.now() + '.' + mime.getExtension(file.mimetype));
+        });
+    }
+});
+var upload = multer({
+    storage: storage,
+    fileFilter: function (req, file, callback) {
+        var ext = path.extname(file.originalname);
+        if(ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg') {
+            return callback(new Error('Only images are allowed'))
+        }
+        callback(null, true)
+    },
+    limits:{
+        fileSize: 1024 * 1024
+    }
+});
+
+
+function generatePassword() {
+    var length = 6,
+        charset = "0123456789",
+        retVal = "";
+    for (var i = 0, n = charset.length; i < length; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+    return retVal;
+}
+
+function generateEmail() {
+    var length = 8,
+        charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+        retVal = "";
+    for (var i = 0, n = charset.length; i < length; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+    return retVal + "@chesscup.org";
+}
+
+
+
+
 function generatePassword() {
     var length = 6,
         charset = "0123456789",
@@ -269,8 +324,6 @@ module.exports = function(app, passport, pool) {
                                     tournaments  : tournaments,
                                     countries : countries
                                 });
-
-
                             })
 
 
@@ -372,6 +425,60 @@ module.exports = function(app, passport, pool) {
             }
 
     });
+
+
+    router.post('/upload', [
+            isLoggedIn,
+        ],
+        function (req, res, next) {
+            const errors = validationResult(req);
+              console.log(req.file);
+
+
+            try {
+                upload.single("lol")(req,res,function(err) {
+
+                    if(err) {
+                        return res.json({
+                            status : "error",
+                            msg : err
+                        });
+                    }
+                    sharp(req.file.path)
+                        .resize(200, 200)
+                        .toFile("public/uploads/" + req.file.filename, (err, info) => {
+
+                            pool.query('UPDATE users SET ? ' +
+                                'WHERE ' +
+                                'users.id = ?',
+                                [
+                                    {image : "/uploads/" + req.file.filename},
+                                    req.session.passport.user.id,
+
+                                ]).then(function () {
+
+                                req.session.passport.user.image = "/uploads/" + req.file.filename;
+
+
+                                res.json({
+                                    image : "/uploads/" + req.file.filename,
+                                    status : "ok",
+                                });
+                            }).catch(function (err) {
+                                console.log(err);
+                                res.json({
+                                    status : "error",
+                                });
+                            });
+                        });
+                });
+            } catch(e){
+
+            }
+
+
+        }
+    );
 
     router.post('/update', [
             // check('secret', 'The secret field is required').exists().isLength({ min: 1 }),

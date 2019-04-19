@@ -17,6 +17,7 @@ class App extends React.Component {
             move_made : false,
             iTimer : 4,
             state : (typeof puzzle_id === "undefined") ? "welcome" : null,
+            image : (typeof user_image === "undefined") ? "/images/user.png" : user_image,
             // state : "over",
             countError : 0,
             puzzle_counter : 0,
@@ -868,8 +869,7 @@ class App extends React.Component {
                 var obj = temp[i];
                 this.state.puzzles.push(obj);
             }
-
-            //this.state.puzzles = this.state.puzzles.sort(compare2);
+            this.state.puzzles = this.state.puzzles.sort(compare2);
             this.hash = data.hash; //id записи в монго
 
             this.setAnotherPuzzle();
@@ -1520,7 +1520,7 @@ class App extends React.Component {
                                 <div className="row d-flex justify-content-between h-100 justify-content-center align-items-center mt-4">
 
                                     <span className={this.state.state === "welcome" ? "col-4" : "col-3"}>
-                                        <img src="/images/user.png" alt="..." className="rounded mx-auto" />
+                                        <img src={this.state.image} alt="..." className="rounded mx-auto" />
                                     </span>
 
                                     {this.state.state === "welcome" ? <span className="col-4 text-center">
@@ -1630,7 +1630,7 @@ class App extends React.Component {
                                                         </td>
                                                         <td className="w-65 font-weight-bold"><a target="_blank" href={"/users/" + item.user_id}> {item.user_name}</a>
                                                             &nbsp;
-                                                            {item.country ? <span className="country"><img className="flag" src={"/images/flags/" + item.country + ".png"} /></span> : null}
+                                                            {item.country ? <span className="country"><img className="flag" src={"/images/flags/" + item.country + ".png"} title={countries[item.country]} /></span> : null}
 
                                                         </td>
                                                         <td className="w-10 text-center font-weight-bold">{item.result}</td>
@@ -1639,6 +1639,9 @@ class App extends React.Component {
                                             </tbody>
                                         </table>
                                     </div>
+                                </div>
+                                <div className="col-12">
+                                    <div className="alert alert-info">The results reset every week in the beta testing phase.</div>
                                 </div>
                             </div>
 
@@ -1729,9 +1732,9 @@ function shuffle(array) {
 
 
 function compare2(a, b) {
-    if (a.id < b.id)
+    if (a.end_rating < b.end_rating)
         return -1;
-    if (a.id > b.id)
+    if (a.end_rating > b.end_rating)
         return 1;
     return 1;
 }

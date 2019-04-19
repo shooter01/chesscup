@@ -295,16 +295,23 @@
     var isSet = true;
     var user_name = 'aaa';
     var computer = 0;
+    var countries = JSON.parse('<%- countries %>');
+
 </script>
 
 <% if (user && user.user && user.user.name) { %>
-<script>
-    var username = "<%= user.user.name %>";
-    var user_id = "<%= user.user.id %>";
-    var country = "<%= user.user.country %>";
-</script>
-
+    <script>
+        var username = "<%= user.user.name %>";
+        var user_id = "<%= user.user.id %>";
+        var country = "<%= user.user.country %>";
+    </script>
 <% } %>
+<% if (user && user.user && user.user.image) { %>
+    <script>
+        var user_image = "<%= user.user.image %>";
+    </script>
+<% } %>
+
 <style>
     .country>img {
         vertical-align: middle;
