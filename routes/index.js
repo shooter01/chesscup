@@ -188,11 +188,30 @@ module.exports = function (app, passport, pool) {
                                     status : "ok"
                                 });
                             } else {
-                                res.render('login', {
+                                return pool
+                                    .query('SELECT * FROM users WHERE id = ? LIMIT 1', user_id);
+
+
+                               /* res.render('login', {
                                     showTest : null,
                                     // "signup": "Используйте Ваш email и пароль для входа",
                                    "signup": "Use your email and password to login",
+                                });*/
+                            }
+                        }).then(function (result) {
+                            if (!isAjaxRequest) {
+                                req.login(result[0], function(err) {
+                                    if (err) { return next(err); }
+                                    return res.redirect('/');
                                 });
+
+
+
+                               /* res.render('login', {
+                                    showTest : null,
+                                    // "signup": "Используйте Ваш email и пароль для входа",
+                                   "signup": "Use your email and password to login",
+                                });*/
                             }
                         }).catch(function (err) {
                             console.log(err);
