@@ -40,12 +40,6 @@ console.log(app.get('port'));
 const wss = new WebSocketServer.Server({ server });
 app.wss = wss;
 
-var socketApi = require('../socketApi')(app);
-const timers = require('../routes/timers')(app);
-
-
-//var io = socketApi.io;
-
-//io.attach(server);
-
-//app.io = io;
+//legacy
+// var socketApi = require('../socketApi')(app);
+// const timers = require('../routes/timers')(app);

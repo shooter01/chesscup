@@ -6,7 +6,6 @@ const moment = require('moment');
 const countries = require('./countries');
 const ObjectId = require('mongodb').ObjectId;
 
-const DRAW_TEAM = require('./draw_team_functions');
 
 let users_cache = {};
 let users_puzzles_cache = {};

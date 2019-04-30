@@ -5,9 +5,15 @@ const moment = require('moment');
 const { check, validationResult } = require('express-validator/check');
 const { matchedData, sanitize } = require('express-validator/filter');
 const countries = require('./countries');
-var api_key = 'key-b8979f45de416021750386d336a5e8de';
-var domain = 'chesscup.org';
-var mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
+const mail_config = require('./mailgun');
+
+var api_key = mail_config.apikey;
+var domain = mail_config.domain;
+
+if (mail_config.apikey) {
+    var mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
+}
+
 var Elo = require('arpad');
 var md5 = require('md5');
 var os = require("os");
@@ -30,7 +36,7 @@ module.exports = function (app, passport, pool) {
         res.render('puzzles/puzzle_rush', {
             countries : JSON.stringify(countries)
         })
-
+        //legacy
         /*pool.query('SELECT * FROM tournaments ORDER BY tournaments.id DESC LIMIT 10').then(function (results) {
             let tournaments_system = [], tournaments = [];
             for (let i = 0; i < results.length; i++) {
@@ -115,7 +121,7 @@ module.exports = function (app, passport, pool) {
             .exists()
             .isLength({ min: 1 })
             .custom((value, { req }) => value === req.body.password),
-         check('g-recaptcha-response', 'Check captcha field').exists().isLength({ min: 1 }),
+        (mail_config.apikey) ? check('g-recaptcha-response', 'Check captcha field').exists().isLength({ min: 1 }) : check('country', 'The country field is required').exists().isLength({ min: 1 }),
 
 
     ], function (req, res, next) {
@@ -400,20 +406,28 @@ module.exports = function (app, passport, pool) {
                             },
                             { upsert: true }, function () {
 
-                                const link  = 'https://chesscup.org/password/recovery/' + hash;
+                                const link  = 'https://' + domain + '/password/recovery/' + hash;
 
                                 var data = {
-                                    from: 'chesscup.org <no-reply@chesscup.org>',
+                                    from: 'chesscup.org <no-reply@' + domain + '>',
                                     to: rows[0].email,
                                     subject: 'Password recovery',
                                     html: 'Recovery link : <a href="' + link + '">' + link + '</a>'
                                 };
 
-                                mailgun.messages().send(data, function (error, body) {
+                                if (mail_config.apikey) {
+                                    mailgun.messages().send(data, function (error, body) {
+                                        res.json({
+                                            status : "ok",
+                                        });
+                                    });
+                                } else {
                                     res.json({
                                         status : "ok",
                                     });
-                                });
+                                }
+
+
                             });
                     } else {
                         res.json({
